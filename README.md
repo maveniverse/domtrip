@@ -290,7 +290,7 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 📄 License
 
-DomTrip is licensed under the [Apache License 2.0](LICENSE).
+DomTrip is licensed under the [Eclipse Public License 2.0](LICENSE).
 
 ## 🔗 Links
 

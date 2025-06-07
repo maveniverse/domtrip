@@ -9,7 +9,7 @@ import java.util.stream.Stream;
  * Represents an XML element with attributes and children.
  * Preserves original formatting including attribute spacing and order.
  */
-public class Element extends Node {
+public class Element extends ContainerNode {
     
     private String name;
     private Map<String, Attribute> attributes;
@@ -408,6 +408,51 @@ public class Element extends Node {
         } else {
             removeAttribute("xmlns:" + prefix);
         }
+    }
+
+    // Element-specific navigation methods
+
+    /**
+     * Finds the first child element with the given name.
+     */
+    public Optional<Element> findChild(String name) {
+        return children.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> name.equals(element.getName()))
+                .findFirst();
+    }
+
+    /**
+     * Finds all child elements with the given name.
+     */
+    public Stream<Element> findChildren(String name) {
+        return children.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> name.equals(element.getName()));
+    }
+
+    /**
+     * Finds the first descendant element with the given name.
+     */
+    public Optional<Element> findDescendant(String name) {
+        return descendants()
+                .filter(element -> name.equals(element.getName()))
+                .findFirst();
+    }
+
+    /**
+     * Returns a stream of all descendant elements (depth-first traversal).
+     */
+    public Stream<Element> descendants() {
+        return children.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .flatMap(element -> Stream.concat(
+                    Stream.of(element),
+                    element.descendants()
+                ));
     }
 
     @Override

@@ -25,7 +25,8 @@ public class WhitespaceManager {
         }
 
         // First, look for indentation patterns in the node's children
-        for (Node child : context.getChildren()) {
+        if (context instanceof ContainerNode container) {
+            for (Node child : container.getChildren()) {
             // Check preceding whitespace
             String precedingWs = child.getPrecedingWhitespace();
             if (precedingWs != null && precedingWs.contains("\n")) {
@@ -48,11 +49,12 @@ public class WhitespaceManager {
                 }
             }
         }
+        }
 
         // If no children, look at siblings (for when context is a child node)
         Node parent = context.getParent();
-        if (parent != null) {
-            for (Node sibling : parent.getChildren()) {
+        if (parent instanceof ContainerNode parentContainer) {
+            for (Node sibling : parentContainer.getChildren()) {
                 String precedingWs = sibling.getPrecedingWhitespace();
                 if (precedingWs != null && precedingWs.contains("\n")) {
                     // Extract indentation after the last newline

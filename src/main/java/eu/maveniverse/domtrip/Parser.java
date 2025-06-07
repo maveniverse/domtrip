@@ -42,7 +42,8 @@ class Parser {
                     String rawText = precedingWhitespace.toString();
                     String decodedText = Text.unescapeTextContent(rawText);
                     Text textNode = new Text(decodedText, rawText);
-                    nodeStack.peek().addChildInternal(textNode);
+                    ContainerNode current = (ContainerNode) nodeStack.peek();
+                    current.addChildInternal(textNode);
                     precedingWhitespace.setLength(0);
                 }
                 
@@ -53,11 +54,13 @@ class Parser {
                         if (position + 3 < length && xml.startsWith("<!--", position)) {
                             // Parse comment
                             Comment comment = parseComment();
-                            nodeStack.peek().addChildInternal(comment);
+                            ContainerNode current = (ContainerNode) nodeStack.peek();
+                            current.addChildInternal(comment);
                         } else if (position + 8 < length && xml.startsWith("<![CDATA[", position)) {
                             // Parse CDATA
                             Text cdata = parseCData();
-                            nodeStack.peek().addChildInternal(cdata);
+                            ContainerNode current = (ContainerNode) nodeStack.peek();
+                            current.addChildInternal(cdata);
                         } else {
                             // Skip other declarations (DOCTYPE, etc.)
                             skipDeclaration();
@@ -70,7 +73,8 @@ class Parser {
                         } else {
                             // Add other processing instructions as nodes
                             ProcessingInstruction piNode = new ProcessingInstruction(pi);
-                            nodeStack.peek().addChildInternal(piNode);
+                            ContainerNode current = (ContainerNode) nodeStack.peek();
+                            current.addChildInternal(piNode);
                         }
                     } else if (nextChar == '/') {
                         // Parse closing tag
@@ -78,7 +82,8 @@ class Parser {
                     } else {
                         // Parse opening tag
                         Element element = parseOpeningTag();
-                        nodeStack.peek().addChildInternal(element);
+                        ContainerNode current = (ContainerNode) nodeStack.peek();
+                        current.addChildInternal(element);
 
                         if (!element.isSelfClosing()) {
                             nodeStack.push(element);

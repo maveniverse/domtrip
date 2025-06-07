@@ -4,7 +4,7 @@ package eu.maveniverse.domtrip;
  * Represents the root of an XML document, containing the document element
  * and preserving document-level formatting like XML declarations and DTDs.
  */
-public class Document extends Node {
+public class Document extends ContainerNode {
     
     private String xmlDeclaration;
     private String doctype;
@@ -157,15 +157,17 @@ public class Document extends Node {
     private Element findElementRecursive(Node node, String name) {
         if (node == null) return null;
 
-        for (Node child : node.getChildren()) {
-            if (child instanceof Element) {
-                Element element = (Element) child;
-                if (name.equals(element.getName())) {
-                    return element;
-                }
-                Element found = findElementRecursive(element, name);
-                if (found != null) {
-                    return found;
+        if (node instanceof ContainerNode container) {
+            for (Node child : container.getChildren()) {
+                if (child instanceof Element) {
+                    Element element = (Element) child;
+                    if (name.equals(element.getName())) {
+                        return element;
+                    }
+                    Element found = findElementRecursive(element, name);
+                    if (found != null) {
+                        return found;
+                    }
                 }
             }
         }

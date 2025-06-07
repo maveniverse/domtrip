@@ -144,16 +144,33 @@ Element soapEnvelope = Elements.builder("Envelope")
 
 ## Architecture
 
-### Core Classes
+### Core Node Hierarchy
 
-- **`XmlNode`** - Base class for all XML nodes with formatting metadata
-- **`XmlElement`** - Element implementation with attribute and child management
-- **`XmlText`** - Text content with whitespace preservation
-- **`XmlComment`** - Comment preservation
-- **`XmlDocument`** - Document root with XML declaration handling
-- **`XmlParser`** - Simple parser that preserves formatting information
-- **`XmlSerializer`** - Serializer with minimal change output
-- **`XmlEditor`** - High-level editing operations
+DomTrip uses a type-safe node hierarchy that enforces XML structure rules:
+
+- **`Node`** - Base class for all XML nodes (parent relationships, whitespace)
+- **`ContainerNode`** - Abstract base for nodes that can contain children
+  - **`Document`** - Root document container
+  - **`Element`** - XML elements with attributes and children
+- **Leaf Nodes** (extend Node directly):
+  - **`Text`** - Text content nodes (including CDATA)
+  - **`Comment`** - XML comment nodes
+  - **`ProcessingInstruction`** - Processing instruction nodes
+
+### Core Services
+
+- **`Editor`** - High-level editing interface
+- **`Parser`** - XML parsing engine that preserves formatting
+- **`Serializer`** - XML output generation with minimal changes
+- **`NamespaceContext`** - Namespace resolution and management
+- **`NamespaceResolver`** - Namespace utility methods
+
+### Type Safety Benefits
+
+- **Memory Efficient**: Leaf nodes don't waste memory on unused children lists
+- **Compile-Time Safety**: Impossible to add children to leaf nodes
+- **Clear API**: Child management methods only exist where they make sense
+- **Element-Specific Navigation**: Element finding methods are only on Element class
 
 ### Key Design Principles
 
@@ -166,28 +183,42 @@ Element soapEnvelope = Elements.builder("Envelope")
 
 ### Basic Round-Trip
 ```java
-XmlEditor editor = new XmlEditor(xmlString);
+Editor editor = new Editor(xmlString);
 String result = editor.toXml(); // Identical to original if unmodified
 ```
 
 ### Adding Elements
 ```java
-XmlElement parent = editor.findElement("dependencies");
-XmlElement newDep = editor.addElement(parent, "dependency");
+Element parent = editor.findElement("dependencies");
+Element newDep = editor.addElement(parent, "dependency");
 editor.addElement(newDep, "groupId", "org.example");
 editor.addElement(newDep, "artifactId", "example-lib");
 ```
 
 ### Modifying Content
 ```java
-XmlElement version = editor.findElement("version");
+Element version = editor.findElement("version");
 editor.setTextContent(version, "2.0.0");
 ```
 
 ### Adding Attributes
 ```java
-XmlElement root = editor.getRootElement();
+Element root = editor.getRootElement();
 editor.setAttribute(root, "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+```
+
+### Type-Safe Navigation
+```java
+Element root = editor.getRootElement();
+
+// Element-specific methods (only available on Element)
+Optional<Element> child = root.findChild("dependency");
+Stream<Element> children = root.findChildren("dependency");
+Stream<Element> descendants = root.descendants();
+
+// Namespace-aware navigation
+Optional<Element> soapBody = root.findChildByNamespace(
+    "http://schemas.xmlsoap.org/soap/envelope/", "Body");
 ```
 
 ## Testing

@@ -136,7 +136,11 @@ public class Editor {
             return false;
         }
         
-        return element.getParent().removeChild(element);
+        Node parent = element.getParent();
+        if (parent instanceof ContainerNode container) {
+            return container.removeChild(element);
+        }
+        return false;
     }
     
     /**
@@ -180,7 +184,7 @@ public class Editor {
     /**
      * Adds a comment as a child of the specified parent
      */
-    public Comment addComment(Node parent, String content) throws InvalidXmlException {
+    public Comment addComment(ContainerNode parent, String content) throws InvalidXmlException {
         if (parent == null) {
             throw new InvalidXmlException("Parent cannot be null");
         }
@@ -192,9 +196,24 @@ public class Editor {
         if (!indentation.isEmpty()) {
             comment.setPrecedingWhitespace("\n" + indentation);
         }
-        
+
         parent.addChild(comment);
         return comment;
+    }
+
+    /**
+     * Adds a comment as a child of the specified parent (backward compatibility)
+     * @deprecated Use addComment(ContainerNode, String) instead
+     */
+    @Deprecated
+    public Comment addComment(Node parent, String content) throws InvalidXmlException {
+        if (parent == null) {
+            throw new InvalidXmlException("Parent cannot be null");
+        }
+        if (!(parent instanceof ContainerNode)) {
+            throw new InvalidXmlException("Parent must be a container node (Document or Element)");
+        }
+        return addComment((ContainerNode) parent, content);
     }
     
     /**
@@ -210,8 +229,20 @@ public class Editor {
     /**
      * Finds the first child element with the given name under the specified parent
      */
-    public Element findChildElement(Node parent, String name) {
+    public Element findChildElement(Element parent, String name) {
         return parent != null ? parent.findChild(name).orElse(null) : null;
+    }
+
+    /**
+     * Finds the first child element with the given name under the specified parent (backward compatibility)
+     * @deprecated Use findChildElement(Element, String) instead or call parent.findChild(name) directly
+     */
+    @Deprecated
+    public Element findChildElement(Node parent, String name) {
+        if (parent instanceof Element element) {
+            return element.findChild(name).orElse(null);
+        }
+        return null;
     }
     
     /**
@@ -292,9 +323,11 @@ public class Editor {
                 break;
         }
         counts[3]++;
-        
-        for (Node child : node.getChildren()) {
-            countNodes(child, counts);
+
+        if (node instanceof ContainerNode container) {
+            for (Node child : container.getChildren()) {
+                countNodes(child, counts);
+            }
         }
     }
 
@@ -540,8 +573,11 @@ public class Editor {
             if (parent == null) {
                 throw new IllegalStateException("Parent node must be specified");
             }
+            if (!(parent instanceof ContainerNode)) {
+                throw new IllegalStateException("Parent must be a container node (Document or Element)");
+            }
 
-            return editor.addComment(parent, content);
+            return editor.addComment((ContainerNode) parent, content);
         }
     }
 
@@ -591,7 +627,9 @@ public class Editor {
             }
 
             Text textNode = new Text(content != null ? content : "", cdata);
-            parent.addChild(textNode);
+            if (parent instanceof ContainerNode container) {
+                container.addChild(textNode);
+            }
             return textNode;
         }
     }

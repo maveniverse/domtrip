@@ -2,11 +2,9 @@ package eu.maveniverse.domtrip.demos;
 
 import eu.maveniverse.domtrip.Attribute;
 import eu.maveniverse.domtrip.Document;
-import eu.maveniverse.domtrip.Documents;
 import eu.maveniverse.domtrip.DomTripConfig;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
-import eu.maveniverse.domtrip.Elements;
 import eu.maveniverse.domtrip.QuoteStyle;
 import java.util.Map;
 
@@ -55,24 +53,24 @@ public class BuilderPatternsDemo {
         System.out.println("2. Element Factory Demo:");
 
         // Various element creation patterns
-        Element textElement = Elements.textElement("title", "My Document");
-        Element emptyElement = Elements.emptyElement("placeholder");
-        Element selfClosing = Elements.selfClosingElement("br");
+        Element textElement = Element.textElement("title", "My Document");
+        Element emptyElement = Element.emptyElement("placeholder");
+        Element selfClosing = Element.selfClosingElement("br");
 
-        Element withAttributes = Elements.elementWithAttributes(
+        Element withAttributes = Element.elementWithAttributes(
                 "div", Map.of("class", "container", "id", "main", "data-role", "content"));
 
-        Element cdataElement = Elements.cdataElement("script", "function test() { return x < y && z > 0; }");
+        Element cdataElement = Element.cdataElement("script", "function test() { return x < y && z > 0; }");
 
-        Element namespaced = Elements.namespacedElement("xsi", "type", "http://www.w3.org/2001/XMLSchema-instance");
+        Element namespaced = Element.namespacedElement("xsi", "type", "http://www.w3.org/2001/XMLSchema-instance");
 
         // Using element builder for complex structures
-        Element complex = Elements.builder("article")
+        Element complex = Element.builder("article")
                 .withAttribute("id", "article-1")
                 .withAttribute("class", "blog-post")
                 .withText("Article content here")
-                .withChild(Elements.textElement("author", "John Doe"))
-                .withChild(Elements.textElement("date", "2024-01-15"))
+                .withChild(Element.textElement("author", "John Doe"))
+                .withChild(Element.textElement("date", "2024-01-15"))
                 .withComment(" Article metadata ")
                 .build();
 
@@ -89,13 +87,13 @@ public class BuilderPatternsDemo {
         System.out.println("3. Document Builder Demo:");
 
         // Simple document
-        Document simple = Documents.withRootElement("simple");
+        Document simple = Document.withRootElement("simple");
 
         // Document with XML declaration
-        Document withDeclaration = Documents.withXmlDeclaration("1.0", "UTF-8");
+        Document withDeclaration = Document.withXmlDeclaration("1.0", "UTF-8");
 
         // Complex document using builder
-        Document complex = Documents.builder()
+        Document complex = Document.builder()
                 .withVersion("1.1")
                 .withEncoding("ISO-8859-1")
                 .withStandalone(true)
@@ -109,13 +107,13 @@ public class BuilderPatternsDemo {
         Element html = complex.getDocumentElement();
         html.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
 
-        Element head = Elements.textElement("head", "");
+        Element head = Element.textElement("head", "");
         html.addChild(head);
-        head.addChild(Elements.textElement("title", "Demo Page"));
+        head.addChild(Element.textElement("title", "Demo Page"));
 
-        Element body = Elements.textElement("body", "");
+        Element body = Element.textElement("body", "");
         html.addChild(body);
-        body.addChild(Elements.elementWithAttributes("h1", Map.of("id", "title")));
+        body.addChild(Element.elementWithAttributes("h1", Map.of("id", "title")));
         body.findChild("h1").ifPresent(h1 -> h1.setTextContent("Welcome"));
 
         System.out.println("Simple document:");

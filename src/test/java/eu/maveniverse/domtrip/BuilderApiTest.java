@@ -60,23 +60,23 @@ public class BuilderApiTest {
     @Test
     void testElementsFactory() {
         // Test text element
-        Element textEl = Elements.textElement("name", "content");
+        Element textEl = Element.textElement("name", "content");
         assertEquals("name", textEl.getName());
         assertEquals("content", textEl.getTextContent());
 
         // Test empty element
-        Element emptyEl = Elements.emptyElement("empty");
+        Element emptyEl = Element.emptyElement("empty");
         assertEquals("empty", emptyEl.getName());
         assertEquals(0, emptyEl.getChildCount());
 
         // Test self-closing element
-        Element selfClosing = Elements.selfClosingElement("self");
+        Element selfClosing = Element.selfClosingElement("self");
         assertEquals("self", selfClosing.getName());
         assertTrue(selfClosing.isSelfClosing());
 
         // Test element with attributes
         Map<String, String> attrs = Map.of("attr1", "val1", "attr2", "val2");
-        Element withAttrs = Elements.elementWithAttributes("test", attrs);
+        Element withAttrs = Element.elementWithAttributes("test", attrs);
         assertEquals("test", withAttrs.getName());
         assertEquals("val1", withAttrs.getAttribute("attr1"));
         assertEquals("val2", withAttrs.getAttribute("attr2"));
@@ -84,11 +84,11 @@ public class BuilderApiTest {
 
     @Test
     void testElementsBuilder() {
-        Element element = Elements.builder("complex")
+        Element element = Element.builder("complex")
                 .withText("text content")
                 .withAttribute("attr1", "value1")
                 .withAttributes(Map.of("attr2", "value2", "attr3", "value3"))
-                .withChild(Elements.textElement("child", "child content"))
+                .withChild(Element.textElement("child", "child content"))
                 .withComment("This is a comment")
                 .build();
 
@@ -103,24 +103,24 @@ public class BuilderApiTest {
     @Test
     void testDocumentsFactory() {
         // Test empty document
-        Document empty = Documents.empty();
+        Document empty = Document.empty();
         assertNotNull(empty);
         assertNull(empty.getDocumentElement());
 
         // Test with XML declaration
-        Document withDecl = Documents.withXmlDeclaration("1.0", "UTF-8");
+        Document withDecl = Document.withXmlDeclaration("1.0", "UTF-8");
         assertEquals("1.0", withDecl.getVersion());
         assertEquals("UTF-8", withDecl.getEncoding());
         assertTrue(withDecl.getXmlDeclaration().contains("version=\"1.0\""));
         assertTrue(withDecl.getXmlDeclaration().contains("encoding=\"UTF-8\""));
 
         // Test with root element
-        Document withRoot = Documents.withRootElement("root");
+        Document withRoot = Document.withRootElement("root");
         assertNotNull(withRoot.getDocumentElement());
         assertEquals("root", withRoot.getDocumentElement().getName());
 
         // Test minimal document
-        Document minimal = Documents.minimal("simple");
+        Document minimal = Document.minimal("simple");
         assertNotNull(minimal.getDocumentElement());
         assertEquals("simple", minimal.getDocumentElement().getName());
         assertTrue(minimal.getXmlDeclaration().isEmpty());
@@ -128,7 +128,7 @@ public class BuilderApiTest {
 
     @Test
     void testDocumentsBuilder() {
-        Document doc = Documents.builder()
+        Document doc = Document.builder()
                 .withVersion("1.1")
                 .withEncoding("ISO-8859-1")
                 .withStandalone(true)
@@ -262,7 +262,7 @@ public class BuilderApiTest {
     @Test
     void testBuilderIntegrationWithSerialization() {
         // Create a complex document using builders
-        Document doc = Documents.builder()
+        Document doc = Document.builder()
                 .withVersion("1.0")
                 .withEncoding("UTF-8")
                 .withRootElement("project")
@@ -272,17 +272,17 @@ public class BuilderApiTest {
         Element root = doc.getDocumentElement();
 
         // Add dependencies using element builder
-        Element dependencies = Elements.builder("dependencies").build();
+        Element dependencies = Element.builder("dependencies").build();
         root.addChild(dependencies);
 
-        Element dependency = Elements.builder("dependency")
+        Element dependency = Element.builder("dependency")
                 .withAttributes(Map.of("scope", "test", "optional", "true"))
                 .build();
         dependencies.addChild(dependency);
 
-        dependency.addChild(Elements.textElement("groupId", "junit"));
-        dependency.addChild(Elements.textElement("artifactId", "junit"));
-        dependency.addChild(Elements.textElement("version", "4.13.2"));
+        dependency.addChild(Element.textElement("groupId", "junit"));
+        dependency.addChild(Element.textElement("artifactId", "junit"));
+        dependency.addChild(Element.textElement("version", "4.13.2"));
 
         // Serialize and verify
         String xml = doc.toXml();

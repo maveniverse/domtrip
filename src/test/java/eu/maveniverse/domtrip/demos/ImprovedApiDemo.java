@@ -2,11 +2,9 @@ package eu.maveniverse.domtrip.demos;
 
 import eu.maveniverse.domtrip.Attribute;
 import eu.maveniverse.domtrip.Document;
-import eu.maveniverse.domtrip.Documents;
 import eu.maveniverse.domtrip.DomTripConfig;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
-import eu.maveniverse.domtrip.Elements;
 import eu.maveniverse.domtrip.QuoteStyle;
 import java.util.Map;
 
@@ -40,7 +38,7 @@ public class ImprovedApiDemo {
         System.out.println("1. Factory Methods Demo:");
 
         // Create document using factory
-        Document doc = Documents.builder()
+        Document doc = Document.builder()
                 .withVersion("1.0")
                 .withEncoding("UTF-8")
                 .withRootElement("project")
@@ -48,17 +46,17 @@ public class ImprovedApiDemo {
                 .build();
 
         // Create elements using factory
-        Element dependencies = Elements.textElement("dependencies", "");
-        Element dependency = Elements.elementWithAttributes("dependency", Map.of("scope", "test", "optional", "true"));
+        Element dependencies = Element.textElement("dependencies", "");
+        Element dependency = Element.elementWithAttributes("dependency", Map.of("scope", "test", "optional", "true"));
 
         // Add using factory-created elements
         doc.getDocumentElement().addChild(dependencies);
         dependencies.addChild(dependency);
 
         // Add child elements
-        dependency.addChild(Elements.textElement("groupId", "junit"));
-        dependency.addChild(Elements.textElement("artifactId", "junit"));
-        dependency.addChild(Elements.textElement("version", "4.13.2"));
+        dependency.addChild(Element.textElement("groupId", "junit"));
+        dependency.addChild(Element.textElement("artifactId", "junit"));
+        dependency.addChild(Element.textElement("version", "4.13.2"));
 
         System.out.println("Created document using factories:");
         System.out.println(doc.toXml());

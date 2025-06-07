@@ -25,13 +25,13 @@ public class NamespaceTest {
 
     @Test
     void testBasicNamespaceCreation() {
-        Element defaultNs = Elements.elementInNamespace("http://example.com/default", "root");
+        Element defaultNs = Element.elementInNamespace("http://example.com/default", "root");
         assertEquals("root", defaultNs.getName());
         assertEquals("root", defaultNs.getLocalName());
         assertNull(defaultNs.getPrefix());
         assertEquals("http://example.com/default", defaultNs.getAttribute("xmlns"));
 
-        Element prefixed = Elements.namespacedElement("ex", "element", "http://example.com/ns");
+        Element prefixed = Element.namespacedElement("ex", "element", "http://example.com/ns");
         assertEquals("ex:element", prefixed.getName());
         assertEquals("element", prefixed.getLocalName());
         assertEquals("ex", prefixed.getPrefix());
@@ -212,7 +212,7 @@ public class NamespaceTest {
 
     @Test
     void testElementsBuilderWithNamespaces() {
-        Element element = Elements.builder("test")
+        Element element = Element.builder("test")
                 .withNamespace("ex", "http://example.com/ns")
                 .withDefaultNamespace("http://example.com/default")
                 .withText("content")
@@ -225,21 +225,21 @@ public class NamespaceTest {
 
     @Test
     void testNamespaceFactoryMethods() {
-        Element textInNs = Elements.textElementInNamespace("http://example.com/ns", "title", "My Title");
+        Element textInNs = Element.textElementInNamespace("http://example.com/ns", "title", "My Title");
         assertEquals("title", textInNs.getName());
         assertEquals("http://example.com/ns", textInNs.getAttribute("xmlns"));
         assertEquals("My Title", textInNs.getTextContent());
 
-        Element namespacedText = Elements.namespacedTextElement("ex", "title", "http://example.com/ns", "My Title");
+        Element namespacedText = Element.namespacedTextElement("ex", "title", "http://example.com/ns", "My Title");
         assertEquals("ex:title", namespacedText.getName());
         assertEquals("http://example.com/ns", namespacedText.getAttribute("xmlns:ex"));
         assertEquals("My Title", namespacedText.getTextContent());
 
-        Element withPreferred = Elements.elementWithNamespace("http://example.com/api", "data", "api");
+        Element withPreferred = Element.elementWithNamespace("http://example.com/api", "data", "api");
         assertEquals("api:data", withPreferred.getName());
         assertEquals("http://example.com/api", withPreferred.getAttribute("xmlns:api"));
 
-        Element withoutPrefix = Elements.elementWithNamespace("http://example.com/api", "data", null);
+        Element withoutPrefix = Element.elementWithNamespace("http://example.com/api", "data", null);
         assertEquals("data", withoutPrefix.getName());
         assertEquals("http://example.com/api", withoutPrefix.getAttribute("xmlns"));
     }

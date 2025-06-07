@@ -216,10 +216,10 @@ dep.version = "4.13.2";
 String xml = mapper.writeValueAsString(dep);
 
 // DomTrip (manual construction)
-Element dependency = Elements.builder("dependency")
-    .withChild(Elements.textElement("groupId", "junit"))
-    .withChild(Elements.textElement("artifactId", "junit"))
-    .withChild(Elements.textElement("version", "4.13.2"))
+Element dependency = Element.builder("dependency")
+    .withChild(Element.textElement("groupId", "junit"))
+    .withChild(Element.textElement("artifactId", "junit"))
+    .withChild(Element.textElement("version", "4.13.2"))
     .build();
 
 String xml = dependency.toXml();

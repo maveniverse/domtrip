@@ -2,9 +2,7 @@ package eu.maveniverse.domtrip;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -129,29 +127,6 @@ public class ContainerNodeTest {
 
         assertEquals(1, element.getChildCount());
         assertEquals(1, document.getChildCount());
-    }
-
-    @Test
-    void testBackwardCompatibility() {
-        Editor editor = new Editor();
-        Element root = new Element("root");
-
-        // Old deprecated methods should still work
-        @SuppressWarnings("deprecation")
-        Comment comment = editor.addComment(root, "test comment");
-        assertNotNull(comment);
-        assertEquals("test comment", comment.getContent());
-
-        @SuppressWarnings("deprecation")
-        Element found = editor.findChildElement(root, "nonexistent");
-        assertNull(found);
-
-        // But they should throw exceptions for invalid node types
-        Text text = new Text("content");
-        assertThrows(InvalidXmlException.class, () -> {
-            @SuppressWarnings("deprecation")
-            Comment c = editor.addComment(text, "comment");
-        });
     }
 
     @Test

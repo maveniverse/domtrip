@@ -108,10 +108,10 @@ editor.setAttribute(element, "scope", "test");
 editor.addElement(element, "groupId", "junit");
 
 // Using fluent builders
-Element dependency = Elements.builder("dependency")
+Element dependency = Element.builder("dependency")
     .withAttribute("scope", "test")
-    .withChild(Elements.textElement("groupId", "junit"))
-    .withChild(Elements.textElement("artifactId", "junit"))
+    .withChild(Element.textElement("groupId", "junit"))
+    .withChild(Element.textElement("artifactId", "junit"))
     .build();
 ```
 
@@ -149,7 +149,7 @@ DomTrip provides excellent namespace support:
 
 ```java
 // Create elements with namespaces
-Element soapEnvelope = Elements.namespacedElement(
+Element soapEnvelope = Element.namespacedElement(
     "soap", "Envelope", "http://schemas.xmlsoap.org/soap/envelope/");
 
 // Namespace-aware navigation

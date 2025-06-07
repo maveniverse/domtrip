@@ -236,6 +236,51 @@ try {
 }
 ```
 
+## Factory Methods
+
+DomTrip provides convenient factory methods for common patterns:
+
+### Document Creation
+
+```java
+// Empty document
+Document doc = Document.empty();
+
+// Document with XML declaration
+Document doc = Document.withXmlDeclaration("1.0", "UTF-8");
+
+// Document with root element
+Document doc = Document.withRootElement("project");
+
+// Minimal document (no XML declaration)
+Document doc = Document.minimal("root");
+```
+
+### Element Creation
+
+```java
+// Text element
+Element name = Element.textElement("name", "DomTrip");
+
+// Empty element
+Element properties = Element.emptyElement("properties");
+
+// Self-closing element
+Element br = Element.selfClosingElement("br");
+
+// Element with attributes
+Map<String, String> attrs = Map.of("id", "main", "class", "container");
+Element div = Element.elementWithAttributes("div", attrs);
+
+// CDATA element
+Element script = Element.cdataElement("script", "function() { return x < y; }");
+
+// Namespaced elements
+Element soapEnvelope = Element.namespacedElement("soap", "Envelope",
+    "http://schemas.xmlsoap.org/soap/envelope/");
+Element defaultNs = Element.elementInNamespace("http://example.com/ns", "item");
+```
+
 ## Builder Patterns
 
 DomTrip provides fluent builders for creating complex structures:
@@ -243,18 +288,18 @@ DomTrip provides fluent builders for creating complex structures:
 ### Element Builder
 
 ```java
-Element dependency = Elements.builder("dependency")
+Element dependency = Element.builder("dependency")
     .withAttribute("scope", "test")
-    .withChild(Elements.textElement("groupId", "junit"))
-    .withChild(Elements.textElement("artifactId", "junit"))
-    .withChild(Elements.textElement("version", "4.13.2"))
+    .withChild(Element.builder("groupId").withText("junit").build())
+    .withChild(Element.builder("artifactId").withText("junit").build())
+    .withChild(Element.builder("version").withText("4.13.2").build())
     .build();
 ```
 
 ### Document Builder
 
 ```java
-Document doc = Documents.builder()
+Document doc = Document.builder()
     .withVersion("1.0")
     .withEncoding("UTF-8")
     .withRootElement("project")

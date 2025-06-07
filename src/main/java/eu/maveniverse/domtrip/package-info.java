@@ -69,7 +69,7 @@
  * <p>DomTrip provides comprehensive namespace handling:</p>
  * <pre>{@code
  * // Create elements with namespaces
- * Element soapEnvelope = Elements.namespacedElement("soap", "Envelope",
+ * Element soapEnvelope = Element.namespacedElement("soap", "Envelope",
  *     "http://schemas.xmlsoap.org/soap/envelope/");
  *
  * // Namespace-aware navigation

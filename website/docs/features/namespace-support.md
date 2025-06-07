@@ -105,7 +105,7 @@ When creating new elements, you can specify their namespace:
 
 ```java
 // Create element in specific namespace
-Element customElement = Elements.builder("item")
+Element customElement = Element.builder("item")
     .withNamespace("http://example.com/custom")
     .withAttribute("id", "123")
     .build();
@@ -118,7 +118,7 @@ editor.addChild(parent, customElement);
 
 ```java
 // Create element with prefix
-Element prefixedElement = Elements.builder("custom:item")
+Element prefixedElement = Element.builder("custom:item")
     .withAttribute("id", "123")
     .build();
 
@@ -206,7 +206,7 @@ String pomNamespace = "http://maven.apache.org/POM/4.0.0";
 Element dependencies = editor.findElementByNamespace(pomNamespace, "dependencies");
 if (dependencies == null) {
     // Create dependencies section
-    dependencies = Elements.builder("dependencies")
+    dependencies = Element.builder("dependencies")
         .withNamespace(pomNamespace)
         .build();
     editor.addChild(editor.getRootElement(), dependencies);
@@ -259,12 +259,12 @@ root.addNamespaceDeclaration("custom", "http://example.com/custom");
 
 ```java
 // ✅ Good - explicit namespace
-Element element = Elements.builder("custom:item")
+Element element = Element.builder("custom:item")
     .withNamespace("http://example.com/custom")
     .build();
 
 // ❌ Unclear - namespace might be wrong
-Element element = Elements.builder("item").build();
+Element element = Element.builder("item").build();
 ```
 
 ## Configuration Options

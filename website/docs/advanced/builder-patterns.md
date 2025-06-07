@@ -8,18 +8,18 @@ DomTrip provides fluent builder APIs that make creating and modifying XML struct
 
 ## Element Builder
 
-The `Elements.builder()` provides a fluent API for creating elements:
+The `Element.builder()` provides a fluent API for creating elements:
 
 ### Basic Element Creation
 
 ```java
 // Simple element with text content
-Element version = Elements.builder("version")
+Element version = Element.builder("version")
     .withText("1.0.0")
     .build();
 
 // Element with attributes
-Element dependency = Elements.builder("dependency")
+Element dependency = Element.builder("dependency")
     .withAttribute("scope", "test")
     .withAttribute("optional", "true")
     .build();
@@ -29,15 +29,15 @@ Element dependency = Elements.builder("dependency")
 
 ```java
 // Nested element structure
-Element dependency = Elements.builder("dependency")
+Element dependency = Element.builder("dependency")
     .withAttribute("scope", "test")
-    .withChild(Elements.textElement("groupId", "junit"))
-    .withChild(Elements.textElement("artifactId", "junit"))
-    .withChild(Elements.textElement("version", "4.13.2"))
-    .withChild(Elements.builder("exclusions")
-        .withChild(Elements.builder("exclusion")
-            .withChild(Elements.textElement("groupId", "org.hamcrest"))
-            .withChild(Elements.textElement("artifactId", "*"))
+    .withChild(Element.textElement("groupId", "junit"))
+    .withChild(Element.textElement("artifactId", "junit"))
+    .withChild(Element.textElement("version", "4.13.2"))
+    .withChild(Element.builder("exclusions")
+        .withChild(Element.builder("exclusion")
+            .withChild(Element.textElement("groupId", "org.hamcrest"))
+            .withChild(Element.textElement("artifactId", "*"))
             .build())
         .build())
     .build();
@@ -47,23 +47,22 @@ Element dependency = Elements.builder("dependency")
 
 ```java
 // Element with namespace
-Element soapEnvelope = Elements.builder("soap:Envelope")
-    .withNamespace("http://schemas.xmlsoap.org/soap/envelope/")
-    .withNamespaceDeclaration("soap", "http://schemas.xmlsoap.org/soap/envelope/")
-    .withChild(Elements.builder("soap:Body")
-        .withNamespace("http://schemas.xmlsoap.org/soap/envelope/")
+Element soapEnvelope = Element.builder("soap:Envelope")
+    .withNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/")
+    .withChild(Element.builder("soap:Body")
+        .withNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/")
         .build())
     .build();
 ```
 
 ## Document Builder
 
-The `Documents.builder()` creates complete XML documents:
+The `Document.builder()` creates complete XML documents:
 
 ### Basic Document
 
 ```java
-Document doc = Documents.builder()
+Document doc = Document.builder()
     .withVersion("1.0")
     .withEncoding("UTF-8")
     .withRootElement("project")
@@ -73,13 +72,13 @@ Document doc = Documents.builder()
 ### Document with Declaration and Processing Instructions
 
 ```java
-Document doc = Documents.builder()
+Document doc = Document.builder()
     .withVersion("1.0")
     .withEncoding("UTF-8")
     .withStandalone(true)
     .withXmlDeclaration()
     .withProcessingInstruction("xml-stylesheet", "type=\"text/xsl\" href=\"style.xsl\"")
-    .withRootElement(Elements.builder("project")
+    .withRootElement(Element.builder("project")
         .withAttribute("xmlns", "http://maven.apache.org/POM/4.0.0")
         .build())
     .build();
@@ -114,10 +113,10 @@ editor.add()
 ### Conditional Building
 
 ```java
-Elements.Builder builder = Elements.builder("dependency")
-    .withChild(Elements.textElement("groupId", groupId))
-    .withChild(Elements.textElement("artifactId", artifactId))
-    .withChild(Elements.textElement("version", version));
+Element.Builder builder = Element.builder("dependency")
+    .withChild(Element.builder("groupId").withText(groupId).build())
+    .withChild(Element.builder("artifactId").withText(artifactId).build())
+    .withChild(Element.builder("version").withText(version).build());
 
 // Conditionally add scope
 if (scope != null) {
@@ -126,7 +125,7 @@ if (scope != null) {
 
 // Conditionally add classifier
 if (classifier != null) {
-    builder.withChild(Elements.textElement("classifier", classifier));
+    builder.withChild(Element.textElement("classifier", classifier));
 }
 
 Element dependency = builder.build();
@@ -143,7 +142,7 @@ Attribute scopeAttr = Attributes.builder("scope")
     .withWhitespace(" ")
     .build();
 
-Element dependency = Elements.builder("dependency")
+Element dependency = Element.builder("dependency")
     .withAttributeObject(scopeAttr)
     .build();
 ```
@@ -172,12 +171,12 @@ Combine builders with Java Streams for powerful XML generation:
 ```java
 List<Dependency> dependencies = getDependencies();
 
-Element dependenciesElement = Elements.builder("dependencies")
+Element dependenciesElement = Element.builder("dependencies")
     .withChildren(dependencies.stream()
-        .map(dep -> Elements.builder("dependency")
-            .withChild(Elements.textElement("groupId", dep.getGroupId()))
-            .withChild(Elements.textElement("artifactId", dep.getArtifactId()))
-            .withChild(Elements.textElement("version", dep.getVersion()))
+        .map(dep -> Element.builder("dependency")
+            .withChild(Element.textElement("groupId", dep.getGroupId()))
+            .withChild(Element.textElement("artifactId", dep.getArtifactId()))
+            .withChild(Element.textElement("version", dep.getVersion()))
             .build())
         .collect(Collectors.toList()))
     .build();
@@ -189,13 +188,13 @@ Use builders for template-style XML generation:
 
 ```java
 public Element createMavenDependency(String groupId, String artifactId, String version, String scope) {
-    Elements.Builder builder = Elements.builder("dependency")
-        .withChild(Elements.textElement("groupId", groupId))
-        .withChild(Elements.textElement("artifactId", artifactId))
-        .withChild(Elements.textElement("version", version));
+    Element.Builder builder = Element.builder("dependency")
+        .withChild(Element.textElement("groupId", groupId))
+        .withChild(Element.textElement("artifactId", artifactId))
+        .withChild(Element.textElement("version", version));
     
     if (scope != null && !scope.equals("compile")) {
-        builder.withChild(Elements.textElement("scope", scope));
+        builder.withChild(Element.textElement("scope", scope));
     }
     
     return builder.build();
@@ -212,7 +211,7 @@ Builders provide validation and helpful error messages:
 
 ```java
 try {
-    Element element = Elements.builder("dependency")
+    Element element = Element.builder("dependency")
         .withAttribute("", "invalid")  // Empty attribute name
         .build();
 } catch (InvalidXmlException e) {
@@ -230,17 +229,17 @@ Builders are optimized for both convenience and performance:
 
 ```java
 // Reusable builder pattern
-Elements.Builder dependencyTemplate = Elements.builder("dependency")
+Element.Builder dependencyTemplate = Element.builder("dependency")
     .withAttribute("scope", "test");
 
 Element junit = dependencyTemplate.copy()
-    .withChild(Elements.textElement("groupId", "junit"))
-    .withChild(Elements.textElement("artifactId", "junit"))
+    .withChild(Element.textElement("groupId", "junit"))
+    .withChild(Element.textElement("artifactId", "junit"))
     .build();
 
 Element mockito = dependencyTemplate.copy()
-    .withChild(Elements.textElement("groupId", "org.mockito"))
-    .withChild(Elements.textElement("artifactId", "mockito-core"))
+    .withChild(Element.textElement("groupId", "org.mockito"))
+    .withChild(Element.textElement("artifactId", "mockito-core"))
     .build();
 ```
 
@@ -250,16 +249,16 @@ Element mockito = dependencyTemplate.copy()
 
 ```java
 // ✅ Good - consistent chaining
-Element element = Elements.builder("dependency")
+Element element = Element.builder("dependency")
     .withAttribute("scope", "test")
-    .withChild(Elements.textElement("groupId", "junit"))
-    .withChild(Elements.textElement("artifactId", "junit"))
+    .withChild(Element.textElement("groupId", "junit"))
+    .withChild(Element.textElement("artifactId", "junit"))
     .build();
 
 // ❌ Inconsistent - breaks the flow
-Elements.Builder builder = Elements.builder("dependency");
+Element.Builder builder = Element.builder("dependency");
 builder.withAttribute("scope", "test");
-Element child = Elements.textElement("groupId", "junit");
+Element child = Element.textElement("groupId", "junit");
 builder.withChild(child);
 Element element = builder.build();
 ```
@@ -269,24 +268,24 @@ Element element = builder.build();
 ```java
 // ✅ Good - readable and reusable
 private Element createDependency(String groupId, String artifactId, String version) {
-    return Elements.builder("dependency")
-        .withChild(Elements.textElement("groupId", groupId))
-        .withChild(Elements.textElement("artifactId", artifactId))
-        .withChild(Elements.textElement("version", version))
+    return Element.builder("dependency")
+        .withChild(Element.textElement("groupId", groupId))
+        .withChild(Element.textElement("artifactId", artifactId))
+        .withChild(Element.textElement("version", version))
         .build();
 }
 
 // ❌ Hard to read - inline complexity
-Element deps = Elements.builder("dependencies")
-    .withChild(Elements.builder("dependency")
-        .withChild(Elements.textElement("groupId", "junit"))
-        .withChild(Elements.textElement("artifactId", "junit"))
-        .withChild(Elements.textElement("version", "4.13.2"))
+Element deps = Element.builder("dependencies")
+    .withChild(Element.builder("dependency")
+        .withChild(Element.textElement("groupId", "junit"))
+        .withChild(Element.textElement("artifactId", "junit"))
+        .withChild(Element.textElement("version", "4.13.2"))
         .build())
-    .withChild(Elements.builder("dependency")
-        .withChild(Elements.textElement("groupId", "org.mockito"))
-        .withChild(Elements.textElement("artifactId", "mockito-core"))
-        .withChild(Elements.textElement("version", "4.6.1"))
+    .withChild(Element.builder("dependency")
+        .withChild(Element.textElement("groupId", "org.mockito"))
+        .withChild(Element.textElement("artifactId", "mockito-core"))
+        .withChild(Element.textElement("version", "4.6.1"))
         .build())
     .build();
 ```
@@ -300,10 +299,10 @@ public Element createDependency(String groupId, String artifactId, String versio
         throw new IllegalArgumentException("groupId cannot be null or empty");
     }
     
-    return Elements.builder("dependency")
-        .withChild(Elements.textElement("groupId", groupId))
-        .withChild(Elements.textElement("artifactId", artifactId))
-        .withChild(Elements.textElement("version", version))
+    return Element.builder("dependency")
+        .withChild(Element.textElement("groupId", groupId))
+        .withChild(Element.textElement("artifactId", artifactId))
+        .withChild(Element.textElement("version", version))
         .build();
 }
 ```

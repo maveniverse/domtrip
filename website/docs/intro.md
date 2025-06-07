@@ -33,9 +33,9 @@ editor.addElement(newDep, "groupId", "org.example");
 
 ```java
 // Fluent builders and Stream-based navigation
-Element element = Elements.builder("dependency")
+Element element = Element.builder("dependency")
     .withAttribute("scope", "test")
-    .withChild(Elements.textElement("groupId", "junit"))
+    .withChild(Element.textElement("groupId", "junit"))
     .build();
 
 Optional<Element> child = root.findChild("dependency");

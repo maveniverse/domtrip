@@ -132,10 +132,10 @@ editor.setTextContent(dependency.findChild("version"), "2.0.0");
 When adding complex new structures, use builders for consistent formatting:
 
 ```java
-Element newDependency = Elements.builder("dependency")
-    .withChild(Elements.textElement("groupId", "junit"))
-    .withChild(Elements.textElement("artifactId", "junit"))
-    .withChild(Elements.textElement("version", "4.13.2"))
+Element newDependency = Element.builder("dependency")
+    .withChild(Element.textElement("groupId", "junit"))
+    .withChild(Element.textElement("artifactId", "junit"))
+    .withChild(Element.textElement("version", "4.13.2"))
     .build();
 
 editor.addChild(dependencies, newDependency);

@@ -2,7 +2,6 @@ package eu.maveniverse.domtrip.demos;
 
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
-import eu.maveniverse.domtrip.Elements;
 import eu.maveniverse.domtrip.NamespaceContext;
 
 /**
@@ -26,10 +25,10 @@ public class NamespaceDemo {
         System.out.println("1. Basic Namespace Creation:");
 
         // Create elements with different namespace patterns
-        Element defaultNs = Elements.elementInNamespace("http://example.com/default", "root");
-        Element prefixedNs = Elements.namespacedElement("ex", "element", "http://example.com/ns");
-        Element withPreferredPrefix = Elements.elementWithNamespace("http://example.com/api", "data", "api");
-        Element textInNs = Elements.textElementInNamespace("http://example.com/content", "title", "My Title");
+        Element defaultNs = Element.elementInNamespace("http://example.com/default", "root");
+        Element prefixedNs = Element.namespacedElement("ex", "element", "http://example.com/ns");
+        Element withPreferredPrefix = Element.elementWithNamespace("http://example.com/api", "data", "api");
+        Element textInNs = Element.textElementInNamespace("http://example.com/content", "title", "My Title");
 
         System.out.println("Default namespace element: " + defaultNs.toXml());
         System.out.println("Prefixed namespace element: " + prefixedNs.toXml());
@@ -90,18 +89,18 @@ public class NamespaceDemo {
         System.out.println("3. Namespace-Aware Navigation:");
 
         // Create a document with multiple elements in different namespaces
-        Element root = Elements.builder("document")
+        Element root = Element.builder("document")
                 .withDefaultNamespace("http://example.com/doc")
                 .withNamespace("meta", "http://example.com/metadata")
                 .withNamespace("content", "http://example.com/content")
                 .build();
 
         // Add children in different namespaces
-        root.addChild(Elements.namespacedTextElement("meta", "title", "http://example.com/metadata", "Document Title"));
-        root.addChild(Elements.namespacedTextElement("meta", "author", "http://example.com/metadata", "John Doe"));
-        root.addChild(Elements.textElementInNamespace("http://example.com/doc", "summary", "Document summary"));
-        root.addChild(Elements.namespacedTextElement("content", "section", "http://example.com/content", "Section 1"));
-        root.addChild(Elements.namespacedTextElement("content", "section", "http://example.com/content", "Section 2"));
+        root.addChild(Element.namespacedTextElement("meta", "title", "http://example.com/metadata", "Document Title"));
+        root.addChild(Element.namespacedTextElement("meta", "author", "http://example.com/metadata", "John Doe"));
+        root.addChild(Element.textElementInNamespace("http://example.com/doc", "summary", "Document summary"));
+        root.addChild(Element.namespacedTextElement("content", "section", "http://example.com/content", "Section 1"));
+        root.addChild(Element.namespacedTextElement("content", "section", "http://example.com/content", "Section 2"));
 
         System.out.println("Created document:\n" + root.toXml());
 
@@ -178,7 +177,7 @@ public class NamespaceDemo {
         System.out.println("5. Complex Namespace Document Creation:");
 
         // Create a complex document using builder pattern with namespaces
-        Element soapEnvelope = Elements.builder("Envelope")
+        Element soapEnvelope = Element.builder("Envelope")
                 .withNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/")
                 .withNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
                 .withNamespace("xsd", "http://www.w3.org/2001/XMLSchema")
@@ -188,17 +187,17 @@ public class NamespaceDemo {
         soapEnvelope.setName("soap:Envelope");
 
         // Create header
-        Element header = Elements.namespacedElement("soap", "Header", "http://schemas.xmlsoap.org/soap/envelope/");
+        Element header = Element.namespacedElement("soap", "Header", "http://schemas.xmlsoap.org/soap/envelope/");
         soapEnvelope.addChild(header);
 
         // Create body
-        Element body = Elements.namespacedElement("soap", "Body", "http://schemas.xmlsoap.org/soap/envelope/");
+        Element body = Element.namespacedElement("soap", "Body", "http://schemas.xmlsoap.org/soap/envelope/");
 
         // Add a custom method call in body
-        Element methodCall = Elements.builder("GetUserInfo")
+        Element methodCall = Element.builder("GetUserInfo")
                 .withDefaultNamespace("http://example.com/userservice")
-                .withChild(Elements.textElementInNamespace("http://example.com/userservice", "userId", "12345"))
-                .withChild(Elements.textElementInNamespace("http://example.com/userservice", "includeDetails", "true"))
+                .withChild(Element.textElementInNamespace("http://example.com/userservice", "userId", "12345"))
+                .withChild(Element.textElementInNamespace("http://example.com/userservice", "includeDetails", "true"))
                 .build();
 
         body.addChild(methodCall);

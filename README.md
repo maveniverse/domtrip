@@ -60,7 +60,7 @@ String result = editor.toXml();
 - **Declarations**: XML declarations, processing instructions, DTDs
 
 ### Modern Java API
-- **Fluent Builders**: `Elements.builder("dependency").withAttribute("scope", "test").build()`
+- **Fluent Builders**: `Element.builder("dependency").withAttribute("scope", "test").build()`
 - **Stream Navigation**: `root.descendants().filter(e -> "dependency".equals(e.getName()))`
 - **Optional Safety**: `element.findChild("version").ifPresent(v -> ...)`
 - **Type Safety**: Compile-time prevention of invalid operations
@@ -92,16 +92,40 @@ String result = editor.toXml();
 
 ## 🏗️ Advanced Features
 
+### Factory Methods
+
+Create XML elements with convenient factory methods:
+
+```java
+// Simple elements
+Element version = Element.textElement("version", "1.0.0");
+Element properties = Element.emptyElement("properties");
+Element br = Element.selfClosingElement("br");
+
+// Elements with attributes
+Map<String, String> attrs = Map.of("scope", "test", "optional", "true");
+Element dependency = Element.elementWithAttributes("dependency", attrs);
+
+// Namespaced elements
+Element soapEnvelope = Element.namespacedElement("soap", "Envelope",
+    "http://schemas.xmlsoap.org/soap/envelope/");
+Element defaultNs = Element.elementInNamespace("http://example.com/ns", "item");
+
+// Documents
+Document doc = Document.withRootElement("project");
+Document minimal = Document.minimal("root");
+```
+
 ### Builder Patterns
 
 Create complex XML structures with fluent APIs:
 
 ```java
-Element dependency = Elements.builder("dependency")
+Element dependency = Element.builder("dependency")
     .withAttribute("scope", "test")
-    .withChild(Elements.textElement("groupId", "junit"))
-    .withChild(Elements.textElement("artifactId", "junit"))
-    .withChild(Elements.textElement("version", "4.13.2"))
+    .withChild(Element.builder("groupId").withText("junit").build())
+    .withChild(Element.builder("artifactId").withText("junit").build())
+    .withChild(Element.builder("version").withText("4.13.2").build())
     .build();
 ```
 
@@ -127,7 +151,7 @@ Optional<Element> soapBody = root.findChildByNamespace(
     "http://schemas.xmlsoap.org/soap/envelope/", "Body");
 
 // Create namespaced elements
-Element element = Elements.builder("item")
+Element element = Element.builder("item")
     .withNamespace("ex", "http://example.com/ns")
     .withDefaultNamespace("http://example.com/default")
     .build();

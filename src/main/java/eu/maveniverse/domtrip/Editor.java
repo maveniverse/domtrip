@@ -261,21 +261,6 @@ public class Editor {
     }
 
     /**
-     * Adds a comment as a child of the specified parent (backward compatibility)
-     * @deprecated Use addComment(ContainerNode, String) instead
-     */
-    @Deprecated
-    public Comment addComment(Node parent, String content) throws InvalidXmlException {
-        if (parent == null) {
-            throw new InvalidXmlException("Parent cannot be null");
-        }
-        if (!(parent instanceof ContainerNode)) {
-            throw new InvalidXmlException("Parent must be a container node (Document or Element)");
-        }
-        return addComment((ContainerNode) parent, content);
-    }
-
-    /**
      * Finds the first element with the given name in the document
      */
     public Element findElement(String name) throws NodeNotFoundException {
@@ -290,18 +275,6 @@ public class Editor {
      */
     public Element findChildElement(Element parent, String name) {
         return parent != null ? parent.findChild(name).orElse(null) : null;
-    }
-
-    /**
-     * Finds the first child element with the given name under the specified parent (backward compatibility)
-     * @deprecated Use findChildElement(Element, String) instead or call parent.findChild(name) directly
-     */
-    @Deprecated
-    public Element findChildElement(Node parent, String name) {
-        if (parent instanceof Element element) {
-            return element.findChild(name).orElse(null);
-        }
-        return null;
     }
 
     /**
@@ -325,15 +298,6 @@ public class Editor {
      */
     public Element getRootElement() {
         return document != null ? document.getDocumentElement() : null;
-    }
-
-    /**
-     * Infers the indentation pattern by examining existing children
-     * @deprecated Use WhitespaceManager.inferIndentation() instead
-     */
-    @Deprecated
-    private String inferIndentation(Node parent) {
-        return whitespaceManager.inferIndentation(parent);
     }
 
     /**
@@ -466,6 +430,16 @@ public class Editor {
     }
 
     /**
+     * Gets the whitespace manager used by this editor.
+     *
+     * @return the WhitespaceManager instance
+     * @since 1.0
+     */
+    public WhitespaceManager getWhitespaceManager() {
+        return whitespaceManager;
+    }
+
+    /**
      * Creates a fluent builder for adding nodes.
      */
     public NodeBuilder add() {
@@ -474,6 +448,11 @@ public class Editor {
 
     /**
      * Fluent builder for creating and adding nodes to the document.
+     *
+     * <p>This builder provides a convenient way to add nodes to existing documents
+     * while maintaining the Editor's whitespace management and configuration.</p>
+     *
+     * @since 1.0
      */
     public static class NodeBuilder {
         private final Editor editor;
@@ -483,211 +462,254 @@ public class Editor {
         }
 
         /**
-         * Creates an element builder.
+         * Creates an element builder that will be added to the document.
+         *
+         * @param name the element name
+         * @return a new EditorElementBuilder for fluent element construction
+         * @since 1.0
          */
-        public ElementBuilder element(String name) {
-            return new ElementBuilder(editor, name);
+        public EditorElementBuilder element(String name) {
+            return new EditorElementBuilder(editor, name);
         }
 
         /**
-         * Creates a comment builder.
+         * Creates a comment builder that will be added to the document.
+         *
+         * @return a new EditorCommentBuilder for fluent comment construction
+         * @since 1.0
          */
-        public CommentBuilder comment() {
-            return new CommentBuilder(editor);
+        public EditorCommentBuilder comment() {
+            return new EditorCommentBuilder(editor);
         }
 
         /**
-         * Creates a text builder.
+         * Creates a text builder that will be added to the document.
+         *
+         * @return a new EditorTextBuilder for fluent text construction
+         * @since 1.0
          */
-        public TextBuilder text() {
-            return new TextBuilder(editor);
+        public EditorTextBuilder text() {
+            return new EditorTextBuilder(editor);
         }
     }
 
     /**
-     * Builder for creating and configuring elements.
+     * Builder for creating and configuring elements within the Editor context.
+     *
+     * <p>This builder integrates with the Editor's whitespace management and
+     * automatically adds the created element to the specified parent.</p>
+     *
+     * @since 1.0
      */
-    public static class ElementBuilder {
+    public static class EditorElementBuilder {
         private final Editor editor;
-        private final String name;
-        private Node parent;
-        private String textContent;
-        private Map<String, String> attributes;
-        private boolean selfClosing = false;
+        private final Element.Builder elementBuilder;
+        private ContainerNode parent;
 
-        private ElementBuilder(Editor editor, String name) {
+        private EditorElementBuilder(Editor editor, String name) {
             this.editor = editor;
-            this.name = name;
+            this.elementBuilder = Element.builder(name);
         }
 
         /**
          * Sets the parent node for this element.
+         *
+         * @param parent the parent node
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public ElementBuilder to(Node parent) {
+        public EditorElementBuilder to(ContainerNode parent) {
             this.parent = parent;
             return this;
         }
 
         /**
          * Sets text content for this element.
+         *
+         * @param content the text content
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public ElementBuilder withText(String content) {
-            this.textContent = content;
+        public EditorElementBuilder withText(String content) {
+            elementBuilder.withText(content);
             return this;
         }
 
         /**
          * Adds an attribute to this element.
+         *
+         * @param name the attribute name
+         * @param value the attribute value
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public ElementBuilder withAttribute(String name, String value) {
-            if (this.attributes == null) {
-                this.attributes = new java.util.HashMap<>();
-            }
-            this.attributes.put(name, value);
+        public EditorElementBuilder withAttribute(String name, String value) {
+            elementBuilder.withAttribute(name, value);
             return this;
         }
 
         /**
          * Adds multiple attributes to this element.
+         *
+         * @param attributes a map of attribute names to values
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public ElementBuilder withAttributes(Map<String, String> attributes) {
-            if (this.attributes == null) {
-                this.attributes = new java.util.HashMap<>();
-            }
-            if (attributes != null) {
-                this.attributes.putAll(attributes);
-            }
+        public EditorElementBuilder withAttributes(Map<String, String> attributes) {
+            elementBuilder.withAttributes(attributes);
             return this;
         }
 
         /**
          * Makes this element self-closing.
+         *
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public ElementBuilder selfClosing() {
-            this.selfClosing = true;
+        public EditorElementBuilder selfClosing() {
+            elementBuilder.selfClosing();
             return this;
         }
 
         /**
          * Builds and adds the element to the document.
+         *
+         * @return the created and added element
+         * @throws InvalidXmlException if the element cannot be added
+         * @since 1.0
          */
         public Element build() throws InvalidXmlException {
             if (parent == null) {
                 throw new IllegalStateException("Parent node must be specified");
             }
 
-            Element element;
-            if (textContent != null && !textContent.isEmpty()) {
-                element = editor.addElement((Element) parent, name, textContent);
-            } else {
-                element = editor.addElement((Element) parent, name);
-            }
-
-            if (attributes != null) {
-                editor.setAttributes(element, attributes);
-            }
-
-            if (selfClosing) {
-                element.setSelfClosing(true);
-            }
-
-            return element;
+            return elementBuilder.buildAndAddTo(editor, parent);
         }
     }
 
     /**
-     * Builder for creating comments.
+     * Builder for creating comments within the Editor context.
+     *
+     * <p>This builder integrates with the Editor's whitespace management and
+     * automatically adds the created comment to the specified parent.</p>
+     *
+     * @since 1.0
      */
-    public static class CommentBuilder {
+    public static class EditorCommentBuilder {
         private final Editor editor;
-        private Node parent;
-        private String content;
+        private final Comment.Builder commentBuilder;
+        private ContainerNode parent;
 
-        private CommentBuilder(Editor editor) {
+        private EditorCommentBuilder(Editor editor) {
             this.editor = editor;
+            this.commentBuilder = Comment.builder();
         }
 
         /**
          * Sets the parent node for this comment.
+         *
+         * @param parent the parent node
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public CommentBuilder to(Node parent) {
+        public EditorCommentBuilder to(ContainerNode parent) {
             this.parent = parent;
             return this;
         }
 
         /**
          * Sets the content of this comment.
+         *
+         * @param content the comment content
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public CommentBuilder withContent(String content) {
-            this.content = content;
+        public EditorCommentBuilder withContent(String content) {
+            commentBuilder.withContent(content);
             return this;
         }
 
         /**
          * Builds and adds the comment to the document.
+         *
+         * @return the created and added comment
+         * @throws InvalidXmlException if the comment cannot be added
+         * @since 1.0
          */
         public Comment build() throws InvalidXmlException {
             if (parent == null) {
                 throw new IllegalStateException("Parent node must be specified");
             }
-            if (!(parent instanceof ContainerNode)) {
-                throw new IllegalStateException("Parent must be a container node (Document or Element)");
-            }
 
-            return editor.addComment((ContainerNode) parent, content);
+            return commentBuilder.buildAndAddTo(editor, parent);
         }
     }
 
     /**
-     * Builder for creating text nodes.
+     * Builder for creating text nodes within the Editor context.
+     *
+     * <p>This builder integrates with the Editor's configuration and
+     * automatically adds the created text node to the specified parent.</p>
+     *
+     * @since 1.0
      */
-    public static class TextBuilder {
+    public static class EditorTextBuilder {
         private final Editor editor;
-        private Node parent;
-        private String content;
-        private boolean cdata = false;
+        private final Text.Builder textBuilder;
+        private ContainerNode parent;
 
-        private TextBuilder(Editor editor) {
+        private EditorTextBuilder(Editor editor) {
             this.editor = editor;
+            this.textBuilder = Text.builder();
         }
 
         /**
          * Sets the parent node for this text.
+         *
+         * @param parent the parent node
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public TextBuilder to(Node parent) {
+        public EditorTextBuilder to(ContainerNode parent) {
             this.parent = parent;
             return this;
         }
 
         /**
          * Sets the content of this text node.
+         *
+         * @param content the text content
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public TextBuilder withContent(String content) {
-            this.content = content;
+        public EditorTextBuilder withContent(String content) {
+            textBuilder.withContent(content);
             return this;
         }
 
         /**
          * Makes this text node a CDATA section.
+         *
+         * @return this builder for method chaining
+         * @since 1.0
          */
-        public TextBuilder asCData() {
-            this.cdata = true;
+        public EditorTextBuilder asCData() {
+            textBuilder.asCData();
             return this;
         }
 
         /**
          * Builds and adds the text node to the document.
+         *
+         * @return the created and added text node
+         * @since 1.0
          */
         public Text build() {
             if (parent == null) {
                 throw new IllegalStateException("Parent node must be specified");
             }
 
-            Text textNode = new Text(content != null ? content : "", cdata);
-            if (parent instanceof ContainerNode container) {
-                container.addChild(textNode);
-            }
-            return textNode;
+            return textBuilder.buildAndAddTo(editor, parent);
         }
     }
 }

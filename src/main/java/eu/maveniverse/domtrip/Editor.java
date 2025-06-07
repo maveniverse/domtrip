@@ -1,5 +1,8 @@
 package eu.maveniverse.domtrip;
 
+import java.util.Map;
+import java.util.Optional;
+
 /**
  * Provides high-level editing operations for XML documents while preserving formatting.
  */
@@ -8,21 +11,34 @@ public class Editor {
     private Document document;
     private Parser parser;
     private Serializer serializer;
+    private DomTripConfig config;
+    private WhitespaceManager whitespaceManager;
 
     public Editor() {
-        this.parser = new Parser();
-        this.serializer = new Serializer();
+        this(DomTripConfig.defaults());
     }
 
-    public Editor(String xml) {
+    public Editor(DomTripConfig config) {
+        this.config = config != null ? config : DomTripConfig.defaults();
+        this.parser = new Parser();
+        this.serializer = new Serializer();
+        this.whitespaceManager = new WhitespaceManager(this.config);
+    }
+
+    public Editor(String xml) throws ParseException {
         this();
+        loadXml(xml);
+    }
+
+    public Editor(String xml, DomTripConfig config) throws ParseException {
+        this(config);
         loadXml(xml);
     }
     
     /**
      * Loads XML content into the editor
      */
-    public void loadXml(String xml) {
+    public void loadXml(String xml) throws ParseException {
         this.document = parser.parse(xml);
     }
     
@@ -55,15 +71,18 @@ public class Editor {
     /**
      * Adds a new element as a child of the specified parent element
      */
-    public Element addElement(Element parent, String elementName) {
-        if (parent == null || elementName == null || elementName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Parent element and element name cannot be null or empty");
+    public Element addElement(Element parent, String elementName) throws InvalidXmlException {
+        if (parent == null) {
+            throw new InvalidXmlException("Parent element cannot be null");
+        }
+        if (elementName == null || elementName.trim().isEmpty()) {
+            throw new InvalidXmlException("Element name cannot be null or empty");
         }
 
         Element newElement = new Element(elementName.trim());
 
-        // Try to preserve indentation by looking at sibling elements
-        String indentation = inferIndentation(parent);
+        // Try to preserve indentation using WhitespaceManager
+        String indentation = whitespaceManager.inferIndentation(parent);
         if (!indentation.isEmpty()) {
             newElement.setPrecedingWhitespace("\n" + indentation);
         }
@@ -76,8 +95,8 @@ public class Editor {
             if (lastChild instanceof Text) {
                 Text lastText = (Text) lastChild;
                 String content = lastText.getContent();
-                // If it's just whitespace (like "\n"), it's probably closing tag whitespace
-                if (content.trim().isEmpty() && content.contains("\n")) {
+                // Use WhitespaceManager to check if it's whitespace only
+                if (whitespaceManager.isWhitespaceOnly(content) && content.contains("\n")) {
                     // Insert before the last text node
                     parent.insertChild(childCount - 1, newElement);
                     return newElement;
@@ -90,7 +109,7 @@ public class Editor {
 
         // Add closing whitespace if parent has indentation
         if (!indentation.isEmpty() && parent.getParent() != null) {
-            String parentIndent = inferIndentation(parent.getParent());
+            String parentIndent = whitespaceManager.inferIndentation(parent.getParent());
             Text closingWhitespace = new Text("\n" + parentIndent);
             parent.addChild(closingWhitespace);
         }
@@ -101,7 +120,7 @@ public class Editor {
     /**
      * Adds a new element with text content
      */
-    public Element addElement(Element parent, String elementName, String textContent) {
+    public Element addElement(Element parent, String elementName, String textContent) throws InvalidXmlException {
         Element element = addElement(parent, elementName);
         if (textContent != null && !textContent.isEmpty()) {
             element.setTextContent(textContent);
@@ -123,9 +142,12 @@ public class Editor {
     /**
      * Adds or updates an attribute on an element
      */
-    public void setAttribute(Element element, String name, String value) {
-        if (element == null || name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Element and attribute name cannot be null or empty");
+    public void setAttribute(Element element, String name, String value) throws InvalidXmlException {
+        if (element == null) {
+            throw new InvalidXmlException("Element cannot be null");
+        }
+        if (name == null || name.trim().isEmpty()) {
+            throw new InvalidXmlException("Attribute name cannot be null or empty");
         }
         
         element.setAttribute(name.trim(), value != null ? value : "");
@@ -147,9 +169,9 @@ public class Editor {
     /**
      * Sets the text content of an element
      */
-    public void setTextContent(Element element, String content) {
+    public void setTextContent(Element element, String content) throws InvalidXmlException {
         if (element == null) {
-            throw new IllegalArgumentException("Element cannot be null");
+            throw new InvalidXmlException("Element cannot be null");
         }
         
         element.setTextContent(content);
@@ -158,15 +180,15 @@ public class Editor {
     /**
      * Adds a comment as a child of the specified parent
      */
-    public Comment addComment(Node parent, String content) {
+    public Comment addComment(Node parent, String content) throws InvalidXmlException {
         if (parent == null) {
-            throw new IllegalArgumentException("Parent cannot be null");
+            throw new InvalidXmlException("Parent cannot be null");
         }
 
         Comment comment = new Comment(content != null ? content : "");
-        
-        // Try to preserve indentation
-        String indentation = inferIndentation(parent);
+
+        // Try to preserve indentation using WhitespaceManager
+        String indentation = whitespaceManager.inferIndentation(parent);
         if (!indentation.isEmpty()) {
             comment.setPrecedingWhitespace("\n" + indentation);
         }
@@ -178,7 +200,10 @@ public class Editor {
     /**
      * Finds the first element with the given name in the document
      */
-    public Element findElement(String name) {
+    public Element findElement(String name) throws NodeNotFoundException {
+        if (name == null) {
+            throw new NodeNotFoundException("Element name cannot be null", name);
+        }
         return document != null ? document.findElement(name) : null;
     }
     
@@ -186,15 +211,15 @@ public class Editor {
      * Finds the first child element with the given name under the specified parent
      */
     public Element findChildElement(Node parent, String name) {
-        return parent != null ? parent.findChildElement(name) : null;
+        return parent != null ? parent.findChild(name).orElse(null) : null;
     }
     
     /**
      * Creates a new XML document with the specified root element
      */
-    public void createDocument(String rootElementName) {
+    public void createDocument(String rootElementName) throws InvalidXmlException {
         if (rootElementName == null || rootElementName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Root element name cannot be null or empty");
+            throw new InvalidXmlException("Root element name cannot be null or empty");
         }
 
         this.document = new Document();
@@ -214,44 +239,11 @@ public class Editor {
     
     /**
      * Infers the indentation pattern by examining existing children
+     * @deprecated Use WhitespaceManager.inferIndentation() instead
      */
+    @Deprecated
     private String inferIndentation(Node parent) {
-        if (parent == null || parent.getChildCount() == 0) {
-            return "  "; // Default to 2 spaces
-        }
-
-        // Look for patterns in existing children's preceding whitespace
-        for (Node child : parent.getChildren()) {
-            String whitespace = child.getPrecedingWhitespace();
-            if (whitespace.contains("\n")) {
-                // Extract indentation after the last newline
-                int lastNewline = whitespace.lastIndexOf('\n');
-                if (lastNewline >= 0 && lastNewline < whitespace.length() - 1) {
-                    return whitespace.substring(lastNewline + 1);
-                }
-            }
-
-            // Also check text node content for whitespace patterns
-            if (child instanceof Text) {
-                Text textNode = (Text) child;
-                String content = textNode.getContent();
-                if (content.contains("\n")) {
-                    // Extract indentation after the last newline
-                    int lastNewline = content.lastIndexOf('\n');
-                    if (lastNewline >= 0 && lastNewline < content.length() - 1) {
-                        return content.substring(lastNewline + 1);
-                    }
-                }
-            }
-        }
-
-        // If parent has indentation, add to it
-        if (parent.getParent() != null) {
-            String parentIndent = inferIndentation(parent.getParent());
-            return parentIndent + "  "; // Add 2 more spaces
-        }
-
-        return "  "; // Default fallback
+        return whitespaceManager.inferIndentation(parent);
     }
     
     /**
@@ -303,6 +295,304 @@ public class Editor {
         
         for (Node child : node.getChildren()) {
             countNodes(child, counts);
+        }
+    }
+
+    // Convenience methods for common operations
+
+    /**
+     * Finds or creates an element with the given name.
+     */
+    public Element findOrCreateElement(String name) throws NodeNotFoundException, InvalidXmlException {
+        Element element = findElement(name);
+        if (element == null && getRootElement() != null) {
+            element = addElement(getRootElement(), name);
+        }
+        return element;
+    }
+
+    /**
+     * Sets element text content by name (finds first matching element).
+     */
+    public void setElementText(String elementName, String text) throws NodeNotFoundException, InvalidXmlException {
+        Element element = findElement(elementName);
+        if (element != null) {
+            setTextContent(element, text);
+        }
+    }
+
+    /**
+     * Sets element attribute by element name (finds first matching element).
+     */
+    public void setElementAttribute(String elementName, String attrName, String attrValue) throws NodeNotFoundException, InvalidXmlException {
+        Element element = findElement(elementName);
+        if (element != null) {
+            setAttribute(element, attrName, attrValue);
+        }
+    }
+
+    /**
+     * Batch operation to set multiple attributes on an element.
+     */
+    public void setAttributes(Element element, Map<String, String> attributes) throws InvalidXmlException {
+        if (element != null && attributes != null) {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                setAttribute(element, entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    /**
+     * Batch operation to add multiple child elements with text content.
+     */
+    public void addElements(Element parent, Map<String, String> nameValuePairs) throws InvalidXmlException {
+        if (parent != null && nameValuePairs != null) {
+            for (Map.Entry<String, String> entry : nameValuePairs.entrySet()) {
+                addElement(parent, entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    /**
+     * Serializes with custom configuration.
+     */
+    public String toXml(DomTripConfig config) {
+        if (document == null) {
+            return "";
+        }
+
+        return new Serializer(config).serialize(document);
+    }
+
+
+
+
+
+    /**
+     * Gets the configuration used by this editor.
+     */
+    public DomTripConfig getConfig() {
+        return config;
+    }
+
+    /**
+     * Creates a fluent builder for adding nodes.
+     */
+    public NodeBuilder add() {
+        return new NodeBuilder(this);
+    }
+
+    /**
+     * Fluent builder for creating and adding nodes to the document.
+     */
+    public static class NodeBuilder {
+        private final Editor editor;
+
+        private NodeBuilder(Editor editor) {
+            this.editor = editor;
+        }
+
+        /**
+         * Creates an element builder.
+         */
+        public ElementBuilder element(String name) {
+            return new ElementBuilder(editor, name);
+        }
+
+        /**
+         * Creates a comment builder.
+         */
+        public CommentBuilder comment() {
+            return new CommentBuilder(editor);
+        }
+
+        /**
+         * Creates a text builder.
+         */
+        public TextBuilder text() {
+            return new TextBuilder(editor);
+        }
+    }
+
+    /**
+     * Builder for creating and configuring elements.
+     */
+    public static class ElementBuilder {
+        private final Editor editor;
+        private final String name;
+        private Node parent;
+        private String textContent;
+        private Map<String, String> attributes;
+        private boolean selfClosing = false;
+
+        private ElementBuilder(Editor editor, String name) {
+            this.editor = editor;
+            this.name = name;
+        }
+
+        /**
+         * Sets the parent node for this element.
+         */
+        public ElementBuilder to(Node parent) {
+            this.parent = parent;
+            return this;
+        }
+
+        /**
+         * Sets text content for this element.
+         */
+        public ElementBuilder withText(String content) {
+            this.textContent = content;
+            return this;
+        }
+
+        /**
+         * Adds an attribute to this element.
+         */
+        public ElementBuilder withAttribute(String name, String value) {
+            if (this.attributes == null) {
+                this.attributes = new java.util.HashMap<>();
+            }
+            this.attributes.put(name, value);
+            return this;
+        }
+
+        /**
+         * Adds multiple attributes to this element.
+         */
+        public ElementBuilder withAttributes(Map<String, String> attributes) {
+            if (this.attributes == null) {
+                this.attributes = new java.util.HashMap<>();
+            }
+            if (attributes != null) {
+                this.attributes.putAll(attributes);
+            }
+            return this;
+        }
+
+        /**
+         * Makes this element self-closing.
+         */
+        public ElementBuilder selfClosing() {
+            this.selfClosing = true;
+            return this;
+        }
+
+        /**
+         * Builds and adds the element to the document.
+         */
+        public Element build() throws InvalidXmlException {
+            if (parent == null) {
+                throw new IllegalStateException("Parent node must be specified");
+            }
+
+            Element element;
+            if (textContent != null && !textContent.isEmpty()) {
+                element = editor.addElement((Element) parent, name, textContent);
+            } else {
+                element = editor.addElement((Element) parent, name);
+            }
+
+            if (attributes != null) {
+                editor.setAttributes(element, attributes);
+            }
+
+            if (selfClosing) {
+                element.setSelfClosing(true);
+            }
+
+            return element;
+        }
+    }
+
+    /**
+     * Builder for creating comments.
+     */
+    public static class CommentBuilder {
+        private final Editor editor;
+        private Node parent;
+        private String content;
+
+        private CommentBuilder(Editor editor) {
+            this.editor = editor;
+        }
+
+        /**
+         * Sets the parent node for this comment.
+         */
+        public CommentBuilder to(Node parent) {
+            this.parent = parent;
+            return this;
+        }
+
+        /**
+         * Sets the content of this comment.
+         */
+        public CommentBuilder withContent(String content) {
+            this.content = content;
+            return this;
+        }
+
+        /**
+         * Builds and adds the comment to the document.
+         */
+        public Comment build() throws InvalidXmlException {
+            if (parent == null) {
+                throw new IllegalStateException("Parent node must be specified");
+            }
+
+            return editor.addComment(parent, content);
+        }
+    }
+
+    /**
+     * Builder for creating text nodes.
+     */
+    public static class TextBuilder {
+        private final Editor editor;
+        private Node parent;
+        private String content;
+        private boolean cdata = false;
+
+        private TextBuilder(Editor editor) {
+            this.editor = editor;
+        }
+
+        /**
+         * Sets the parent node for this text.
+         */
+        public TextBuilder to(Node parent) {
+            this.parent = parent;
+            return this;
+        }
+
+        /**
+         * Sets the content of this text node.
+         */
+        public TextBuilder withContent(String content) {
+            this.content = content;
+            return this;
+        }
+
+        /**
+         * Makes this text node a CDATA section.
+         */
+        public TextBuilder asCData() {
+            this.cdata = true;
+            return this;
+        }
+
+        /**
+         * Builds and adds the text node to the document.
+         */
+        public Text build() {
+            if (parent == null) {
+                throw new IllegalStateException("Parent node must be specified");
+            }
+
+            Text textNode = new Text(content != null ? content : "", cdata);
+            parent.addChild(textNode);
+            return textNode;
         }
     }
 }

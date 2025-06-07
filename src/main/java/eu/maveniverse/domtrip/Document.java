@@ -60,7 +60,7 @@ public class Document extends Node {
     /**
      * Sets document element without marking as modified (for use during parsing)
      */
-    public void setDocumentElementInternal(Element documentElement) {
+    void setDocumentElementInternal(Element documentElement) {
         this.documentElement = documentElement;
         if (documentElement != null) {
             documentElement.setParent(this);

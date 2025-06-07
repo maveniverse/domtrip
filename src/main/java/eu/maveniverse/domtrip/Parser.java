@@ -6,7 +6,7 @@ import java.util.Stack;
  * A simple XML parser that preserves all formatting information including
  * whitespace, comments, and exact attribute formatting.
  */
-public class Parser {
+class Parser {
     
     private String xml;
     private int position;
@@ -18,9 +18,9 @@ public class Parser {
     /**
      * Parses an XML string into a lossless XML document tree
      */
-    public Document parse(String xml) {
+    public Document parse(String xml) throws ParseException {
         if (xml == null || xml.trim().isEmpty()) {
-            throw new IllegalArgumentException("XML content cannot be null or empty");
+            throw new ParseException("XML content cannot be null or empty");
         }
         
         this.xml = xml;
@@ -111,51 +111,51 @@ public class Parser {
         return document;
     }
     
-    private Comment parseComment() {
+    private Comment parseComment() throws ParseException {
         position += 4; // Skip "<!--"
 
         StringBuilder content = new StringBuilder();
         while (position + 2 < length) {
             if (xml.startsWith("-->", position)) {
                 position += 3;
-                break;
+                return new Comment(content.toString());
             }
             content.append(xml.charAt(position));
             position++;
         }
 
-        return new Comment(content.toString());
+        throw new ParseException("Unclosed comment", position, xml);
     }
 
-    private Text parseCData() {
+    private Text parseCData() throws ParseException {
         position += 9; // Skip "<![CDATA["
 
         StringBuilder content = new StringBuilder();
         while (position + 2 < length) {
             if (xml.startsWith("]]>", position)) {
                 position += 3;
-                break;
+                return new Text(content.toString(), true);
             }
             content.append(xml.charAt(position));
             position++;
         }
 
-        return new Text(content.toString(), true);
+        throw new ParseException("Unclosed CDATA section", position, xml);
     }
     
-    private String parseProcessingInstruction() {
+    private String parseProcessingInstruction() throws ParseException {
         int start = position;
         position += 2; // Skip "<?"
-        
+
         while (position + 1 < length) {
             if (xml.startsWith("?>", position)) {
                 position += 2;
-                break;
+                return xml.substring(start, position);
             }
             position++;
         }
-        
-        return xml.substring(start, position);
+
+        throw new ParseException("Unclosed processing instruction", position, xml);
     }
     
     private void skipDeclaration() {
@@ -167,7 +167,7 @@ public class Parser {
         }
     }
     
-    private Element parseOpeningTag() {
+    private Element parseOpeningTag() throws ParseException {
         int start = position;
         position++; // Skip '<'
 
@@ -179,7 +179,12 @@ public class Parser {
             position++;
         }
 
-        Element element = new Element(name.toString());
+        String elementName = name.toString();
+        if (elementName.isEmpty()) {
+            throw new ParseException("Empty element name", position, xml);
+        }
+
+        Element element = new Element(elementName);
 
         // Store original opening tag for whitespace preservation
 
@@ -211,7 +216,7 @@ public class Parser {
         return element;
     }
     
-    private void parseAttribute(Element element) {
+    private void parseAttribute(Element element) throws ParseException {
         // Parse attribute name
         StringBuilder name = new StringBuilder();
         while (position < length && xml.charAt(position) != '=' && 
@@ -244,12 +249,16 @@ public class Parser {
 
                 if (position < length) {
                     position++; // Skip closing quote
+                } else {
+                    throw new ParseException("Unclosed attribute value", position, xml);
                 }
 
                 // Set attribute with original quote character and raw value (internal method doesn't mark as modified)
                 String rawValue = value.toString();
                 String decodedValue = Text.unescapeTextContent(rawValue);
                 element.setAttributeInternal(name.toString(), decodedValue, quote, " ", rawValue);
+            } else {
+                throw new ParseException("Missing attribute value quote", position, xml);
             }
         }
     }

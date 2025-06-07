@@ -74,6 +74,18 @@ This POC demonstrates a lossless XML editor that can:
 - **Comprehensive Test Suite**: Added 47 new tests covering indentation, performance, XML conformance, and attribute handling
 - **Removed Position Tracking**: Cleaned up unused `int position` fields from Node class
 
+### 🚀 **NEW: Enhanced API Features**
+
+- **Builder Patterns**: Fluent APIs for creating complex XML structures
+- **Factory Methods**: Convenient factory classes (`Elements`, `Documents`) for common patterns
+- **Enhanced Navigation**: Stream-based navigation with `findChild()`, `descendants()`, `childElements()`
+- **Type-Safe Enums**: `QuoteStyle` and `WhitespaceStyle` enums replace magic values
+- **Configuration Management**: `DomTripConfig` with presets (strict, lenient, pretty print)
+- **Serialization Options**: `SerializationOptions` for different output modes
+- **Exception Hierarchy**: Specific exceptions (`ParseException`, `InvalidXmlException`)
+- **Immutable Operations**: Safe attribute modifications with `withValue()`, `withQuoteStyle()`
+- **Comprehensive Demos**: 5 demo classes showcasing all new features
+
 ## Architecture
 
 ### Core Classes
@@ -129,10 +141,22 @@ Run the comprehensive test suite:
 mvn test
 ```
 
-Run the interactive demo:
+Run the interactive demos:
 ```bash
-mvn compile
-java -cp target/classes eu.maveniverse.domtrip.XmlEditorDemo
+# Original lossless editing demo
+mvn test-compile exec:java -Dexec.mainClass="eu.maveniverse.domtrip.demos.EditorDemo" -Dexec.classpathScope=test
+
+# New API features overview
+mvn test-compile exec:java -Dexec.mainClass="eu.maveniverse.domtrip.demos.ImprovedApiDemo" -Dexec.classpathScope=test
+
+# Builder patterns demonstration
+mvn test-compile exec:java -Dexec.mainClass="eu.maveniverse.domtrip.demos.BuilderPatternsDemo" -Dexec.classpathScope=test
+
+# Enhanced navigation features
+mvn test-compile exec:java -Dexec.mainClass="eu.maveniverse.domtrip.demos.NavigationDemo" -Dexec.classpathScope=test
+
+# Configuration and serialization options
+mvn test-compile exec:java -Dexec.mainClass="eu.maveniverse.domtrip.demos.ConfigurationDemo" -Dexec.classpathScope=test
 ```
 
 ## Test Results

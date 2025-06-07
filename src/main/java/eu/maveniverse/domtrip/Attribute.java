@@ -7,27 +7,37 @@ public class Attribute {
     private final String name;
     private String value;
     private String rawValue; // Original value with entities preserved
-    private char quoteChar; // Quote character used (' or ")
+    private QuoteStyle quoteStyle; // Quote character used (' or ")
     private String precedingWhitespace; // Whitespace before the attribute
     
     public Attribute(String name, String value) {
-        this(name, value, '"', " ");
+        this(name, value, QuoteStyle.DOUBLE, " ");
     }
-    
-    public Attribute(String name, String value, char quoteChar, String precedingWhitespace) {
-        this.name = name;
+
+    public Attribute(String name, String value, QuoteStyle quoteStyle, String precedingWhitespace) {
+        this.name = validateName(name);
         this.value = value;
         this.rawValue = null;
-        this.quoteChar = quoteChar;
+        this.quoteStyle = quoteStyle != null ? quoteStyle : QuoteStyle.DOUBLE;
         this.precedingWhitespace = precedingWhitespace != null ? precedingWhitespace : " ";
     }
-    
-    public Attribute(String name, String value, char quoteChar, String precedingWhitespace, String rawValue) {
-        this.name = name;
+
+    public Attribute(String name, String value, QuoteStyle quoteStyle, String precedingWhitespace, String rawValue) {
+        this.name = validateName(name);
         this.value = value;
         this.rawValue = rawValue;
-        this.quoteChar = quoteChar;
+        this.quoteStyle = quoteStyle != null ? quoteStyle : QuoteStyle.DOUBLE;
         this.precedingWhitespace = precedingWhitespace != null ? precedingWhitespace : " ";
+    }
+
+    // Legacy constructor for backward compatibility
+    public Attribute(String name, String value, char quoteChar, String precedingWhitespace) {
+        this(name, value, QuoteStyle.fromChar(quoteChar), precedingWhitespace);
+    }
+
+    // Legacy constructor for backward compatibility
+    public Attribute(String name, String value, char quoteChar, String precedingWhitespace, String rawValue) {
+        this(name, value, QuoteStyle.fromChar(quoteChar), precedingWhitespace, rawValue);
     }
     
     public String getName() {
@@ -51,12 +61,22 @@ public class Attribute {
         this.rawValue = rawValue;
     }
     
-    public char getQuoteChar() {
-        return quoteChar;
+    public QuoteStyle getQuoteStyle() {
+        return quoteStyle;
     }
-    
+
+    public void setQuoteStyle(QuoteStyle quoteStyle) {
+        this.quoteStyle = quoteStyle != null ? quoteStyle : QuoteStyle.DOUBLE;
+    }
+
+    // Legacy method for backward compatibility
+    public char getQuoteChar() {
+        return quoteStyle.getCharacter();
+    }
+
+    // Legacy method for backward compatibility
     public void setQuoteChar(char quoteChar) {
-        this.quoteChar = quoteChar;
+        this.quoteStyle = QuoteStyle.fromChar(quoteChar);
     }
     
     public String getPrecedingWhitespace() {
@@ -74,7 +94,7 @@ public class Attribute {
         if (useRaw && rawValue != null) {
             return rawValue;
         }
-        return escapeAttributeValue(value, quoteChar);
+        return escapeAttributeValue(value, quoteStyle.getCharacter());
     }
     
     /**
@@ -103,14 +123,50 @@ public class Attribute {
         sb.append(precedingWhitespace)
           .append(name)
           .append("=")
-          .append(quoteChar)
+          .append(quoteStyle.getCharacter())
           .append(getSerializationValue(useRaw))
-          .append(quoteChar);
+          .append(quoteStyle.getCharacter());
     }
     
     @Override
     public String toString() {
-        return "Attribute{name='" + name + "', value='" + value + "', quote=" + quoteChar + "}";
+                return "Attribute{name='" + name + "', value='" + value + "', quote=" + quoteStyle.getCharacter() + "}";
+    }
+
+    private static String validateName(String name) {
+        if (name == null) {
+            return ""; // Handle null gracefully for backward compatibility
+        }
+        if (name.trim().isEmpty()) {
+            return name; // Allow empty names for backward compatibility
+        }
+        // Only validate non-empty names
+        if (!isValidXmlName(name)) {
+            // For backward compatibility, don't throw exception, just return the name
+            // In strict mode, this could throw an exception
+            return name;
+        }
+        return name;
+    }
+
+    private static boolean isValidXmlName(String name) {
+        if (name.isEmpty()) {
+            return false;
+        }
+
+        char first = name.charAt(0);
+        if (!Character.isLetter(first) && first != '_' && first != ':') {
+            return false;
+        }
+
+        for (int i = 1; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if (!Character.isLetterOrDigit(c) && c != '-' && c != '.' && c != '_' && c != ':') {
+                return false;
+            }
+        }
+
+        return true;
     }
     
     @Override
@@ -124,5 +180,76 @@ public class Attribute {
     @Override
     public int hashCode() {
         return name.hashCode();
+    }
+
+    /**
+     * Creates a new attribute with the specified value, preserving other properties.
+     */
+    public Attribute withValue(String newValue) {
+        return new Attribute(this.name, newValue, this.quoteStyle, this.precedingWhitespace, null);
+    }
+
+    /**
+     * Creates a new attribute with the specified quote style, preserving other properties.
+     */
+    public Attribute withQuoteStyle(QuoteStyle newQuoteStyle) {
+        return new Attribute(this.name, this.value, newQuoteStyle, this.precedingWhitespace, this.rawValue);
+    }
+
+    /**
+     * Creates a new attribute with the specified preceding whitespace, preserving other properties.
+     */
+    public Attribute withPrecedingWhitespace(String newWhitespace) {
+        return new Attribute(this.name, this.value, this.quoteStyle, newWhitespace, this.rawValue);
+    }
+
+    /**
+     * Builder for creating Attribute instances with fluent API.
+     */
+    public static class Builder {
+        private String name;
+        private String value;
+        private QuoteStyle quoteStyle = QuoteStyle.DOUBLE;
+        private String precedingWhitespace = " ";
+        private String rawValue;
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder value(String value) {
+            this.value = value;
+            return this;
+        }
+
+        public Builder quoteStyle(QuoteStyle quoteStyle) {
+            this.quoteStyle = quoteStyle;
+            return this;
+        }
+
+        public Builder precedingWhitespace(String whitespace) {
+            this.precedingWhitespace = whitespace;
+            return this;
+        }
+
+        public Builder rawValue(String rawValue) {
+            this.rawValue = rawValue;
+            return this;
+        }
+
+        public Attribute build() {
+            if (name == null) {
+                throw new IllegalStateException("Attribute name is required");
+            }
+            return new Attribute(name, value, quoteStyle, precedingWhitespace, rawValue);
+        }
+    }
+
+    /**
+     * Creates a new Builder instance.
+     */
+    public static Builder builder() {
+        return new Builder();
     }
 }

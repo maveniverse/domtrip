@@ -1,4 +1,6 @@
-package eu.maveniverse.domtrip;
+package eu.maveniverse.domtrip.demos;
+
+import eu.maveniverse.domtrip.*;
 
 /**
  * Demonstration of the lossless XML editor capabilities.

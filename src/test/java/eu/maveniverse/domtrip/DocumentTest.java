@@ -109,19 +109,19 @@ public class DocumentTest {
     }
     
     @Test
-    void testDocumentWithXmlDeclaration() {
+    void testDocumentWithXmlDeclaration() throws ParseException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root/>";
-        
+
         editor.loadXml(xml);
         Document doc = editor.getDocument();
-        
+
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", doc.getXmlDeclaration());
         assertNotNull(doc.getDocumentElement());
         assertEquals("root", doc.getDocumentElement().getName());
     }
-    
+
     @Test
-    void testDocumentWithDoctype() {
+    void testDocumentWithDoctype() throws ParseException {
         String xml = "<?xml version=\"1.0\"?>\n" +
                    "<!DOCTYPE root SYSTEM \"root.dtd\">\n" +
                    "<root/>";
@@ -133,14 +133,14 @@ public class DocumentTest {
         assertNotNull(result);
         assertTrue(result.contains("<root"));
     }
-    
+
     @Test
-    void testDocumentWithStandaloneDeclaration() {
+    void testDocumentWithStandaloneDeclaration() throws ParseException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
-        
+
         editor.loadXml(xml);
         Document doc = editor.getDocument();
-        
+
         assertTrue(doc.getXmlDeclaration().contains("standalone=\"yes\""));
     }
     
@@ -172,7 +172,7 @@ public class DocumentTest {
     }
     
     @Test
-    void testDocumentWithComments() {
+    void testDocumentWithComments() throws ParseException {
         String xml = "<?xml version=\"1.0\"?>\n" +
                    "<!-- Document comment -->\n" +
                    "<root>\n" +
@@ -180,15 +180,15 @@ public class DocumentTest {
                    "  <child/>\n" +
                    "</root>\n" +
                    "<!-- Final comment -->";
-        
+
         editor.loadXml(xml);
         String result = editor.toXml();
-        
+
         assertEquals(xml, result);
     }
-    
+
     @Test
-    void testDocumentWithProcessingInstructions() {
+    void testDocumentWithProcessingInstructions() throws ParseException {
         String xml = "<?xml version=\"1.0\"?>\n" +
                    "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n" +
                    "<root/>";

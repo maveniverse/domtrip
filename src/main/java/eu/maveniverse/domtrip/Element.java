@@ -61,7 +61,7 @@ public class Element extends Node {
     /**
      * Sets attribute without marking as modified (for use during parsing)
      */
-    public void setAttributeInternal(String name, String value, char quoteChar, String precedingWhitespace, String rawValue) {
+    void setAttributeInternal(String name, String value, char quoteChar, String precedingWhitespace, String rawValue) {
         attributes.put(name, new Attribute(name, value, quoteChar, precedingWhitespace, rawValue));
         // Don't call markModified() here
     }
@@ -86,6 +86,16 @@ public class Element extends Node {
 
     public Attribute getAttributeObject(String name) {
         return attributes.get(name);
+    }
+
+    /**
+     * Sets an attribute using an Attribute object.
+     */
+    public void setAttributeObject(String name, Attribute attribute) {
+        if (name != null && attribute != null) {
+            attributes.put(name, attribute);
+            markModified();
+        }
     }
 
     // Attribute formatting management (for backward compatibility)

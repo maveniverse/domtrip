@@ -20,21 +20,21 @@ public class ErrorHandlingTest {
     
     @Test
     void testParseNullXml() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(ParseException.class, () -> {
             parser.parse(null);
         });
     }
-    
+
     @Test
     void testParseEmptyXml() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(ParseException.class, () -> {
             parser.parse("");
         });
     }
-    
+
     @Test
     void testParseWhitespaceOnlyXml() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(ParseException.class, () -> {
             parser.parse("   \n\t  ");
         });
     }
@@ -59,65 +59,65 @@ public class ErrorHandlingTest {
     
     @Test
     void testAddElementWithNullParent() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(null, "test");
         });
     }
-    
+
     @Test
-    void testAddElementWithNullName() {
+    void testAddElementWithNullName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
         Element root = editor.getRootElement();
-        
-        assertThrows(IllegalArgumentException.class, () -> {
+
+        assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, null);
         });
     }
-    
+
     @Test
-    void testAddElementWithEmptyName() {
+    void testAddElementWithEmptyName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
         Element root = editor.getRootElement();
-        
-        assertThrows(IllegalArgumentException.class, () -> {
+
+        assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, "");
         });
     }
-    
+
     @Test
-    void testAddElementWithWhitespaceOnlyName() {
+    void testAddElementWithWhitespaceOnlyName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
         Element root = editor.getRootElement();
-        
-        assertThrows(IllegalArgumentException.class, () -> {
+
+        assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, "   ");
         });
     }
     
     @Test
     void testAddCommentWithNullParent() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidXmlException.class, () -> {
             editor.addComment(null, "test comment");
         });
     }
     
     @Test
-    void testAddCommentWithNullContent() {
+    void testAddCommentWithNullContent() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
         Element root = editor.getRootElement();
-        
+
         // Should not throw - null content should be handled gracefully
         Comment comment = editor.addComment(root, null);
         assertNotNull(comment);
         assertEquals("", comment.getContent());
     }
-    
+
     @Test
-    void testSetAttributeWithNullName() {
+    void testSetAttributeWithNullName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
         Element root = editor.getRootElement();
@@ -127,28 +127,28 @@ public class ErrorHandlingTest {
             root.setAttribute(null, "value");
         });
     }
-    
+
     @Test
-    void testSetAttributeWithNullValue() {
+    void testSetAttributeWithNullValue() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
         Element root = editor.getRootElement();
-        
+
         // Should handle null value gracefully
         root.setAttribute("test", null);
         assertNull(root.getAttribute("test"));
     }
     
     @Test
-    void testRemoveNonExistentElement() {
+    void testRemoveNonExistentElement() throws ParseException {
         String xml = "<root><child/></root>";
         editor.loadXml(xml);
         Element root = editor.getRootElement();
         Element child = (Element) root.getChild(0);
-        
+
         // Remove the child
         editor.removeElement(child);
-        
+
         // Try to remove it again - should handle gracefully
         assertDoesNotThrow(() -> {
             editor.removeElement(child);
@@ -163,12 +163,12 @@ public class ErrorHandlingTest {
     }
     
     @Test
-    void testFindElementWithNullName() {
+    void testFindElementWithNullName() throws ParseException {
         String xml = "<root><child/></root>";
         editor.loadXml(xml);
 
-        // This may throw NPE in current implementation
-        assertThrows(NullPointerException.class, () -> {
+        // This should now throw NodeNotFoundException
+        assertThrows(NodeNotFoundException.class, () -> {
             editor.findElement(null);
         });
     }
@@ -182,41 +182,39 @@ public class ErrorHandlingTest {
     
     @Test
     void testCreateDocumentWithNullRootName() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidXmlException.class, () -> {
             editor.createDocument(null);
         });
     }
-    
+
     @Test
     void testCreateDocumentWithEmptyRootName() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(InvalidXmlException.class, () -> {
             editor.createDocument("");
         });
     }
     
     @Test
-    void testLargeXmlDocument() {
+    void testLargeXmlDocument() throws ParseException {
         // Test with a large XML document to ensure no memory issues
         StringBuilder largeXml = new StringBuilder("<root>");
         for (int i = 0; i < 1000; i++) {
             largeXml.append("<element").append(i).append(">content").append(i).append("</element").append(i).append(">");
         }
         largeXml.append("</root>");
-        
-        assertDoesNotThrow(() -> {
-            editor.loadXml(largeXml.toString());
-            String result = editor.toXml();
-            assertNotNull(result);
-            assertTrue(result.length() > 0);
-        });
+
+        editor.loadXml(largeXml.toString());
+        String result = editor.toXml();
+        assertNotNull(result);
+        assertTrue(result.length() > 0);
     }
     
     @Test
-    void testDeeplyNestedXml() {
+    void testDeeplyNestedXml() throws ParseException {
         // Test with deeply nested XML
         StringBuilder nestedXml = new StringBuilder();
         int depth = 100;
-        
+
         for (int i = 0; i < depth; i++) {
             nestedXml.append("<level").append(i).append(">");
         }
@@ -224,57 +222,49 @@ public class ErrorHandlingTest {
         for (int i = depth - 1; i >= 0; i--) {
             nestedXml.append("</level").append(i).append(">");
         }
-        
-        assertDoesNotThrow(() -> {
-            editor.loadXml(nestedXml.toString());
-            String result = editor.toXml();
-            assertNotNull(result);
-            assertTrue(result.contains("content"));
-        });
+
+        editor.loadXml(nestedXml.toString());
+        String result = editor.toXml();
+        assertNotNull(result);
+        assertTrue(result.contains("content"));
     }
     
     @Test
-    void testXmlWithManyAttributes() {
+    void testXmlWithManyAttributes() throws ParseException {
         // Test element with many attributes
         StringBuilder xmlWithManyAttrs = new StringBuilder("<root");
         for (int i = 0; i < 50; i++) {
             xmlWithManyAttrs.append(" attr").append(i).append("=\"value").append(i).append("\"");
         }
         xmlWithManyAttrs.append("/>");
-        
-        assertDoesNotThrow(() -> {
-            editor.loadXml(xmlWithManyAttrs.toString());
-            Element root = editor.getRootElement();
-            assertEquals("value0", root.getAttribute("attr0"));
-            assertEquals("value49", root.getAttribute("attr49"));
-        });
+
+        editor.loadXml(xmlWithManyAttrs.toString());
+        Element root = editor.getRootElement();
+        assertEquals("value0", root.getAttribute("attr0"));
+        assertEquals("value49", root.getAttribute("attr49"));
     }
     
     @Test
-    void testSpecialCharactersInElementNames() {
+    void testSpecialCharactersInElementNames() throws ParseException {
         // Test with valid but unusual element names
         String xml = "<root><element-with-dashes/><element_with_underscores/><element.with.dots/></root>";
-        
-        assertDoesNotThrow(() -> {
-            editor.loadXml(xml);
-            String result = editor.toXml();
-            assertTrue(result.contains("element-with-dashes"));
-            assertTrue(result.contains("element_with_underscores"));
-            assertTrue(result.contains("element.with.dots"));
-        });
+
+        editor.loadXml(xml);
+        String result = editor.toXml();
+        assertTrue(result.contains("element-with-dashes"));
+        assertTrue(result.contains("element_with_underscores"));
+        assertTrue(result.contains("element.with.dots"));
     }
-    
+
     @Test
-    void testSpecialCharactersInAttributeNames() {
+    void testSpecialCharactersInAttributeNames() throws ParseException {
         // Test with valid but unusual attribute names
         String xml = "<root attr-dash=\"value1\" attr_underscore=\"value2\" attr.dot=\"value3\"/>";
-        
-        assertDoesNotThrow(() -> {
-            editor.loadXml(xml);
-            Element root = editor.getRootElement();
-            assertEquals("value1", root.getAttribute("attr-dash"));
-            assertEquals("value2", root.getAttribute("attr_underscore"));
-            assertEquals("value3", root.getAttribute("attr.dot"));
-        });
+
+        editor.loadXml(xml);
+        Element root = editor.getRootElement();
+        assertEquals("value1", root.getAttribute("attr-dash"));
+        assertEquals("value2", root.getAttribute("attr_underscore"));
+        assertEquals("value3", root.getAttribute("attr.dot"));
     }
 }

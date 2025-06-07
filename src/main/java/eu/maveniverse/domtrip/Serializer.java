@@ -20,6 +20,12 @@ public class Serializer {
         this();
         this.preserveFormatting = preserveFormatting;
     }
+
+    public Serializer(DomTripConfig config) {
+        this.preserveFormatting = config.isPreserveWhitespace();
+        this.prettyPrint = config.isPrettyPrint();
+        this.indentString = config.getIndentString();
+    }
     
     public boolean isPreserveFormatting() {
         return preserveFormatting;
@@ -45,6 +51,19 @@ public class Serializer {
         this.prettyPrint = prettyPrint;
     }
     
+    /**
+     * Serializes an XML document to string with custom configuration
+     */
+    public String serialize(Document document, DomTripConfig config) {
+        if (document == null) {
+            return "";
+        }
+
+        // Create temporary serializer with config
+        Serializer tempSerializer = new Serializer(config);
+        return tempSerializer.serialize(document);
+    }
+
     /**
      * Serializes an XML document to string
      */

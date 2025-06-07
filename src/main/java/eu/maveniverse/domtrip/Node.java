@@ -2,6 +2,8 @@ package eu.maveniverse.domtrip;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Base class for all XML nodes in the lossless XML tree.
@@ -66,8 +68,7 @@ public abstract class Node {
             child.setParent(this);
             children.add(child);
             // If this is an Element and it was self-closing, make it not self-closing
-            if (this instanceof Element) {
-                Element element = (Element) this;
+            if (this instanceof Element element) {
                 if (element.isSelfClosing()) {
                     element.setSelfClosingInternal(false);
                 }
@@ -79,7 +80,7 @@ public abstract class Node {
     /**
      * Adds a child without marking as modified (for use during parsing)
      */
-    public void addChildInternal(Node child) {
+    void addChildInternal(Node child) {
         if (child != null) {
             child.setParent(this);
             children.add(child);
@@ -92,8 +93,7 @@ public abstract class Node {
             child.setParent(this);
             children.add(index, child);
             // If this is an Element and it was self-closing, make it not self-closing
-            if (this instanceof Element) {
-                Element element = (Element) this;
+            if (this instanceof Element element) {
                 if (element.isSelfClosing()) {
                     element.setSelfClosingInternal(false);
                 }
@@ -161,32 +161,139 @@ public abstract class Node {
         }
     }
 
+
+
     /**
-     * Finds the first child element with the given name
+     * Finds the first child element with the given name (Optional-based).
      */
-    public Element findChildElement(String name) {
-        for (Node child : children) {
-            if (child instanceof Element element) {
-                if (name.equals(element.getName())) {
-                    return element;
-                }
-            }
-        }
-        return null;
+    public Optional<Element> findChild(String name) {
+        return children.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> name.equals(element.getName()))
+                .findFirst();
     }
 
     /**
-     * Finds all child elements with the given name
+     * Finds all child elements with the given name (Stream-based).
      */
-    public List<Element> findChildElements(String name) {
-        List<Element> result = new ArrayList<>();
+    public Stream<Element> findChildren(String name) {
+        return children.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> name.equals(element.getName()));
+    }
+
+    /**
+     * Finds the first descendant element with the given name.
+     */
+    public Optional<Element> findDescendant(String name) {
+        return descendants()
+                .filter(element -> name.equals(element.getName()))
+                .findFirst();
+    }
+
+    /**
+     * Returns a stream of all descendant elements.
+     */
+    public Stream<Element> descendants() {
+        return children.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .flatMap(element -> Stream.concat(
+                    Stream.of(element),
+                    element.descendants()
+                ));
+    }
+
+    /**
+     * Returns a stream of direct child elements.
+     */
+    public Stream<Element> childElements() {
+        return children.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child);
+    }
+
+    /**
+     * Returns a stream of all children.
+     */
+    public Stream<Node> childNodes() {
+        return children.stream();
+    }
+
+    /**
+     * Finds the first text node child.
+     */
+    public Optional<Text> findTextChild() {
+        return children.stream()
+                .filter(child -> child instanceof Text)
+                .map(child -> (Text) child)
+                .findFirst();
+    }
+
+    /**
+     * Gets the text content of this node (concatenates all text children).
+     */
+    public String getTextContent() {
+        StringBuilder sb = new StringBuilder();
         for (Node child : children) {
-            if (child instanceof Element element) {
-                if (name.equals(element.getName())) {
-                    result.add(element);
-                }
+            if (child instanceof Text textNode) {
+                sb.append(textNode.getContent());
             }
         }
-        return result;
+        return sb.toString();
+    }
+
+    /**
+     * Checks if this node has any child elements.
+     */
+    public boolean hasChildElements() {
+        return children.stream().anyMatch(child -> child instanceof Element);
+    }
+
+    /**
+     * Checks if this node has any text content.
+     */
+    public boolean hasTextContent() {
+        return children.stream().anyMatch(child -> child instanceof Text);
+    }
+
+    /**
+     * Gets the depth of this node in the tree (root is 0).
+     */
+    public int getDepth() {
+        int depth = 0;
+        Node current = this.parent;
+        while (current != null) {
+            depth++;
+            current = current.parent;
+        }
+        return depth;
+    }
+
+    /**
+     * Gets the root node of the tree.
+     */
+    public Node getRoot() {
+        Node current = this;
+        while (current.parent != null) {
+            current = current.parent;
+        }
+        return current;
+    }
+
+    /**
+     * Checks if this node is a descendant of the given node.
+     */
+    public boolean isDescendantOf(Node ancestor) {
+        Node current = this.parent;
+        while (current != null) {
+            if (current == ancestor) {
+                return true;
+            }
+            current = current.parent;
+        }
+        return false;
     }
 }

@@ -1,19 +1,19 @@
 package eu.maveniverse.domtrip;
 
-import java.util.Stack;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 /**
  * A simple XML parser that preserves all formatting information including
  * whitespace, comments, and exact attribute formatting.
  */
 class Parser {
-    
+
     private String xml;
     private int position;
     private int length;
-    
-    public Parser() {
-    }
+
+    public Parser() {}
 
     /**
      * Parses an XML string into a lossless XML document tree
@@ -22,20 +22,20 @@ class Parser {
         if (xml == null || xml.trim().isEmpty()) {
             throw new ParseException("XML content cannot be null or empty");
         }
-        
+
         this.xml = xml;
         this.position = 0;
         this.length = xml.length();
-        
+
         Document document = new Document();
-        Stack<Node> nodeStack = new Stack<>();
+        Deque<Node> nodeStack = new ArrayDeque<>();
         nodeStack.push(document);
-        
+
         StringBuilder precedingWhitespace = new StringBuilder();
-        
+
         while (position < length) {
             char ch = xml.charAt(position);
-            
+
             if (ch == '<') {
                 // Save any preceding whitespace/text
                 if (!precedingWhitespace.isEmpty()) {
@@ -46,10 +46,10 @@ class Parser {
                     current.addChildInternal(textNode);
                     precedingWhitespace.setLength(0);
                 }
-                
+
                 if (position + 1 < length) {
                     char nextChar = xml.charAt(position + 1);
-                    
+
                     if (nextChar == '!') {
                         if (position + 3 < length && xml.startsWith("<!--", position)) {
                             // Parse comment
@@ -96,7 +96,7 @@ class Parser {
                 position++;
             }
         }
-        
+
         // Add any remaining whitespace/text
         if (!precedingWhitespace.isEmpty()) {
             String rawText = precedingWhitespace.toString();
@@ -115,7 +115,7 @@ class Parser {
 
         return document;
     }
-    
+
     private Comment parseComment() throws ParseException {
         position += 4; // Skip "<!--"
 
@@ -147,7 +147,7 @@ class Parser {
 
         throw new ParseException("Unclosed CDATA section", position, xml);
     }
-    
+
     private String parseProcessingInstruction() throws ParseException {
         int start = position;
         position += 2; // Skip "<?"
@@ -162,7 +162,7 @@ class Parser {
 
         throw new ParseException("Unclosed processing instruction", position, xml);
     }
-    
+
     private void skipDeclaration() {
         while (position < length && xml.charAt(position) != '>') {
             position++;
@@ -171,15 +171,17 @@ class Parser {
             position++; // Skip '>'
         }
     }
-    
+
     private Element parseOpeningTag() throws ParseException {
         int start = position;
         position++; // Skip '<'
 
         // Parse element name
         StringBuilder name = new StringBuilder();
-        while (position < length && !Character.isWhitespace(xml.charAt(position))
-               && xml.charAt(position) != '>' && xml.charAt(position) != '/') {
+        while (position < length
+                && !Character.isWhitespace(xml.charAt(position))
+                && xml.charAt(position) != '>'
+                && xml.charAt(position) != '/') {
             name.append(xml.charAt(position));
             position++;
         }
@@ -194,8 +196,9 @@ class Parser {
         // Store original opening tag for whitespace preservation
 
         // Parse attributes and whitespace
-        while (position < length && xml.charAt(position) != '>' &&
-               !(xml.charAt(position) == '/' && position + 1 < length && xml.charAt(position + 1) == '>')) {
+        while (position < length
+                && xml.charAt(position) != '>'
+                && !(xml.charAt(position) == '/' && position + 1 < length && xml.charAt(position + 1) == '>')) {
 
             if (Character.isWhitespace(xml.charAt(position))) {
                 // Skip whitespace but preserve it
@@ -220,27 +223,26 @@ class Parser {
         element.setOriginalOpenTag(xml.substring(start, position));
         return element;
     }
-    
+
     private void parseAttribute(Element element) throws ParseException {
         // Parse attribute name
         StringBuilder name = new StringBuilder();
-        while (position < length && xml.charAt(position) != '=' && 
-               !Character.isWhitespace(xml.charAt(position))) {
+        while (position < length && xml.charAt(position) != '=' && !Character.isWhitespace(xml.charAt(position))) {
             name.append(xml.charAt(position));
             position++;
         }
-        
+
         // Skip whitespace around '='
         while (position < length && Character.isWhitespace(xml.charAt(position))) {
             position++;
         }
-        
+
         if (position < length && xml.charAt(position) == '=') {
             // Skip whitespace after '='
             do {
                 position++;
             } while (position < length && Character.isWhitespace(xml.charAt(position)));
-            
+
             // Parse attribute value
             if (position < length && (xml.charAt(position) == '"' || xml.charAt(position) == '\'')) {
                 char quote = xml.charAt(position);
@@ -267,8 +269,8 @@ class Parser {
             }
         }
     }
-    
-    private void parseClosingTag(Stack<Node> nodeStack) {
+
+    private void parseClosingTag(Deque<Node> nodeStack) {
         position += 2; // Skip "</"
 
         // Parse tag name

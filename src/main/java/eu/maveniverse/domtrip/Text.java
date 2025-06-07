@@ -4,12 +4,12 @@ package eu.maveniverse.domtrip;
  * Represents text content in XML, preserving exact whitespace and formatting.
  */
 public class Text extends Node {
-    
+
     private String content;
     private String rawContent; // Original content with entities preserved
     private boolean isCData;
     private boolean preserveWhitespace;
-    
+
     public Text(String content) {
         super();
         this.content = content != null ? content : "";
@@ -27,16 +27,16 @@ public class Text extends Node {
         this(content);
         this.rawContent = rawContent;
     }
-    
+
     @Override
     public NodeType getNodeType() {
         return NodeType.TEXT;
     }
-    
+
     public String getContent() {
         return content;
     }
-    
+
     public void setContent(String content) {
         this.content = content != null ? content : "";
         this.rawContent = null; // Clear raw content when content is modified
@@ -50,38 +50,38 @@ public class Text extends Node {
     public void setRawContent(String rawContent) {
         this.rawContent = rawContent;
     }
-    
+
     public boolean isCData() {
         return isCData;
     }
-    
+
     public void setCData(boolean cData) {
         this.isCData = cData;
         markModified();
     }
-    
+
     public boolean isPreserveWhitespace() {
         return preserveWhitespace;
     }
-    
+
     public void setPreserveWhitespace(boolean preserveWhitespace) {
         this.preserveWhitespace = preserveWhitespace;
     }
-    
+
     /**
      * Returns true if this text node contains only whitespace
      */
     public boolean isWhitespaceOnly() {
         return content.trim().isEmpty();
     }
-    
+
     /**
      * Returns true if this text node is empty
      */
     public boolean isEmpty() {
         return content.isEmpty();
     }
-    
+
     @Override
     public String toXml() {
         StringBuilder sb = new StringBuilder();
@@ -112,23 +112,21 @@ public class Text extends Node {
      */
     private String escapeTextContent(String text) {
         if (text == null) return "";
-        return text.replace("&", "&amp;")
-                   .replace("<", "&lt;")
-                   .replace(">", "&gt;");
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
-    
+
     /**
      * Unescapes XML entities in text content
      */
     public static String unescapeTextContent(String text) {
         if (text == null) return "";
         return text.replace("&lt;", "<")
-                   .replace("&gt;", ">")
-                   .replace("&quot;", "\"")
-                   .replace("&apos;", "'")
-                   .replace("&amp;", "&"); // This must be last
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"")
+                .replace("&apos;", "'")
+                .replace("&amp;", "&"); // This must be last
     }
-    
+
     /**
      * Trims whitespace from the content while preserving internal structure
      */
@@ -138,7 +136,7 @@ public class Text extends Node {
             markModified();
         }
     }
-    
+
     /**
      * Normalizes whitespace in the content (collapses multiple spaces to single space)
      */
@@ -148,12 +146,10 @@ public class Text extends Node {
             markModified();
         }
     }
-    
+
     @Override
     public String toString() {
-        String displayContent = content.length() > 50 ?
-            content.substring(0, 47) + "..." : content;
-        return "Text{content='" + displayContent.replace("\n", "\\n") +
-               "', isCData=" + isCData + "}";
+        String displayContent = content.length() > 50 ? content.substring(0, 47) + "..." : content;
+        return "Text{content='" + displayContent.replace("\n", "\\n") + "', isCData=" + isCData + "}";
     }
 }

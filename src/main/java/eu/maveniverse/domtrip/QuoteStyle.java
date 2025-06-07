@@ -6,17 +6,17 @@ package eu.maveniverse.domtrip;
 public enum QuoteStyle {
     DOUBLE('"'),
     SINGLE('\'');
-    
+
     private final char character;
-    
+
     QuoteStyle(char character) {
         this.character = character;
     }
-    
+
     public char getCharacter() {
         return character;
     }
-    
+
     public static QuoteStyle fromChar(char c) {
         for (QuoteStyle style : values()) {
             if (style.character == c) {
@@ -25,7 +25,7 @@ public enum QuoteStyle {
         }
         throw new IllegalArgumentException("Invalid quote character: " + c);
     }
-    
+
     @Override
     public String toString() {
         return String.valueOf(character);

@@ -5,14 +5,14 @@ package eu.maveniverse.domtrip;
  * and preserving document-level formatting like XML declarations and DTDs.
  */
 public class Document extends ContainerNode {
-    
+
     private String xmlDeclaration;
     private String doctype;
     private Element documentElement;
     private String encoding;
     private String version;
     private boolean standalone;
-    
+
     public Document() {
         super();
         this.xmlDeclaration = "";
@@ -21,30 +21,30 @@ public class Document extends ContainerNode {
         this.version = "1.0";
         this.standalone = false;
     }
-    
+
     @Override
     public NodeType getNodeType() {
         return NodeType.DOCUMENT;
     }
-    
+
     public String getXmlDeclaration() {
         return xmlDeclaration;
     }
-    
+
     public void setXmlDeclaration(String xmlDeclaration) {
         this.xmlDeclaration = xmlDeclaration != null ? xmlDeclaration : "";
         markModified();
     }
-    
+
     public String getDoctype() {
         return doctype;
     }
-    
+
     public void setDoctype(String doctype) {
         this.doctype = doctype != null ? doctype : "";
         markModified();
     }
-    
+
     public Element getDocumentElement() {
         return documentElement;
     }
@@ -67,34 +67,34 @@ public class Document extends ContainerNode {
         }
         // Don't call markModified() here
     }
-    
+
     public String getEncoding() {
         return encoding;
     }
-    
+
     public void setEncoding(String encoding) {
         this.encoding = encoding != null ? encoding : "UTF-8";
         markModified();
     }
-    
+
     public String getVersion() {
         return version;
     }
-    
+
     public void setVersion(String version) {
         this.version = version != null ? version : "1.0";
         markModified();
     }
-    
+
     public boolean isStandalone() {
         return standalone;
     }
-    
+
     public void setStandalone(boolean standalone) {
         this.standalone = standalone;
         markModified();
     }
-    
+
     @Override
     public String toXml() {
         StringBuilder sb = new StringBuilder();
@@ -173,7 +173,7 @@ public class Document extends ContainerNode {
         }
         return null;
     }
-    
+
     /**
      * Creates a minimal XML declaration based on current settings
      */
@@ -187,10 +187,10 @@ public class Document extends ContainerNode {
         sb.append("?>");
         return sb.toString();
     }
-    
+
     @Override
     public String toString() {
-        return "Document{version='" + version + "', encoding='" + encoding +
-               "', documentElement=" + (documentElement != null ? documentElement.getName() : "null") + "}";
+        return "Document{version='" + version + "', encoding='" + encoding + "', documentElement="
+                + (documentElement != null ? documentElement.getName() : "null") + "}";
     }
 }

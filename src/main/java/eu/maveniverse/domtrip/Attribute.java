@@ -9,7 +9,7 @@ public class Attribute {
     private String rawValue; // Original value with entities preserved
     private QuoteStyle quoteStyle; // Quote character used (' or ")
     private String precedingWhitespace; // Whitespace before the attribute
-    
+
     public Attribute(String name, String value) {
         this(name, value, QuoteStyle.DOUBLE, " ");
     }
@@ -39,28 +39,28 @@ public class Attribute {
     public Attribute(String name, String value, char quoteChar, String precedingWhitespace, String rawValue) {
         this(name, value, QuoteStyle.fromChar(quoteChar), precedingWhitespace, rawValue);
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public String getValue() {
         return value;
     }
-    
+
     public void setValue(String value) {
         this.value = value;
         this.rawValue = null; // Clear raw value when setting programmatically
     }
-    
+
     public String getRawValue() {
         return rawValue;
     }
-    
+
     public void setRawValue(String rawValue) {
         this.rawValue = rawValue;
     }
-    
+
     public QuoteStyle getQuoteStyle() {
         return quoteStyle;
     }
@@ -78,15 +78,15 @@ public class Attribute {
     public void setQuoteChar(char quoteChar) {
         this.quoteStyle = QuoteStyle.fromChar(quoteChar);
     }
-    
+
     public String getPrecedingWhitespace() {
         return precedingWhitespace;
     }
-    
+
     public void setPrecedingWhitespace(String precedingWhitespace) {
         this.precedingWhitespace = precedingWhitespace != null ? precedingWhitespace : " ";
     }
-    
+
     /**
      * Gets the value to use for serialization (raw if available, otherwise escaped)
      */
@@ -96,41 +96,39 @@ public class Attribute {
         }
         return escapeAttributeValue(value, quoteStyle.getCharacter());
     }
-    
+
     /**
      * Escapes special characters in attribute values with specific quote character
      */
     private String escapeAttributeValue(String value, char quoteChar) {
         if (value == null) return "";
-        String result = value.replace("&", "&amp;")
-                            .replace("<", "&lt;")
-                            .replace(">", "&gt;");
-        
+        String result = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+
         // Only escape the quote character that's being used
         if (quoteChar == '"') {
             result = result.replace("\"", "&quot;");
         } else if (quoteChar == '\'') {
             result = result.replace("'", "&apos;");
         }
-        
+
         return result;
     }
-    
+
     /**
      * Serializes this attribute to XML
      */
     public void toXml(StringBuilder sb, boolean useRaw) {
         sb.append(precedingWhitespace)
-          .append(name)
-          .append("=")
-          .append(quoteStyle.getCharacter())
-          .append(getSerializationValue(useRaw))
-          .append(quoteStyle.getCharacter());
+                .append(name)
+                .append("=")
+                .append(quoteStyle.getCharacter())
+                .append(getSerializationValue(useRaw))
+                .append(quoteStyle.getCharacter());
     }
-    
+
     @Override
     public String toString() {
-                return "Attribute{name='" + name + "', value='" + value + "', quote=" + quoteStyle.getCharacter() + "}";
+        return "Attribute{name='" + name + "', value='" + value + "', quote=" + quoteStyle.getCharacter() + "}";
     }
 
     private static String validateName(String name) {
@@ -168,7 +166,7 @@ public class Attribute {
 
         return true;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -176,7 +174,7 @@ public class Attribute {
         Attribute attribute = (Attribute) obj;
         return name.equals(attribute.name);
     }
-    
+
     @Override
     public int hashCode() {
         return name.hashCode();

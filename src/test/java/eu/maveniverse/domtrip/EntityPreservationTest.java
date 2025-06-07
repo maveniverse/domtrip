@@ -1,44 +1,44 @@
 package eu.maveniverse.domtrip;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for entity and quote preservation features.
  */
 public class EntityPreservationTest {
-    
+
     private Editor editor;
-    
+
     @BeforeEach
     void setUp() {
         editor = new Editor();
     }
-    
+
     @Test
     void testEntityPreservation() {
-        String xmlWithEntities = "<root>\n" +
-                               "  <content>Text with &lt;entities&gt; &amp; symbols</content>\n" +
-                               "  <mixed>More &lt;content&gt; with &quot;quotes&quot;</mixed>\n" +
-                               "</root>";
-        
+        String xmlWithEntities = "<root>\n" + "  <content>Text with &lt;entities&gt; &amp; symbols</content>\n"
+                + "  <mixed>More &lt;content&gt; with &quot;quotes&quot;</mixed>\n"
+                + "</root>";
+
         editor.loadXml(xmlWithEntities);
         String result = editor.toXml();
-        
+
         // Entities should be preserved exactly
         assertTrue(result.contains("&lt;entities&gt; &amp; symbols"));
         assertTrue(result.contains("&lt;content&gt; with &quot;quotes&quot;"));
-        
+
         // Round-trip should be identical
         assertEquals(xmlWithEntities, result);
     }
-    
+
     @Test
     void testAttributeQuotePreservation() {
-        String xmlWithMixedQuotes = "<root attr1='single quotes' attr2=\"double quotes\">\n" +
-                                  "  <element other=\"normal\"/>\n" +
-                                  "</root>";
+        String xmlWithMixedQuotes = "<root attr1='single quotes' attr2=\"double quotes\">\n"
+                + "  <element other=\"normal\"/>\n" + "</root>";
 
         editor.loadXml(xmlWithMixedQuotes);
         String result = editor.toXml();
@@ -51,7 +51,7 @@ public class EntityPreservationTest {
         // Round-trip should be identical
         assertEquals(xmlWithMixedQuotes, result);
     }
-    
+
     @Test
     void testNewAttributeQuoteStyle() {
         String xml = "<root existing='value'/>";
@@ -69,7 +69,7 @@ public class EntityPreservationTest {
         // New attribute should use double quotes (default)
         assertTrue(result.contains("newAttr=\"newValue\""));
     }
-    
+
     @Test
     void testEntityInNewContent() {
         String xml = "<root/>";
@@ -85,34 +85,33 @@ public class EntityPreservationTest {
         // New content should be properly escaped
         assertTrue(result.contains("Text with &lt;tags&gt; &amp; entities"));
     }
-    
+
     @Test
     void testCDataPreservation() {
-        String xmlWithCData = "<root>\n" +
-                            "  <script><![CDATA[function() { return x < y && z > 0; }]]></script>\n" +
-                            "</root>";
-        
+        String xmlWithCData =
+                "<root>\n" + "  <script><![CDATA[function() { return x < y && z > 0; }]]></script>\n" + "</root>";
+
         editor.loadXml(xmlWithCData);
         String result = editor.toXml();
-        
+
         // CDATA should be preserved exactly
         assertTrue(result.contains("<![CDATA[function() { return x < y && z > 0; }]]>"));
-        
+
         // Round-trip should be identical
         assertEquals(xmlWithCData, result);
     }
-    
+
     @Test
     void testComplexEntityMix() {
-        String complexXml = "<config version='1.0' encoding=\"UTF-8\">\n" +
-                          "  <database url='jdbc:mysql://localhost/db?user=admin&amp;password=secret'/>\n" +
-                          "  <message>Welcome &lt;user&gt;! Your balance is &gt; $100.</message>\n" +
-                          "  <template><![CDATA[<html><body>Hello &world;</body></html>]]></template>\n" +
-                          "</config>";
-        
+        String complexXml = "<config version='1.0' encoding=\"UTF-8\">\n"
+                + "  <database url='jdbc:mysql://localhost/db?user=admin&amp;password=secret'/>\n"
+                + "  <message>Welcome &lt;user&gt;! Your balance is &gt; $100.</message>\n"
+                + "  <template><![CDATA[<html><body>Hello &world;</body></html>]]></template>\n"
+                + "</config>";
+
         editor.loadXml(complexXml);
         String result = editor.toXml();
-        
+
         // All formatting should be preserved
         assertTrue(result.contains("version='1.0'"));
         assertTrue(result.contains("encoding=\"UTF-8\""));
@@ -120,17 +119,16 @@ public class EntityPreservationTest {
         assertTrue(result.contains("&lt;user&gt;"));
         assertTrue(result.contains("&gt; $100"));
         assertTrue(result.contains("<![CDATA[<html><body>Hello &world;</body></html>]]>"));
-        
+
         // Round-trip should be identical
         assertEquals(complexXml, result);
     }
-    
+
     @Test
     void testModificationPreservesUnchangedParts() {
-        String xml = "<root attr1='keep' attr2=\"also keep\">\n" +
-                   "  <keep>Text with &lt;entities&gt;</keep>\n" +
-                   "  <modify>old content</modify>\n" +
-                   "</root>";
+        String xml = "<root attr1='keep' attr2=\"also keep\">\n" + "  <keep>Text with &lt;entities&gt;</keep>\n"
+                + "  <modify>old content</modify>\n"
+                + "</root>";
 
         editor.loadXml(xml);
         Element modify = (Element) editor.getRootElement().getChild(3); // Find modify element

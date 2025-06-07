@@ -1,23 +1,29 @@
 package eu.maveniverse.domtrip;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for error handling and edge cases.
  */
 public class ErrorHandlingTest {
-    
+
     private Editor editor;
     private Parser parser;
-    
+
     @BeforeEach
     void setUp() {
         editor = new Editor();
         parser = new Parser();
     }
-    
+
     @Test
     void testParseNullXml() {
         assertThrows(ParseException.class, () -> {
@@ -38,7 +44,7 @@ public class ErrorHandlingTest {
             parser.parse("   \n\t  ");
         });
     }
-    
+
     @Test
     void testParseMalformedXml() {
         // Test unclosed tag - parser may handle this gracefully
@@ -47,7 +53,7 @@ public class ErrorHandlingTest {
             assertNotNull(doc);
         });
     }
-    
+
     @Test
     void testParseInvalidCharacters() {
         // Test with invalid XML characters
@@ -56,7 +62,7 @@ public class ErrorHandlingTest {
         Document doc = parser.parse(invalidXml);
         assertNotNull(doc);
     }
-    
+
     @Test
     void testAddElementWithNullParent() {
         assertThrows(InvalidXmlException.class, () -> {
@@ -96,14 +102,14 @@ public class ErrorHandlingTest {
             editor.addElement(root, "   ");
         });
     }
-    
+
     @Test
     void testAddCommentWithNullParent() {
         assertThrows(InvalidXmlException.class, () -> {
             editor.addComment(null, "test comment");
         });
     }
-    
+
     @Test
     void testAddCommentWithNullContent() throws ParseException {
         String xml = "<root/>";
@@ -138,7 +144,7 @@ public class ErrorHandlingTest {
         root.setAttribute("test", null);
         assertNull(root.getAttribute("test"));
     }
-    
+
     @Test
     void testRemoveNonExistentElement() throws ParseException {
         String xml = "<root><child/></root>";
@@ -154,14 +160,14 @@ public class ErrorHandlingTest {
             editor.removeElement(child);
         });
     }
-    
+
     @Test
     void testFindElementInEmptyDocument() {
         // Don't load any XML
         Element result = editor.findElement("nonexistent");
         assertNull(result);
     }
-    
+
     @Test
     void testFindElementWithNullName() throws ParseException {
         String xml = "<root><child/></root>";
@@ -172,14 +178,14 @@ public class ErrorHandlingTest {
             editor.findElement(null);
         });
     }
-    
+
     @Test
     void testToXmlWithEmptyDocument() {
         // Don't load any XML
         String result = editor.toXml();
         assertEquals("", result);
     }
-    
+
     @Test
     void testCreateDocumentWithNullRootName() {
         assertThrows(InvalidXmlException.class, () -> {
@@ -193,13 +199,19 @@ public class ErrorHandlingTest {
             editor.createDocument("");
         });
     }
-    
+
     @Test
     void testLargeXmlDocument() throws ParseException {
         // Test with a large XML document to ensure no memory issues
         StringBuilder largeXml = new StringBuilder("<root>");
         for (int i = 0; i < 1000; i++) {
-            largeXml.append("<element").append(i).append(">content").append(i).append("</element").append(i).append(">");
+            largeXml.append("<element")
+                    .append(i)
+                    .append(">content")
+                    .append(i)
+                    .append("</element")
+                    .append(i)
+                    .append(">");
         }
         largeXml.append("</root>");
 
@@ -208,7 +220,7 @@ public class ErrorHandlingTest {
         assertNotNull(result);
         assertTrue(result.length() > 0);
     }
-    
+
     @Test
     void testDeeplyNestedXml() throws ParseException {
         // Test with deeply nested XML
@@ -228,13 +240,18 @@ public class ErrorHandlingTest {
         assertNotNull(result);
         assertTrue(result.contains("content"));
     }
-    
+
     @Test
     void testXmlWithManyAttributes() throws ParseException {
         // Test element with many attributes
         StringBuilder xmlWithManyAttrs = new StringBuilder("<root");
         for (int i = 0; i < 50; i++) {
-            xmlWithManyAttrs.append(" attr").append(i).append("=\"value").append(i).append("\"");
+            xmlWithManyAttrs
+                    .append(" attr")
+                    .append(i)
+                    .append("=\"value")
+                    .append(i)
+                    .append("\"");
         }
         xmlWithManyAttrs.append("/>");
 
@@ -243,7 +260,7 @@ public class ErrorHandlingTest {
         assertEquals("value0", root.getAttribute("attr0"));
         assertEquals("value49", root.getAttribute("attr49"));
     }
-    
+
     @Test
     void testSpecialCharactersInElementNames() throws ParseException {
         // Test with valid but unusual element names

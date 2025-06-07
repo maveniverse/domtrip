@@ -10,7 +10,7 @@ import java.util.stream.Stream;
  * Preserves original formatting including attribute spacing and order.
  */
 public class Element extends ContainerNode {
-    
+
     private String name;
     private Map<String, Attribute> attributes;
     private String openTagWhitespace; // Whitespace within the opening tag
@@ -18,7 +18,7 @@ public class Element extends ContainerNode {
     private boolean selfClosing;
     private String originalOpenTag; // Original opening tag for reference
     private String originalCloseTag; // Original closing tag for reference
-    
+
     public Element(String name) {
         super();
         this.name = name;
@@ -29,21 +29,21 @@ public class Element extends ContainerNode {
         this.originalOpenTag = "";
         this.originalCloseTag = "";
     }
-    
+
     @Override
     public NodeType getNodeType() {
         return NodeType.ELEMENT;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
         markModified();
     }
-    
+
     // Attribute management
     public String getAttribute(String name) {
         Attribute attr = attributes.get(name);
@@ -124,28 +124,28 @@ public class Element extends ContainerNode {
         Attribute attr = attributes.get(attributeName);
         return attr != null ? attr.getQuoteChar() : '"';
     }
-    
+
     // Tag formatting
     public String getOpenTagWhitespace() {
         return openTagWhitespace;
     }
-    
+
     public void setOpenTagWhitespace(String whitespace) {
         this.openTagWhitespace = whitespace != null ? whitespace : "";
     }
-    
+
     public String getCloseTagWhitespace() {
         return closeTagWhitespace;
     }
-    
+
     public void setCloseTagWhitespace(String whitespace) {
         this.closeTagWhitespace = whitespace != null ? whitespace : "";
     }
-    
+
     public boolean isSelfClosing() {
         return selfClosing;
     }
-    
+
     public void setSelfClosing(boolean selfClosing) {
         this.selfClosing = selfClosing;
         markModified();
@@ -157,24 +157,24 @@ public class Element extends ContainerNode {
     void setSelfClosingInternal(boolean selfClosing) {
         this.selfClosing = selfClosing;
     }
-    
+
     // Original tag preservation
     public String getOriginalOpenTag() {
         return originalOpenTag;
     }
-    
+
     public void setOriginalOpenTag(String originalOpenTag) {
         this.originalOpenTag = originalOpenTag != null ? originalOpenTag : "";
     }
-    
+
     public String getOriginalCloseTag() {
         return originalCloseTag;
     }
-    
+
     public void setOriginalCloseTag(String originalCloseTag) {
         this.originalCloseTag = originalCloseTag != null ? originalCloseTag : "";
     }
-    
+
     @Override
     public String toXml() {
         StringBuilder sb = new StringBuilder();
@@ -250,9 +250,7 @@ public class Element extends ContainerNode {
      */
     private String escapeAttributeValue(String value, char quoteChar) {
         if (value == null) return "";
-        String result = value.replace("&", "&amp;")
-                            .replace("<", "&lt;")
-                            .replace(">", "&gt;");
+        String result = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 
         // Only escape the quote character that's being used
         if (quoteChar == '"') {
@@ -263,7 +261,7 @@ public class Element extends ContainerNode {
 
         return result;
     }
-    
+
     /**
      * Gets the text content of this element (concatenates all text children)
      */
@@ -276,7 +274,7 @@ public class Element extends ContainerNode {
         }
         return sb.toString();
     }
-    
+
     /**
      * Sets the text content, replacing all existing text children
      */
@@ -292,7 +290,7 @@ public class Element extends ContainerNode {
 
         markModified();
     }
-    
+
     // Namespace-aware methods
 
     /**
@@ -351,8 +349,9 @@ public class Element extends ContainerNode {
         return children.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
-                .filter(element -> localName.equals(element.getLocalName()) &&
-                                 namespaceURI != null && namespaceURI.equals(element.getNamespaceURI()))
+                .filter(element -> localName.equals(element.getLocalName())
+                        && namespaceURI != null
+                        && namespaceURI.equals(element.getNamespaceURI()))
                 .findFirst();
     }
 
@@ -363,8 +362,9 @@ public class Element extends ContainerNode {
         return children.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
-                .filter(element -> localName.equals(element.getLocalName()) &&
-                                 namespaceURI != null && namespaceURI.equals(element.getNamespaceURI()));
+                .filter(element -> localName.equals(element.getLocalName())
+                        && namespaceURI != null
+                        && namespaceURI.equals(element.getNamespaceURI()));
     }
 
     /**
@@ -372,8 +372,9 @@ public class Element extends ContainerNode {
      */
     public Stream<Element> descendantsByNamespace(String namespaceURI, String localName) {
         return descendants()
-                .filter(element -> localName.equals(element.getLocalName()) &&
-                                 namespaceURI != null && namespaceURI.equals(element.getNamespaceURI()));
+                .filter(element -> localName.equals(element.getLocalName())
+                        && namespaceURI != null
+                        && namespaceURI.equals(element.getNamespaceURI()));
     }
 
     /**
@@ -437,9 +438,7 @@ public class Element extends ContainerNode {
      * Finds the first descendant element with the given name.
      */
     public Optional<Element> findDescendant(String name) {
-        return descendants()
-                .filter(element -> name.equals(element.getName()))
-                .findFirst();
+        return descendants().filter(element -> name.equals(element.getName())).findFirst();
     }
 
     /**
@@ -449,15 +448,11 @@ public class Element extends ContainerNode {
         return children.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
-                .flatMap(element -> Stream.concat(
-                    Stream.of(element),
-                    element.descendants()
-                ));
+                .flatMap(element -> Stream.concat(Stream.of(element), element.descendants()));
     }
 
     @Override
     public String toString() {
-        return "Element{name='" + name + "', attributes=" + attributes.size() +
-               ", children=" + children.size() + "}";
+        return "Element{name='" + name + "', attributes=" + attributes.size() + ", children=" + children.size() + "}";
     }
 }

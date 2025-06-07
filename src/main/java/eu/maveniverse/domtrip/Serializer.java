@@ -5,11 +5,11 @@ package eu.maveniverse.domtrip;
  * preserving original formatting for unmodified sections.
  */
 public class Serializer {
-    
+
     private boolean preserveFormatting;
     private String indentString;
     private boolean prettyPrint;
-    
+
     public Serializer() {
         this.preserveFormatting = true;
         this.indentString = "  "; // Two spaces
@@ -26,31 +26,31 @@ public class Serializer {
         this.prettyPrint = config.isPrettyPrint();
         this.indentString = config.getIndentString();
     }
-    
+
     public boolean isPreserveFormatting() {
         return preserveFormatting;
     }
-    
+
     public void setPreserveFormatting(boolean preserveFormatting) {
         this.preserveFormatting = preserveFormatting;
     }
-    
+
     public String getIndentString() {
         return indentString;
     }
-    
+
     public void setIndentString(String indentString) {
         this.indentString = indentString != null ? indentString : "  ";
     }
-    
+
     public boolean isPrettyPrint() {
         return prettyPrint;
     }
-    
+
     public void setPrettyPrint(boolean prettyPrint) {
         this.prettyPrint = prettyPrint;
     }
-    
+
     /**
      * Serializes an XML document to string with custom configuration
      */
@@ -76,19 +76,19 @@ public class Serializer {
             // If document is unmodified, use original formatting
             return document.toXml();
         }
-        
+
         StringBuilder sb = new StringBuilder();
-        
+
         // Add XML declaration only if it was present in original
         if (!document.getXmlDeclaration().isEmpty()) {
             sb.append(document.getXmlDeclaration());
         }
-        
+
         // Add DOCTYPE if present
         if (!document.getDoctype().isEmpty()) {
             sb.append("\n").append(document.getDoctype());
         }
-        
+
         // Add document element and other children
         if (prettyPrint) {
             sb.append("\n");
@@ -96,10 +96,10 @@ public class Serializer {
         } else {
             serializeNode(document, sb);
         }
-        
+
         return sb.toString();
     }
-    
+
     /**
      * Serializes a single node
      */
@@ -107,21 +107,21 @@ public class Serializer {
         if (node == null) {
             return "";
         }
-        
+
         if (preserveFormatting && !node.isModified()) {
             return node.toXml();
         }
-        
+
         StringBuilder sb = new StringBuilder();
         if (prettyPrint) {
             serializeNodePretty(node, sb, 0);
         } else {
             serializeNode(node, sb);
         }
-        
+
         return sb.toString();
     }
-    
+
     private void serializeNode(Node node, StringBuilder sb) {
         if (preserveFormatting && !node.isModified()) {
             // Use original formatting for unmodified nodes
@@ -147,7 +147,7 @@ public class Serializer {
                 break;
         }
     }
-    
+
     private void serializeNodePretty(Node node, StringBuilder sb, int depth) {
         if (preserveFormatting && !node.isModified()) {
             // Use original formatting for unmodified nodes
@@ -173,14 +173,13 @@ public class Serializer {
                 break;
         }
     }
-    
+
     private void serializeDocument(Document document, StringBuilder sb) {
         for (Node child : document.getChildren()) {
             serializeNode(child, sb);
         }
 
-        if (document.getDocumentElement() != null &&
-            !document.getChildren().contains(document.getDocumentElement())) {
+        if (document.getDocumentElement() != null && !document.getChildren().contains(document.getDocumentElement())) {
             serializeNode(document.getDocumentElement(), sb);
         }
     }
@@ -190,12 +189,11 @@ public class Serializer {
             serializeNodePretty(child, sb, depth);
         }
 
-        if (document.getDocumentElement() != null &&
-            !document.getChildren().contains(document.getDocumentElement())) {
+        if (document.getDocumentElement() != null && !document.getChildren().contains(document.getDocumentElement())) {
             serializeNodePretty(document.getDocumentElement(), sb, depth);
         }
     }
-    
+
     private void serializeElement(Element element, StringBuilder sb) {
         // Add preceding whitespace
         sb.append(element.getPrecedingWhitespace());
@@ -228,7 +226,7 @@ public class Serializer {
         // Add following whitespace
         sb.append(element.getFollowingWhitespace());
     }
-    
+
     private void serializeElementPretty(Element element, StringBuilder sb, int depth) {
         // Indentation
         if (depth > 0) {
@@ -254,8 +252,7 @@ public class Serializer {
         } else {
             sb.append(">");
 
-            boolean hasElementChildren = element.getChildren().stream()
-                .anyMatch(child -> child instanceof Element);
+            boolean hasElementChildren = element.getChildren().stream().anyMatch(child -> child instanceof Element);
 
             // Children
             for (Node child : element.getChildren()) {
@@ -276,7 +273,7 @@ public class Serializer {
             sb.append("</").append(element.getName()).append(">");
         }
     }
-    
+
     private void serializeText(Text text, StringBuilder sb) {
         if (text.isCData()) {
             sb.append("<![CDATA[").append(text.getContent()).append("]]>");
@@ -330,20 +327,18 @@ public class Serializer {
         }
         sb.append("?>");
     }
-    
+
     private String escapeAttributeValue(String value) {
         if (value == null) return "";
         return value.replace("&", "&amp;")
-                   .replace("<", "&lt;")
-                   .replace(">", "&gt;")
-                   .replace("\"", "&quot;")
-                   .replace("'", "&apos;");
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
     }
-    
+
     private String escapeTextContent(String text) {
         if (text == null) return "";
-        return text.replace("&", "&amp;")
-                   .replace("<", "&lt;")
-                   .replace(">", "&gt;");
+        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }

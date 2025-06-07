@@ -6,11 +6,11 @@ import java.util.Map;
  * Factory class for creating common Element patterns.
  */
 public class Elements {
-    
+
     private Elements() {
         // Utility class
     }
-    
+
     /**
      * Creates an element with text content.
      */
@@ -22,14 +22,14 @@ public class Elements {
         }
         return element;
     }
-    
+
     /**
      * Creates an empty element.
      */
     public static Element emptyElement(String name) {
         return new Element(name);
     }
-    
+
     /**
      * Creates a self-closing element.
      */
@@ -38,7 +38,7 @@ public class Elements {
         element.setSelfClosing(true);
         return element;
     }
-    
+
     /**
      * Creates an element with attributes.
      */
@@ -51,7 +51,7 @@ public class Elements {
         }
         return element;
     }
-    
+
     /**
      * Creates an element with text content and attributes.
      */
@@ -63,7 +63,7 @@ public class Elements {
         }
         return element;
     }
-    
+
     /**
      * Creates a CDATA element.
      */
@@ -75,14 +75,14 @@ public class Elements {
         }
         return element;
     }
-    
+
     /**
      * Creates an element with a namespace prefix.
      */
     public static Element namespacedElement(String prefix, String localName) {
         return new Element(prefix + ":" + localName);
     }
-    
+
     /**
      * Creates an element with a namespace prefix and URI attribute.
      */
@@ -143,50 +143,50 @@ public class Elements {
         }
         return element;
     }
-    
+
     /**
      * Creates a comment element (actually returns a Comment node).
      */
     public static Comment comment(String content) {
         return new Comment(content != null ? content : "");
     }
-    
+
     /**
      * Creates a processing instruction.
      */
     public static ProcessingInstruction processingInstruction(String target, String data) {
         return new ProcessingInstruction(target, data);
     }
-    
+
     /**
      * Builder for creating complex element structures.
      */
     public static class Builder {
         private final Element element;
-        
+
         private Builder(String name) {
             this.element = new Element(name);
         }
-        
+
         public Builder withText(String content) {
             if (content != null && !content.isEmpty()) {
                 element.addChild(new Text(content));
             }
             return this;
         }
-        
+
         public Builder withCData(String content) {
             if (content != null) {
                 element.addChild(new Text(content, true));
             }
             return this;
         }
-        
+
         public Builder withAttribute(String name, String value) {
             element.setAttribute(name, value);
             return this;
         }
-        
+
         public Builder withAttributes(Map<String, String> attributes) {
             if (attributes != null) {
                 for (Map.Entry<String, String> entry : attributes.entrySet()) {
@@ -195,17 +195,17 @@ public class Elements {
             }
             return this;
         }
-        
+
         public Builder withChild(Element child) {
             element.addChild(child);
             return this;
         }
-        
+
         public Builder withComment(String comment) {
             element.addChild(new Comment(comment != null ? comment : ""));
             return this;
         }
-        
+
         public Builder selfClosing() {
             element.setSelfClosing(true);
             return this;
@@ -225,7 +225,7 @@ public class Elements {
             return element;
         }
     }
-    
+
     /**
      * Creates a new element builder.
      */

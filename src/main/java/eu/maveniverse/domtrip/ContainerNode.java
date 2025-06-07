@@ -10,16 +10,16 @@ import java.util.stream.Stream;
  * Only Document and Element nodes can have children in XML.
  */
 public abstract class ContainerNode extends Node {
-    
+
     protected List<Node> children;
-    
+
     public ContainerNode() {
         super();
         this.children = new ArrayList<>();
     }
-    
+
     // Child management methods
-    
+
     /**
      * Returns a copy of the children list to prevent external modification.
      */
@@ -93,7 +93,7 @@ public abstract class ContainerNode extends Node {
         }
         return null;
     }
-    
+
     /**
      * Returns the number of child nodes.
      */
@@ -149,9 +149,7 @@ public abstract class ContainerNode extends Node {
      * Returns a stream of all child elements.
      */
     public Stream<Element> childElements() {
-        return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child);
+        return children.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
     }
 
     /**

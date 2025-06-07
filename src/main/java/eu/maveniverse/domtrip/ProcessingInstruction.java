@@ -7,23 +7,24 @@ public class ProcessingInstruction extends Node {
     private String target;
     private String data;
     private String originalContent; // Full original PI content for preservation
-    
+
     public ProcessingInstruction(String target, String data) {
         super();
         this.target = target != null ? target : "";
         this.data = data != null ? data : "";
         this.originalContent = "";
     }
-    
+
     public ProcessingInstruction(String originalContent) {
         super();
         this.originalContent = originalContent != null ? originalContent : "";
         parseContent();
     }
-    
+
     private void parseContent() {
         if (originalContent.startsWith("<?") && originalContent.endsWith("?>")) {
-            String content = originalContent.substring(2, originalContent.length() - 2).trim();
+            String content =
+                    originalContent.substring(2, originalContent.length() - 2).trim();
             int spaceIndex = content.indexOf(' ');
             if (spaceIndex > 0) {
                 this.target = content.substring(0, spaceIndex);
@@ -37,27 +38,27 @@ public class ProcessingInstruction extends Node {
             this.data = "";
         }
     }
-    
+
     public String getTarget() {
         return target;
     }
-    
+
     public void setTarget(String target) {
         this.target = target != null ? target : "";
         this.originalContent = ""; // Clear original when modified
         markModified();
     }
-    
+
     public String getData() {
         return data;
     }
-    
+
     public void setData(String data) {
         this.data = data != null ? data : "";
         this.originalContent = ""; // Clear original when modified
         markModified();
     }
-    
+
     public String getOriginalContent() {
         return originalContent;
     }
@@ -70,19 +71,19 @@ public class ProcessingInstruction extends Node {
     public NodeType getNodeType() {
         return NodeType.PROCESSING_INSTRUCTION;
     }
-    
+
     @Override
     public String toXml() {
         StringBuilder sb = new StringBuilder();
         toXml(sb);
         return sb.toString();
     }
-    
+
     @Override
     public void toXml(StringBuilder sb) {
         // Add preceding whitespace
         sb.append(precedingWhitespace);
-        
+
         // Use original content if not modified, otherwise build from scratch
         if (!isModified() && !originalContent.isEmpty()) {
             sb.append(originalContent);
@@ -93,16 +94,16 @@ public class ProcessingInstruction extends Node {
             }
             sb.append("?>");
         }
-        
+
         // Add following whitespace
         sb.append(followingWhitespace);
     }
-    
+
     @Override
     public String toString() {
         return "ProcessingInstruction{target='" + target + "', data='" + data + "'}";
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -110,7 +111,7 @@ public class ProcessingInstruction extends Node {
         ProcessingInstruction that = (ProcessingInstruction) obj;
         return target.equals(that.target) && data.equals(that.data);
     }
-    
+
     @Override
     public int hashCode() {
         return target.hashCode() * 31 + data.hashCode();

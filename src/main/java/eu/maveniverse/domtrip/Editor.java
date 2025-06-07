@@ -1,7 +1,6 @@
 package eu.maveniverse.domtrip;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Provides high-level editing operations for XML documents while preserving formatting.
@@ -34,40 +33,40 @@ public class Editor {
         this(config);
         loadXml(xml);
     }
-    
+
     /**
      * Loads XML content into the editor
      */
     public void loadXml(String xml) throws ParseException {
         this.document = parser.parse(xml);
     }
-    
+
     /**
      * Gets the current XML document
      */
     public Document getDocument() {
         return document;
     }
-    
+
     /**
      * Serializes the current document back to XML
      */
     public String toXml() {
         return document != null ? serializer.serialize(document) : "";
     }
-    
+
     /**
      * Serializes with pretty printing
      */
     public String toXmlPretty() {
         if (document == null) return "";
-        
+
         Serializer prettySerializer = new Serializer();
         prettySerializer.setPrettyPrint(true);
         prettySerializer.setPreserveFormatting(false);
         return prettySerializer.serialize(document);
     }
-    
+
     /**
      * Adds a new element as a child of the specified parent element
      */
@@ -116,7 +115,7 @@ public class Editor {
 
         return newElement;
     }
-    
+
     /**
      * Adds a new element with text content
      */
@@ -127,7 +126,7 @@ public class Editor {
         }
         return element;
     }
-    
+
     /**
      * Removes an element from its parent
      */
@@ -135,14 +134,14 @@ public class Editor {
         if (element == null || element.getParent() == null) {
             return false;
         }
-        
+
         Node parent = element.getParent();
         if (parent instanceof ContainerNode container) {
             return container.removeChild(element);
         }
         return false;
     }
-    
+
     /**
      * Adds or updates an attribute on an element
      */
@@ -153,10 +152,10 @@ public class Editor {
         if (name == null || name.trim().isEmpty()) {
             throw new InvalidXmlException("Attribute name cannot be null or empty");
         }
-        
+
         element.setAttribute(name.trim(), value != null ? value : "");
     }
-    
+
     /**
      * Removes an attribute from an element
      */
@@ -164,12 +163,12 @@ public class Editor {
         if (element == null || name == null) {
             return false;
         }
-        
+
         boolean hadAttribute = element.hasAttribute(name);
         element.removeAttribute(name);
         return hadAttribute;
     }
-    
+
     /**
      * Sets the text content of an element
      */
@@ -177,10 +176,10 @@ public class Editor {
         if (element == null) {
             throw new InvalidXmlException("Element cannot be null");
         }
-        
+
         element.setTextContent(content);
     }
-    
+
     /**
      * Adds a comment as a child of the specified parent
      */
@@ -215,7 +214,7 @@ public class Editor {
         }
         return addComment((ContainerNode) parent, content);
     }
-    
+
     /**
      * Finds the first element with the given name in the document
      */
@@ -225,7 +224,7 @@ public class Editor {
         }
         return document != null ? document.findElement(name) : null;
     }
-    
+
     /**
      * Finds the first child element with the given name under the specified parent
      */
@@ -244,7 +243,7 @@ public class Editor {
         }
         return null;
     }
-    
+
     /**
      * Creates a new XML document with the specified root element
      */
@@ -260,14 +259,14 @@ public class Editor {
         document.setDocumentElement(rootElement);
         document.addChild(rootElement);
     }
-    
+
     /**
      * Gets the root element of the document
      */
     public Element getRootElement() {
         return document != null ? document.getDocumentElement() : null;
     }
-    
+
     /**
      * Infers the indentation pattern by examining existing children
      * @deprecated Use WhitespaceManager.inferIndentation() instead
@@ -276,7 +275,7 @@ public class Editor {
     private String inferIndentation(Node parent) {
         return whitespaceManager.inferIndentation(parent);
     }
-    
+
     /**
      * Validates that the document is well-formed
      */
@@ -284,17 +283,17 @@ public class Editor {
         if (document == null) {
             return false;
         }
-        
+
         // Basic validation - check that we have a root element
         Element root = document.getDocumentElement();
         if (root == null) {
             return false;
         }
-        
+
         // Could add more validation rules here
         return true;
     }
-    
+
     /**
      * Gets statistics about the document
      */
@@ -302,14 +301,15 @@ public class Editor {
         if (document == null) {
             return "No document loaded";
         }
-        
+
         int[] counts = new int[4]; // elements, text nodes, comments, total
         countNodes(document, counts);
-        
-        return String.format("Document stats: %d elements, %d text nodes, %d comments, %d total nodes",
-                           counts[0], counts[1], counts[2], counts[3]);
+
+        return String.format(
+                "Document stats: %d elements, %d text nodes, %d comments, %d total nodes",
+                counts[0], counts[1], counts[2], counts[3]);
     }
-    
+
     private void countNodes(Node node, int[] counts) {
         switch (node.getNodeType()) {
             case ELEMENT:
@@ -357,7 +357,8 @@ public class Editor {
     /**
      * Sets element attribute by element name (finds first matching element).
      */
-    public void setElementAttribute(String elementName, String attrName, String attrValue) throws NodeNotFoundException, InvalidXmlException {
+    public void setElementAttribute(String elementName, String attrName, String attrValue)
+            throws NodeNotFoundException, InvalidXmlException {
         Element element = findElement(elementName);
         if (element != null) {
             setAttribute(element, attrName, attrValue);
@@ -396,10 +397,6 @@ public class Editor {
 
         return new Serializer(config).serialize(document);
     }
-
-
-
-
 
     /**
      * Gets the configuration used by this editor.

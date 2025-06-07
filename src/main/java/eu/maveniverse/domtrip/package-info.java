@@ -1,10 +1,10 @@
 /**
  * DomTrip - A lossless XML processing library for Java.
- * 
+ *
  * <p>This package provides a comprehensive XML processing library that preserves
  * all formatting information including whitespace, comments, processing instructions,
  * attribute quote styles, and entity references during round-trip parsing and serialization.</p>
- * 
+ *
  * <h2>Key Features</h2>
  * <ul>
  *   <li><strong>Lossless Processing</strong> - Preserves exact formatting for unmodified content</li>
@@ -16,7 +16,7 @@
  *   <li><strong>Builder Patterns</strong> - Fluent APIs for creating XML structures</li>
  *   <li><strong>Type Safety</strong> - Enums for quote styles and whitespace patterns</li>
  * </ul>
- * 
+ *
  * <h2>Type-Safe Node Hierarchy</h2>
  * <ul>
  *   <li>{@link eu.maveniverse.domtrip.Node} - Base class for all XML nodes</li>
@@ -36,24 +36,24 @@
  *   <li>{@link eu.maveniverse.domtrip.DomTripConfig} - Configuration options</li>
  *   <li>{@link eu.maveniverse.domtrip.Serializer} - XML serialization</li>
  * </ul>
- * 
+ *
  * <h2>Usage Example</h2>
  * <pre>{@code
  * // Parse XML while preserving formatting
  * Editor editor = new Editor(xmlString);
- * 
+ *
  * // Make modifications
  * Element root = editor.getRootElement();
  * editor.addElement(root, "newChild", "content");
- * 
+ *
  * // Serialize with preserved formatting
  * String result = editor.toXml();
- * 
+ *
  * // Use configuration for different output styles
  * String prettyXml = editor.toXml(DomTripConfig.prettyPrint());
  * String minimalXml = editor.toXml(DomTripConfig.minimal());
  * }</pre>
- * 
+ *
  * <h2>Configuration</h2>
  * <p>Use {@link eu.maveniverse.domtrip.DomTripConfig} to control parsing and serialization behavior:</p>
  * <pre>{@code
@@ -61,7 +61,7 @@
  *     .withWhitespacePreservation(true)
  *     .withCommentPreservation(true)
  *     .withPrettyPrint(false);
- * 
+ *
  * Editor editor = new Editor(xmlString, config);
  * }</pre>
  *

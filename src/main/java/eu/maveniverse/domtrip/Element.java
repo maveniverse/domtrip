@@ -6,8 +6,57 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Represents an XML element with attributes and children.
- * Preserves original formatting including attribute spacing and order.
+ * Represents an XML element with attributes and children, preserving original
+ * formatting including attribute spacing, quote styles, and element structure.
+ *
+ * <p>The Element class is the core building block for XML documents, representing
+ * XML elements with their attributes, child nodes, and namespace information.
+ * It maintains lossless formatting preservation during round-trip parsing and
+ * serialization operations.</p>
+ *
+ * <h3>Capabilities:</h3>
+ * <ul>
+ *   <li><strong>Attribute Management</strong> - Preserves attribute order, quote styles, and whitespace</li>
+ *   <li><strong>Namespace Support</strong> - XML namespace handling with prefix resolution</li>
+ *   <li><strong>Child Navigation</strong> - Methods for finding and manipulating child elements</li>
+ *   <li><strong>Self-Closing Support</strong> - Handles self-closing tags</li>
+ *   <li><strong>Formatting Preservation</strong> - Maintains original tag formatting and whitespace</li>
+ * </ul>
+ *
+ * <h3>Usage Examples:</h3>
+ * <pre>{@code
+ * // Create a new element
+ * Element root = new Element("root");
+ * root.setAttribute("id", "main");
+ *
+ * // Add child elements
+ * Element child = new Element("child");
+ * child.setTextContent("Hello World");
+ * root.addChild(child);
+ *
+ * // Navigate children
+ * Optional<Element> found = root.findChild("child");
+ * Stream<Element> children = root.findChildren("item");
+ *
+ * // Namespace handling
+ * Element nsElement = new Element("soap:Envelope");
+ * nsElement.setNamespaceURI("http://schemas.xmlsoap.org/soap/envelope/");
+ * }</pre>
+ *
+ * <h3>Attribute Handling:</h3>
+ * <p>Elements maintain attributes using {@link Attribute} objects that preserve
+ * the original quote style, whitespace, and raw values:</p>
+ * <pre>{@code
+ * element.setAttribute("class", "important");           // Uses default quotes
+ * element.setAttribute("style", "color: red", '\'');    // Uses single quotes
+ * String value = element.getAttribute("class");         // Returns "important"
+ * }</pre>
+ *
+ * @author DomTrip Development Team
+ * @since 1.0
+ * @see ContainerNode
+ * @see Attribute
+ * @see NamespaceContext
  */
 public class Element extends ContainerNode {
 
@@ -19,9 +68,23 @@ public class Element extends ContainerNode {
     private String originalOpenTag; // Original opening tag for reference
     private String originalCloseTag; // Original closing tag for reference
 
+    /**
+     * Creates a new XML element with the specified name.
+     *
+     * <p>Initializes the element with an empty attribute map, no whitespace,
+     * and sets it as a non-self-closing element. The attribute order is
+     * preserved using a LinkedHashMap.</p>
+     *
+     * @param name the element name (tag name)
+     * @throws IllegalArgumentException if name is null or empty
+     * @since 1.0
+     */
     public Element(String name) {
         super();
-        this.name = name;
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Element name cannot be null or empty");
+        }
+        this.name = name.trim();
         this.attributes = new LinkedHashMap<>(); // Preserve attribute order
         this.openTagWhitespace = "";
         this.closeTagWhitespace = "";
@@ -30,11 +93,29 @@ public class Element extends ContainerNode {
         this.originalCloseTag = "";
     }
 
+    /**
+     * Returns the node type for this element.
+     *
+     * @return {@link NodeType#ELEMENT}
+     * @since 1.0
+     */
     @Override
     public NodeType getNodeType() {
         return NodeType.ELEMENT;
     }
 
+    /**
+     * Gets the name (tag name) of this element.
+     *
+     * <p>For namespaced elements, this returns the full qualified name
+     * including the prefix (e.g., "soap:Envelope"). Use {@link #getLocalName()}
+     * to get just the local part.</p>
+     *
+     * @return the element name
+     * @since 1.0
+     * @see #getLocalName()
+     * @see #getPrefix()
+     */
     public String getName() {
         return name;
     }

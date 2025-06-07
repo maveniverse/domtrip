@@ -3,7 +3,67 @@ package eu.maveniverse.domtrip;
 import java.util.Map;
 
 /**
- * Provides high-level editing operations for XML documents while preserving formatting.
+ * High-level API for editing XML documents while preserving original formatting.
+ *
+ * <p>The Editor class provides a convenient, user-friendly interface for parsing,
+ * modifying, and serializing XML documents. It combines the functionality of
+ * {@link Parser}, {@link Serializer}, and {@link WhitespaceManager} to offer
+ * a complete XML editing solution with lossless formatting preservation.</p>
+ *
+ * <h3>Capabilities:</h3>
+ * <ul>
+ *   <li><strong>Lossless Parsing</strong> - Preserves all formatting, whitespace, and comments</li>
+ *   <li><strong>Simple Editing</strong> - Methods for common XML modifications</li>
+ *   <li><strong>Format Preservation</strong> - Maintains original formatting for unchanged content</li>
+ *   <li><strong>Flexible Output</strong> - Support for different serialization styles</li>
+ *   <li><strong>Builder Pattern</strong> - Fluent API for document construction</li>
+ * </ul>
+ *
+ * <h3>Basic Usage:</h3>
+ * <pre>{@code
+ * // Parse existing XML
+ * Editor editor = new Editor(xmlString);
+ *
+ * // Make modifications
+ * Element root = editor.getRootElement();
+ * editor.addElement(root, "newChild", "content");
+ * editor.setAttribute(root, "version", "2.0");
+ *
+ * // Serialize with preserved formatting
+ * String result = editor.toXml();
+ * }</pre>
+ *
+ * <h3>Configuration Options:</h3>
+ * <pre>{@code
+ * // Use custom configuration
+ * DomTripConfig config = DomTripConfig.prettyPrint()
+ *     .withIndentation("  ")
+ *     .withPreserveComments(true);
+ *
+ * Editor editor = new Editor(xmlString, config);
+ *
+ * // Different output styles
+ * String pretty = editor.toXml(DomTripConfig.prettyPrint());
+ * String minimal = editor.toXml(DomTripConfig.minimal());
+ * }</pre>
+ *
+ * <h3>Document Creation:</h3>
+ * <pre>{@code
+ * // Create new document
+ * Editor editor = new Editor();
+ * editor.createDocument("root");
+ *
+ * // Build document structure
+ * Element root = editor.getRootElement();
+ * editor.addElement(root, "child", "value");
+ * }</pre>
+ *
+ * @author DomTrip Development Team
+ * @since 1.0
+ * @see Parser
+ * @see Serializer
+ * @see DomTripConfig
+ * @see Document
  */
 public class Editor {
 

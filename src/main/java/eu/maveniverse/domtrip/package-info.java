@@ -82,16 +82,6 @@
  * NamespaceContext context = element.getNamespaceContext();
  * }</pre>
  *
- * <h2>Architectural Benefits</h2>
- * <p>The type-safe node hierarchy provides several key benefits:</p>
- * <ul>
- *   <li><strong>Memory Efficiency</strong> - Leaf nodes don't waste memory on unused children lists</li>
- *   <li><strong>Compile-Time Safety</strong> - Impossible to add children to leaf nodes</li>
- *   <li><strong>Clear API</strong> - Child management methods only exist where they make sense</li>
- *   <li><strong>Element-Specific Navigation</strong> - Element finding methods are only on Element class</li>
- *   <li><strong>Industry Alignment</strong> - Follows patterns from W3C DOM and DOM4J</li>
- * </ul>
- *
  * @author DomTrip Development Team
  * @version 1.0
  * @since 1.0

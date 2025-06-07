@@ -1,7 +1,62 @@
 package eu.maveniverse.domtrip;
 
 /**
- * Represents text content in XML, preserving exact whitespace and formatting.
+ * Represents text content in XML documents, preserving exact whitespace,
+ * entity encoding, and CDATA section formatting.
+ *
+ * <p>The Text class handles all forms of textual content in XML documents,
+ * including regular text nodes, CDATA sections, and whitespace-only content.
+ * It maintains both the decoded text content and the original raw content
+ * with entities preserved, enabling lossless round-trip processing.</p>
+ *
+ * <h3>Text Handling:</h3>
+ * <ul>
+ *   <li><strong>Entity Preservation</strong> - Maintains original entity encoding</li>
+ *   <li><strong>CDATA Support</strong> - Handles CDATA sections</li>
+ *   <li><strong>Whitespace Preservation</strong> - Preserves significant whitespace</li>
+ *   <li><strong>Content Normalization</strong> - Optional whitespace normalization</li>
+ * </ul>
+ *
+ * <h3>Content Types:</h3>
+ * <ul>
+ *   <li><strong>Regular Text</strong> - Standard text content with entity escaping</li>
+ *   <li><strong>CDATA Sections</strong> - Unescaped text within CDATA blocks</li>
+ *   <li><strong>Whitespace</strong> - Formatting whitespace between elements</li>
+ * </ul>
+ *
+ * <h3>Usage Examples:</h3>
+ * <pre>{@code
+ * // Create regular text content
+ * Text text = new Text("Hello & welcome!");
+ *
+ * // Create CDATA section
+ * Text cdata = new Text("<script>alert('test');</script>", true);
+ *
+ * // Check content properties
+ * if (text.isWhitespaceOnly()) {
+ *     // Handle formatting whitespace
+ * }
+ *
+ * // Access both decoded and raw content
+ * String content = text.getContent();     // "Hello & welcome!"
+ * String raw = text.getRawContent();      // "Hello &amp; welcome!" (if preserved)
+ * }</pre>
+ *
+ * <h3>Entity Handling:</h3>
+ * <p>Text nodes automatically handle XML entity encoding and decoding:</p>
+ * <ul>
+ *   <li>{@code &amp;} ↔ {@code &}</li>
+ *   <li>{@code &lt;} ↔ {@code <}</li>
+ *   <li>{@code &gt;} ↔ {@code >}</li>
+ *   <li>{@code &quot;} ↔ {@code "}</li>
+ *   <li>{@code &apos;} ↔ {@code '}</li>
+ * </ul>
+ *
+ * @author DomTrip Development Team
+ * @since 1.0
+ * @see Node
+ * @see Element
+ * @see Comment
  */
 public class Text extends Node {
 

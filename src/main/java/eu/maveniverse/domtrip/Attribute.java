@@ -1,7 +1,62 @@
 package eu.maveniverse.domtrip;
 
 /**
- * Represents an XML attribute with all its formatting information.
+ * Represents an XML attribute with complete formatting preservation including
+ * quote styles, whitespace, and entity encoding.
+ *
+ * <p>The Attribute class encapsulates all information needed to preserve the
+ * exact formatting of XML attributes during round-trip processing. It maintains
+ * both the decoded attribute value and the original raw value with entities
+ * preserved, along with formatting details like quote style and whitespace.</p>
+ *
+ * <h3>Attribute Properties:</h3>
+ * <ul>
+ *   <li><strong>Quote Style Preservation</strong> - Maintains single vs double quotes</li>
+ *   <li><strong>Whitespace Preservation</strong> - Preserves spacing before attributes</li>
+ *   <li><strong>Entity Preservation</strong> - Maintains original entity encoding</li>
+ *   <li><strong>Immutable Design</strong> - Thread-safe with builder pattern support</li>
+ *   <li><strong>Fluent API</strong> - Creation and modification with method chaining</li>
+ * </ul>
+ *
+ * <h3>Usage Examples:</h3>
+ * <pre>{@code
+ * // Create basic attribute
+ * Attribute attr = new Attribute("class", "important");
+ *
+ * // Create with specific quote style
+ * Attribute quoted = new Attribute("id", "main", QuoteStyle.SINGLE, " ");
+ *
+ * // Use builder pattern
+ * Attribute complex = Attribute.builder()
+ *     .name("data-value")
+ *     .value("test & example")
+ *     .quoteStyle(QuoteStyle.DOUBLE)
+ *     .precedingWhitespace("  ")
+ *     .build();
+ *
+ * // Create variations
+ * Attribute modified = attr.withValue("critical").withQuoteStyle(QuoteStyle.SINGLE);
+ * }</pre>
+ *
+ * <h3>Attribute Formatting:</h3>
+ * <p>Attributes are serialized with the following format:</p>
+ * <p>{@code [whitespace][name]=[quote][value][quote]}</p>
+ * <p>Example: {@code  class="important"} or {@code id='main'}</p>
+ *
+ * <h3>Entity Handling:</h3>
+ * <p>The class automatically handles XML entity escaping for attribute values:</p>
+ * <ul>
+ *   <li>{@code &} → {@code &amp;}</li>
+ *   <li>{@code <} → {@code &lt;}</li>
+ *   <li>{@code >} → {@code &gt;}</li>
+ *   <li>{@code "} → {@code &quot;} (when using double quotes)</li>
+ *   <li>{@code '} → {@code &apos;} (when using single quotes)</li>
+ * </ul>
+ *
+ * @author DomTrip Development Team
+ * @since 1.0
+ * @see Element
+ * @see QuoteStyle
  */
 public class Attribute {
     private final String name;

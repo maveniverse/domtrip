@@ -4,8 +4,61 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
- * A simple XML parser that preserves all formatting information including
- * whitespace, comments, and exact attribute formatting.
+ * A lossless XML parser that preserves all formatting information including
+ * whitespace, comments, attribute quote styles, and entity encoding.
+ *
+ * <p>The Parser class is responsible for converting XML text into DomTrip's
+ * internal node tree representation. Unlike traditional XML parsers that
+ * normalize content and lose formatting information, this parser meticulously
+ * preserves every aspect of the original XML formatting to enable perfect
+ * round-trip processing.</p>
+ *
+ * <h3>Parsing Features:</h3>
+ * <ul>
+ *   <li><strong>Whitespace Preservation</strong> - Maintains all whitespace exactly as written</li>
+ *   <li><strong>Attribute Formatting</strong> - Preserves quote styles, order, and spacing</li>
+ *   <li><strong>Comment Preservation</strong> - Keeps all XML comments in their original positions</li>
+ *   <li><strong>Entity Preservation</strong> - Maintains entity references in their original form</li>
+ *   <li><strong>Processing Instructions</strong> - Preserves PIs including XML declarations</li>
+ *   <li><strong>CDATA Sections</strong> - Maintains CDATA boundaries and content</li>
+ * </ul>
+ *
+ * <h3>Parsing Process:</h3>
+ * <p>The parser uses a stack-based approach to build the XML tree:</p>
+ * <ol>
+ *   <li>Tokenizes the input XML character by character</li>
+ *   <li>Identifies XML constructs (elements, comments, text, etc.)</li>
+ *   <li>Preserves original formatting information for each construct</li>
+ *   <li>Builds a complete node tree with parent-child relationships</li>
+ *   <li>Maintains modification flags for selective formatting preservation</li>
+ * </ol>
+ *
+ * <h3>Error Handling:</h3>
+ * <p>The parser provides detailed error information for malformed XML:</p>
+ * <ul>
+ *   <li>Precise error positions within the source text</li>
+ *   <li>Descriptive error messages for common XML problems</li>
+ *   <li>Context information to help locate and fix issues</li>
+ * </ul>
+ *
+ * <h3>Usage:</h3>
+ * <pre>{@code
+ * Parser parser = new Parser();
+ * try {
+ *     Document document = parser.parse(xmlString);
+ *     // Use the parsed document
+ * } catch (ParseException e) {
+ *     // Handle parsing errors
+ *     System.err.println("Parse error at position " + e.getPosition() + ": " + e.getMessage());
+ * }
+ * }</pre>
+ *
+ * @author DomTrip Development Team
+ * @since 1.0
+ * @see Document
+ * @see Element
+ * @see ParseException
+ * @see Serializer
  */
 class Parser {
 

@@ -1,7 +1,60 @@
 package eu.maveniverse.domtrip;
 
 /**
- * Configuration options for DomTrip XML processing.
+ * Configuration options for controlling DomTrip XML processing behavior.
+ *
+ * <p>DomTripConfig provides comprehensive control over how XML documents are
+ * parsed, processed, and serialized. It supports various formatting styles
+ * from strict preservation to pretty printing, allowing users to choose the
+ * appropriate balance between formatting preservation and readability.</p>
+ *
+ * <h3>Configuration Categories:</h3>
+ * <ul>
+ *   <li><strong>Preservation Settings</strong> - Control what formatting elements to preserve</li>
+ *   <li><strong>Output Formatting</strong> - Configure pretty printing and indentation</li>
+ *   <li><strong>Parsing Behavior</strong> - Control validation and error handling</li>
+ *   <li><strong>Default Values</strong> - Set defaults for encoding, quotes, etc.</li>
+ * </ul>
+ *
+ * <h3>Common Usage Patterns:</h3>
+ * <pre>{@code
+ * // Strict preservation (default)
+ * DomTripConfig strict = DomTripConfig.defaults();
+ *
+ * // Pretty printing for readable output
+ * DomTripConfig pretty = DomTripConfig.prettyPrint()
+ *     .withIndentation("  ")
+ *     .withQuoteStyle(QuoteStyle.DOUBLE);
+ *
+ * // Minimal output for size optimization
+ * DomTripConfig minimal = DomTripConfig.minimal()
+ *     .withPreserveComments(false)
+ *     .withPreserveWhitespace(false);
+ *
+ * // Custom configuration
+ * DomTripConfig custom = DomTripConfig.defaults()
+ *     .withPreserveWhitespace(true)
+ *     .withValidateXmlNames(true)
+ *     .withDefaultEncoding("UTF-16");
+ * }</pre>
+ *
+ * <h3>Builder Pattern:</h3>
+ * <p>DomTripConfig uses a fluent builder pattern for easy configuration:</p>
+ * <pre>{@code
+ * DomTripConfig config = DomTripConfig.defaults()
+ *     .withPreserveWhitespace(true)
+ *     .withPreserveComments(true)
+ *     .withPrettyPrint(false)
+ *     .withIndentation("    ")
+ *     .withQuoteStyle(QuoteStyle.SINGLE);
+ * }</pre>
+ *
+ * @author DomTrip Development Team
+ * @since 1.0
+ * @see Editor
+ * @see Parser
+ * @see Serializer
+ * @see QuoteStyle
  */
 public class DomTripConfig {
     private boolean preserveWhitespace = true;

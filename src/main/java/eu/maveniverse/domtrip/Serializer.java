@@ -1,8 +1,61 @@
 package eu.maveniverse.domtrip;
 
 /**
- * Serializes the lossless XML tree back to XML string format,
- * preserving original formatting for unmodified sections.
+ * Serializes XML node trees back to XML string format with configurable
+ * formatting options and lossless preservation for unmodified content.
+ *
+ * <p>The Serializer class is responsible for converting DomTrip's internal
+ * XML node tree back into XML text format. It provides intelligent formatting
+ * preservation that maintains the original formatting for unchanged content
+ * while applying new formatting rules to modified sections.</p>
+ *
+ * <h3>Serialization Features:</h3>
+ * <ul>
+ *   <li><strong>Selective Preservation</strong> - Preserves formatting only for unmodified content</li>
+ *   <li><strong>Pretty Printing</strong> - Configurable indentation and formatting</li>
+ *   <li><strong>Minimal Output</strong> - Option to minimize whitespace for size optimization</li>
+ *   <li><strong>Attribute Formatting</strong> - Preserves quote styles and attribute order</li>
+ *   <li><strong>Namespace Handling</strong> - Serialization of namespace declarations</li>
+ * </ul>
+ *
+ * <h3>Serialization Modes:</h3>
+ * <ul>
+ *   <li><strong>Preservation Mode</strong> - Maintains original formatting for unchanged content</li>
+ *   <li><strong>Pretty Print Mode</strong> - Applies consistent indentation and formatting</li>
+ *   <li><strong>Compact Mode</strong> - Minimizes whitespace for smaller output</li>
+ * </ul>
+ *
+ * <h3>Usage Examples:</h3>
+ * <pre>{@code
+ * // Basic serialization with preservation
+ * Serializer serializer = new Serializer();
+ * String xml = serializer.serialize(document);
+ *
+ * // Pretty printing
+ * Serializer prettySerializer = new Serializer(DomTripConfig.prettyPrint());
+ * String prettyXml = prettySerializer.serialize(document);
+ *
+ * // Custom configuration
+ * DomTripConfig config = DomTripConfig.defaults()
+ *     .withIndentation("  ")
+ *     .withPreserveWhitespace(false);
+ * Serializer customSerializer = new Serializer(config);
+ * }</pre>
+ *
+ * <h3>Performance Considerations:</h3>
+ * <p>The Serializer is optimized for performance:</p>
+ * <ul>
+ *   <li>Uses StringBuilder for efficient string building</li>
+ *   <li>Avoids re-serializing unmodified content when possible</li>
+ *   <li>Provides both string and StringBuilder output methods</li>
+ * </ul>
+ *
+ * @author DomTrip Development Team
+ * @since 1.0
+ * @see Parser
+ * @see DomTripConfig
+ * @see Document
+ * @see Node
  */
 public class Serializer {
 

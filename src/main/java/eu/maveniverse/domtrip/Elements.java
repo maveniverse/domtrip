@@ -91,6 +91,58 @@ public class Elements {
         element.setAttribute("xmlns:" + prefix, namespaceUri);
         return element;
     }
+
+    /**
+     * Creates an element in the specified namespace with no prefix (default namespace).
+     */
+    public static Element elementInNamespace(String namespaceURI, String localName) {
+        Element element = new Element(localName);
+        if (namespaceURI != null && !namespaceURI.isEmpty()) {
+            element.setAttribute("xmlns", namespaceURI);
+        }
+        return element;
+    }
+
+    /**
+     * Creates an element with the specified namespace URI and preferred prefix.
+     * If the prefix is null or empty, creates an element with default namespace.
+     */
+    public static Element elementWithNamespace(String namespaceURI, String localName, String preferredPrefix) {
+        if (preferredPrefix == null || preferredPrefix.isEmpty()) {
+            return elementInNamespace(namespaceURI, localName);
+        } else {
+            return namespacedElement(preferredPrefix, localName, namespaceURI);
+        }
+    }
+
+    /**
+     * Creates an element with default namespace declaration.
+     */
+    public static Element elementWithDefaultNamespace(String namespaceURI, String localName) {
+        return elementInNamespace(namespaceURI, localName);
+    }
+
+    /**
+     * Creates an element with namespace and text content.
+     */
+    public static Element namespacedTextElement(String prefix, String localName, String namespaceURI, String content) {
+        Element element = namespacedElement(prefix, localName, namespaceURI);
+        if (content != null && !content.isEmpty()) {
+            element.addChild(new Text(content));
+        }
+        return element;
+    }
+
+    /**
+     * Creates an element in default namespace with text content.
+     */
+    public static Element textElementInNamespace(String namespaceURI, String localName, String content) {
+        Element element = elementInNamespace(namespaceURI, localName);
+        if (content != null && !content.isEmpty()) {
+            element.addChild(new Text(content));
+        }
+        return element;
+    }
     
     /**
      * Creates a comment element (actually returns a Comment node).
@@ -158,7 +210,17 @@ public class Elements {
             element.setSelfClosing(true);
             return this;
         }
-        
+
+        public Builder withNamespace(String prefix, String namespaceURI) {
+            element.setNamespaceDeclaration(prefix, namespaceURI);
+            return this;
+        }
+
+        public Builder withDefaultNamespace(String namespaceURI) {
+            element.setNamespaceDeclaration(null, namespaceURI);
+            return this;
+        }
+
         public Element build() {
             return element;
         }

@@ -2,6 +2,8 @@ package eu.maveniverse.domtrip;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Represents an XML element with attributes and children.
@@ -291,6 +293,123 @@ public class Element extends Node {
         markModified();
     }
     
+    // Namespace-aware methods
+
+    /**
+     * Gets the local name part of this element (without namespace prefix).
+     */
+    public String getLocalName() {
+        String[] parts = NamespaceResolver.splitQualifiedName(name);
+        return parts[1];
+    }
+
+    /**
+     * Gets the namespace prefix of this element.
+     * Returns null if the element has no prefix.
+     */
+    public String getPrefix() {
+        String[] parts = NamespaceResolver.splitQualifiedName(name);
+        return parts[0];
+    }
+
+    /**
+     * Gets the qualified name of this element (prefix:localName or just localName).
+     */
+    public String getQualifiedName() {
+        return name;
+    }
+
+    /**
+     * Gets the namespace URI of this element.
+     * Returns null if the element is not in any namespace.
+     */
+    public String getNamespaceURI() {
+        String prefix = getPrefix();
+        return NamespaceResolver.resolveNamespaceURI(this, prefix);
+    }
+
+    /**
+     * Checks if this element is in the specified namespace.
+     */
+    public boolean isInNamespace(String namespaceURI) {
+        String elementNamespaceURI = getNamespaceURI();
+        return namespaceURI != null && namespaceURI.equals(elementNamespaceURI);
+    }
+
+    /**
+     * Gets the namespace context for this element.
+     * Includes all namespace declarations from this element and its ancestors.
+     */
+    public NamespaceContext getNamespaceContext() {
+        return NamespaceResolver.buildNamespaceContext(this);
+    }
+
+    /**
+     * Finds the first child element with the given namespace URI and local name.
+     */
+    public Optional<Element> findChildByNamespace(String namespaceURI, String localName) {
+        return children.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> localName.equals(element.getLocalName()) &&
+                                 namespaceURI != null && namespaceURI.equals(element.getNamespaceURI()))
+                .findFirst();
+    }
+
+    /**
+     * Finds all child elements with the given namespace URI and local name.
+     */
+    public Stream<Element> findChildrenByNamespace(String namespaceURI, String localName) {
+        return children.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> localName.equals(element.getLocalName()) &&
+                                 namespaceURI != null && namespaceURI.equals(element.getNamespaceURI()));
+    }
+
+    /**
+     * Finds all descendant elements with the given namespace URI and local name.
+     */
+    public Stream<Element> descendantsByNamespace(String namespaceURI, String localName) {
+        return descendants()
+                .filter(element -> localName.equals(element.getLocalName()) &&
+                                 namespaceURI != null && namespaceURI.equals(element.getNamespaceURI()));
+    }
+
+    /**
+     * Sets a namespace declaration attribute (xmlns or xmlns:prefix).
+     */
+    public void setNamespaceDeclaration(String prefix, String namespaceURI) {
+        if (prefix == null || prefix.isEmpty()) {
+            setAttribute("xmlns", namespaceURI);
+        } else {
+            setAttribute("xmlns:" + prefix, namespaceURI);
+        }
+    }
+
+    /**
+     * Gets a namespace declaration for the given prefix.
+     * Returns null if no declaration is found on this element.
+     */
+    public String getNamespaceDeclaration(String prefix) {
+        if (prefix == null || prefix.isEmpty()) {
+            return getAttribute("xmlns");
+        } else {
+            return getAttribute("xmlns:" + prefix);
+        }
+    }
+
+    /**
+     * Removes a namespace declaration.
+     */
+    public void removeNamespaceDeclaration(String prefix) {
+        if (prefix == null || prefix.isEmpty()) {
+            removeAttribute("xmlns");
+        } else {
+            removeAttribute("xmlns:" + prefix);
+        }
+    }
+
     @Override
     public String toString() {
         return "Element{name='" + name + "', attributes=" + attributes.size() +

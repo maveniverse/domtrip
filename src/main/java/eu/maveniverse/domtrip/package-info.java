@@ -12,6 +12,7 @@
  *   <li><strong>Whitespace Preservation</strong> - Keeps original indentation and spacing</li>
  *   <li><strong>Entity Preservation</strong> - Maintains entity references in original form</li>
  *   <li><strong>Comment Preservation</strong> - Preserves XML comments and processing instructions</li>
+ *   <li><strong>Namespace Support</strong> - Comprehensive namespace handling with resolution and context management</li>
  *   <li><strong>Builder Patterns</strong> - Fluent APIs for creating XML structures</li>
  *   <li><strong>Type Safety</strong> - Enums for quote styles and whitespace patterns</li>
  * </ul>
@@ -20,7 +21,8 @@
  * <ul>
  *   <li>{@link eu.maveniverse.domtrip.Editor} - High-level API for XML editing</li>
  *   <li>{@link eu.maveniverse.domtrip.Document} - Root XML document</li>
- *   <li>{@link eu.maveniverse.domtrip.Element} - XML elements with attributes</li>
+ *   <li>{@link eu.maveniverse.domtrip.Element} - XML elements with attributes and namespace support</li>
+ *   <li>{@link eu.maveniverse.domtrip.NamespaceContext} - Namespace resolution and context management</li>
  *   <li>{@link eu.maveniverse.domtrip.DomTripConfig} - Configuration options</li>
  *   <li>{@link eu.maveniverse.domtrip.Serializer} - XML serialization</li>
  * </ul>
@@ -52,7 +54,24 @@
  * 
  * Editor editor = new Editor(xmlString, config);
  * }</pre>
- * 
+ *
+ * <h2>Namespace Support</h2>
+ * <p>DomTrip provides comprehensive namespace handling:</p>
+ * <pre>{@code
+ * // Create elements with namespaces
+ * Element soapEnvelope = Elements.namespacedElement("soap", "Envelope",
+ *     "http://schemas.xmlsoap.org/soap/envelope/");
+ *
+ * // Namespace-aware navigation
+ * Optional<Element> body = root.findChildByNamespace(
+ *     "http://schemas.xmlsoap.org/soap/envelope/", "Body");
+ *
+ * // Namespace resolution
+ * String namespaceURI = element.getNamespaceURI();
+ * String localName = element.getLocalName();
+ * NamespaceContext context = element.getNamespaceContext();
+ * }</pre>
+ *
  * @author DomTrip Development Team
  * @version 1.0
  * @since 1.0

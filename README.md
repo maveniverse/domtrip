@@ -61,10 +61,10 @@ This POC demonstrates a lossless XML editor that can:
 
 ### 🔮 **Future Enhancements**
 
-1. **Namespace Handling** - Enhanced namespace prefix management
-2. **DTD Support** - Document Type Definition parsing and validation
-3. **Schema Validation** - XSD schema validation support
-4. **Streaming Parser** - Large document streaming support
+1. **DTD Support** - Document Type Definition parsing and validation
+2. **Schema Validation** - XSD schema validation support
+3. **Streaming Parser** - Large document streaming support
+4. **XPath Support** - XPath query language support
 
 ### 🆕 Recent Enhancements
 
@@ -79,12 +79,68 @@ This POC demonstrates a lossless XML editor that can:
 - **Builder Patterns**: Fluent APIs for creating complex XML structures
 - **Factory Methods**: Convenient factory classes (`Elements`, `Documents`) for common patterns
 - **Enhanced Navigation**: Stream-based navigation with `findChild()`, `descendants()`, `childElements()`
+- **Namespace Support**: Comprehensive namespace handling with resolution and context management
 - **Type-Safe Enums**: `QuoteStyle` and `WhitespaceStyle` enums replace magic values
 - **Configuration Management**: `DomTripConfig` with presets (strict, lenient, pretty print)
-- **Serialization Options**: `SerializationOptions` for different output modes
 - **Exception Hierarchy**: Specific exceptions (`ParseException`, `InvalidXmlException`)
 - **Immutable Operations**: Safe attribute modifications with `withValue()`, `withQuoteStyle()`
-- **Comprehensive Demos**: 5 demo classes showcasing all new features
+- **Comprehensive Demos**: 6 demo classes showcasing all new features
+
+## 🏷️ **Namespace Support**
+
+DomTrip provides comprehensive XML namespace handling with full resolution and context management:
+
+### Basic Namespace Operations
+
+```java
+// Create elements with namespaces
+Element defaultNs = Elements.elementInNamespace("http://example.com/ns", "root");
+Element prefixed = Elements.namespacedElement("ex", "element", "http://example.com/ns");
+Element withText = Elements.textElementInNamespace("http://example.com/ns", "title", "My Title");
+
+// Namespace-aware element methods
+String localName = element.getLocalName();        // "element"
+String prefix = element.getPrefix();              // "ex" or null
+String namespaceURI = element.getNamespaceURI();  // "http://example.com/ns"
+boolean inNamespace = element.isInNamespace("http://example.com/ns");
+```
+
+### Namespace-Aware Navigation
+
+```java
+// Find elements by namespace URI and local name
+Optional<Element> child = root.findChildByNamespace("http://example.com/ns", "element");
+Stream<Element> children = root.findChildrenByNamespace("http://example.com/ns", "item");
+Stream<Element> descendants = root.descendantsByNamespace("http://example.com/ns", "data");
+
+// Traditional navigation still works
+Optional<Element> byName = root.findChild("ex:element");
+```
+
+### Namespace Context and Resolution
+
+```java
+// Get namespace context for an element
+NamespaceContext context = element.getNamespaceContext();
+String uri = context.getNamespaceURI("ex");           // Resolve prefix to URI
+String prefix = context.getPrefix("http://example.com/ns"); // Resolve URI to prefix
+Set<String> prefixes = context.getDeclaredPrefixes();
+
+// Manual namespace resolution
+String resolvedURI = NamespaceResolver.resolveNamespaceURI(element, "ex");
+boolean inScope = NamespaceResolver.isNamespaceInScope(element, "http://example.com/ns");
+```
+
+### Builder Pattern with Namespaces
+
+```java
+Element soapEnvelope = Elements.builder("Envelope")
+    .withNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/")
+    .withNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
+    .withDefaultNamespace("http://example.com/default")
+    .withChild(Elements.namespacedElement("soap", "Header", "http://schemas.xmlsoap.org/soap/envelope/"))
+    .build();
+```
 
 ## Architecture
 
@@ -157,6 +213,9 @@ mvn test-compile exec:java -Dexec.mainClass="eu.maveniverse.domtrip.demos.Naviga
 
 # Configuration and serialization options
 mvn test-compile exec:java -Dexec.mainClass="eu.maveniverse.domtrip.demos.ConfigurationDemo" -Dexec.classpathScope=test
+
+# Comprehensive namespace handling
+mvn test-compile exec:java -Dexec.mainClass="eu.maveniverse.domtrip.demos.NamespaceDemo" -Dexec.classpathScope=test
 ```
 
 ## Test Results

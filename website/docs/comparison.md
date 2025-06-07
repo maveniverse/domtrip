@@ -31,16 +31,24 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 <tr>
 <td><strong>Comment Preservation</strong></td>
 <td className="feature-yes">✅ Full</td>
-<td className="feature-partial">⚠️ Basic</td>
-<td className="feature-partial">⚠️ Basic</td>
-<td className="feature-partial">⚠️ Basic</td>
+<td className="feature-yes">✅ Yes</td>
+<td className="feature-yes">✅ Yes</td>
+<td className="feature-yes">✅ Yes</td>
 <td className="feature-no">❌ No</td>
 </tr>
 <tr>
-<td><strong>Whitespace Preservation</strong></td>
+<td><strong>Between-Element Whitespace</strong></td>
 <td className="feature-yes">✅ Exact</td>
+<td className="feature-partial">⚠️ Partial</td>
+<td className="feature-yes">✅ Yes*</td>
+<td className="feature-partial">⚠️ Limited</td>
 <td className="feature-no">❌ No</td>
-<td className="feature-no">❌ No</td>
+</tr>
+<tr>
+<td><strong>In-Element Whitespace</strong></td>
+<td className="feature-yes">✅ Exact</td>
+<td className="feature-no">❌ Lost</td>
+<td className="feature-partial">⚠️ Config**</td>
 <td className="feature-partial">⚠️ Limited</td>
 <td className="feature-no">❌ No</td>
 </tr>
@@ -58,6 +66,14 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 <td className="feature-no">❌ No</td>
 <td className="feature-no">❌ No</td>
 <td className="feature-no">❌ No</td>
+<td className="feature-no">❌ No</td>
+</tr>
+<tr>
+<td><strong>Attribute Order</strong></td>
+<td className="feature-yes">✅ Preserved</td>
+<td className="feature-no">❌ Lost</td>
+<td className="feature-no">❌ Lost</td>
+<td className="feature-no">❌ Lost</td>
 <td className="feature-no">❌ No</td>
 </tr>
 <tr>
@@ -103,33 +119,41 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 </tbody>
 </table>
 
+**\* JDOM**: Use `Format.getRawFormat()` to preserve original whitespace between elements
+**\*\* JDOM**: Configure with `TextMode.PRESERVE` to maintain text content whitespace
+
 ## Detailed Comparison
 
 ### DomTrip vs DOM4J
 
 **DomTrip Advantages:**
-- **Perfect formatting preservation** - DOM4J loses whitespace and formatting details
+- **Perfect formatting preservation** - DOM4J loses in-element whitespace and many formatting details
 - **Modern API** - Fluent builders, Stream navigation, Optional returns
 - **Entity preservation** - Maintains `&lt;`, `&amp;`, etc. exactly as written
 - **Quote style preservation** - Keeps single vs double quotes in attributes
+- **Attribute order preservation** - Maintains original attribute ordering
 
 **DOM4J Advantages:**
 - **Mature ecosystem** - Longer history, more third-party integrations
 - **XPath support** - Built-in XPath query capabilities
 - **Larger community** - More Stack Overflow answers and tutorials
+- **Comment preservation** - Can preserve XML comments during processing
 
 ### DomTrip vs JDOM
 
 **DomTrip Advantages:**
-- **Lossless round-trip** - JDOM reformats everything during serialization
+- **Perfect lossless round-trip** - JDOM with `Format.getPrettyFormat()` reformats everything
+- **No configuration needed** - Works losslessly out of the box
+- **Entity and quote preservation** - JDOM normalizes these during serialization
 - **Better API design** - Type-safe, fluent, modern Java patterns
 - **Comprehensive namespace handling** - Built-in namespace context and resolution
-- **Configuration options** - Multiple serialization presets
 
 **JDOM Advantages:**
+- **Configurable whitespace handling** - `Format.getRawFormat()` can preserve between-element whitespace
 - **Simplicity** - Easier learning curve for basic XML processing
 - **Lightweight** - Smaller memory footprint for simple use cases
 - **Wide adoption** - Used in many existing projects
+- **Comment preservation** - Full support for XML comments
 
 ### DomTrip vs Java DOM
 

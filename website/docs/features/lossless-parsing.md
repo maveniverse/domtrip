@@ -256,10 +256,18 @@ if (fileSize > 10_000_000) { // 10MB
 
 | Feature | DomTrip | DOM4J | JDOM | Java DOM |
 |---------|---------|-------|------|----------|
-| Comment preservation | ✅ Perfect | ⚠️ Basic | ⚠️ Basic | ⚠️ Basic |
-| Whitespace preservation | ✅ Exact | ❌ Lost | ❌ Lost | ⚠️ Limited |
-| Entity preservation | ✅ Perfect | ❌ Decoded | ❌ Decoded | ❌ Decoded |
-| Quote style preservation | ✅ Perfect | ❌ Normalized | ❌ Normalized | ❌ Normalized |
-| Round-trip fidelity | ✅ 100% | ❌ ~60% | ❌ ~60% | ❌ ~70% |
+| **Comment preservation** | ✅ Perfect | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Between-element whitespace** | ✅ Exact | ⚠️ Partial | ✅ Yes* | ⚠️ Limited |
+| **In-element whitespace** | ✅ Exact | ❌ Lost | ⚠️ Configurable** | ⚠️ Limited |
+| **Entity preservation** | ✅ Perfect | ❌ Decoded | ❌ Decoded | ❌ Decoded |
+| **Quote style preservation** | ✅ Perfect | ❌ Normalized | ❌ Normalized | ❌ Normalized |
+| **Attribute order preservation** | ✅ Perfect | ❌ Lost | ❌ Lost | ❌ Lost |
+| **Processing instructions** | ✅ Perfect | ✅ Yes | ✅ Yes | ✅ Yes |
+| **CDATA preservation** | ✅ Perfect | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Round-trip fidelity** | ✅ 100% | ❌ ~70% | ⚠️ ~80%*** | ❌ ~75% |
 
-DomTrip is the only library that achieves true lossless round-trip editing, making it ideal for scenarios where preserving the original document structure is critical.
+**\* JDOM**: Use `Format.getRawFormat()` to preserve original whitespace between elements
+**\*\* JDOM**: Configure with `TextMode.PRESERVE` to maintain text content whitespace
+**\*\*\* JDOM**: Higher fidelity possible with careful configuration, but still loses some formatting details
+
+**Key Insight**: While other libraries can preserve individual aspects of formatting, DomTrip is unique in preserving **all formatting details simultaneously** without requiring special configuration or losing any information during round-trip operations.

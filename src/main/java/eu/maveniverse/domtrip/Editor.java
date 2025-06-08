@@ -58,6 +58,23 @@ import java.util.Map;
  * editor.addElement(root, "child", "value");
  * }</pre>
  *
+ * <h3>Working with Existing Documents:</h3>
+ * <pre>{@code
+ * // Use an existing Document object
+ * Document existingDoc = parser.parse(xmlString);
+ * Editor editor = new Editor(existingDoc);
+ *
+ * // Or with custom configuration
+ * Editor editor = new Editor(existingDoc, DomTripConfig.prettyPrint());
+ *
+ * // Work with programmatically created documents
+ * Document doc = Document.builder()
+ *     .withRootElement("project")
+ *     .withXmlDeclaration()
+ *     .build();
+ * Editor editor = new Editor(doc);
+ * }</pre>
+ *
  * @author DomTrip Development Team
  * @since 1.0
  * @see Parser
@@ -67,31 +84,100 @@ import java.util.Map;
  */
 public class Editor {
 
+    private final Parser parser = new Parser();
+    private final Serializer serializer;
+    private final WhitespaceManager whitespaceManager;
+    private final DomTripConfig config;
     private Document document;
-    private Parser parser;
-    private Serializer serializer;
-    private DomTripConfig config;
-    private WhitespaceManager whitespaceManager;
 
     public Editor() {
-        this(DomTripConfig.defaults());
+        this((Document) null, DomTripConfig.defaults());
     }
 
     public Editor(DomTripConfig config) {
-        this.config = config != null ? config : DomTripConfig.defaults();
-        this.parser = new Parser();
-        this.serializer = new Serializer();
-        this.whitespaceManager = new WhitespaceManager(this.config);
+        this((Document) null, config);
     }
 
     public Editor(String xml) throws ParseException {
-        this();
-        loadXml(xml);
+        this(xml, null);
     }
 
     public Editor(String xml, DomTripConfig config) throws ParseException {
-        this(config);
+        this((Document) null, config);
         loadXml(xml);
+    }
+
+    /**
+     * Creates a new editor with an existing Document.
+     *
+     * <p>This constructor allows you to create an Editor instance from an existing
+     * Document object, which is useful when you already have a parsed document or
+     * when working with documents created programmatically.</p>
+     *
+     * <p>The editor will use default configuration settings. If you need custom
+     * configuration, use {@link #Editor(Document, DomTripConfig)} instead.</p>
+     *
+     * <h3>Usage Examples:</h3>
+     * <pre>{@code
+     * // Working with an existing document
+     * Document existingDoc = parser.parse(xmlString);
+     * Editor editor = new Editor(existingDoc);
+     *
+     * // Working with a programmatically created document
+     * Document doc = Document.builder()
+     *     .withRootElement("project")
+     *     .withXmlDeclaration()
+     *     .build();
+     * Editor editor = new Editor(doc);
+     *
+     * // Continue editing
+     * Element root = editor.getRootElement();
+     * editor.addElement(root, "version", "1.0");
+     * }</pre>
+     *
+     * @param document the existing Document to edit, must not be null
+     * @throws IllegalArgumentException if document is null
+     * @since 1.0
+     * @see #Editor(Document, DomTripConfig)
+     * @see Document
+     */
+    public Editor(Document document) {
+        this(document, DomTripConfig.defaults());
+    }
+
+    /**
+     * Creates a new editor with an existing Document and custom configuration.
+     *
+     * <p>This constructor allows you to create an Editor instance from an existing
+     * Document object with custom configuration settings. This is useful when you
+     * need specific serialization or formatting behavior for an existing document.</p>
+     *
+     * <h3>Usage Examples:</h3>
+     * <pre>{@code
+     * // Working with existing document and custom config
+     * Document existingDoc = parser.parse(xmlString);
+     * DomTripConfig config = DomTripConfig.prettyPrint()
+     *     .withIndentString("  ")
+     *     .withCommentPreservation(true);
+     * Editor editor = new Editor(existingDoc, config);
+     *
+     * // Working with builder-created document
+     * Document doc = Document.withRootElement("maven");
+     * Editor editor = new Editor(doc, DomTripConfig.minimal());
+     * }</pre>
+     *
+     * @param document the existing Document to edit, must not be null
+     * @param config the configuration to use, or null for default configuration
+     * @throws IllegalArgumentException if document is null
+     * @since 1.0
+     * @see #Editor(Document)
+     * @see DomTripConfig
+     */
+    public Editor(Document document, DomTripConfig config) {
+        this.config = config != null ? config : DomTripConfig.defaults();
+        this.serializer = new Serializer();
+        this.whitespaceManager = new WhitespaceManager(this.config);
+        this.document = document; // Can be null for empty editors
     }
 
     /**

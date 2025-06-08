@@ -47,6 +47,44 @@ Creates a new editor with custom configuration and loads XML content.
 Editor editor = new Editor(xml, DomTripConfig.strict());
 ```
 
+### `Editor(Document document)`
+
+Creates a new editor with an existing Document object.
+
+```java
+// Working with an existing document
+Document existingDoc = parser.parse(xmlString);
+Editor editor = new Editor(existingDoc);
+
+// Working with a programmatically created document
+Document doc = Document.builder()
+    .withRootElement("project")
+    .withXmlDeclaration()
+    .build();
+Editor editor = new Editor(doc);
+```
+
+**Throws:** `IllegalArgumentException` if document is null.
+
+### `Editor(Document document, DomTripConfig config)`
+
+Creates a new editor with an existing Document and custom configuration.
+
+```java
+// Working with existing document and custom config
+Document existingDoc = parser.parse(xmlString);
+DomTripConfig config = DomTripConfig.prettyPrint()
+    .withIndentString("  ")
+    .withCommentPreservation(true);
+Editor editor = new Editor(existingDoc, config);
+
+// Working with builder-created document
+Document doc = Document.withRootElement("maven");
+Editor editor = new Editor(doc, DomTripConfig.minimal());
+```
+
+**Throws:** `IllegalArgumentException` if document is null.
+
 ## Document Management
 
 ### `loadXml(String xml)`

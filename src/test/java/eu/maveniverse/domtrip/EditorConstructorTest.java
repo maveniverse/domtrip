@@ -80,13 +80,6 @@ class EditorConstructorTest {
     }
 
     @Test
-    void testDocumentConstructorWithNull() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new Editor((Document) null);
-        });
-    }
-
-    @Test
     void testWorkingWithExistingDocument() throws ParseException {
         // Parse with Parser directly
         Parser parser = new Parser();

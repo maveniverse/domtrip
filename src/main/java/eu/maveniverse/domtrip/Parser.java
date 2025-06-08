@@ -60,7 +60,7 @@ import java.util.Deque;
  * @see ParseException
  * @see Serializer
  */
-class Parser {
+public class Parser {
 
     private String xml;
     private int position;
@@ -114,8 +114,12 @@ class Parser {
                             Text cdata = parseCData();
                             ContainerNode current = (ContainerNode) nodeStack.peek();
                             current.addChildInternal(cdata);
+                        } else if (position + 9 < length && xml.startsWith("<!DOCTYPE", position)) {
+                            // Parse DOCTYPE declaration
+                            String doctype = parseDoctype();
+                            document.setDoctype(doctype);
                         } else {
-                            // Skip other declarations (DOCTYPE, etc.)
+                            // Skip other declarations
                             skipDeclaration();
                         }
                     } else if (nextChar == '?') {
@@ -214,6 +218,40 @@ class Parser {
         }
 
         throw new ParseException("Unclosed processing instruction", position, xml);
+    }
+
+    private String parseDoctype() throws ParseException {
+        int start = position;
+        position += 9; // Skip "<!DOCTYPE"
+
+        int bracketCount = 0;
+        boolean inQuotes = false;
+        char quoteChar = 0;
+
+        while (position < length) {
+            char ch = xml.charAt(position);
+
+            if (!inQuotes) {
+                if (ch == '"' || ch == '\'') {
+                    inQuotes = true;
+                    quoteChar = ch;
+                } else if (ch == '[') {
+                    bracketCount++;
+                } else if (ch == ']') {
+                    bracketCount--;
+                } else if (ch == '>' && bracketCount == 0) {
+                    position++; // Include the closing '>'
+                    return xml.substring(start, position);
+                }
+            } else {
+                if (ch == quoteChar) {
+                    inQuotes = false;
+                }
+            }
+            position++;
+        }
+
+        throw new ParseException("Unclosed DOCTYPE declaration", position, xml);
     }
 
     private void skipDeclaration() {

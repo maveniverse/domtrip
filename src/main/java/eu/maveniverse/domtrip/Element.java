@@ -515,6 +515,13 @@ public class Element extends ContainerNode {
     /**
      * Finds all child elements with the given name.
      */
+    public Stream<Element> findChildren() {
+        return children.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
+    }
+
+    /**
+     * Finds all child elements with the given name.
+     */
     public Stream<Element> findChildren(String name) {
         return children.stream()
                 .filter(child -> child instanceof Element)

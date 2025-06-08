@@ -231,15 +231,15 @@ public class EnhancedNavigationTest {
     }
 
     @Test
-    void testGetRoot() {
+    void testGetDocument() {
         Element dependencies = root.findChild("dependencies").orElseThrow();
         Element dependency = dependencies.findChild("dependency").orElseThrow();
         Element scope = dependency.findChild("scope").orElseThrow();
 
-        assertEquals(document, root.getRoot());
-        assertEquals(document, dependencies.getRoot());
-        assertEquals(document, dependency.getRoot());
-        assertEquals(document, scope.getRoot());
+        assertEquals(document, root.getDocument());
+        assertEquals(document, dependencies.getDocument());
+        assertEquals(document, dependency.getDocument());
+        assertEquals(document, scope.getDocument());
     }
 
     @Test

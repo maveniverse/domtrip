@@ -1,5 +1,6 @@
 package eu.maveniverse.domtrip.demos;
 
+import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.List;
@@ -179,7 +180,8 @@ public class NavigationDemo {
         root.findDescendant("title").ifPresent(title -> {
             System.out.println("Analyzing element: " + title.getName() + " = '" + title.getTextContent() + "'");
             System.out.println("  Depth in tree: " + title.getDepth());
-            System.out.println("  Root element: " + title.getRoot().getClass().getSimpleName());
+            Document doc = title.getDocument();
+            System.out.println("  Document: " + (doc != null ? "Found" : "Not in document"));
 
             // Check parent relationships
             Element parent = (Element) title.getParent();

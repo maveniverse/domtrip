@@ -26,7 +26,9 @@ package eu.maveniverse.domtrip;
  * <pre>{@code
  * // Access node properties
  * NodeType type = node.getNodeType();
- * Node parent = node.getParent();
+ * ContainerNode parent = node.getParent();
+ * Element parentElement = node.getParentElement();
+ * Document document = node.getDocument();
  * int depth = node.getDepth();
  *
  * // Check modification status
@@ -70,7 +72,7 @@ public abstract class Node {
     }
 
     /** The parent node of this node in the XML tree */
-    protected Node parent;
+    protected ContainerNode parent;
     /** Whitespace that appears before this node in the original XML */
     protected String precedingWhitespace;
     /** Whitespace that appears after this node in the original XML */
@@ -128,31 +130,34 @@ public abstract class Node {
     public abstract void toXml(StringBuilder sb);
 
     /**
-     * Gets the parent node of this node.
+     * Gets the parent container node of this node.
      *
-     * <p>Returns the parent node in the XML tree, or null if this is the
-     * root node or if the node has not been added to a tree.</p>
+     * <p>Returns the parent container node in the XML tree, or null if this is the
+     * root node or if the node has not been added to a tree. Only Document and
+     * Element nodes can be parents since they are the only container nodes.</p>
      *
-     * @return the parent node, or null if this node has no parent
+     * @return the parent container node, or null if this node has no parent
      * @since 1.0
-     * @see #setParent(Node)
+     * @see #setParent(ContainerNode)
+     * @see #getParentElement()
+     * @see #getDocument()
      */
-    public Node getParent() {
+    public ContainerNode getParent() {
         return parent;
     }
 
     /**
-     * Sets the parent node of this node.
+     * Sets the parent container node of this node.
      *
      * <p>This method is typically called automatically when adding nodes
      * to containers. Manual use should be done carefully to maintain
      * tree consistency.</p>
      *
-     * @param parent the parent node to set, or null to clear the parent
+     * @param parent the parent container node to set, or null to clear the parent
      * @since 1.0
      * @see #getParent()
      */
-    public void setParent(Node parent) {
+    public void setParent(ContainerNode parent) {
         this.parent = parent;
     }
 
@@ -232,11 +237,53 @@ public abstract class Node {
     }
 
     /**
+     * Gets the Element parent of this node.
+     *
+     * <p>Returns the parent if it's an Element, or null if the parent is a Document
+     * or if this node has no parent. Since parents can only be Element or Document,
+     * no traversal is needed.</p>
+     *
+     * @return the Element parent, or null if parent is Document or no parent exists
+     * @since 1.0
+     * @see #getParent()
+     * @see #getDocument()
+     */
+    public Element getParentElement() {
+        if (parent instanceof Element) {
+            return (Element) parent;
+        }
+        return null;
+    }
+
+    /**
+     * Gets the Document that contains this node.
+     *
+     * <p>Recursively traverses up the tree to find the root Document node.
+     * Every node in a properly constructed XML tree should have a Document
+     * as its ultimate parent.</p>
+     *
+     * @return the Document containing this node, or null if not in a document tree
+     * @since 1.0
+     * @see #getParent()
+     * @see #getParentElement()
+     */
+    public Document getDocument() {
+        if (parent == null) {
+            return null;
+        }
+        if (parent instanceof Document) {
+            return (Document) parent;
+        }
+        // Parent must be an Element, so recurse
+        return parent.getDocument();
+    }
+
+    /**
      * Gets the depth of this node in the tree (root is 0).
      */
     public int getDepth() {
         int depth = 0;
-        Node current = this.parent;
+        ContainerNode current = this.parent;
         while (current != null) {
             depth++;
             current = current.parent;
@@ -245,21 +292,10 @@ public abstract class Node {
     }
 
     /**
-     * Gets the root node of the tree.
-     */
-    public Node getRoot() {
-        Node current = this;
-        while (current.parent != null) {
-            current = current.parent;
-        }
-        return current;
-    }
-
-    /**
      * Checks if this node is a descendant of the given node.
      */
     public boolean isDescendantOf(Node ancestor) {
-        Node current = this.parent;
+        ContainerNode current = this.parent;
         while (current != null) {
             if (current == ancestor) {
                 return true;

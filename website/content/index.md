@@ -6,6 +6,7 @@ simple-name: DomTrip
 image: domtrip-logo.svg
 social-github: maveniverse/domtrip
 layout: page
+is-index-page: true
 ---
 
 <link rel="stylesheet" href="/domtrip/css/docusaurus-style.css">
@@ -54,7 +55,3 @@ layout: page
 </div>
 </div>
 </section>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>

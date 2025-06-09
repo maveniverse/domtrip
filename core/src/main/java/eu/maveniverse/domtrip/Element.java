@@ -52,11 +52,19 @@ import java.util.stream.Stream;
  *
  * <h3>Attribute Handling:</h3>
  * <p>Elements maintain attributes using {@link Attribute} objects that preserve
- * the original quote style, whitespace, and raw values:</p>
+ * the original quote style, whitespace, and raw values. The {@code setAttribute}
+ * methods automatically preserve existing formatting when updating attributes:</p>
  * <pre>{@code
- * element.setAttribute("class", "important");           // Uses default quotes
+ * // Setting new attributes uses default formatting
+ * element.setAttribute("class", "important");           // Uses default double quotes
  * element.setAttribute("style", "color: red", '\'');    // Uses single quotes
- * String value = element.getAttribute("class");         // Returns "important"
+ *
+ * // Updating existing attributes preserves original formatting
+ * element.setAttribute("class", "updated");             // Preserves original quotes/whitespace
+ * String value = element.getAttribute("class");         // Returns "updated"
+ *
+ * // For advanced formatting control, use attribute objects directly
+ * element.getAttributeObject("class").setValue("manual");
  * }</pre>
  *
  * @author DomTrip Development Team
@@ -138,13 +146,64 @@ public class Element extends ContainerNode {
         return attr != null ? attr.getValue() : null;
     }
 
+    /**
+     * Sets an attribute value, preserving existing formatting when the attribute already exists.
+     *
+     * <p>When setting an attribute that already exists, this method preserves the original
+     * quote style, whitespace, and other formatting properties. For new attributes, it uses
+     * default formatting (double quotes, single space preceding whitespace).</p>
+     *
+     * <h3>Examples:</h3>
+     * <pre>{@code
+     * // Original: <element attr1='existing' />
+     * element.setAttribute("attr1", "updated");
+     * // Result:   <element attr1='updated' />  (preserves single quotes)
+     *
+     * element.setAttribute("attr2", "new");
+     * // Result:   <element attr1='updated' attr2="new" />  (uses default double quotes)
+     * }</pre>
+     *
+     * @param name the attribute name
+     * @param value the attribute value
+     * @since 1.0
+     * @see #setAttribute(String, String, char)
+     * @see #getAttributeObject(String)
+     */
     public void setAttribute(String name, String value) {
-        attributes.put(name, new Attribute(name, value));
+        Attribute existingAttr = attributes.get(name);
+        if (existingAttr != null) {
+            // Preserve existing formatting by updating the existing attribute
+            existingAttr.setValue(value);
+        } else {
+            // Create new attribute with default formatting
+            attributes.put(name, new Attribute(name, value));
+        }
         markModified();
     }
 
+    /**
+     * Sets an attribute value with a specific quote character.
+     *
+     * <p>When setting an attribute that already exists, this method preserves the original
+     * preceding whitespace but uses the specified quote character. For new attributes, it uses
+     * the specified quote character with default whitespace (single space).</p>
+     *
+     * @param name the attribute name
+     * @param value the attribute value
+     * @param quoteChar the quote character to use (' or ")
+     * @since 1.0
+     * @see #setAttribute(String, String)
+     */
     public void setAttribute(String name, String value, char quoteChar) {
-        attributes.put(name, new Attribute(name, value, quoteChar, " "));
+        Attribute existingAttr = attributes.get(name);
+        if (existingAttr != null) {
+            // Preserve existing whitespace but update quote style and value
+            existingAttr.setValue(value);
+            existingAttr.setQuoteChar(quoteChar);
+        } else {
+            // Create new attribute with specified quote character
+            attributes.put(name, new Attribute(name, value, quoteChar, " "));
+        }
         markModified();
     }
 

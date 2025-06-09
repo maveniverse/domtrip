@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main, master ]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -33,8 +37,8 @@ jobs:
       with:
         name: test-results
         path: |
-          **/target/surefire-reports/
-          **/target/failsafe-reports/
+          core/target/surefire-reports/
+          website/target/surefire-reports/
         retention-days: 7
     
     - name: Comment PR with test results
@@ -42,38 +46,23 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          const fs = require('fs');
-          const path = require('path');
-          
-          // Check if tests passed
-          const testsPassed = process.env.GITHUB_JOB_STATUS !== 'failure';
+          // Check if the job succeeded
+          const jobStatus = '${{ job.status }}';
+          const testsPassed = jobStatus === 'success';
           const emoji = testsPassed ? '✅' : '❌';
           const status = testsPassed ? 'PASSED' : 'FAILED';
-          
-          // Try to get test count from surefire reports
-          let testInfo = '';
-          try {
-            const coreTestDir = 'core/target/surefire-reports';
-            if (fs.existsSync(coreTestDir)) {
-              const testFiles = fs.readdirSync(coreTestDir)
-                .filter(file => file.startsWith('TEST-') && file.endsWith('.xml'));
-              testInfo = `\n📊 **Test Files:** ${testFiles.length} test suites found`;
-            }
-          } catch (e) {
-            console.log('Could not read test results:', e.message);
-          }
-          
+
           const comment = `## ${emoji} CI Build ${status}
-          
+
           **Build Status:** ${status}
           **Java Version:** 21
-          **Maven Command:** \`./mvnw verify\`${testInfo}
-          
-          ${testsPassed ? 
-            '🎉 All tests passed! The build is ready for merge.' : 
+          **Maven Command:** \`./mvnw verify\`
+
+          ${testsPassed ?
+            '🎉 All tests passed! The build is ready for merge.' :
             '⚠️ Some tests failed. Please check the logs and fix any issues.'}
           `;
-          
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,

@@ -27,10 +27,23 @@ import java.util.Map;
  * // Make modifications
  * Element root = editor.getDocumentElement();
  * editor.addElement(root, "newChild", "content");
- * editor.setAttribute(root, "version", "2.0");
+ * editor.setAttribute(root, "version", "2.0");  // Intelligently preserves formatting
  *
  * // Serialize with preserved formatting
  * String result = editor.toXml();
+ * }</pre>
+ *
+ * <h3>Intelligent Formatting Preservation:</h3>
+ * <p>The Editor automatically preserves and infers appropriate formatting for new content:</p>
+ * <pre>{@code
+ * // For XML with aligned attributes:
+ * // <element attr1="value1"
+ * //          attr2="value2"/>
+ *
+ * editor.setAttribute(element, "attr3", "value3");
+ * // Result: <element attr1="value1"
+ * //                  attr2="value2"
+ * //                  attr3="value3"/>  // Maintains alignment
  * }</pre>
  *
  * <h3>Configuration Options:</h3>
@@ -288,7 +301,37 @@ public class Editor {
     }
 
     /**
-     * Adds or updates an attribute on an element
+     * Adds or updates an attribute on an element with intelligent formatting preservation.
+     *
+     * <p>When updating an existing attribute, this method preserves the original formatting.
+     * When adding a new attribute, it analyzes existing attributes on the element to infer
+     * appropriate formatting patterns (quote style and whitespace alignment).</p>
+     *
+     * <h3>Formatting Inference for New Attributes:</h3>
+     * <ul>
+     *   <li><strong>Quote Style</strong> - Uses the most common quote style from existing attributes</li>
+     *   <li><strong>Whitespace</strong> - Analyzes existing attribute spacing patterns for alignment</li>
+     *   <li><strong>Multi-line Support</strong> - Preserves newline-based attribute alignment</li>
+     * </ul>
+     *
+     * <h3>Examples:</h3>
+     * <pre>{@code
+     * // XML with aligned attributes:
+     * // <element attr1="value1"
+     * //          attr2="value2"/>
+     *
+     * editor.setAttribute(element, "attr3", "value3");
+     * // Result: <element attr1="value1"
+     * //                  attr2="value2"
+     * //                  attr3="value3"/>
+     * }</pre>
+     *
+     * @param element the element to modify
+     * @param name the attribute name
+     * @param value the attribute value
+     * @throws InvalidXmlException if element is null or name is invalid
+     * @since 1.0
+     * @see #setAttributes(Element, Map)
      */
     public void setAttribute(Element element, String name, String value) throws InvalidXmlException {
         if (element == null) {
@@ -298,7 +341,19 @@ public class Editor {
             throw new InvalidXmlException("Attribute name cannot be null or empty");
         }
 
-        element.setAttribute(name.trim(), value != null ? value : "");
+        String trimmedName = name.trim();
+        String safeValue = value != null ? value : "";
+
+        // Check if attribute already exists
+        if (element.hasAttribute(trimmedName)) {
+            // Use Element's setAttribute which preserves existing formatting
+            element.setAttribute(trimmedName, safeValue);
+        } else {
+            // New attribute - infer formatting from existing attributes
+            AttributeFormatting formatting = inferAttributeFormatting(element);
+            Attribute newAttr = new Attribute(trimmedName, safeValue, formatting.quoteStyle, formatting.precedingWhitespace);
+            element.setAttributeObject(trimmedName, newAttr);
+        }
     }
 
     /**
@@ -795,6 +850,102 @@ public class Editor {
             }
 
             return textBuilder.buildAndAddTo(editor, parent);
+        }
+    }
+
+    /**
+     * Infers appropriate formatting for new attributes based on existing attributes.
+     */
+    private AttributeFormatting inferAttributeFormatting(Element element) {
+        Map<String, Attribute> existingAttrs = element.getAttributeObjects();
+
+        if (existingAttrs.isEmpty()) {
+            // No existing attributes - use defaults
+            return new AttributeFormatting(QuoteStyle.DOUBLE, " ");
+        }
+
+        // Analyze quote style preferences
+        QuoteStyle inferredQuoteStyle = inferQuoteStyle(existingAttrs.values());
+
+        // Analyze whitespace patterns
+        String inferredWhitespace = inferAttributeWhitespace(existingAttrs.values());
+
+        return new AttributeFormatting(inferredQuoteStyle, inferredWhitespace);
+    }
+
+    /**
+     * Infers the preferred quote style from existing attributes.
+     */
+    private QuoteStyle inferQuoteStyle(java.util.Collection<Attribute> attributes) {
+        int doubleQuoteCount = 0;
+        int singleQuoteCount = 0;
+
+        for (Attribute attr : attributes) {
+            if (attr.getQuoteStyle() == QuoteStyle.DOUBLE) {
+                doubleQuoteCount++;
+            } else if (attr.getQuoteStyle() == QuoteStyle.SINGLE) {
+                singleQuoteCount++;
+            }
+        }
+
+        // Return the most common style, defaulting to double quotes
+        return singleQuoteCount > doubleQuoteCount ? QuoteStyle.SINGLE : QuoteStyle.DOUBLE;
+    }
+
+    /**
+     * Infers appropriate whitespace for new attributes based on existing patterns.
+     */
+    private String inferAttributeWhitespace(java.util.Collection<Attribute> attributes) {
+        // Look for multi-line attribute patterns
+        for (Attribute attr : attributes) {
+            String whitespace = attr.getPrecedingWhitespace();
+            if (whitespace != null && whitespace.contains("\n")) {
+                // Found multi-line pattern - try to infer alignment
+                return inferAlignmentWhitespace(whitespace);
+            }
+        }
+
+        // Look for custom spacing patterns
+        for (Attribute attr : attributes) {
+            String whitespace = attr.getPrecedingWhitespace();
+            if (whitespace != null && !whitespace.equals(" ")) {
+                // Found custom spacing - use it
+                return whitespace;
+            }
+        }
+
+        // Default to single space
+        return " ";
+    }
+
+    /**
+     * Infers alignment whitespace for multi-line attribute formatting.
+     */
+    private String inferAlignmentWhitespace(String existingWhitespace) {
+        if (existingWhitespace == null || !existingWhitespace.contains("\n")) {
+            return " ";
+        }
+
+        // Extract the pattern after the last newline
+        int lastNewline = existingWhitespace.lastIndexOf('\n');
+        if (lastNewline >= 0 && lastNewline < existingWhitespace.length() - 1) {
+            return existingWhitespace.substring(lastNewline);
+        }
+
+        // Fallback to newline + some spaces for alignment
+        return "\n         "; // Reasonable default for attribute alignment
+    }
+
+    /**
+     * Helper class to hold inferred attribute formatting information.
+     */
+    private static class AttributeFormatting {
+        final QuoteStyle quoteStyle;
+        final String precedingWhitespace;
+
+        AttributeFormatting(QuoteStyle quoteStyle, String precedingWhitespace) {
+            this.quoteStyle = quoteStyle;
+            this.precedingWhitespace = precedingWhitespace;
         }
     }
 }

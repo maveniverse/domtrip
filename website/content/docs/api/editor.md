@@ -235,10 +235,21 @@ String content = editor.getTextContent(element);
 
 ### `setAttribute(Element element, String name, String value)`
 
-Sets an attribute value.
+Sets an attribute value with intelligent formatting preservation and inference.
+
+**Formatting Behavior:**
+- **Existing attributes**: Preserves original quote style and whitespace
+- **New attributes**: Infers formatting from existing attributes on the element
 
 ```java
-editor.setAttribute(element, "scope", "test");
+// For XML: <element attr1='existing' attr2="another"/>
+editor.setAttribute(element, "attr1", "updated");  // Preserves single quotes
+editor.setAttribute(element, "attr3", "new");      // Infers quote style from existing
+
+// For multi-line attributes:
+// <element attr1="value1"
+//          attr2="value2"/>
+editor.setAttribute(element, "attr3", "value3");   // Maintains alignment
 ```
 
 ### `getAttribute(Element element, String name)`
@@ -259,7 +270,7 @@ editor.removeAttribute(element, "deprecated");
 
 ### `setAttributes(Element element, Map<String, String> attributes)`
 
-Sets multiple attributes at once.
+Sets multiple attributes at once with intelligent formatting.
 
 ```java
 Map<String, String> attrs = Map.of(
@@ -267,6 +278,28 @@ Map<String, String> attrs = Map.of(
     "optional", "true"
 );
 editor.setAttributes(element, attrs);
+// Each attribute uses inferred formatting based on existing patterns
+```
+
+**Advanced Attribute Formatting:**
+
+For fine-grained control over attribute formatting, you can work with `Attribute` objects directly:
+
+```java
+// Get attribute object for advanced manipulation
+Attribute attr = element.getAttributeObject("combine.children");
+if (attr != null) {
+    attr.setValue("merge");  // Preserves all formatting
+}
+
+// Create custom formatted attribute
+Attribute customAttr = Attribute.builder()
+    .name("newAttr")
+    .value("value")
+    .quoteStyle(QuoteStyle.SINGLE)
+    .precedingWhitespace("\n         ")  // For alignment
+    .build();
+element.setAttributeObject("newAttr", customAttr);
 ```
 
 ## Comment Operations

@@ -287,16 +287,19 @@ public class Parser {
         // Store original opening tag for whitespace preservation
 
         // Parse attributes and whitespace
+        StringBuilder currentWhitespace = new StringBuilder();
         while (position < length
                 && xml.charAt(position) != '>'
                 && !(xml.charAt(position) == '/' && position + 1 < length && xml.charAt(position + 1) == '>')) {
 
             if (Character.isWhitespace(xml.charAt(position))) {
-                // Skip whitespace but preserve it
+                // Collect whitespace that precedes the next attribute
+                currentWhitespace.append(xml.charAt(position));
                 position++;
             } else {
-                // Parse attribute
-                parseAttribute(element);
+                // Parse attribute with the collected whitespace
+                parseAttribute(element, currentWhitespace.toString());
+                currentWhitespace.setLength(0); // Reset for next attribute
             }
         }
 
@@ -315,7 +318,7 @@ public class Parser {
         return element;
     }
 
-    private void parseAttribute(Element element) throws ParseException {
+    private void parseAttribute(Element element, String precedingWhitespace) throws ParseException {
         // Parse attribute name
         StringBuilder name = new StringBuilder();
         while (position < length && xml.charAt(position) != '=' && !Character.isWhitespace(xml.charAt(position))) {
@@ -354,7 +357,9 @@ public class Parser {
                 // Set attribute with original quote character and raw value (internal method doesn't mark as modified)
                 String rawValue = value.toString();
                 String decodedValue = Text.unescapeTextContent(rawValue);
-                element.setAttributeInternal(name.toString(), decodedValue, quote, " ", rawValue);
+                // Use the actual preceding whitespace, or default to single space if empty
+                String actualWhitespace = precedingWhitespace.isEmpty() ? " " : precedingWhitespace;
+                element.setAttributeInternal(name.toString(), decodedValue, quote, actualWhitespace, rawValue);
             } else {
                 throw new ParseException("Missing attribute value quote", position, xml);
             }

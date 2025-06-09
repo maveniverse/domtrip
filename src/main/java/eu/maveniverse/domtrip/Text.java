@@ -147,6 +147,130 @@ public class Text extends Node {
         return content.isEmpty();
     }
 
+    /**
+     * Gets the text content with leading and trailing whitespace removed.
+     *
+     * <p>This is a convenience method that returns the trimmed content without
+     * modifying the original content. The original content with whitespace
+     * is preserved for lossless round-trip processing.</p>
+     *
+     * @return the content with leading and trailing whitespace removed
+     * @since 1.0
+     * @see #getContent()
+     * @see #getLeadingWhitespace()
+     * @see #getTrailingWhitespace()
+     */
+    public String getTrimmedContent() {
+        return content.trim();
+    }
+
+    /**
+     * Gets the leading whitespace from the text content.
+     *
+     * <p>Extracts and returns any whitespace characters (spaces, tabs, newlines)
+     * that appear at the beginning of the content. This is useful for understanding
+     * the whitespace structure without modifying the original content.</p>
+     *
+     * @return the leading whitespace, or empty string if none
+     * @since 1.0
+     * @see #getTrailingWhitespace()
+     * @see #getTrimmedContent()
+     */
+    public String getLeadingWhitespace() {
+        if (content.isEmpty()) {
+            return "";
+        }
+
+        int start = 0;
+        while (start < content.length() && Character.isWhitespace(content.charAt(start))) {
+            start++;
+        }
+
+        return content.substring(0, start);
+    }
+
+    /**
+     * Gets the trailing whitespace from the text content.
+     *
+     * <p>Extracts and returns any whitespace characters (spaces, tabs, newlines)
+     * that appear at the end of the content. This is useful for understanding
+     * the whitespace structure without modifying the original content.</p>
+     *
+     * @return the trailing whitespace, or empty string if none
+     * @since 1.0
+     * @see #getLeadingWhitespace()
+     * @see #getTrimmedContent()
+     */
+    public String getTrailingWhitespace() {
+        if (content.isEmpty()) {
+            return "";
+        }
+
+        int end = content.length();
+        while (end > 0 && Character.isWhitespace(content.charAt(end - 1))) {
+            end--;
+        }
+
+        return content.substring(end);
+    }
+
+    /**
+     * Sets new content while preserving the existing whitespace pattern.
+     *
+     * <p>This method replaces the actual content but maintains the same leading
+     * and trailing whitespace as the original content. This is useful when you
+     * want to update the meaningful content without affecting the formatting.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // Original: "   Hello World   "
+     * text.setContentPreservingWhitespace("Goodbye");
+     * // Result:   "   Goodbye   "
+     * }</pre>
+     *
+     * @param newContent the new content to set (will be placed between existing whitespace)
+     * @since 1.0
+     * @see #setContent(String)
+     * @see #getLeadingWhitespace()
+     * @see #getTrailingWhitespace()
+     */
+    public void setContentPreservingWhitespace(String newContent) {
+        if (newContent == null) {
+            newContent = "";
+        }
+
+        String leading = getLeadingWhitespace();
+        String trailing = getTrailingWhitespace();
+
+        this.content = leading + newContent + trailing;
+        this.rawContent = null; // Clear raw content when content is modified
+        markModified();
+    }
+
+    /**
+     * Checks if the content has leading whitespace.
+     *
+     * @return true if the content starts with whitespace characters
+     * @since 1.0
+     * @see #hasTrailingWhitespace()
+     * @see #getLeadingWhitespace()
+     */
+    public boolean hasLeadingWhitespace() {
+        return !content.isEmpty() && Character.isWhitespace(content.charAt(0));
+    }
+
+    /**
+     * Checks if the content has trailing whitespace.
+     *
+     * @return true if the content ends with whitespace characters
+     * @since 1.0
+     * @see #hasLeadingWhitespace()
+     * @see #getTrailingWhitespace()
+     */
+    public boolean hasTrailingWhitespace() {
+        return !content.isEmpty() && Character.isWhitespace(content.charAt(content.length() - 1));
+    }
+
     @Override
     public String toXml() {
         StringBuilder sb = new StringBuilder();

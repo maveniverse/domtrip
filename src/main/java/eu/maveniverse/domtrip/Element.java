@@ -364,7 +364,15 @@ public class Element extends ContainerNode {
     }
 
     /**
-     * Sets the text content, replacing all existing text children
+     * Sets the text content, replacing all existing text children.
+     *
+     * <p><strong>Note:</strong> This method replaces all text children and does not
+     * preserve existing whitespace patterns. For whitespace-preserving updates,
+     * use {@link #setTextContentPreservingWhitespace(String)} instead.</p>
+     *
+     * @param content the new text content
+     * @see #setTextContentPreservingWhitespace(String)
+     * @see #getTextContent()
      */
     public void setTextContent(String content) {
         // Remove all existing text children
@@ -377,6 +385,79 @@ public class Element extends ContainerNode {
         }
 
         markModified();
+    }
+
+    /**
+     * Sets the text content while preserving existing whitespace patterns.
+     *
+     * <p>This method attempts to preserve the whitespace structure of the existing
+     * text content when updating to new content. If the element has existing text
+     * with leading/trailing whitespace, the same pattern will be applied to the
+     * new content.</p>
+     *
+     * <h3>Examples:</h3>
+     * <pre>{@code
+     * // Original: <item>   old value   </item>
+     * element.setTextContentPreservingWhitespace("new value");
+     * // Result:   <item>   new value   </item>
+     *
+     * // Original: <item>old value</item>
+     * element.setTextContentPreservingWhitespace("new value");
+     * // Result:   <item>new value</item>
+     * }</pre>
+     *
+     * @param content the new text content
+     * @since 1.0
+     * @see #setTextContent(String)
+     * @see #getTextContent()
+     * @see #getTrimmedTextContent()
+     */
+    public void setTextContentPreservingWhitespace(String content) {
+        if (content == null) {
+            content = "";
+        }
+
+        // Find existing text node to preserve its whitespace pattern
+        Text existingText = getFirstTextChild();
+
+        if (existingText != null) {
+            // Use the Text node's whitespace-preserving method
+            existingText.setContentPreservingWhitespace(content);
+        } else {
+            // No existing text, just set normally
+            setTextContent(content);
+        }
+    }
+
+    /**
+     * Gets the text content with leading and trailing whitespace removed.
+     *
+     * <p>This is a convenience method that returns the trimmed text content
+     * without modifying the original content. Useful for getting clean content
+     * for processing while preserving the original formatting.</p>
+     *
+     * @return the text content with leading and trailing whitespace removed
+     * @since 1.0
+     * @see #getTextContent()
+     * @see #setTextContentPreservingWhitespace(String)
+     */
+    public String getTrimmedTextContent() {
+        String content = getTextContent();
+        return content != null ? content.trim() : "";
+    }
+
+    /**
+     * Gets the first Text child node, if any.
+     *
+     * @return the first Text child, or null if none exists
+     */
+    private Text getFirstTextChild() {
+        for (Node child : children) {
+            if (child instanceof Text) {
+                return (Text) child;
+            }
+        }
+        return null;
     }
 
     // Namespace-aware methods

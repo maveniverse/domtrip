@@ -8,7 +8,7 @@ social-github: maveniverse/domtrip
 layout: page
 ---
 
-<link rel="stylesheet" href="{data:config.basePath}/css/docusaurus-style.css">
+<link rel="stylesheet" href="/domtrip/css/docusaurus-style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
 
 <!-- Hero Section -->
@@ -16,7 +16,7 @@ layout: page
     <div class="hero-container">
         <h1 class="hero-title">DomTrip</h1>
         <p class="hero-subtitle">Lossless XML Editing for Java</p>
-        <a href="{data:config.basePath}/docs/getting-started/quick-start/" class="hero-cta">Get Started - 5min ⏱️</a>
+        <a href="/domtrip/docs/getting-started/quick-start/" class="hero-cta">Get Started - 5min ⏱️</a>
     </div>
 </section>
 

@@ -237,8 +237,7 @@ public class Editor {
         int childCount = parent.getChildCount();
         if (childCount > 0) {
             Node lastChild = parent.getChild(childCount - 1);
-            if (lastChild instanceof Text) {
-                Text lastText = (Text) lastChild;
+            if (lastChild instanceof Text lastText) {
                 String content = lastText.getContent();
                 // Use WhitespaceManager to check if it's whitespace only
                 if (whitespaceManager.isWhitespaceOnly(content) && content.contains("\n")) {

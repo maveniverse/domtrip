@@ -105,12 +105,12 @@ Gets the current XML document.
 Document document = editor.getDocument();
 ```
 
-### `getRootElement()`
+### `getDocumentElement()`
 
 Gets the root element of the document.
 
 ```java
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 ```
 
 ### `createDocument(String rootElementName)`
@@ -119,7 +119,7 @@ Creates a new document with the specified root element.
 
 ```java
 editor.createDocument("project");
-Element root = editor.getRootElement(); // <project></project>
+Element root = editor.getDocumentElement(); // <project></project>
 ```
 
 ## Serialization
@@ -174,7 +174,7 @@ List<Element> dependencies = editor.findElements("dependency");
 Adds a new child element to the parent.
 
 ```java
-Element parent = editor.getRootElement();
+Element parent = editor.getDocumentElement();
 Element child = editor.addElement(parent, "newChild");
 ```
 

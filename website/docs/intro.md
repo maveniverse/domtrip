@@ -69,7 +69,7 @@ Element version = editor.findElement("version");
 editor.setTextContent(version, "1.0.1");
 
 // Add new dependency with automatic formatting
-Element project = editor.getRootElement();
+Element project = editor.getDocumentElement();
 Element dependencies = editor.addElement(project, "dependencies");
 Element dependency = editor.addElement(dependencies, "dependency");
 editor.addElement(dependency, "groupId", "junit");

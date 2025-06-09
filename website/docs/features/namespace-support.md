@@ -30,15 +30,15 @@ DomTrip provides several methods for namespace-aware navigation:
 Editor editor = new Editor(xmlWithNamespaces);
 
 // Find by namespace URI and local name
-Optional<Element> project = editor.getRootElement()
+Optional<Element> project = editor.getDocumentElement()
     .findChildByNamespace("http://maven.apache.org/POM/4.0.0", "project");
 
 // Find all elements in a namespace
-Stream<Element> pomElements = editor.getRootElement()
+Stream<Element> pomElements = editor.getDocumentElement()
     .descendantsByNamespace("http://maven.apache.org/POM/4.0.0");
 
 // Find with prefix (if you know it)
-Optional<Element> schemaLocation = editor.getRootElement()
+Optional<Element> schemaLocation = editor.getDocumentElement()
     .findChild("xsi:schemaLocation");
 ```
 
@@ -85,7 +85,7 @@ String qualifiedName = element.getQualifiedName();
 ### Managing Namespace Declarations
 
 ```java
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 
 // Add namespace declaration
 root.addNamespaceDeclaration("custom", "http://example.com/custom");
@@ -151,7 +151,7 @@ Iterator<String> prefixes = context.getPrefixes("http://example.com/custom");
 DomTrip handles schema location attributes specially:
 
 ```java
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 
 // Get schema locations
 String schemaLocation = root.getAttribute("xsi:schemaLocation");
@@ -187,7 +187,7 @@ try {
 // Working with SOAP envelopes
 String soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/";
 
-Optional<Element> soapBody = editor.getRootElement()
+Optional<Element> soapBody = editor.getDocumentElement()
     .findChildByNamespace(soapNamespace, "Body");
 
 if (soapBody.isPresent()) {
@@ -209,7 +209,7 @@ if (dependencies == null) {
     dependencies = Element.builder("dependencies")
         .withNamespace(pomNamespace)
         .build();
-    editor.addChild(editor.getRootElement(), dependencies);
+    editor.addChild(editor.getDocumentElement(), dependencies);
 }
 ```
 
@@ -221,11 +221,11 @@ String springNamespace = "http://www.springframework.org/schema/beans";
 String contextNamespace = "http://www.springframework.org/schema/context";
 
 // Find Spring beans
-Stream<Element> beans = editor.getRootElement()
+Stream<Element> beans = editor.getDocumentElement()
     .descendantsByNamespace(springNamespace, "bean");
 
 // Find context annotations
-Optional<Element> componentScan = editor.getRootElement()
+Optional<Element> componentScan = editor.getDocumentElement()
     .findChildByNamespace(contextNamespace, "component-scan");
 ```
 
@@ -246,7 +246,7 @@ Element element = editor.findElement("pom:dependency");
 
 ```java
 // ✅ Good - reuse existing declarations
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 if (!root.hasNamespaceDeclaration("custom")) {
     root.addNamespaceDeclaration("custom", "http://example.com/custom");
 }

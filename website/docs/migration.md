@@ -26,12 +26,12 @@ Document document = editor.getDocument();
 
 ```java
 // DOM4J
-Element root = document.getRootElement();
+Element root = document.getDocumentElement();
 Element child = root.element("child");
 List<Element> children = root.elements("item");
 
 // DomTrip
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 Optional<Element> child = root.findChild("child");
 Stream<Element> children = root.findChildren("item");
 ```
@@ -96,7 +96,7 @@ Editor editor = new Editor(xml);
 
 ```java
 // JDOM
-Element root = document.getRootElement();
+Element root = document.getDocumentElement();
 Element child = root.getChild("child");
 List<Element> children = root.getChildren("item");
 
@@ -106,7 +106,7 @@ newElement.setText("content");
 root.addContent(newElement);
 
 // DomTrip
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 Optional<Element> child = root.findChild("child");
 Stream<Element> children = root.findChildren("item");
 
@@ -151,7 +151,7 @@ NodeList children = root.getElementsByTagName("child");
 Element child = (Element) children.item(0);
 
 // DomTrip
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 Optional<Element> child = root.findChild("child");
 ```
 
@@ -193,7 +193,7 @@ JsonNode child = root.get("child");
 
 // DomTrip
 Editor editor = new Editor(xml);
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 Optional<Element> child = root.findChild("child");
 ```
 

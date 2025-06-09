@@ -81,7 +81,7 @@ Editor editor = new Editor(xml, DomTripConfig.prettyPrint());
 
 ```java
 // Find by name
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 Element database = editor.findElement("database");
 
 // Modern navigation with Optional
@@ -196,7 +196,7 @@ public class MavenPomEditor {
         Editor editor = new Editor(xml);
         
         // Find or create dependencies section
-        Element project = editor.getRootElement();
+        Element project = editor.getDocumentElement();
         Element dependencies = editor.findElement("dependencies");
         if (dependencies == null) {
             dependencies = editor.addElement(project, "dependencies");

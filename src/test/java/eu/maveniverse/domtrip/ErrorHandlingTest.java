@@ -74,7 +74,7 @@ public class ErrorHandlingTest {
     void testAddElementWithNullName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, null);
@@ -85,7 +85,7 @@ public class ErrorHandlingTest {
     void testAddElementWithEmptyName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, "");
@@ -96,7 +96,7 @@ public class ErrorHandlingTest {
     void testAddElementWithWhitespaceOnlyName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, "   ");
@@ -114,7 +114,7 @@ public class ErrorHandlingTest {
     void testAddCommentWithNullContent() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         // Should not throw - null content should be handled gracefully
         Comment comment = editor.addComment(root, null);
@@ -126,7 +126,7 @@ public class ErrorHandlingTest {
     void testSetAttributeWithNullName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         // Implementation may handle null name gracefully
         assertDoesNotThrow(() -> {
@@ -138,7 +138,7 @@ public class ErrorHandlingTest {
     void testSetAttributeWithNullValue() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         // Should handle null value gracefully
         root.setAttribute("test", null);
@@ -149,7 +149,7 @@ public class ErrorHandlingTest {
     void testRemoveNonExistentElement() throws ParseException {
         String xml = "<root><child/></root>";
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
         Element child = (Element) root.getChild(0);
 
         // Remove the child
@@ -256,7 +256,7 @@ public class ErrorHandlingTest {
         xmlWithManyAttrs.append("/>");
 
         editor.loadXml(xmlWithManyAttrs.toString());
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
         assertEquals("value0", root.getAttribute("attr0"));
         assertEquals("value49", root.getAttribute("attr49"));
     }
@@ -279,7 +279,7 @@ public class ErrorHandlingTest {
         String xml = "<root attr-dash=\"value1\" attr_underscore=\"value2\" attr.dot=\"value3\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
         assertEquals("value1", root.getAttribute("attr-dash"));
         assertEquals("value2", root.getAttribute("attr_underscore"));
         assertEquals("value3", root.getAttribute("attr.dot"));

@@ -49,7 +49,7 @@ public class NamespaceTest {
             """;
 
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         assertEquals("root", root.getLocalName());
         assertNull(root.getPrefix());
@@ -85,7 +85,7 @@ public class NamespaceTest {
             """;
 
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         // Find by namespace and local name
         List<Element> defaultTitles = root.descendantsByNamespace("http://example.com/default", "title")
@@ -122,7 +122,7 @@ public class NamespaceTest {
             """;
 
         editor.loadXml(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         NamespaceContext rootContext = root.getNamespaceContext();
         assertEquals("http://example.com/default", rootContext.getDefaultNamespaceURI());

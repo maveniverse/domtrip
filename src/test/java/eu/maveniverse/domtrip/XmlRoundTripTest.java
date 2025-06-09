@@ -85,7 +85,7 @@ public class XmlRoundTripTest {
         String originalXml = "<root>\n" + "  <existing>content</existing>\n" + "</root>";
 
         editor.loadXml(originalXml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
         Element newElement = editor.addElement(root, "newElement", "new content");
 
         String result = editor.toXml();
@@ -123,7 +123,7 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         editor.loadXml(originalXml);
-        Element toRemove = editor.findChildElement(editor.getRootElement(), "remove");
+        Element toRemove = editor.findChildElement(editor.getDocumentElement(), "remove");
         editor.removeElement(toRemove);
 
         String result = editor.toXml();
@@ -212,7 +212,7 @@ public class XmlRoundTripTest {
     @Test
     void testDocumentCreation() {
         editor.createDocument("newRoot");
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         editor.addElement(root, "child1", "content1");
         editor.addElement(root, "child2", "content2");

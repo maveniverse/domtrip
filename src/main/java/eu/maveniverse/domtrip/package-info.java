@@ -43,7 +43,7 @@
  * Editor editor = new Editor(xmlString);
  *
  * // Make modifications
- * Element root = editor.getRootElement();
+ * Element root = editor.getDocumentElement();
  * editor.addElement(root, "newChild", "content");
  *
  * // Serialize with preserved formatting

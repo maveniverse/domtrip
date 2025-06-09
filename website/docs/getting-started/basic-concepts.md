@@ -178,7 +178,7 @@ DomTrip provides multiple ways to navigate XML structures:
 ### 1. Traditional Navigation
 
 ```java
-Element root = editor.getRootElement();
+Element root = editor.getDocumentElement();
 Element child = root.getChild("child-name");
 List<Element> children = root.getChildren("item");
 ```

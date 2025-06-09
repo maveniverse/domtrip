@@ -25,7 +25,7 @@ import java.util.Map;
  * Editor editor = new Editor(xmlString);
  *
  * // Make modifications
- * Element root = editor.getRootElement();
+ * Element root = editor.getDocumentElement();
  * editor.addElement(root, "newChild", "content");
  * editor.setAttribute(root, "version", "2.0");
  *
@@ -54,7 +54,7 @@ import java.util.Map;
  * editor.createDocument("root");
  *
  * // Build document structure
- * Element root = editor.getRootElement();
+ * Element root = editor.getDocumentElement();
  * editor.addElement(root, "child", "value");
  * }</pre>
  *
@@ -131,7 +131,7 @@ public class Editor {
      * Editor editor = new Editor(doc);
      *
      * // Continue editing
-     * Element root = editor.getRootElement();
+     * Element root = editor.getDocumentElement();
      * editor.addElement(root, "version", "1.0");
      * }</pre>
      *
@@ -382,7 +382,7 @@ public class Editor {
     /**
      * Gets the root element of the document
      */
-    public Element getRootElement() {
+    public Element getDocumentElement() {
         return document != null ? document.getDocumentElement() : null;
     }
 
@@ -448,8 +448,8 @@ public class Editor {
      */
     public Element findOrCreateElement(String name) throws NodeNotFoundException, InvalidXmlException {
         Element element = findElement(name);
-        if (element == null && getRootElement() != null) {
-            element = addElement(getRootElement(), name);
+        if (element == null && getDocumentElement() != null) {
+            element = addElement(getDocumentElement(), name);
         }
         return element;
     }

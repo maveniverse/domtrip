@@ -70,7 +70,7 @@ public class ImprovedApiDemo {
         Editor editor = new Editor(DomTripConfig.defaults());
         editor.createDocument("configuration");
 
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         // Use fluent builder API
         editor.add()
@@ -153,7 +153,7 @@ public class ImprovedApiDemo {
             """;
 
         Editor editor = new Editor(xml);
-        Element root = editor.getRootElement();
+        Element root = editor.getDocumentElement();
 
         // Enhanced navigation methods
         System.out.println("Finding dependencies using new navigation:");

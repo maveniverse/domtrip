@@ -110,7 +110,7 @@ String webXml = """
 Editor editor = new Editor(webXml);
 
 // Add servlet mapping
-Element webApp = editor.getRootElement();
+Element webApp = editor.getDocumentElement();
 Element servletMapping = editor.addElement(webApp, "servlet-mapping");
 editor.addElement(servletMapping, "servlet-name").setTextContent("dispatcher");
 editor.addElement(servletMapping, "url-pattern").setTextContent("/api/*");
@@ -180,7 +180,7 @@ int currentQty = Integer.parseInt(quantity.getTextContent());
 editor.setTextContent(quantity, String.valueOf(currentQty - 10));
 
 // Add new item
-Element inventory = editor.getRootElement();
+Element inventory = editor.getDocumentElement();
 Element newItem = editor.addElement(inventory, "item");
 editor.setAttribute(newItem, "sku", "XYZ789");
 editor.addElement(newItem, "name").setTextContent("Widget B");
@@ -368,7 +368,7 @@ try {
             item -> editor.setTextContent(item, "Updated Value"),
             () -> {
                 // Item doesn't exist, create it
-                Element data = editor.getRootElement();
+                Element data = editor.getDocumentElement();
                 Element newItem = editor.addElement(data, "item");
                 editor.setAttribute(newItem, "id", "3");
                 editor.setTextContent(newItem, "New Value");

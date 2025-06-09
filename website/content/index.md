@@ -34,25 +34,25 @@ layout: page
                 </p>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">&lt;/&gt;</div>
-                <h3 class="feature-title">Easy Editing with Formatting Preservation</h3>
-                <p class="feature-description">
-                    Make changes to your XML while keeping the original formatting intact. Only modified
-                    sections are reformatted, using intelligent indentation inference for new content.
-                </p>
-            </div>
+   <div class="feature-card">
+       <div class="feature-icon">&lt;/&gt;</div>
+       <h3 class="feature-title">Easy Editing with Formatting Preservation</h3>
+       <p class="feature-description">
+           Make changes to your XML while keeping the original formatting intact. Only modified
+           sections are reformatted, using intelligent indentation inference for new content.
+       </p>
+   </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">☕</div>
-                <h3 class="feature-title">Modern Java API</h3>
-                <p class="feature-description">
-                    Built for Java 17+ with fluent builders, Stream-based navigation, comprehensive
-                    namespace support, and type-safe configuration. Clean, intuitive API that feels natural.
-                </p>
-            </div>
-        </div>
-    </div>
+   <div class="feature-card">
+       <div class="feature-icon">☕</div>
+       <h3 class="feature-title">Modern Java API</h3>
+       <p class="feature-description">
+           Built for Java 17+ with fluent builders, Stream-based navigation, comprehensive
+           namespace support, and type-safe configuration. Clean, intuitive API that feels natural.
+       </p>
+   </div>
+</div>
+</div>
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>

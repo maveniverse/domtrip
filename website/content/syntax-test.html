@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Syntax Highlighting Test</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+</head>
+<body>
+    <h1>Syntax Highlighting Test</h1>
+    
+    <h2>Java Code</h2>
+    <pre class="language-java line-numbers"><code class="language-java">import eu.maveniverse.domtrip.Editor;
+import eu.maveniverse.domtrip.Element;
+
+public class QuickStart {
+    public static void main(String[] args) throws Exception {
+        // Parse XML while preserving all formatting
+        String originalXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <config>
+                <database>
+                    <host>localhost</host>
+                    <port>5432</port>
+                </database>
+            </config>
+            """;
+        
+        Editor editor = new Editor(originalXml);
+        Element database = editor.findElement("database");
+        editor.addElement(database, "username", "admin");
+        
+        String result = editor.toXml();
+        System.out.println(result);
+    }
+}</code></pre>
+
+    <h2>XML Code</h2>
+    <pre class="language-xml line-numbers"><code class="language-xml"><?xml version="1.0" encoding="UTF-8"?>
+<!-- Configuration file -->
+<config>
+    <database>
+        <host>localhost</host>
+        <port>5432</port>
+        <username>admin</username>
+        <password>secret</password>
+    </database>
+</config></code></pre>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    
+    <script>
+        console.log('Prism loaded:', !!window.Prism);
+        if (window.Prism) {
+            console.log('Running Prism.highlightAll()');
+            Prism.highlightAll();
+        }
+    </script>
+</body>
+</html>

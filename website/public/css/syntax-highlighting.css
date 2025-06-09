@@ -1,0 +1,125 @@
+/* Import Prism.js themes and plugins */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css');
+
+/* Enhanced code block styling */
+pre[class*="language-"] {
+    margin: 1.5em 0 !important;
+    padding: 1em !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    overflow-x: auto !important;
+    background: #2d3748 !important;
+}
+
+code[class*="language-"] {
+    font-family: 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+/* Override any existing code styling */
+pre code {
+    background: transparent !important;
+    color: inherit !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+/* Inline code styling */
+:not(pre) > code {
+    padding: 0.2em 0.4em !important;
+    border-radius: 4px !important;
+    background: #f7fafc !important;
+    color: #e53e3e !important;
+    font-size: 0.9em !important;
+    border: 1px solid #e2e8f0 !important;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+}
+
+/* Line numbers styling */
+.line-numbers .line-numbers-rows {
+    border-right: 1px solid #4a5568 !important;
+    padding-right: 1em !important;
+    margin-right: 1em !important;
+}
+
+.line-numbers-rows > span:before {
+    color: #718096 !important;
+    font-size: 12px !important;
+}
+
+/* Copy button styling */
+.prism-copy-button {
+    background: #4299e1 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 0.5em 1em !important;
+    font-size: 12px !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s !important;
+}
+
+.prism-copy-button:hover {
+    background: #3182ce !important;
+}
+
+/* Responsive code blocks */
+@media (max-width: 768px) {
+    pre[class*="language-"] {
+        margin: 1em -1em !important;
+        border-radius: 0 !important;
+        padding: 1em !important;
+        font-size: 13px !important;
+    }
+    
+    .line-numbers .line-numbers-rows {
+        display: none !important;
+    }
+}
+
+/* Better table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5em 0;
+    font-size: 14px;
+}
+
+table th,
+table td {
+    padding: 0.75em;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+table th {
+    background: #f7fafc;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+table tr:hover {
+    background: #f7fafc;
+}
+
+/* Status indicators in tables */
+.status-yes {
+    color: #38a169;
+    font-weight: 600;
+}
+
+.status-no {
+    color: #e53e3e;
+    font-weight: 600;
+}
+
+.status-partial {
+    color: #d69e2e;
+    font-weight: 600;
+}

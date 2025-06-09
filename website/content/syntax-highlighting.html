@@ -1,0 +1,166 @@
+<!-- Prism.js CSS for Syntax Highlighting -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.css">
+
+<!-- Custom CSS for better code styling -->
+<style>
+/* Enhanced code block styling */
+pre[class*="language-"] {
+    margin: 1.5em 0 !important;
+    padding: 1em !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    overflow-x: auto !important;
+    background: #2d3748 !important;
+}
+
+code[class*="language-"] {
+    font-family: 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
+
+/* Override any existing code styling */
+pre code {
+    background: transparent !important;
+    color: inherit !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+/* Inline code styling */
+:not(pre) > code {
+    padding: 0.2em 0.4em !important;
+    border-radius: 4px !important;
+    background: #f7fafc !important;
+    color: #e53e3e !important;
+    font-size: 0.9em !important;
+    border: 1px solid #e2e8f0 !important;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+}
+
+/* Line numbers styling */
+.line-numbers .line-numbers-rows {
+    border-right: 1px solid #4a5568 !important;
+    padding-right: 1em !important;
+    margin-right: 1em !important;
+}
+
+.line-numbers-rows > span:before {
+    color: #718096 !important;
+    font-size: 12px !important;
+}
+
+/* Copy button styling */
+.prism-copy-button {
+    background: #4299e1 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 4px !important;
+    padding: 0.5em 1em !important;
+    font-size: 12px !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s !important;
+}
+
+.prism-copy-button:hover {
+    background: #3182ce !important;
+}
+
+/* Responsive code blocks */
+@media (max-width: 768px) {
+    pre[class*="language-"] {
+        margin: 1em -1em !important;
+        border-radius: 0 !important;
+        padding: 1em !important;
+        font-size: 13px !important;
+    }
+    
+    .line-numbers .line-numbers-rows {
+        display: none !important;
+    }
+}
+</style>
+
+<!-- Prism.js JavaScript for Syntax Highlighting -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/toolbar/prism-toolbar.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
+
+<script>
+// Initialize Prism.js when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Set up autoloader path
+    if (window.Prism && window.Prism.plugins && window.Prism.plugins.autoloader) {
+        window.Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
+    }
+    
+    // Add language classes to code blocks that don't have them
+    document.querySelectorAll('pre code').forEach(function(codeBlock) {
+        var pre = codeBlock.parentElement;
+        
+        // Skip if already has language class
+        if (pre.className.includes('language-')) {
+            return;
+        }
+        
+        // Try to detect language from content
+        var content = codeBlock.textContent || codeBlock.innerText;
+        var language = detectLanguage(content);
+        
+        // Add language class
+        pre.className = 'language-' + language;
+        codeBlock.className = 'language-' + language;
+        
+        // Add line numbers
+        pre.classList.add('line-numbers');
+    });
+
+    // Highlight all code blocks
+    if (window.Prism) {
+        window.Prism.highlightAll();
+    }
+});
+
+// Simple language detection
+function detectLanguage(content) {
+    // Java detection
+    if (content.includes('public class') || content.includes('import ') || content.includes('package ')) {
+        return 'java';
+    }
+    
+    // XML detection
+    if (content.includes('<?xml') || content.includes('<dependency>') || content.includes('</')) {
+        return 'xml';
+    }
+    
+    // JSON detection
+    if (content.trim().startsWith('{') && content.includes('"')) {
+        return 'json';
+    }
+    
+    // YAML detection
+    if (content.includes('---') || content.includes(': ')) {
+        return 'yaml';
+    }
+    
+    // Bash detection
+    if (content.includes('#!/bin/bash') || content.includes('$ ') || content.includes('cd ')) {
+        return 'bash';
+    }
+    
+    // Properties detection
+    if (content.includes('=') && content.includes('.')) {
+        return 'properties';
+    }
+    
+    // Default to text
+    return 'text';
+}
+</script>

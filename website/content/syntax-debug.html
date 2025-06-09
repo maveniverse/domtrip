@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Syntax Highlighting Debug</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h1 { color: #333; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <h1>Syntax Highlighting Debug Page</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Explicit Language Classes</h2>
+        <pre class="language-java line-numbers"><code class="language-java">import eu.maveniverse.domtrip.Editor;
+import eu.maveniverse.domtrip.Element;
+
+public class QuickStart {
+    public static void main(String[] args) throws Exception {
+        String xml = """
+            <?xml version="1.0"?>
+            <config>
+                <database>
+                    <host>localhost</host>
+                </database>
+            </config>
+            """;
+        
+        Editor editor = new Editor(xml);
+        Element database = editor.findElement("database");
+        editor.addElement(database, "username", "admin");
+        
+        String result = editor.toXml();
+        System.out.println(result);
+    }
+}</code></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: XML Code</h2>
+        <pre class="language-xml line-numbers"><code class="language-xml"><?xml version="1.0" encoding="UTF-8"?>
+<!-- Configuration file -->
+<config>
+    <database>
+        <host>localhost</host>
+        <port>5432</port>
+        <username>admin</username>
+        <password>secret</password>
+    </database>
+</config></code></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Plain Code Block (should be auto-detected)</h2>
+        <pre><code>public class Test {
+    public void method() {
+        System.out.println("Hello World");
+    }
+}</code></pre>
+    </div>
+
+    <div class="test-section">
+        <h2>Debug Information</h2>
+        <div id="debug-info">
+            <p>Loading debug information...</p>
+        </div>
+    </div>
+
+    <!-- Load Prism.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            
+            // Debug information
+            const debugInfo = document.getElementById('debug-info');
+            let info = '<h3>Debug Info:</h3>';
+            info += '<p><strong>Prism loaded:</strong> ' + (!!window.Prism) + '</p>';
+            
+            if (window.Prism) {
+                info += '<p><strong>Prism languages:</strong> ' + Object.keys(window.Prism.languages).join(', ') + '</p>';
+            }
+            
+            // Count code blocks
+            const codeBlocks = document.querySelectorAll('pre code');
+            info += '<p><strong>Code blocks found:</strong> ' + codeBlocks.length + '</p>';
+            
+            codeBlocks.forEach((block, index) => {
+                const pre = block.parentElement;
+                info += '<p><strong>Block ' + (index + 1) + ':</strong> pre class="' + pre.className + '", code class="' + block.className + '"</p>';
+            });
+            
+            debugInfo.innerHTML = info;
+            
+            // Auto-detect language for plain code blocks
+            document.querySelectorAll('pre code').forEach(function(block) {
+                const pre = block.parentElement;
+                if (!pre.className.includes('language-')) {
+                    const content = block.textContent;
+                    let language = 'text';
+                    
+                    if (content.includes('public class') || content.includes('import ')) {
+                        language = 'java';
+                    } else if (content.includes('<?xml') || content.includes('</')) {
+                        language = 'xml';
+                    }
+                    
+                    pre.className = 'language-' + language + ' line-numbers';
+                    block.className = 'language-' + language;
+                    console.log('Auto-detected language:', language);
+                }
+            });
+            
+            // Highlight all
+            if (window.Prism) {
+                console.log('Running Prism.highlightAll()');
+                Prism.highlightAll();
+                console.log('Highlighting complete');
+            } else {
+                console.error('Prism.js not available');
+            }
+        });
+    </script>
+</body>
+</html>

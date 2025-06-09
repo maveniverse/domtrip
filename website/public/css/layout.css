@@ -1,0 +1,447 @@
+/* Docusaurus-style layout for DomTrip documentation */
+
+/* CSS Variables */
+:root {
+    --primary-color: #2e8555;
+    --primary-dark: #1d5a3a;
+    --primary-light: #4caf50;
+    --text-color: #1c1e21;
+    --text-light: #606770;
+    --background-color: #ffffff;
+    --background-secondary: #f7f8fa;
+    --border-color: #dadde1;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --border-radius: 4px;
+    --sidebar-width: 280px;
+    --toc-width: 240px;
+}
+
+/* Base styles */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+/* Layout structure */
+.layout {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+.main-wrapper {
+    display: flex;
+    flex: 1;
+    position: relative;
+}
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--background-secondary);
+    border-right: 1px solid var(--border-color);
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.sidebar-content {
+    padding: 1rem;
+}
+
+.sidebar-section {
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+}
+
+.sidebar-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-nav li {
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-nav a {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-color);
+    text-decoration: none;
+    border-radius: var(--border-radius);
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.sidebar-nav a:hover {
+    background-color: rgba(46, 133, 85, 0.1);
+    color: var(--primary-color);
+}
+
+.sidebar-nav a.active {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 500;
+}
+
+/* Main content */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    margin-right: var(--toc-width);
+    padding: 2rem;
+    max-width: calc(100vw - var(--sidebar-width) - var(--toc-width));
+}
+
+.content-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Table of Contents */
+.toc {
+    width: var(--toc-width);
+    position: fixed;
+    top: 60px;
+    right: 0;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: var(--background-color);
+    border-left: 1px solid var(--border-color);
+}
+
+.toc-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.toc-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.toc-nav li {
+    margin-bottom: 0.25rem;
+}
+
+.toc-nav a {
+    display: block;
+    padding: 0.25rem 0;
+    color: var(--text-light);
+    text-decoration: none;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    transition: color 0.2s;
+}
+
+.toc-nav a:hover {
+    color: var(--primary-color);
+}
+
+.toc-nav .toc-h2 {
+    padding-left: 0;
+}
+
+.toc-nav .toc-h3 {
+    padding-left: 1rem;
+    font-size: 0.8rem;
+}
+
+.toc-nav .toc-h4 {
+    padding-left: 2rem;
+    font-size: 0.75rem;
+}
+
+/* Typography */
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--text-color);
+    line-height: 1.2;
+}
+
+h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 2rem 0 1rem 0;
+    color: var(--text-color);
+    line-height: 1.3;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 1.5rem 0 1rem 0;
+    color: var(--text-color);
+    line-height: 1.4;
+}
+
+h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 1rem 0 0.5rem 0;
+    color: var(--text-color);
+}
+
+p {
+    margin-bottom: 1rem;
+    color: var(--text-color);
+}
+
+/* Navigation */
+.navbar {
+    background-color: var(--background-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.75rem 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: var(--shadow);
+    height: 60px;
+}
+
+.navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.navbar-logo {
+    height: 32px;
+    margin-right: 0.5rem;
+}
+
+.navbar-nav {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 2rem;
+}
+
+.navbar-nav a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.navbar-nav a:hover {
+    color: var(--primary-color);
+}
+
+.navbar-github {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.navbar-github:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Mobile menu toggle */
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .toc {
+        display: none;
+    }
+
+    .main-content {
+        margin-right: 0;
+        max-width: calc(100vw - var(--sidebar-width));
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        max-width: 100vw;
+        padding: 1rem;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+    }
+
+    .navbar-nav {
+        display: none;
+    }
+}
+
+/* Footer styles */
+.footer {
+    background-color: var(--text-color);
+    color: white;
+    padding: 3rem 0 1rem 0;
+    margin-top: 4rem;
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-section h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.footer-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-section li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-section a {
+    color: #ccc;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-section a:hover {
+    color: var(--primary-light);
+}
+
+.footer-bottom {
+    border-top: 1px solid #444;
+    padding-top: 1rem;
+    text-align: center;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+/* Copy button styles */
+.copy-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-light);
+    transition: all 0.2s ease;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 10;
+    min-width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-button:hover {
+    background: white;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.copy-button.copied {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Show copy button on hover */
+pre:hover .copy-button {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Ensure pre blocks have relative positioning for copy button */
+pre {
+    position: relative !important;
+}
+
+/* Mobile adjustments for copy button */
+@media (max-width: 768px) {
+    .copy-button {
+        opacity: 1;
+        visibility: visible;
+        background: rgba(255, 255, 255, 0.95);
+    }
+}

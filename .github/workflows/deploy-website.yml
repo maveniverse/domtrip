@@ -29,39 +29,20 @@ jobs:
       with:
         fetch-depth: 0 # Fetch all history for proper git info
     
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: website/package-lock.json
-    
     - name: Setup Java
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17'
-    
-    - name: Install dependencies
-      working-directory: website
-      run: npm ci
-    
-    - name: Extract code snippets
-      working-directory: website
-      run: npm run extract-snippets
-    
-    - name: Validate snippets
-      working-directory: website
-      run: npm run validate-snippets
-    
+        java-version: '21'
+        cache: 'maven'
+
     - name: Build website
-      working-directory: website
-      run: npm run build
+      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run -DskipTests
     
     - name: Upload build artifacts
       uses: actions/upload-pages-artifact@v3
       with:
-        path: website/target/build
+        path: website/target/dist
 
   deploy:
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'

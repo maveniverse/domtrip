@@ -897,22 +897,32 @@ public class Editor {
      * Infers appropriate whitespace for new attributes based on existing patterns.
      */
     private String inferAttributeWhitespace(java.util.Collection<Attribute> attributes) {
-        // Look for multi-line attribute patterns
+        String bestMultiLinePattern = null;
+        String bestCustomPattern = null;
+
+        // Look for patterns in existing attributes
         for (Attribute attr : attributes) {
             String whitespace = attr.getPrecedingWhitespace();
-            if (whitespace != null && whitespace.contains("\n")) {
-                // Found multi-line pattern - try to infer alignment
-                return inferAlignmentWhitespace(whitespace);
+            if (whitespace != null) {
+                // Prioritize multi-line patterns
+                if (whitespace.contains("\n")) {
+                    bestMultiLinePattern = whitespace;
+                    // Don't break - look for the best multi-line pattern
+                } else if (!whitespace.equals(" ")) {
+                    // Found custom spacing - use the last one found (prefer later attributes)
+                    bestCustomPattern = whitespace;
+                }
             }
         }
 
-        // Look for custom spacing patterns
-        for (Attribute attr : attributes) {
-            String whitespace = attr.getPrecedingWhitespace();
-            if (whitespace != null && !whitespace.equals(" ")) {
-                // Found custom spacing - use it
-                return whitespace;
-            }
+        // Use multi-line pattern if found
+        if (bestMultiLinePattern != null) {
+            return inferAlignmentWhitespace(bestMultiLinePattern);
+        }
+
+        // Use custom pattern if found
+        if (bestCustomPattern != null) {
+            return bestCustomPattern;
         }
 
         // Default to single space
@@ -927,9 +937,10 @@ public class Editor {
             return " ";
         }
 
-        // Extract the pattern after the last newline
+        // Extract the pattern after the last newline (including the newline)
         int lastNewline = existingWhitespace.lastIndexOf('\n');
-        if (lastNewline >= 0 && lastNewline < existingWhitespace.length() - 1) {
+        if (lastNewline >= 0) {
+            // Return from the newline onwards (including the newline)
             return existingWhitespace.substring(lastNewline);
         }
 

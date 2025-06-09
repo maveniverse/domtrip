@@ -248,10 +248,14 @@ public class AttributeFormattingPreservationTest {
         // Get the custom whitespace pattern from existing attributes
         String existingWhitespace = root.getAttributeObject("attr2").getPrecedingWhitespace();
 
+        // Verify we're getting some custom whitespace (not just a single space)
+        assertTrue(existingWhitespace.length() > 1, "attr2 should have custom whitespace");
+
         // Add new attribute via Editor - should infer custom spacing
         editor.setAttribute(root, "attr3", "value3");
 
-        assertEquals(existingWhitespace, root.getAttributeObject("attr3").getPrecedingWhitespace());
+        String attr3Whitespace = root.getAttributeObject("attr3").getPrecedingWhitespace();
+        assertEquals(existingWhitespace, attr3Whitespace);
     }
 
     @Test

@@ -6,8 +6,8 @@
     <title>{page.title}</title>
 
     <!-- CSS Files -->
-    <link rel="stylesheet" href="{site.basePath}/css/docusaurus-style.css">
-    <link rel="stylesheet" href="{site.basePath}/css/layout.css">
+    <link rel="stylesheet" href="{data:config.basePath}/css/docusaurus-style.css">
+    <link rel="stylesheet" href="{data:config.basePath}/css/layout.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -19,7 +19,7 @@
         <!-- Navigation -->
         <nav class="navbar">
             <div class="navbar-container">
-                <a href="{site.basePath}/" class="navbar-brand">
+                <a href="{data:config.basePath}/" class="navbar-brand">
                     <svg class="navbar-logo" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
                     </svg>
@@ -27,9 +27,9 @@
                 </a>
                 <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰</button>
                 <ul class="navbar-nav">
-                    <li><a href="{site.basePath}/docs/">Documentation</a></li>
-                    <li><a href="{site.basePath}/docs/api/editor/">API Reference</a></li>
-                    <li><a href="{site.basePath}/examples/">Examples</a></li>
+                    <li><a href="{data:config.basePath}/docs/">Documentation</a></li>
+                    <li><a href="{data:config.basePath}/docs/api/editor/">API Reference</a></li>
+                    <li><a href="{data:config.basePath}/examples/">Examples</a></li>
                 </ul>
                 <a href="https://github.com/maveniverse/domtrip" class="navbar-github">GitHub</a>
             </div>
@@ -42,42 +42,42 @@
                     <div class="sidebar-section">
                         <div class="sidebar-section-title">Getting Started</div>
                         <ul class="sidebar-nav">
-                            <li><a href="{site.basePath}/docs/getting-started/installation/">Installation</a></li>
-                            <li><a href="{site.basePath}/docs/getting-started/quick-start/">Quick Start</a></li>
-                            <li><a href="{site.basePath}/docs/getting-started/basic-concepts/">Basic Concepts</a></li>
+                            <li><a href="{data:config.basePath}/docs/getting-started/installation/">Installation</a></li>
+                            <li><a href="{data:config.basePath}/docs/getting-started/quick-start/">Quick Start</a></li>
+                            <li><a href="{data:config.basePath}/docs/getting-started/basic-concepts/">Basic Concepts</a></li>
                         </ul>
                     </div>
 
                     <div class="sidebar-section">
                         <div class="sidebar-section-title">Features</div>
                         <ul class="sidebar-nav">
-                            <li><a href="{site.basePath}/docs/features/lossless-parsing/">Lossless Parsing</a></li>
-                            <li><a href="{site.basePath}/docs/features/formatting-preservation/">Formatting Preservation</a></li>
-                            <li><a href="{site.basePath}/docs/features/namespace-support/">Namespace Support</a></li>
+                            <li><a href="{data:config.basePath}/docs/features/lossless-parsing/">Lossless Parsing</a></li>
+                            <li><a href="{data:config.basePath}/docs/features/formatting-preservation/">Formatting Preservation</a></li>
+                            <li><a href="{data:config.basePath}/docs/features/namespace-support/">Namespace Support</a></li>
                         </ul>
                     </div>
 
                     <div class="sidebar-section">
                         <div class="sidebar-section-title">API Reference</div>
                         <ul class="sidebar-nav">
-                            <li><a href="{site.basePath}/docs/api/editor/">Editor</a></li>
-                            <li><a href="{site.basePath}/docs/api/configuration/">Configuration</a></li>
+                            <li><a href="{data:config.basePath}/docs/api/editor/">Editor</a></li>
+                            <li><a href="{data:config.basePath}/docs/api/configuration/">Configuration</a></li>
                         </ul>
                     </div>
 
                     <div class="sidebar-section">
                         <div class="sidebar-section-title">Advanced</div>
                         <ul class="sidebar-nav">
-                            <li><a href="{site.basePath}/docs/advanced/builder-patterns/">Builder Patterns</a></li>
+                            <li><a href="{data:config.basePath}/docs/advanced/builder-patterns/">Builder Patterns</a></li>
                         </ul>
                     </div>
 
                     <div class="sidebar-section">
                         <div class="sidebar-section-title">More</div>
                         <ul class="sidebar-nav">
-                            <li><a href="{site.basePath}/docs/comparison/">Comparison</a></li>
-                            <li><a href="{site.basePath}/docs/migration/">Migration Guide</a></li>
-                            <li><a href="{site.basePath}/examples/">Examples</a></li>
+                            <li><a href="{data:config.basePath}/docs/comparison/">Comparison</a></li>
+                            <li><a href="{data:config.basePath}/docs/migration/">Migration Guide</a></li>
+                            <li><a href="{data:config.basePath}/examples/">Examples</a></li>
                         </ul>
                     </div>
                 </div>
@@ -106,9 +106,9 @@
                     <div class="footer-section">
                         <h4>Docs</h4>
                         <ul>
-                            <li><a href="{site.basePath}/docs/getting-started/quick-start/">Getting Started</a></li>
-                            <li><a href="{site.basePath}/docs/api/editor/">API Reference</a></li>
-                            <li><a href="{site.basePath}/examples/">Examples</a></li>
+                            <li><a href="{data:config.basePath}/docs/getting-started/quick-start/">Getting Started</a></li>
+                            <li><a href="{data:config.basePath}/docs/api/editor/">API Reference</a></li>
+                            <li><a href="{data:config.basePath}/examples/">Examples</a></li>
                         </ul>
                     </div>
                     <div class="footer-section">
@@ -146,7 +146,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 
     <!-- Layout functionality -->
-    <script src="{site.basePath}/js/layout.js"></script>
+    <script src="{data:config.basePath}/js/layout.js"></script>
 </body>
 </html>
 

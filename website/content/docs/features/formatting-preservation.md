@@ -55,6 +55,28 @@ String openTag = element.getOpenTagWhitespace();   // " "
 String closeTag = element.getCloseTagWhitespace(); // " "
 ```
 
+### Attribute Formatting
+Attributes preserve their quote style, whitespace, and alignment patterns:
+
+```java
+// Original XML with mixed formatting:
+String xml = """
+    <element attr1='single'
+             attr2="double"
+             attr3='aligned'/>
+    """;
+
+Editor editor = new Editor(xml);
+Element element = editor.getDocumentElement();
+
+// Update existing attributes - formatting preserved
+element.setAttribute("attr1", "updated");  // Still uses single quotes
+editor.setAttribute(element, "attr2", "modified");  // Still uses double quotes
+
+// Add new attribute - formatting inferred from existing patterns
+editor.setAttribute(element, "attr4", "new");  // Uses inferred alignment and quotes
+```
+
 ## Intelligent Formatting Inference
 
 When you add new content, DomTrip automatically infers appropriate formatting from the surrounding context:

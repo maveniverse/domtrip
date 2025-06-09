@@ -5,13 +5,7 @@ on:
     branches: [ master, main ]
     paths:
       - 'website/**'
-      - 'src/test/java/eu/maveniverse/domtrip/demos/**'
-      - '.github/workflows/deploy-website.yml'
-  pull_request:
-    branches: [ master, main ]
-    paths:
-      - 'website/**'
-      - 'src/test/java/eu/maveniverse/domtrip/demos/**'
+      - 'core/src/test/java/eu/maveniverse/domtrip/demos/**'
       - '.github/workflows/deploy-website.yml'
 
 # Allow one concurrent deployment
@@ -45,70 +39,18 @@ jobs:
         path: website/target/dist
 
   deploy:
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
-    
+
     permissions:
       pages: write
       id-token: write
-    
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     steps:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
-
-  test-build:
-    if: github.event_name == 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: github-pages
-        path: ./build
-    
-    - name: Test build output
-      run: |
-        echo "✅ Website build completed successfully"
-        echo "📁 Build artifacts:"
-        find ./build -type f -name "*.html" | head -10
-        echo "📊 Build size:"
-        du -sh ./build
-    
-    - name: Comment PR
-      if: github.event_name == 'pull_request'
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          const path = require('path');
-          
-          // Get build info
-          const buildPath = './build';
-          const htmlFiles = fs.readdirSync(buildPath, { recursive: true })
-            .filter(file => file.endsWith('.html')).length;
-          
-          const comment = `## 🚀 Website Preview
-          
-          The website has been built successfully!
-          
-          📊 **Build Stats:**
-          - HTML pages: ${htmlFiles}
-          - Build completed: ✅
-          
-          The website will be deployed automatically when this PR is merged to main.
-          `;
-          
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });

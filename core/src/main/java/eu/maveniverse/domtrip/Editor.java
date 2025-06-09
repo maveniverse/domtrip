@@ -351,7 +351,8 @@ public class Editor {
         } else {
             // New attribute - infer formatting from existing attributes
             AttributeFormatting formatting = inferAttributeFormatting(element);
-            Attribute newAttr = new Attribute(trimmedName, safeValue, formatting.quoteStyle, formatting.precedingWhitespace);
+            Attribute newAttr =
+                    new Attribute(trimmedName, safeValue, formatting.quoteStyle, formatting.precedingWhitespace);
             element.setAttributeObject(trimmedName, newAttr);
         }
     }

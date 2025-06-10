@@ -26,7 +26,7 @@ import java.util.Map;
  * Editor editor = new Editor(doc);
  *
  * // Make modifications
- * Element root = editor.root().orElseThrow();
+ * Element root = editor.root();
  * editor.addElement(root, "newChild", "content");
  * editor.setAttribute(root, "version", "2.0");  // Intelligently preserves formatting
  *

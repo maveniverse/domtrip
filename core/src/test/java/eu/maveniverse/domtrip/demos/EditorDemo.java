@@ -42,7 +42,7 @@ public class EditorDemo {
 
         System.out.println("1. Original XML:");
         System.out.println(originalXml);
-        System.out.println("\n" + editor.getDocumentStats());
+        System.out.println("\n" + editor.documentStats());
 
         // Test 1: Round-trip without modifications
         System.out.println("\n2. Round-trip without modifications:");
@@ -56,7 +56,7 @@ public class EditorDemo {
 
         // Test 2: Add a new dependency
         System.out.println("\n3. Adding new dependency...");
-        Element dependencies = editor.findElement("dependencies");
+        Element dependencies = editor.element("dependencies").orElseThrow();
         Element newDep = editor.addElement(dependencies, "dependency");
         editor.addElement(newDep, "groupId", "org.mockito");
         editor.addElement(newDep, "artifactId", "mockito-core");
@@ -68,7 +68,7 @@ public class EditorDemo {
 
         // Test 3: Modify existing element
         System.out.println("\n4. Modifying version...");
-        Element version = editor.findElement("version");
+        Element version = editor.element("version").orElseThrow();
         editor.setTextContent(version, "1.0.1-SNAPSHOT");
 
         System.out.println("Result after version change:");
@@ -76,7 +76,7 @@ public class EditorDemo {
 
         // Test 4: Add comment
         System.out.println("\n5. Adding comment...");
-        Element properties = editor.findElement("properties");
+        Element properties = editor.element("properties").orElseThrow();
         editor.addComment(properties, " Updated compiler settings ");
 
         System.out.println("Result after adding comment:");
@@ -84,7 +84,7 @@ public class EditorDemo {
 
         // Test 5: Add attribute
         System.out.println("\n6. Adding attribute...");
-        Element project = editor.getDocumentElement();
+        Element project = editor.documentElement().orElseThrow();
         editor.setAttribute(project, "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 
         System.out.println("Final result:");
@@ -131,7 +131,7 @@ public class EditorDemo {
         System.out.println("\n4. Minimal Change Serialization:");
         String complexXml = "<root>\n  <unchanged>content</unchanged>\n  <toModify>old</toModify>\n</root>";
         editor = new Editor(complexXml);
-        Element toModify = editor.findElement("toModify");
+        Element toModify = editor.element("toModify").orElseThrow();
         editor.setTextContent(toModify, "new");
 
         String result = editor.toXml();

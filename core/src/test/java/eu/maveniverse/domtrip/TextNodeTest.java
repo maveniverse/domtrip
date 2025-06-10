@@ -23,69 +23,69 @@ public class TextNodeTest {
     void testTextNodeCreation() {
         Text text = new Text("Hello World");
 
-        assertEquals("Hello World", text.getContent());
-        assertEquals(Node.NodeType.TEXT, text.getNodeType());
-        assertFalse(text.isCData());
+        assertEquals("Hello World", text.content());
+        assertEquals(Node.NodeType.TEXT, text.type());
+        assertFalse(text.cdata());
         // Note: preserveWhitespace defaults to true in the implementation
-        assertTrue(text.isPreserveWhitespace());
+        assertTrue(text.preserveWhitespace());
     }
 
     @Test
     void testTextNodeWithNullContent() {
         Text text = new Text(null);
 
-        assertEquals("", text.getContent());
+        assertEquals("", text.content());
     }
 
     @Test
     void testTextNodeSetContent() {
         Text text = new Text("original");
-        text.setContent("modified");
+        text.content("modified");
 
-        assertEquals("modified", text.getContent());
+        assertEquals("modified", text.content());
         assertTrue(text.isModified());
     }
 
     @Test
     void testTextNodeSetContentNull() {
         Text text = new Text("original");
-        text.setContent(null);
+        text.content(null);
 
-        assertEquals("", text.getContent());
+        assertEquals("", text.content());
     }
 
     @Test
     void testCDataCreation() {
         Text cdata = new Text("function() { return x < y; }", true);
 
-        assertEquals("function() { return x < y; }", cdata.getContent());
-        assertTrue(cdata.isCData());
+        assertEquals("function() { return x < y; }", cdata.content());
+        assertTrue(cdata.cdata());
     }
 
     @Test
     void testCDataWithRawValue() {
         Text cdata = new Text("decoded content", "<![CDATA[raw content]]>");
 
-        assertEquals("decoded content", cdata.getContent());
+        assertEquals("decoded content", cdata.content());
         // Note: This constructor doesn't automatically set CDATA flag
-        assertFalse(cdata.isCData());
+        assertFalse(cdata.cdata());
     }
 
     @Test
     void testSetCData() {
         Text text = new Text("normal text");
-        text.setCData(true);
+        text.cdata(true);
 
-        assertTrue(text.isCData());
+        assertTrue(text.cdata());
         assertTrue(text.isModified());
     }
 
     @Test
     void testSetPreserveWhitespace() {
         Text text = new Text("  spaced text  ");
-        text.setPreserveWhitespace(false);
+        text.preserveWhitespace(false);
 
-        assertFalse(text.isPreserveWhitespace());
+        assertFalse(text.preserveWhitespace());
         // Note: setPreserveWhitespace may not mark as modified in current implementation
         // assertTrue(text.isModified());
     }
@@ -95,7 +95,7 @@ public class TextNodeTest {
         Text text = new Text("decoded");
         // Note: Text class doesn't have setRawValue method in current implementation
         // This test is removed as the method doesn't exist
-        assertTrue(text.getContent().equals("decoded"));
+        assertTrue(text.content().equals("decoded"));
         assertFalse(text.isModified()); // Initially not modified
     }
 
@@ -127,8 +127,8 @@ public class TextNodeTest {
     @Test
     void testTextNodeWithWhitespace() {
         Text text = new Text("content");
-        text.setPrecedingWhitespace("  ");
-        text.setFollowingWhitespace("\n");
+        text.precedingWhitespace("  ");
+        text.followingWhitespace = "\n" != null ? "\n" : "";
 
         String xml = text.toXml();
         assertEquals("  content\n", xml);
@@ -169,41 +169,43 @@ public class TextNodeTest {
     @Test
     void testTextTrim() {
         Text text = new Text("  content with spaces  ");
-        text.setPreserveWhitespace(false); // Need to disable preserve whitespace first
+        // Need to disable preserve whitespace first
+        text.preserveWhitespace(false);
         text.trim();
 
-        assertEquals("content with spaces", text.getContent());
+        assertEquals("content with spaces", text.content());
         assertTrue(text.isModified());
     }
 
     @Test
     void testTextTrimWithPreserveWhitespace() {
         Text text = new Text("  content with spaces  ");
-        text.setPreserveWhitespace(true);
+        text.preserveWhitespace(true);
         text.trim();
 
         // Should not trim when preserve whitespace is true
-        assertEquals("  content with spaces  ", text.getContent());
+        assertEquals("  content with spaces  ", text.content());
     }
 
     @Test
     void testTextNormalizeWhitespace() {
         Text text = new Text("  content   with    multiple   spaces  ");
-        text.setPreserveWhitespace(false); // Need to disable preserve whitespace first
+        // Need to disable preserve whitespace first
+        text.preserveWhitespace(false);
         text.normalizeWhitespace();
 
-        assertEquals("content with multiple spaces", text.getContent());
+        assertEquals("content with multiple spaces", text.content());
         assertTrue(text.isModified());
     }
 
     @Test
     void testTextNormalizeWhitespaceWithPreserve() {
         Text text = new Text("  content   with    multiple   spaces  ");
-        text.setPreserveWhitespace(true);
+        text.preserveWhitespace(true);
         text.normalizeWhitespace();
 
         // Should not normalize when preserve whitespace is true
-        assertEquals("  content   with    multiple   spaces  ", text.getContent());
+        assertEquals("  content   with    multiple   spaces  ", text.content());
     }
 
     @Test
@@ -247,11 +249,11 @@ public class TextNodeTest {
         String xml = "<root>Simple text content</root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Text textNode = (Text) root.getChild(0);
 
-        assertEquals("Simple text content", textNode.getContent());
-        assertFalse(textNode.isCData());
+        assertEquals("Simple text content", textNode.content());
+        assertFalse(textNode.cdata());
     }
 
     @Test
@@ -259,11 +261,11 @@ public class TextNodeTest {
         String xml = "<root><![CDATA[function() { return x < y; }]]></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Text cdataNode = (Text) root.getChild(0);
 
-        assertEquals("function() { return x < y; }", cdataNode.getContent());
-        assertTrue(cdataNode.isCData());
+        assertEquals("function() { return x < y; }", cdataNode.content());
+        assertTrue(cdataNode.cdata());
     }
 
     @Test
@@ -283,11 +285,11 @@ public class TextNodeTest {
         String xml = "<root>Text with &lt;entities&gt; &amp; symbols</root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Text textNode = (Text) root.getChild(0);
 
         // Content should be decoded
-        assertEquals("Text with <entities> & symbols", textNode.getContent());
+        assertEquals("Text with <entities> & symbols", textNode.content());
 
         // But XML output should preserve entities
         String result = editor.toXml();
@@ -298,7 +300,7 @@ public class TextNodeTest {
     void testEmptyTextNode() {
         Text text = new Text("");
 
-        assertEquals("", text.getContent());
+        assertEquals("", text.content());
         assertEquals("", text.toXml());
     }
 
@@ -310,7 +312,7 @@ public class TextNodeTest {
         assertFalse(text.isModified());
 
         // Modify content
-        text.setContent("modified");
+        text.content("modified");
         assertTrue(text.isModified());
     }
 }

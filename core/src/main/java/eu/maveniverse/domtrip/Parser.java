@@ -53,8 +53,6 @@ import java.util.Deque;
  * }
  * }</pre>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Document
  * @see Element
  * @see ParseException
@@ -142,7 +140,7 @@ public class Parser {
                         ContainerNode current = (ContainerNode) nodeStack.peek();
                         current.addChildInternal(element);
 
-                        if (!element.isSelfClosing()) {
+                        if (!element.selfClosing()) {
                             nodeStack.push(element);
                         }
                     }
@@ -163,7 +161,7 @@ public class Parser {
         }
 
         // Set the document element (first element child)
-        for (Node child : document.getChildren()) {
+        for (Node child : document.nodes) {
             if (child instanceof Element) {
                 document.setDocumentElementInternal((Element) child);
                 break;
@@ -305,7 +303,7 @@ public class Parser {
 
         // Check for self-closing tag
         if (position < length && xml.charAt(position) == '/') {
-            element.setSelfClosing(true);
+            element.selfClosing(true);
             position++; // Skip '/'
         }
 
@@ -314,7 +312,7 @@ public class Parser {
         }
 
         // Store original tag content for formatting preservation
-        element.setOriginalOpenTag(xml.substring(start, position));
+        element.originalOpenTag(xml.substring(start, position));
         return element;
     }
 
@@ -382,7 +380,7 @@ public class Parser {
 
         // Pop from stack if names match
         if (!nodeStack.isEmpty() && nodeStack.peek() instanceof Element element) {
-            if (element.getName().equals(name.toString().trim())) {
+            if (element.name().equals(name.toString().trim())) {
                 nodeStack.pop();
             }
         }

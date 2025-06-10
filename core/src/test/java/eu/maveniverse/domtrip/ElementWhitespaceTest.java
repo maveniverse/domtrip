@@ -21,20 +21,20 @@ class ElementWhitespaceTest {
             """;
 
         Editor editor = new Editor(xml);
-        Element item = editor.findElement("item");
-        Element path = editor.findElement("path");
-        Element empty = editor.findElement("empty");
+        Element item = editor.element("item").orElseThrow();
+        Element path = editor.element("path").orElseThrow();
+        Element empty = editor.element("empty").orElseThrow();
 
         // Test preserving whitespace pattern
-        item.setTextContentPreservingWhitespace("new value");
-        assertEquals("   new value   ", item.getTextContent());
+        item.textPreservingWhitespace("new value");
+        assertEquals("   new value   ", item.textContent());
 
-        path.setTextContentPreservingWhitespace("/home/user/bin");
-        assertEquals("  /home/user/bin  ", path.getTextContent());
+        path.textPreservingWhitespace("/home/user/bin");
+        assertEquals("  /home/user/bin  ", path.textContent());
 
         // Test with empty element (no existing whitespace to preserve)
-        empty.setTextContentPreservingWhitespace("now has content");
-        assertEquals("now has content", empty.getTextContent());
+        empty.textPreservingWhitespace("now has content");
+        assertEquals("now has content", empty.textContent());
 
         // Verify XML structure is preserved
         String result = editor.toXml();
@@ -56,21 +56,21 @@ class ElementWhitespaceTest {
             """;
 
         Editor editor = new Editor(xml);
-        Element item = editor.findElement("item");
-        Element clean = editor.findElement("clean");
-        Element empty = editor.findElement("empty");
-        Element whitespace = editor.findElement("whitespace");
+        Element item = editor.element("item").orElseThrow();
+        Element clean = editor.element("clean").orElseThrow();
+        Element empty = editor.element("empty").orElseThrow();
+        Element whitespace = editor.element("whitespace").orElseThrow();
 
-        assertEquals("value with spaces", item.getTrimmedTextContent());
-        assertEquals("no spaces", clean.getTrimmedTextContent());
-        assertEquals("", empty.getTrimmedTextContent());
-        assertEquals("", whitespace.getTrimmedTextContent());
+        assertEquals("value with spaces", item.trimmedTextContent());
+        assertEquals("no spaces", clean.trimmedTextContent());
+        assertEquals("", empty.trimmedTextContent());
+        assertEquals("", whitespace.trimmedTextContent());
 
         // Verify original content is unchanged
-        assertEquals("   value with spaces   ", item.getTextContent());
-        assertEquals("no spaces", clean.getTextContent());
-        assertEquals("", empty.getTextContent());
-        assertEquals("   ", whitespace.getTextContent());
+        assertEquals("   value with spaces   ", item.textContent());
+        assertEquals("no spaces", clean.textContent());
+        assertEquals("", empty.textContent());
+        assertEquals("   ", whitespace.textContent());
     }
 
     @Test
@@ -84,16 +84,16 @@ class ElementWhitespaceTest {
             """;
 
         Editor editor = new Editor(xml);
-        Element test1 = editor.findElement("test1");
-        Element test2 = editor.findElement("test2");
+        Element test1 = editor.element("test1").orElseThrow();
+        Element test2 = editor.element("test2").orElseThrow();
 
         // Regular setTextContent destroys whitespace
-        test1.setTextContent("new content");
-        assertEquals("new content", test1.getTextContent());
+        test1.textContent("new content");
+        assertEquals("new content", test1.textContent());
 
         // Whitespace-preserving method keeps pattern
-        test2.setTextContentPreservingWhitespace("new content");
-        assertEquals("   new content   ", test2.getTextContent());
+        test2.textPreservingWhitespace("new content");
+        assertEquals("   new content   ", test2.textContent());
 
         String result = editor.toXml();
         assertTrue(result.contains("<test1>new content</test1>"));
@@ -113,23 +113,23 @@ class ElementWhitespaceTest {
             """;
 
         Editor editor = new Editor(xml);
-        Element description = editor.findElement("description");
+        Element description = editor.element("description").orElseThrow();
 
-        String originalContent = description.getTextContent();
-        String trimmedContent = description.getTrimmedTextContent();
+        String originalContent = description.textContent();
+        String trimmedContent = description.trimmedTextContent();
 
         // The actual indentation in the XML has 8 spaces (2 levels of 4-space indentation)
         assertEquals("Multi-line description\n        with indentation", trimmedContent);
 
         // Preserve the complex whitespace pattern
-        description.setTextContentPreservingWhitespace("New description\nwith new content");
+        description.textPreservingWhitespace("New description\nwith new content");
 
-        String newTrimmed = description.getTrimmedTextContent();
+        String newTrimmed = description.trimmedTextContent();
         assertEquals("New description\nwith new content", newTrimmed);
 
         // Verify the content was updated successfully
-        assertTrue(description.getTextContent().contains("New description"));
-        assertTrue(description.getTextContent().contains("with new content"));
+        assertTrue(description.textContent().contains("New description"));
+        assertTrue(description.textContent().contains("with new content"));
     }
 
     @Test
@@ -141,15 +141,15 @@ class ElementWhitespaceTest {
         element.addChild(new Text("  second  "));
 
         // setTextContentPreservingWhitespace should work with first text node
-        element.setTextContentPreservingWhitespace("updated");
+        element.textPreservingWhitespace("updated");
 
         // getTextContent() concatenates all text nodes, so we get both
         // The first text node gets updated, but the second remains
-        assertEquals("  updated    second  ", element.getTextContent());
+        assertEquals("  updated    second  ", element.textContent());
 
         // Verify that only the first text node was actually modified
-        Text firstText = (Text) element.getChildren().get(0);
-        assertEquals("  updated  ", firstText.getContent());
+        Text firstText = (Text) element.nodes.get(0);
+        assertEquals("  updated  ", firstText.content());
     }
 
     @Test
@@ -164,17 +164,17 @@ class ElementWhitespaceTest {
             """;
 
         Editor editor = new Editor(xml);
-        Element parent = editor.findElement("parent");
+        Element parent = editor.element("parent").orElseThrow();
 
         // Element has whitespace text nodes around the child element
         // getTrimmedTextContent() returns the trimmed concatenation of all text
-        assertEquals("", parent.getTrimmedTextContent());
+        assertEquals("", parent.trimmedTextContent());
 
         // Adding text content to element with existing whitespace
-        parent.setTextContentPreservingWhitespace("new text");
+        parent.textPreservingWhitespace("new text");
 
         // The result includes the preserved whitespace pattern from existing text nodes
-        String result = parent.getTextContent();
+        String result = parent.textContent();
         assertTrue(result.contains("new text"));
         // The exact whitespace pattern depends on the existing structure
     }
@@ -185,13 +185,13 @@ class ElementWhitespaceTest {
         Text cdata = new Text("   <script>alert('test');</script>   ", true);
         element.addChild(cdata);
 
-        assertEquals("<script>alert('test');</script>", element.getTrimmedTextContent());
+        assertEquals("<script>alert('test');</script>", element.trimmedTextContent());
 
         // Preserve whitespace in CDATA
-        element.setTextContentPreservingWhitespace("<script>console.log('hello');</script>");
+        element.textPreservingWhitespace("<script>console.log('hello');</script>");
 
         // Should preserve the CDATA whitespace pattern
-        assertEquals("   <script>console.log('hello');</script>   ", element.getTextContent());
+        assertEquals("   <script>console.log('hello');</script>   ", element.textContent());
     }
 
     @Test
@@ -201,13 +201,13 @@ class ElementWhitespaceTest {
             """;
 
         Editor editor = new Editor(xml);
-        Element message = editor.findElement("message");
+        Element message = editor.element("message").orElseThrow();
 
         // DomTrip unescapes entities when parsing, so &amp; becomes &
-        assertEquals("Hello & welcome", message.getTrimmedTextContent());
+        assertEquals("Hello & welcome", message.trimmedTextContent());
 
-        message.setTextContentPreservingWhitespace("Goodbye <world>");
-        assertEquals("   Goodbye <world>   ", message.getTextContent());
+        message.textPreservingWhitespace("Goodbye <world>");
+        assertEquals("   Goodbye <world>   ", message.textContent());
 
         // When serialized, entities are properly escaped again
         String result = editor.toXml();
@@ -234,28 +234,28 @@ class ElementWhitespaceTest {
         Editor editor = new Editor(configXml);
 
         // Get elements
-        Element host = editor.findElement("host");
-        Element port = editor.findElement("port");
-        Element name = editor.findElement("name");
-        Element level = editor.findElement("level");
+        Element host = editor.element("host").orElseThrow();
+        Element port = editor.element("port").orElseThrow();
+        Element name = editor.element("name").orElseThrow();
+        Element level = editor.element("level").orElseThrow();
 
         // Verify trimmed content
-        assertEquals("localhost", host.getTrimmedTextContent());
-        assertEquals("5432", port.getTrimmedTextContent());
-        assertEquals("myapp_dev", name.getTrimmedTextContent());
-        assertEquals("DEBUG", level.getTrimmedTextContent());
+        assertEquals("localhost", host.trimmedTextContent());
+        assertEquals("5432", port.trimmedTextContent());
+        assertEquals("myapp_dev", name.trimmedTextContent());
+        assertEquals("DEBUG", level.trimmedTextContent());
 
         // Update to production settings preserving formatting
-        host.setTextContentPreservingWhitespace("prod.example.com");
-        port.setTextContentPreservingWhitespace("5432");
-        name.setTextContentPreservingWhitespace("myapp_prod");
-        level.setTextContentPreservingWhitespace("INFO");
+        host.textPreservingWhitespace("prod.example.com");
+        port.textPreservingWhitespace("5432");
+        name.textPreservingWhitespace("myapp_prod");
+        level.textPreservingWhitespace("INFO");
 
         // Verify whitespace is preserved
-        assertEquals("   prod.example.com   ", host.getTextContent());
-        assertEquals("   5432   ", port.getTextContent());
-        assertEquals("   myapp_prod   ", name.getTextContent());
-        assertEquals("   INFO   ", level.getTextContent());
+        assertEquals("   prod.example.com   ", host.textContent());
+        assertEquals("   5432   ", port.textContent());
+        assertEquals("   myapp_prod   ", name.textContent());
+        assertEquals("   INFO   ", level.textContent());
 
         // Verify XML structure is maintained
         String result = editor.toXml();
@@ -281,18 +281,18 @@ class ElementWhitespaceTest {
             """;
 
         Editor editor = new Editor(xml);
-        Element item = editor.findElement("item");
+        Element item = editor.element("item").orElseThrow();
 
         // Test with null content
-        item.setTextContentPreservingWhitespace(null);
-        assertEquals("      ", item.getTextContent()); // Just the whitespace
+        item.textPreservingWhitespace(null);
+        assertEquals("      ", item.textContent()); // Just the whitespace
 
         // Reset
-        item.setTextContent("   original   ");
+        item.textContent("   original   ");
 
         // Test with empty content
-        item.setTextContentPreservingWhitespace("");
-        assertEquals("      ", item.getTextContent()); // Just the whitespace
+        item.textPreservingWhitespace("");
+        assertEquals("      ", item.textContent()); // Just the whitespace
     }
 
     @Test
@@ -302,15 +302,15 @@ class ElementWhitespaceTest {
             """;
 
         Editor editor = new Editor(xml);
-        Element item = editor.findElement("item");
+        Element item = editor.element("item").orElseThrow();
 
         // getTrimmedTextContent should not mark as modified
         assertFalse(item.isModified());
-        item.getTrimmedTextContent();
+        item.trimmedTextContent();
         assertFalse(item.isModified());
 
         // setTextContentPreservingWhitespace should mark as modified
-        item.setTextContentPreservingWhitespace("new content");
+        item.textPreservingWhitespace("new content");
         assertTrue(item.isModified());
     }
 }

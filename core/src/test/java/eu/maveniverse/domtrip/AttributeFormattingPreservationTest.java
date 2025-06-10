@@ -27,7 +27,7 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root attr1='single' attr2=\"double\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Update existing attributes - should preserve quote styles
         root.setAttribute("attr1", "updated1");
@@ -46,19 +46,19 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root  attr1=\"value1\"   attr2=\"value2\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Get original whitespace patterns
-        String originalWhitespace1 = root.getAttributeObject("attr1").getPrecedingWhitespace();
-        String originalWhitespace2 = root.getAttributeObject("attr2").getPrecedingWhitespace();
+        String originalWhitespace1 = root.attributeObject("attr1").precedingWhitespace();
+        String originalWhitespace2 = root.attributeObject("attr2").precedingWhitespace();
 
         // Update existing attributes
         root.setAttribute("attr1", "updated1");
         root.setAttribute("attr2", "updated2");
 
         // Verify whitespace is preserved
-        assertEquals(originalWhitespace1, root.getAttributeObject("attr1").getPrecedingWhitespace());
-        assertEquals(originalWhitespace2, root.getAttributeObject("attr2").getPrecedingWhitespace());
+        assertEquals(originalWhitespace1, root.attributeObject("attr1").precedingWhitespace());
+        assertEquals(originalWhitespace2, root.attributeObject("attr2").precedingWhitespace());
     }
 
     @Test
@@ -67,21 +67,21 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root   attr1='value1'    attr2=\"value2\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Get original whitespace patterns
-        String originalWhitespace1 = root.getAttributeObject("attr1").getPrecedingWhitespace();
-        String originalWhitespace2 = root.getAttributeObject("attr2").getPrecedingWhitespace();
+        String originalWhitespace1 = root.attributeObject("attr1").precedingWhitespace();
+        String originalWhitespace2 = root.attributeObject("attr2").precedingWhitespace();
 
         // Update with specific quote characters
         root.setAttribute("attr1", "updated1", '"'); // Change to double quotes
         root.setAttribute("attr2", "updated2", '\''); // Change to single quotes
 
         // Verify whitespace is preserved but quotes are changed
-        assertEquals(originalWhitespace1, root.getAttributeObject("attr1").getPrecedingWhitespace());
-        assertEquals(originalWhitespace2, root.getAttributeObject("attr2").getPrecedingWhitespace());
-        assertEquals('"', root.getAttributeObject("attr1").getQuoteChar());
-        assertEquals('\'', root.getAttributeObject("attr2").getQuoteChar());
+        assertEquals(originalWhitespace1, root.attributeObject("attr1").precedingWhitespace());
+        assertEquals(originalWhitespace2, root.attributeObject("attr2").precedingWhitespace());
+        assertEquals('"', root.attributeObject("attr1").getQuoteChar());
+        assertEquals('\'', root.attributeObject("attr2").getQuoteChar());
     }
 
     @Test
@@ -89,20 +89,20 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root existing='value'/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Add new attributes
         root.setAttribute("new1", "value1");
         root.setAttribute("new2", "value2", '\'');
 
         // Verify new attributes use defaults
-        Attribute new1 = root.getAttributeObject("new1");
-        Attribute new2 = root.getAttributeObject("new2");
+        Attribute new1 = root.attributeObject("new1");
+        Attribute new2 = root.attributeObject("new2");
 
         assertEquals('"', new1.getQuoteChar(), "New attribute should use default double quotes");
-        assertEquals(" ", new1.getPrecedingWhitespace(), "New attribute should use default whitespace");
+        assertEquals(" ", new1.precedingWhitespace(), "New attribute should use default whitespace");
         assertEquals('\'', new2.getQuoteChar(), "New attribute should use specified quote char");
-        assertEquals(" ", new2.getPrecedingWhitespace(), "New attribute should use default whitespace");
+        assertEquals(" ", new2.precedingWhitespace(), "New attribute should use default whitespace");
     }
 
     @Test
@@ -114,7 +114,7 @@ public class AttributeFormattingPreservationTest {
                 + "</configuration>";
 
         editor.loadXml(xml);
-        Element config = editor.getDocumentElement();
+        Element config = editor.documentElement().orElseThrow();
 
         // Update combine.children value - should preserve single quotes and whitespace
         config.setAttribute("combine.children", "merge");
@@ -132,15 +132,15 @@ public class AttributeFormattingPreservationTest {
         String xml = "<element\n" + "    attr1=\"value1\"\n" + "  attr2='value2'\n" + "     attr3=\"value3\"/>";
 
         editor.loadXml(xml);
-        Element element = editor.getDocumentElement();
+        Element element = editor.documentElement().orElseThrow();
 
         // Store original formatting
-        String ws1 = element.getAttributeObject("attr1").getPrecedingWhitespace();
-        String ws2 = element.getAttributeObject("attr2").getPrecedingWhitespace();
-        String ws3 = element.getAttributeObject("attr3").getPrecedingWhitespace();
-        char q1 = element.getAttributeObject("attr1").getQuoteChar();
-        char q2 = element.getAttributeObject("attr2").getQuoteChar();
-        char q3 = element.getAttributeObject("attr3").getQuoteChar();
+        String ws1 = element.attributeObject("attr1").precedingWhitespace();
+        String ws2 = element.attributeObject("attr2").precedingWhitespace();
+        String ws3 = element.attributeObject("attr3").precedingWhitespace();
+        char q1 = element.attributeObject("attr1").getQuoteChar();
+        char q2 = element.attributeObject("attr2").getQuoteChar();
+        char q3 = element.attributeObject("attr3").getQuoteChar();
 
         // Update all attributes
         element.setAttribute("attr1", "updated1");
@@ -148,12 +148,12 @@ public class AttributeFormattingPreservationTest {
         element.setAttribute("attr3", "updated3");
 
         // Verify all formatting is preserved
-        assertEquals(ws1, element.getAttributeObject("attr1").getPrecedingWhitespace());
-        assertEquals(ws2, element.getAttributeObject("attr2").getPrecedingWhitespace());
-        assertEquals(ws3, element.getAttributeObject("attr3").getPrecedingWhitespace());
-        assertEquals(q1, element.getAttributeObject("attr1").getQuoteChar());
-        assertEquals(q2, element.getAttributeObject("attr2").getQuoteChar());
-        assertEquals(q3, element.getAttributeObject("attr3").getQuoteChar());
+        assertEquals(ws1, element.attributeObject("attr1").precedingWhitespace());
+        assertEquals(ws2, element.attributeObject("attr2").precedingWhitespace());
+        assertEquals(ws3, element.attributeObject("attr3").precedingWhitespace());
+        assertEquals(q1, element.attributeObject("attr1").getQuoteChar());
+        assertEquals(q2, element.attributeObject("attr2").getQuoteChar());
+        assertEquals(q3, element.attributeObject("attr3").getQuoteChar());
     }
 
     @Test
@@ -164,14 +164,14 @@ public class AttributeFormattingPreservationTest {
         element.setAttributeObject("attr", attr);
 
         // Verify raw value exists
-        assertNotNull(element.getAttributeObject("attr").getRawValue());
+        assertNotNull(element.attributeObject("attr").rawValue());
 
         // Update using setAttribute
         element.setAttribute("attr", "updated");
 
         // Verify raw value is cleared (as expected when setting programmatically)
-        assertNull(element.getAttributeObject("attr").getRawValue());
-        assertEquals("updated", element.getAttributeObject("attr").getValue());
+        assertNull(element.attributeObject("attr").rawValue());
+        assertEquals("updated", element.attributeObject("attr").value());
     }
 
     @Test
@@ -183,10 +183,10 @@ public class AttributeFormattingPreservationTest {
         element.setAttribute("attr1", "value1");
         element.setAttribute("attr2", "value2", '\'');
 
-        assertEquals("value1", element.getAttribute("attr1"));
-        assertEquals("value2", element.getAttribute("attr2"));
-        assertEquals('"', element.getAttributeQuote("attr1"));
-        assertEquals('\'', element.getAttributeQuote("attr2"));
+        assertEquals("value1", element.attribute("attr1"));
+        assertEquals("value2", element.attribute("attr2"));
+        assertEquals('"', element.attributeQuote("attr1"));
+        assertEquals('\'', element.attributeQuote("attr2"));
     }
 
     @Test
@@ -194,17 +194,17 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root attr='existing'/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Test null value
         root.setAttribute("attr", null);
-        assertNull(root.getAttribute("attr"));
-        assertEquals('\'', root.getAttributeQuote("attr")); // Quote style preserved
+        assertNull(root.attribute("attr"));
+        assertEquals('\'', root.attributeQuote("attr")); // Quote style preserved
 
         // Test empty value
         root.setAttribute("attr", "");
-        assertEquals("", root.getAttribute("attr"));
-        assertEquals('\'', root.getAttributeQuote("attr")); // Quote style preserved
+        assertEquals("", root.attribute("attr"));
+        assertEquals('\'', root.attributeQuote("attr")); // Quote style preserved
     }
 
     @Test
@@ -213,13 +213,13 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root attr1='value1' attr2='value2' attr3=\"value3\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Add new attribute via Editor - should infer single quotes (majority)
         editor.setAttribute(root, "attr4", "value4");
 
-        assertEquals('\'', root.getAttributeQuote("attr4"));
-        assertEquals("value4", root.getAttribute("attr4"));
+        assertEquals('\'', root.attributeQuote("attr4"));
+        assertEquals("value4", root.attribute("attr4"));
     }
 
     @Test
@@ -228,13 +228,13 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root attr1=\"value1\" attr2=\"value2\" attr3='value3'/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Add new attribute via Editor - should infer double quotes (majority)
         editor.setAttribute(root, "attr4", "value4");
 
-        assertEquals('"', root.getAttributeQuote("attr4"));
-        assertEquals("value4", root.getAttribute("attr4"));
+        assertEquals('"', root.attributeQuote("attr4"));
+        assertEquals("value4", root.attribute("attr4"));
     }
 
     @Test
@@ -243,10 +243,10 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root  attr1=\"value1\"   attr2=\"value2\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Get the custom whitespace pattern from existing attributes
-        String existingWhitespace = root.getAttributeObject("attr2").getPrecedingWhitespace();
+        String existingWhitespace = root.attributeObject("attr2").precedingWhitespace();
 
         // Verify we're getting some custom whitespace (not just a single space)
         assertTrue(existingWhitespace.length() > 1, "attr2 should have custom whitespace");
@@ -254,7 +254,7 @@ public class AttributeFormattingPreservationTest {
         // Add new attribute via Editor - should infer custom spacing
         editor.setAttribute(root, "attr3", "value3");
 
-        String attr3Whitespace = root.getAttributeObject("attr3").getPrecedingWhitespace();
+        String attr3Whitespace = root.attributeObject("attr3").precedingWhitespace();
         assertEquals(existingWhitespace, attr3Whitespace);
     }
 
@@ -264,7 +264,7 @@ public class AttributeFormattingPreservationTest {
         String xml = "<element attr1=\"value1\"\n" + "         attr2=\"value2\"/>";
 
         editor.loadXml(xml);
-        Element element = editor.getDocumentElement();
+        Element element = editor.documentElement().orElseThrow();
 
         // Add new attribute via Editor - should infer alignment pattern
         editor.setAttribute(element, "attr3", "value3");
@@ -277,11 +277,11 @@ public class AttributeFormattingPreservationTest {
         assertTrue(result.contains("attr3=\"value3\""));
 
         // Check that attr3 has newline-based whitespace matching the pattern
-        String attr3Whitespace = element.getAttributeObject("attr3").getPrecedingWhitespace();
+        String attr3Whitespace = element.attributeObject("attr3").precedingWhitespace();
         assertTrue(attr3Whitespace.contains("\n"), "New attribute should have newline-based whitespace");
 
         // Verify the alignment is maintained by checking the whitespace pattern
-        String attr2Whitespace = element.getAttributeObject("attr2").getPrecedingWhitespace();
+        String attr2Whitespace = element.attributeObject("attr2").precedingWhitespace();
         assertEquals(
                 attr2Whitespace,
                 attr3Whitespace,
@@ -312,7 +312,7 @@ public class AttributeFormattingPreservationTest {
         String xml = "<element attr1=\"value1\"\n" + "         attr2=\"value2\"/>";
 
         editor.loadXml(xml);
-        Element element = editor.getDocumentElement();
+        Element element = editor.documentElement().orElseThrow();
 
         // This is the exact call from the documentation
         editor.setAttribute(element, "attr3", "value3");
@@ -330,19 +330,19 @@ public class AttributeFormattingPreservationTest {
         assertTrue(result.contains("attr3=\"value3\""), "attr3 should be added");
 
         // Verify the formatting inference worked
-        Attribute attr3 = element.getAttributeObject("attr3");
+        Attribute attr3 = element.attributeObject("attr3");
         assertNotNull(attr3, "attr3 should exist");
 
         // Should infer double quotes from existing attributes
         assertEquals('"', attr3.getQuoteChar(), "Should infer double quotes from existing attributes");
 
         // Should infer multi-line alignment pattern
-        String attr3Whitespace = attr3.getPrecedingWhitespace();
+        String attr3Whitespace = attr3.precedingWhitespace();
         assertTrue(attr3Whitespace.contains("\n"), "Should infer newline-based alignment");
         assertTrue(attr3Whitespace.length() > 1, "Should have proper indentation spacing");
 
         // Verify it matches the pattern of attr2
-        String attr2Whitespace = element.getAttributeObject("attr2").getPrecedingWhitespace();
+        String attr2Whitespace = element.attributeObject("attr2").precedingWhitespace();
         assertEquals(attr2Whitespace, attr3Whitespace, "Should use the same alignment pattern as attr2");
     }
 
@@ -351,15 +351,15 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Add attribute to element with no existing attributes
         editor.setAttribute(root, "newAttr", "newValue");
 
         // Should use defaults
-        assertEquals('"', root.getAttributeQuote("newAttr"));
-        assertEquals(" ", root.getAttributeObject("newAttr").getPrecedingWhitespace());
-        assertEquals("newValue", root.getAttribute("newAttr"));
+        assertEquals('"', root.attributeQuote("newAttr"));
+        assertEquals(" ", root.attributeObject("newAttr").precedingWhitespace());
+        assertEquals("newValue", root.attribute("newAttr"));
     }
 
     @Test
@@ -367,13 +367,13 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root attr1='existing'/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Update existing attribute via Editor - should preserve formatting
         editor.setAttribute(root, "attr1", "updated");
 
-        assertEquals('\'', root.getAttributeQuote("attr1"));
-        assertEquals("updated", root.getAttribute("attr1"));
+        assertEquals('\'', root.attributeQuote("attr1"));
+        assertEquals("updated", root.attribute("attr1"));
     }
 
     @Test
@@ -389,7 +389,7 @@ public class AttributeFormattingPreservationTest {
                 + "</plugin>";
 
         editor.loadXml(xml);
-        Element config = editor.findElement("configuration");
+        Element config = editor.element("configuration").orElseThrow();
 
         // Add new attribute via Editor - should infer alignment
         editor.setAttribute(config, "newAttr", "newValue");
@@ -402,7 +402,7 @@ public class AttributeFormattingPreservationTest {
         assertTrue(result.contains("newAttr="));
 
         // Check that the new attribute has appropriate whitespace
-        String newAttrWhitespace = config.getAttributeObject("newAttr").getPrecedingWhitespace();
+        String newAttrWhitespace = config.attributeObject("newAttr").precedingWhitespace();
         assertTrue(
                 newAttrWhitespace.contains("\n"), "New attribute should have newline-based whitespace for alignment");
     }

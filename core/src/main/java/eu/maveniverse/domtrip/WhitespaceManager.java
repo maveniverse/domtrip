@@ -21,14 +21,14 @@ public class WhitespaceManager {
      */
     public String inferIndentation(Node context) {
         if (context == null) {
-            return config.getIndentString();
+            return config.indentString();
         }
 
         // First, look for indentation patterns in the node's children
         if (context instanceof ContainerNode container) {
-            for (Node child : container.getChildren()) {
+            for (Node child : container.nodes) {
                 // Check preceding whitespace
-                String precedingWs = child.getPrecedingWhitespace();
+                String precedingWs = child.precedingWhitespace();
                 if (precedingWs != null && precedingWs.contains("\n")) {
                     // Extract indentation after the last newline
                     int lastNewline = precedingWs.lastIndexOf('\n');
@@ -38,8 +38,8 @@ public class WhitespaceManager {
                 }
 
                 // Also check if this is a whitespace-only text node
-                if (child instanceof Text textNode && isWhitespaceOnly(textNode.getContent())) {
-                    String content = textNode.getContent();
+                if (child instanceof Text textNode && isWhitespaceOnly(textNode.content())) {
+                    String content = textNode.content();
                     if (content.contains("\n")) {
                         // Extract indentation after the last newline
                         int lastNewline = content.lastIndexOf('\n');
@@ -52,10 +52,10 @@ public class WhitespaceManager {
         }
 
         // If no children, look at siblings (for when context is a child node)
-        Node parent = context.getParent();
+        Node parent = context.parent();
         if (parent instanceof ContainerNode parentContainer) {
-            for (Node sibling : parentContainer.getChildren()) {
-                String precedingWs = sibling.getPrecedingWhitespace();
+            for (Node sibling : parentContainer.nodes) {
+                String precedingWs = sibling.precedingWhitespace();
                 if (precedingWs != null && precedingWs.contains("\n")) {
                     // Extract indentation after the last newline
                     int lastNewline = precedingWs.lastIndexOf('\n');
@@ -65,8 +65,8 @@ public class WhitespaceManager {
                 }
 
                 // Also check if this is a whitespace-only text node
-                if (sibling instanceof Text textNode && isWhitespaceOnly(textNode.getContent())) {
-                    String content = textNode.getContent();
+                if (sibling instanceof Text textNode && isWhitespaceOnly(textNode.content())) {
+                    String content = textNode.content();
                     if (content.contains("\n")) {
                         // Extract indentation after the last newline
                         int lastNewline = content.lastIndexOf('\n');
@@ -79,7 +79,7 @@ public class WhitespaceManager {
         }
 
         // Fallback to configured indent string
-        return config.getIndentString();
+        return config.indentString();
     }
 
     /**
@@ -114,7 +114,7 @@ public class WhitespaceManager {
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < depth; i++) {
-            sb.append(config.getIndentString());
+            sb.append(config.indentString());
         }
         return sb.toString();
     }
@@ -130,7 +130,7 @@ public class WhitespaceManager {
         int lastNewline = whitespace.lastIndexOf('\n');
         if (lastNewline >= 0 && lastNewline < whitespace.length() - 1) {
             String indent = whitespace.substring(lastNewline + 1);
-            return indent.length() / config.getIndentString().length();
+            return indent.length() / config.indentString().length();
         }
 
         return 0;
@@ -148,11 +148,11 @@ public class WhitespaceManager {
 
         // If this is the first child, add newline + indent
         if (siblingIndex == 0) {
-            return "\n" + baseIndent + config.getIndentString();
+            return "\n" + baseIndent + config.indentString();
         }
 
         // For subsequent children, use the same pattern as siblings
-        return "\n" + baseIndent + config.getIndentString();
+        return "\n" + baseIndent + config.indentString();
     }
 
     /**

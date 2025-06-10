@@ -37,8 +37,6 @@ package eu.maveniverse.domtrip;
  *     .build();
  * }</pre>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Node
  * @see Document
  */
@@ -78,36 +76,36 @@ public class ProcessingInstruction extends Node {
         }
     }
 
-    public String getTarget() {
+    public String target() {
         return target;
     }
 
-    public void setTarget(String target) {
+    public void target(String target) {
         this.target = target != null ? target : "";
         this.originalContent = ""; // Clear original when modified
         markModified();
     }
 
-    public String getData() {
+    public String data() {
         return data;
     }
 
-    public void setData(String data) {
+    public void data(String data) {
         this.data = data != null ? data : "";
         this.originalContent = ""; // Clear original when modified
         markModified();
     }
 
-    public String getOriginalContent() {
+    public String originalContent() {
         return originalContent;
     }
 
-    public void setOriginalContent(String originalContent) {
+    public void originalContent(String originalContent) {
         this.originalContent = originalContent != null ? originalContent : "";
     }
 
     @Override
-    public NodeType getNodeType() {
+    public NodeType type() {
         return NodeType.PROCESSING_INSTRUCTION;
     }
 
@@ -177,7 +175,6 @@ public class ProcessingInstruction extends Node {
      *     .build();
      * }</pre>
      *
-     * @since 1.0
      */
     public static class Builder {
         private String target = "";
@@ -190,7 +187,6 @@ public class ProcessingInstruction extends Node {
          *
          * @param target the PI target
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withTarget(String target) {
             this.target = target != null ? target : "";
@@ -202,7 +198,6 @@ public class ProcessingInstruction extends Node {
          *
          * @param data the PI data
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withData(String data) {
             this.data = data != null ? data : "";
@@ -213,7 +208,6 @@ public class ProcessingInstruction extends Node {
          * Builds and returns the configured ProcessingInstruction instance.
          *
          * @return the constructed ProcessingInstruction
-         * @since 1.0
          */
         public ProcessingInstruction build() {
             return new ProcessingInstruction(target, data);
@@ -224,7 +218,6 @@ public class ProcessingInstruction extends Node {
      * Creates a new ProcessingInstruction builder instance.
      *
      * @return a new ProcessingInstruction.Builder for fluent PI construction
-     * @since 1.0
      */
     public static Builder builder() {
         return new Builder();

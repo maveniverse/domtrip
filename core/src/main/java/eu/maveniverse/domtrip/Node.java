@@ -26,9 +26,9 @@ package eu.maveniverse.domtrip;
  * <pre>{@code
  * // Access node properties
  * NodeType type = node.getNodeType();
- * ContainerNode parent = node.getParent();
+ * ContainerNode parent = node.parent();
  * Element parentElement = node.getParentElement();
- * Document document = node.getDocument();
+ * Document document = node.document();
  * int depth = node.getDepth();
  *
  * // Check modification status
@@ -40,8 +40,6 @@ package eu.maveniverse.domtrip;
  * String xml = node.toXml();
  * }</pre>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see ContainerNode
  * @see Element
  * @see Text
@@ -56,7 +54,6 @@ public abstract class Node {
      * <p>Each node type corresponds to a specific XML construct and determines
      * the node's behavior and capabilities within the XML tree.</p>
      *
-     * @since 1.0
      */
     public enum NodeType {
         /** XML element nodes with attributes and potential children */
@@ -86,7 +83,6 @@ public abstract class Node {
      * <p>Initializes the node with empty whitespace strings and sets the
      * modification flag to false.</p>
      *
-     * @since 1.0
      */
     public Node() {
         this.precedingWhitespace = "";
@@ -101,9 +97,8 @@ public abstract class Node {
      * This method must be implemented by all concrete node classes.</p>
      *
      * @return the {@link NodeType} of this node
-     * @since 1.0
      */
-    public abstract NodeType getNodeType();
+    public abstract NodeType type();
 
     /**
      * Serializes this node to an XML string.
@@ -112,7 +107,6 @@ public abstract class Node {
      * (if any), preserving original formatting for unmodified content.</p>
      *
      * @return the XML string representation of this node
-     * @since 1.0
      * @see #toXml(StringBuilder)
      */
     public abstract String toXml();
@@ -124,7 +118,6 @@ public abstract class Node {
      * larger XML documents as it avoids string concatenation overhead.</p>
      *
      * @param sb the StringBuilder to append the XML content to
-     * @since 1.0
      * @see #toXml()
      */
     public abstract void toXml(StringBuilder sb);
@@ -137,12 +130,10 @@ public abstract class Node {
      * Element nodes can be parents since they are the only container nodes.</p>
      *
      * @return the parent container node, or null if this node has no parent
-     * @since 1.0
-     * @see #setParent(ContainerNode)
-     * @see #getParentElement()
-     * @see #getDocument()
+     * @see #parentElement()
+     * @see #document()
      */
-    public ContainerNode getParent() {
+    public ContainerNode parent() {
         return parent;
     }
 
@@ -154,10 +145,9 @@ public abstract class Node {
      * tree consistency.</p>
      *
      * @param parent the parent container node to set, or null to clear the parent
-     * @since 1.0
-     * @see #getParent()
+     * @see #parent()
      */
-    public void setParent(ContainerNode parent) {
+    public void parent(ContainerNode parent) {
         this.parent = parent;
     }
 
@@ -169,10 +159,9 @@ public abstract class Node {
      * whitespace enables lossless round-trip processing.</p>
      *
      * @return the preceding whitespace string, never null
-     * @since 1.0
-     * @see #setPrecedingWhitespace(String)
+     * @see #precedingWhitespace(String)
      */
-    public String getPrecedingWhitespace() {
+    public String precedingWhitespace() {
         return precedingWhitespace;
     }
 
@@ -183,11 +172,11 @@ public abstract class Node {
      * before this node when serializing to XML.</p>
      *
      * @param whitespace the whitespace string to set, null is treated as empty string
-     * @since 1.0
-     * @see #getPrecedingWhitespace()
+     * @see #precedingWhitespace()
      */
-    public void setPrecedingWhitespace(String whitespace) {
+    public void precedingWhitespace(String whitespace) {
         this.precedingWhitespace = whitespace != null ? whitespace : "";
+        markModified();
     }
 
     /**
@@ -197,10 +186,9 @@ public abstract class Node {
      * node in the source XML, enabling preservation of original formatting.</p>
      *
      * @return the following whitespace string, never null
-     * @since 1.0
-     * @see #setFollowingWhitespace(String)
+     * @see #followingWhitespace(String)
      */
-    public String getFollowingWhitespace() {
+    public String followingWhitespace() {
         return followingWhitespace;
     }
 
@@ -211,10 +199,9 @@ public abstract class Node {
      * after this node when serializing to XML.</p>
      *
      * @param whitespace the whitespace string to set, null is treated as empty string
-     * @since 1.0
-     * @see #getFollowingWhitespace()
+     * @see #followingWhitespace()
      */
-    public void setFollowingWhitespace(String whitespace) {
+    public void followingWhitespace(String whitespace) {
         this.followingWhitespace = whitespace != null ? whitespace : "";
     }
 
@@ -244,11 +231,10 @@ public abstract class Node {
      * no traversal is needed.</p>
      *
      * @return the Element parent, or null if parent is Document or no parent exists
-     * @since 1.0
-     * @see #getParent()
-     * @see #getDocument()
+     * @see #parent()
+     * @see #document()
      */
-    public Element getParentElement() {
+    public Element parentElement() {
         if (parent instanceof Element) {
             return (Element) parent;
         }
@@ -263,11 +249,10 @@ public abstract class Node {
      * as its ultimate parent.</p>
      *
      * @return the Document containing this node, or null if not in a document tree
-     * @since 1.0
-     * @see #getParent()
-     * @see #getParentElement()
+     * @see #parent()
+     * @see #parentElement()
      */
-    public Document getDocument() {
+    public Document document() {
         if (parent == null) {
             return null;
         }
@@ -275,13 +260,13 @@ public abstract class Node {
             return (Document) parent;
         }
         // Parent must be an Element, so recurse
-        return parent.getDocument();
+        return parent.document();
     }
 
     /**
      * Gets the depth of this node in the tree (root is 0).
      */
-    public int getDepth() {
+    public int depth() {
         int depth = 0;
         ContainerNode current = this.parent;
         while (current != null) {

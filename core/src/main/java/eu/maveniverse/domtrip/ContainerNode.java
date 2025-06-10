@@ -11,20 +11,22 @@ import java.util.stream.Stream;
  */
 public abstract class ContainerNode extends Node {
 
-    protected List<Node> children;
+    protected List<Node> nodes;
 
     public ContainerNode() {
         super();
-        this.children = new ArrayList<>();
+        this.nodes = new ArrayList<>();
     }
 
     // Child management methods
 
     /**
-     * Returns a copy of the children list to prevent external modification.
+     * Returns a stream of child nodes.
+     *
+     * @return a Stream of child nodes
      */
-    public List<Node> getChildren() {
-        return new ArrayList<>(children);
+    public Stream<Node> nodes() {
+        return nodes.stream();
     }
 
     /**
@@ -32,11 +34,11 @@ public abstract class ContainerNode extends Node {
      */
     public void addChild(Node child) {
         if (child != null) {
-            child.setParent(this);
-            children.add(child);
+            child.parent(this);
+            nodes.add(child);
             // If this is an Element and it was self-closing, make it not self-closing
             if (this instanceof Element element) {
-                if (element.isSelfClosing()) {
+                if (element.selfClosing()) {
                     element.setSelfClosingInternal(false);
                 }
             }
@@ -49,8 +51,8 @@ public abstract class ContainerNode extends Node {
      */
     void addChildInternal(Node child) {
         if (child != null) {
-            child.setParent(this);
-            children.add(child);
+            child.parent(this);
+            nodes.add(child);
             // Don't call markModified() here
         }
     }
@@ -59,12 +61,12 @@ public abstract class ContainerNode extends Node {
      * Inserts a child at the specified index.
      */
     public void insertChild(int index, Node child) {
-        if (child != null && index >= 0 && index <= children.size()) {
-            child.setParent(this);
-            children.add(index, child);
+        if (child != null && index >= 0 && index <= nodes.size()) {
+            child.parent(this);
+            nodes.add(index, child);
             // If this is an Element and it was self-closing, make it not self-closing
             if (this instanceof Element element) {
-                if (element.isSelfClosing()) {
+                if (element.selfClosing()) {
                     element.setSelfClosingInternal(false);
                 }
             }
@@ -76,8 +78,8 @@ public abstract class ContainerNode extends Node {
      * Removes a child node from this container.
      */
     public boolean removeChild(Node child) {
-        if (children.remove(child)) {
-            child.setParent(null);
+        if (nodes.remove(child)) {
+            child.parent(null);
             markModified();
             return true;
         }
@@ -88,8 +90,8 @@ public abstract class ContainerNode extends Node {
      * Gets the child at the specified index.
      */
     public Node getChild(int index) {
-        if (index >= 0 && index < children.size()) {
-            return children.get(index);
+        if (index >= 0 && index < nodes.size()) {
+            return nodes.get(index);
         }
         return null;
     }
@@ -97,22 +99,15 @@ public abstract class ContainerNode extends Node {
     /**
      * Returns the number of child nodes.
      */
-    public int getChildCount() {
-        return children.size();
-    }
-
-    /**
-     * Returns a stream of all child nodes.
-     */
-    public Stream<Node> childNodes() {
-        return children.stream();
+    public int nodeCount() {
+        return nodes.size();
     }
 
     /**
      * Finds the first text node child.
      */
     public Optional<Text> findTextChild() {
-        return children.stream()
+        return nodes.stream()
                 .filter(child -> child instanceof Text)
                 .map(child -> (Text) child)
                 .findFirst();
@@ -121,11 +116,11 @@ public abstract class ContainerNode extends Node {
     /**
      * Gets the text content of this node (concatenates all text children).
      */
-    public String getTextContent() {
+    public String textContent() {
         StringBuilder sb = new StringBuilder();
-        for (Node child : children) {
+        for (Node child : nodes) {
             if (child instanceof Text textNode) {
-                sb.append(textNode.getContent());
+                sb.append(textNode.content());
             }
         }
         return sb.toString();
@@ -135,45 +130,45 @@ public abstract class ContainerNode extends Node {
      * Checks if this node has any child elements.
      */
     public boolean hasChildElements() {
-        return children.stream().anyMatch(child -> child instanceof Element);
+        return nodes.stream().anyMatch(child -> child instanceof Element);
     }
 
     /**
      * Checks if this node has any text content.
      */
     public boolean hasTextContent() {
-        return children.stream().anyMatch(child -> child instanceof Text);
+        return nodes.stream().anyMatch(child -> child instanceof Text);
     }
 
     /**
      * Returns a stream of all child elements.
      */
     public Stream<Element> childElements() {
-        return children.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
+        return nodes.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
     }
 
     /**
      * Checks if this container is empty (has no children).
      */
     public boolean isEmpty() {
-        return children.isEmpty();
+        return nodes.isEmpty();
     }
 
     /**
      * Clears all children from this container.
      */
     public void clearChildren() {
-        for (Node child : children) {
-            child.setParent(null);
+        for (Node child : nodes) {
+            child.parent(null);
         }
-        children.clear();
+        nodes.clear();
         markModified();
     }
 
     @Override
     public void clearModified() {
         super.clearModified();
-        for (Node child : children) {
+        for (Node child : nodes) {
             child.clearModified();
         }
     }

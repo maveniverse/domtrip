@@ -87,35 +87,38 @@ public class NavigationDemo {
     private static void demonstrateBasicNavigation(Editor editor) {
         System.out.println("1. Basic Navigation Demo:");
 
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Find direct children
-        root.findChild("metadata").ifPresent(metadata -> {
+        root.child("metadata").ifPresent(metadata -> {
             System.out.println("Library name: "
-                    + metadata.findChild("name").map(Element::getTextContent).orElse("Unknown"));
+                    + metadata.child("name")
+                            .map(element1 -> element1.textContent())
+                            .orElse("Unknown"));
             System.out.println("Established: "
-                    + metadata.findChild("established")
-                            .map(Element::getTextContent)
+                    + metadata.child("established")
+                            .map(element -> element.textContent())
                             .orElse("Unknown"));
         });
 
         // Find all sections
-        root.findChild("sections").ifPresent(sections -> {
-            List<Element> sectionList = sections.findChildren("section").collect(Collectors.toList());
+        root.child("sections").ifPresent(sections -> {
+            List<Element> sectionList = sections.children("section").collect(Collectors.toList());
             System.out.println("Number of sections: " + sectionList.size());
 
             sectionList.forEach(section -> {
-                String id = section.getAttribute("id");
-                String floor = section.getAttribute("floor");
-                String name =
-                        section.findChild("name").map(Element::getTextContent).orElse("Unknown");
+                String id = section.attribute("id");
+                String floor = section.attribute("floor");
+                String name = section.child("name")
+                        .map(element -> element.textContent())
+                        .orElse("Unknown");
                 System.out.println("  Section: " + name + " (ID: " + id + ", Floor: " + floor + ")");
             });
         });
 
         // Find deeply nested elements
-        root.findDescendant("title").ifPresent(title -> {
-            System.out.println("First book title found: " + title.getTextContent());
+        root.descendant("title").ifPresent(title -> {
+            System.out.println("First book title found: " + title.textContent());
         });
 
         System.out.println();
@@ -124,31 +127,32 @@ public class NavigationDemo {
     private static void demonstrateStreamNavigation(Editor editor) {
         System.out.println("2. Stream-Based Navigation Demo:");
 
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Find all books using streams
         List<Element> allBooks =
-                root.descendants().filter(el -> "book".equals(el.getName())).collect(Collectors.toList());
+                root.descendants().filter(el -> "book".equals(el.name())).collect(Collectors.toList());
 
         System.out.println("Total books in library: " + allBooks.size());
 
         // Find available books
         List<Element> availableBooks = allBooks.stream()
-                .filter(book -> "true".equals(book.getAttribute("available")))
+                .filter(book -> "true".equals(book.attribute("available")))
                 .collect(Collectors.toList());
 
         System.out.println("Available books:");
         availableBooks.forEach(book -> {
-            String title = book.findChild("title").map(Element::getTextContent).orElse("Unknown");
+            String title =
+                    book.child("title").map(element1 -> element1.textContent()).orElse("Unknown");
             String author =
-                    book.findChild("author").map(Element::getTextContent).orElse("Unknown");
+                    book.child("author").map(element -> element.textContent()).orElse("Unknown");
             System.out.println("  - " + title + " by " + author);
         });
 
         // Find all authors
         List<String> authors = root.descendants()
-                .filter(el -> "author".equals(el.getName()))
-                .map(Element::getTextContent)
+                .filter(el -> "author".equals(el.name()))
+                .map(element1 -> element1.textContent())
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());
@@ -158,13 +162,14 @@ public class NavigationDemo {
         // Find books by genre
         System.out.println("Classic books:");
         root.descendants()
-                .filter(el -> "book".equals(el.getName()))
-                .filter(book -> book.findChild("genre")
-                        .map(genre -> "Classic".equals(genre.getTextContent()))
+                .filter(el -> "book".equals(el.name()))
+                .filter(book -> book.child("genre")
+                        .map(genre -> "Classic".equals(genre.textContent()))
                         .orElse(false))
                 .forEach(book -> {
-                    String title =
-                            book.findChild("title").map(Element::getTextContent).orElse("Unknown");
+                    String title = book.child("title")
+                            .map(element -> element.textContent())
+                            .orElse("Unknown");
                     System.out.println("  - " + title);
                 });
 
@@ -174,19 +179,19 @@ public class NavigationDemo {
     private static void demonstrateRelationshipMethods(Editor editor) {
         System.out.println("3. Relationship Methods Demo:");
 
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Find a deeply nested element and explore relationships
-        root.findDescendant("title").ifPresent(title -> {
-            System.out.println("Analyzing element: " + title.getName() + " = '" + title.getTextContent() + "'");
-            System.out.println("  Depth in tree: " + title.getDepth());
-            Document doc = title.getDocument();
+        root.descendant("title").ifPresent(title -> {
+            System.out.println("Analyzing element: " + title.name() + " = '" + title.textContent() + "'");
+            System.out.println("  Depth in tree: " + title.depth());
+            Document doc = title.document();
             System.out.println("  Document: " + (doc != null ? "Found" : "Not in document"));
 
             // Check parent relationships
-            Element parent = (Element) title.getParent();
+            Element parent = (Element) title.parent();
             if (parent != null) {
-                System.out.println("  Parent: " + parent.getName());
+                System.out.println("  Parent: " + parent.name());
                 System.out.println("  Is descendant of root: " + title.isDescendantOf(root));
                 System.out.println("  Is descendant of parent: " + title.isDescendantOf(parent));
             }
@@ -202,8 +207,8 @@ public class NavigationDemo {
 
         // Demonstrate tree traversal
         System.out.println("\nTree structure (first section):");
-        root.findChild("sections")
-                .flatMap(sections -> sections.findChild("section"))
+        root.child("sections")
+                .flatMap(sections -> sections.child("section"))
                 .ifPresent(section -> printTreeStructure(section, 0));
 
         System.out.println();
@@ -212,16 +217,16 @@ public class NavigationDemo {
     private static void demonstrateAdvancedQueries(Editor editor) {
         System.out.println("4. Advanced Query Demo:");
 
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Complex query: Find books published after 1950 that are available
         System.out.println("Books published after 1950 that are available:");
         root.descendants()
-                .filter(el -> "book".equals(el.getName()))
-                .filter(book -> "true".equals(book.getAttribute("available")))
+                .filter(el -> "book".equals(el.name()))
+                .filter(book -> "true".equals(book.attribute("available")))
                 .filter(book -> {
-                    return book.findChild("year")
-                            .map(Element::getTextContent)
+                    return book.child("year")
+                            .map(element -> element.textContent())
                             .map(year -> {
                                 try {
                                     return Integer.parseInt(year) > 1950;
@@ -232,30 +237,32 @@ public class NavigationDemo {
                             .orElse(false);
                 })
                 .forEach(book -> {
-                    String title =
-                            book.findChild("title").map(Element::getTextContent).orElse("Unknown");
-                    String year =
-                            book.findChild("year").map(Element::getTextContent).orElse("Unknown");
-                    String author = book.findChild("author")
-                            .map(Element::getTextContent)
+                    String title = book.child("title")
+                            .map(element2 -> element2.textContent())
+                            .orElse("Unknown");
+                    String year = book.child("year")
+                            .map(element1 -> element1.textContent())
+                            .orElse("Unknown");
+                    String author = book.child("author")
+                            .map(element -> element.textContent())
                             .orElse("Unknown");
                     System.out.println("  - " + title + " (" + year + ") by " + author);
                 });
 
         // Find sections with more than 1 book
         System.out.println("\nSections with multiple books:");
-        root.findChild("sections").ifPresent(sections -> {
-            sections.findChildren("section")
+        root.child("sections").ifPresent(sections -> {
+            sections.children("section")
                     .filter(section -> {
-                        return section.findChild("books")
+                        return section.child("books")
                                 .map(books -> books.childElements().count() > 1)
                                 .orElse(false);
                     })
                     .forEach(section -> {
-                        String name = section.findChild("name")
-                                .map(Element::getTextContent)
+                        String name = section.child("name")
+                                .map(element -> element.textContent())
                                 .orElse("Unknown");
-                        long bookCount = section.findChild("books")
+                        long bookCount = section.child("books")
                                 .map(books -> books.childElements().count())
                                 .orElse(0L);
                         System.out.println("  - " + name + " (" + bookCount + " books)");
@@ -264,19 +271,19 @@ public class NavigationDemo {
 
         // Find all elements with specific attributes
         System.out.println("\nElements with 'id' attribute:");
-        root.descendants().filter(el -> el.getAttribute("id") != null).forEach(el -> {
-            System.out.println("  - " + el.getName() + " (id=" + el.getAttribute("id") + ")");
+        root.descendants().filter(el -> el.attribute("id") != null).forEach(el -> {
+            System.out.println("  - " + el.name() + " (id=" + el.attribute("id") + ")");
         });
 
         // Chain multiple navigation operations
         System.out.println("\nLibrarians in Reference department:");
-        root.findChild("staff")
-                .map(staff -> staff.findChildren("librarian")
-                        .filter(lib -> lib.findChild("department")
-                                .map(dept -> "Reference".equals(dept.getTextContent()))
+        root.child("staff")
+                .map(staff -> staff.children("librarian")
+                        .filter(lib -> lib.child("department")
+                                .map(dept -> "Reference".equals(dept.textContent()))
                                 .orElse(false))
-                        .map(lib -> lib.findChild("name")
-                                .map(Element::getTextContent)
+                        .map(lib -> lib.child("name")
+                                .map(element -> element.textContent())
                                 .orElse("Unknown"))
                         .collect(Collectors.toList()))
                 .orElse(List.of())
@@ -287,18 +294,18 @@ public class NavigationDemo {
 
     private static void printTreeStructure(Element element, int depth) {
         String indent = "  ".repeat(depth);
-        String attrs = element.getAttributes().isEmpty()
+        String attrs = element.attributes().isEmpty()
                 ? ""
                 : " ["
-                        + element.getAttributes().entrySet().stream()
+                        + element.attributes().entrySet().stream()
                                 .map(e -> e.getKey() + "=" + e.getValue())
                                 .collect(Collectors.joining(", "))
                         + "]";
 
-        System.out.println(indent + element.getName() + attrs);
+        System.out.println(indent + element.name() + attrs);
 
         if (element.hasTextContent() && !element.hasChildElements()) {
-            System.out.println(indent + "  \"" + element.getTextContent().trim() + "\"");
+            System.out.println(indent + "  \"" + element.textContent().trim() + "\"");
         }
 
         element.childElements().forEach(child -> printTreeStructure(child, depth + 1));

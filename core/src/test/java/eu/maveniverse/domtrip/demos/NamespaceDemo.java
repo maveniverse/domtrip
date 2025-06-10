@@ -3,6 +3,7 @@ package eu.maveniverse.domtrip.demos;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.NamespaceContext;
+import eu.maveniverse.domtrip.QName;
 
 /**
  * Demonstrates the comprehensive namespace handling features in DomTrip.
@@ -24,11 +25,11 @@ public class NamespaceDemo {
     private static void demonstrateBasicNamespaceCreation() {
         System.out.println("1. Basic Namespace Creation:");
 
-        // Create elements with different namespace patterns
-        Element defaultNs = Element.elementInNamespace("http://example.com/default", "root");
-        Element prefixedNs = Element.namespacedElement("ex", "element", "http://example.com/ns");
-        Element withPreferredPrefix = Element.elementWithNamespace("http://example.com/api", "data", "api");
-        Element textInNs = Element.textElementInNamespace("http://example.com/content", "title", "My Title");
+        // Create elements with different namespace patterns using QName
+        Element defaultNs = Element.element(QName.of("http://example.com/default", "root"));
+        Element prefixedNs = Element.element(QName.of("http://example.com/ns", "element", "ex"));
+        Element withPreferredPrefix = Element.element(QName.of("http://example.com/api", "data", "api"));
+        Element textInNs = Element.text(QName.of("http://example.com/content", "title"), "My Title");
 
         System.out.println("Default namespace element: " + defaultNs.toXml());
         System.out.println("Prefixed namespace element: " + prefixedNs.toXml());
@@ -54,32 +55,30 @@ public class NamespaceDemo {
             """;
 
         Editor editor = new Editor(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Demonstrate namespace-aware methods
         System.out.println("Root element:");
-        System.out.println("  Name: " + root.getName());
-        System.out.println("  Local name: " + root.getLocalName());
-        System.out.println("  Prefix: " + root.getPrefix());
-        System.out.println("  Namespace URI: " + root.getNamespaceURI());
-        System.out.println("  Is in default namespace: " + root.isInNamespace("http://example.com/default"));
+        System.out.println("  Name: " + root.name());
+        System.out.println("  Local name: " + root.localName());
+        System.out.println("  Prefix: " + root.prefix());
+        System.out.println("  Namespace URI: " + root.namespaceURI());
+        System.out.println("  Is in default namespace: " + root.inNamespace("http://example.com/default"));
 
-        // Find namespaced elements
-        root.findChildByNamespace("http://example.com/default", "child").ifPresent(child -> {
-            System.out.println("\nFound child in default namespace: " + child.getName());
+        // Find namespaced elements using QName
+        root.child(QName.of("http://example.com/default", "child")).ifPresent(child -> {
+            System.out.println("\nFound child in default namespace: " + child.name());
 
-            child.findChildByNamespace("http://example.com/ns1", "element").ifPresent(ns1Element -> {
-                System.out.println("Found ns1:element: " + ns1Element.getName());
-                System.out.println("  Prefix: " + ns1Element.getPrefix());
-                System.out.println("  Local name: " + ns1Element.getLocalName());
-                System.out.println("  Namespace URI: " + ns1Element.getNamespaceURI());
+            child.child(QName.of("http://example.com/ns1", "element")).ifPresent(ns1Element -> {
+                System.out.println("Found ns1:element: " + ns1Element.name());
+                System.out.println("  Prefix: " + ns1Element.prefix());
+                System.out.println("  Local name: " + ns1Element.localName());
+                System.out.println("  Namespace URI: " + ns1Element.namespaceURI());
 
-                ns1Element
-                        .findChildByNamespace("http://example.com/ns2", "data")
-                        .ifPresent(ns2Data -> {
-                            System.out.println("Found ns2:data: " + ns2Data.getName());
-                            System.out.println("  Content: " + ns2Data.getTextContent());
-                        });
+                ns1Element.child(QName.of("http://example.com/ns2", "data")).ifPresent(ns2Data -> {
+                    System.out.println("Found ns2:data: " + ns2Data.name());
+                    System.out.println("  Content: " + ns2Data.textContent());
+                });
             });
         });
         System.out.println();
@@ -95,29 +94,29 @@ public class NamespaceDemo {
                 .withNamespace("content", "http://example.com/content")
                 .build();
 
-        // Add children in different namespaces
-        root.addChild(Element.namespacedTextElement("meta", "title", "http://example.com/metadata", "Document Title"));
-        root.addChild(Element.namespacedTextElement("meta", "author", "http://example.com/metadata", "John Doe"));
-        root.addChild(Element.textElementInNamespace("http://example.com/doc", "summary", "Document summary"));
-        root.addChild(Element.namespacedTextElement("content", "section", "http://example.com/content", "Section 1"));
-        root.addChild(Element.namespacedTextElement("content", "section", "http://example.com/content", "Section 2"));
+        // Add children in different namespaces using QName
+        root.addChild(Element.text(QName.of("http://example.com/metadata", "title", "meta"), "Document Title"));
+        root.addChild(Element.text(QName.of("http://example.com/metadata", "author", "meta"), "John Doe"));
+        root.addChild(Element.text(QName.of("http://example.com/doc", "summary"), "Document summary"));
+        root.addChild(Element.text(QName.of("http://example.com/content", "section", "content"), "Section 1"));
+        root.addChild(Element.text(QName.of("http://example.com/content", "section", "content"), "Section 2"));
 
         System.out.println("Created document:\n" + root.toXml());
 
-        // Navigate using namespace-aware methods
+        // Navigate using namespace-aware methods with QName
         System.out.println("Metadata elements:");
-        root.findChildrenByNamespace("http://example.com/metadata", "title")
-                .forEach(title -> System.out.println("  Title: " + title.getTextContent()));
-        root.findChildrenByNamespace("http://example.com/metadata", "author")
-                .forEach(author -> System.out.println("  Author: " + author.getTextContent()));
+        root.children(QName.of("http://example.com/metadata", "title"))
+                .forEach(title -> System.out.println("  Title: " + title.textContent()));
+        root.children(QName.of("http://example.com/metadata", "author"))
+                .forEach(author -> System.out.println("  Author: " + author.textContent()));
 
         System.out.println("Content sections:");
-        root.findChildrenByNamespace("http://example.com/content", "section")
-                .forEach(section -> System.out.println("  Section: " + section.getTextContent()));
+        root.children(QName.of("http://example.com/content", "section"))
+                .forEach(section -> System.out.println("  Section: " + section.textContent()));
 
         System.out.println("Default namespace elements:");
-        root.findChildrenByNamespace("http://example.com/doc", "summary")
-                .forEach(summary -> System.out.println("  Summary: " + summary.getTextContent()));
+        root.children(QName.of("http://example.com/doc", "summary"))
+                .forEach(summary -> System.out.println("  Summary: " + summary.textContent()));
         System.out.println();
     }
 
@@ -138,37 +137,37 @@ public class NamespaceDemo {
             """;
 
         Editor editor = new Editor(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Get namespace context at different levels
-        NamespaceContext rootContext = root.getNamespaceContext();
+        NamespaceContext rootContext = root.namespaceContext();
         System.out.println("Root namespace context: " + rootContext);
-        System.out.println("  Default namespace: " + rootContext.getDefaultNamespaceURI());
-        System.out.println("  Declared prefixes: " + rootContext.getDeclaredPrefixes());
-        System.out.println("  Declared URIs: " + rootContext.getDeclaredNamespaceURIs());
+        System.out.println("  Default namespace: " + rootContext.defaultNamespaceURI());
+        System.out.println("  Declared prefixes: " + rootContext.declaredPrefixes());
+        System.out.println("  Declared URIs: " + rootContext.declaredNamespaceURIs());
 
-        root.findChild("child").ifPresent(child -> {
-            NamespaceContext childContext = child.getNamespaceContext();
+        root.child("child").ifPresent(child -> {
+            NamespaceContext childContext = child.namespaceContext();
             System.out.println("\nChild namespace context: " + childContext);
-            System.out.println("  Prefix 'c' maps to: " + childContext.getNamespaceURI("c"));
+            System.out.println("  Prefix 'c' maps to: " + childContext.namespaceURI("c"));
             System.out.println(
-                    "  URI 'http://example.com/a' has prefix: " + childContext.getPrefix("http://example.com/a"));
+                    "  URI 'http://example.com/a' has prefix: " + childContext.prefix("http://example.com/a"));
         });
 
         // Demonstrate namespace resolution
         root.descendants()
-                .filter(el -> "data".equals(el.getLocalName()))
+                .filter(el -> "data".equals(el.localName()))
                 .findFirst()
                 .ifPresent(dataElement -> {
                     System.out.println("\nData element namespace resolution:");
-                    System.out.println("  Element: " + dataElement.getName());
-                    System.out.println("  Resolved namespace URI: " + dataElement.getNamespaceURI());
+                    System.out.println("  Element: " + dataElement.name());
+                    System.out.println("  Resolved namespace URI: " + dataElement.namespaceURI());
 
-                    NamespaceContext context = dataElement.getNamespaceContext();
-                    System.out.println("  Available prefixes: " + context.getDeclaredPrefixes());
-                    System.out.println("  Can resolve 'a': " + (context.getNamespaceURI("a") != null));
-                    System.out.println("  Can resolve 'c': " + (context.getNamespaceURI("c") != null));
-                    System.out.println("  Can resolve 'd': " + (context.getNamespaceURI("d") != null));
+                    NamespaceContext context = dataElement.namespaceContext();
+                    System.out.println("  Available prefixes: " + context.declaredPrefixes());
+                    System.out.println("  Can resolve 'a': " + (context.namespaceURI("a") != null));
+                    System.out.println("  Can resolve 'c': " + (context.namespaceURI("c") != null));
+                    System.out.println("  Can resolve 'd': " + (context.namespaceURI("d") != null));
                 });
         System.out.println();
     }
@@ -184,20 +183,20 @@ public class NamespaceDemo {
                 .build();
 
         // Set the element name to include namespace prefix
-        soapEnvelope.setName("soap:Envelope");
+        soapEnvelope.name("soap:Envelope");
 
-        // Create header
-        Element header = Element.namespacedElement("soap", "Header", "http://schemas.xmlsoap.org/soap/envelope/");
+        // Create header using QName
+        Element header = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Header", "soap"));
         soapEnvelope.addChild(header);
 
-        // Create body
-        Element body = Element.namespacedElement("soap", "Body", "http://schemas.xmlsoap.org/soap/envelope/");
+        // Create body using QName
+        Element body = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"));
 
-        // Add a custom method call in body
+        // Add a custom method call in body using QName
         Element methodCall = Element.builder("GetUserInfo")
                 .withDefaultNamespace("http://example.com/userservice")
-                .withChild(Element.textElementInNamespace("http://example.com/userservice", "userId", "12345"))
-                .withChild(Element.textElementInNamespace("http://example.com/userservice", "includeDetails", "true"))
+                .withChild(Element.text(QName.of("http://example.com/userservice", "userId"), "12345"))
+                .withChild(Element.text(QName.of("http://example.com/userservice", "includeDetails"), "true"))
                 .build();
 
         body.addChild(methodCall);
@@ -206,19 +205,18 @@ public class NamespaceDemo {
         System.out.println("SOAP envelope with namespaces:");
         System.out.println(soapEnvelope.toXml());
 
-        // Demonstrate namespace-aware querying
+        // Demonstrate namespace-aware querying with QName
         System.out.println("\nNamespace-aware querying:");
         soapEnvelope
-                .descendantsByNamespace("http://schemas.xmlsoap.org/soap/envelope/", "Body")
+                .descendants(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body"))
                 .findFirst()
                 .ifPresent(soapBody -> {
                     System.out.println("Found SOAP Body");
-                    soapBody.findChildByNamespace("http://example.com/userservice", "GetUserInfo")
+                    soapBody.child(QName.of("http://example.com/userservice", "GetUserInfo"))
                             .ifPresent(method -> {
-                                System.out.println("Found method: " + method.getLocalName());
-                                method.findChildByNamespace("http://example.com/userservice", "userId")
-                                        .ifPresent(
-                                                userId -> System.out.println("  User ID: " + userId.getTextContent()));
+                                System.out.println("Found method: " + method.localName());
+                                method.child(QName.of("http://example.com/userservice", "userId"))
+                                        .ifPresent(userId -> System.out.println("  User ID: " + userId.textContent()));
                             });
                 });
         System.out.println();

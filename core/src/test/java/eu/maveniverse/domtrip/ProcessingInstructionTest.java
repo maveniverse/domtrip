@@ -37,25 +37,25 @@ public class ProcessingInstructionTest {
     void testProcessingInstructionCreation() {
         ProcessingInstruction pi = new ProcessingInstruction("<?target data?>");
 
-        assertEquals("<?target data?>", pi.getOriginalContent());
-        assertEquals(Node.NodeType.PROCESSING_INSTRUCTION, pi.getNodeType());
+        assertEquals("<?target data?>", pi.originalContent());
+        assertEquals(Node.NodeType.PROCESSING_INSTRUCTION, pi.type());
     }
 
     @Test
     void testProcessingInstructionWithNullContent() {
         ProcessingInstruction pi = new ProcessingInstruction(null);
 
-        assertEquals("", pi.getOriginalContent());
+        assertEquals("", pi.originalContent());
     }
 
     @Test
     void testProcessingInstructionSetContent() {
         ProcessingInstruction pi = new ProcessingInstruction("<?old?>");
-        pi.setTarget("new");
-        pi.setData("data");
+        pi.target("new");
+        pi.data("data");
 
-        assertEquals("new", pi.getTarget());
-        assertEquals("data", pi.getData());
+        assertEquals("new", pi.target());
+        assertEquals("data", pi.data());
         assertTrue(pi.isModified());
     }
 
@@ -79,8 +79,8 @@ public class ProcessingInstructionTest {
     @Test
     void testProcessingInstructionWithWhitespace() {
         ProcessingInstruction pi = new ProcessingInstruction("<?target instruction data?>");
-        pi.setPrecedingWhitespace("\n  ");
-        pi.setFollowingWhitespace("\n");
+        pi.precedingWhitespace("\n  ");
+        pi.followingWhitespace = "\n" != null ? "\n" : "";
 
         String xml = pi.toXml();
         assertEquals("\n  <?target instruction data?>\n", xml);
@@ -109,14 +109,14 @@ public class ProcessingInstructionTest {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet href=\"style.css\"?>\n" + "<root/>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
         // Check that processing instructions are preserved in document
         boolean foundStylesheet = false;
-        for (Node child : doc.getChildren()) {
+        for (Node child : doc.nodes) {
             if (child instanceof ProcessingInstruction) {
                 ProcessingInstruction pi = (ProcessingInstruction) child;
-                if (pi.getOriginalContent().contains("xml-stylesheet")) {
+                if (pi.originalContent().contains("xml-stylesheet")) {
                     foundStylesheet = true;
                     break;
                 }
@@ -132,15 +132,15 @@ public class ProcessingInstructionTest {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?custom-pi original=\"data\"?>\n" + "<root/>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
         // Find and modify the processing instruction
-        for (Node child : doc.getChildren()) {
+        for (Node child : doc.nodes) {
             if (child instanceof ProcessingInstruction) {
                 ProcessingInstruction pi = (ProcessingInstruction) child;
-                if (pi.getOriginalContent().contains("custom-pi")) {
-                    pi.setTarget("custom-pi");
-                    pi.setData("modified=\"data\"");
+                if (pi.originalContent().contains("custom-pi")) {
+                    pi.target("custom-pi");
+                    pi.data("modified=\"data\"");
                     break;
                 }
             }
@@ -177,7 +177,7 @@ public class ProcessingInstructionTest {
     void testEmptyProcessingInstruction() {
         ProcessingInstruction pi = new ProcessingInstruction("");
 
-        assertEquals("", pi.getOriginalContent());
+        assertEquals("", pi.originalContent());
         // Empty PI may still generate <??>
         String xml = pi.toXml();
         assertNotNull(xml);
@@ -213,10 +213,10 @@ public class ProcessingInstructionTest {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
         // XML declaration should be stored separately, not as a PI
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", doc.getXmlDeclaration());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", doc.xmlDeclaration());
 
         String result = editor.toXml();
         assertTrue(result.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"));
@@ -225,12 +225,12 @@ public class ProcessingInstructionTest {
     @Test
     void testProcessingInstructionClone() {
         ProcessingInstruction original = new ProcessingInstruction("<?target data?>");
-        original.setPrecedingWhitespace("\n");
-        original.setFollowingWhitespace(" ");
+        original.precedingWhitespace("\n");
+        original.followingWhitespace = " " != null ? " " : "";
 
         // Test that the PI maintains its properties
-        assertEquals("<?target data?>", original.getOriginalContent());
-        assertEquals("\n", original.getPrecedingWhitespace());
-        assertEquals(" ", original.getFollowingWhitespace());
+        assertEquals("<?target data?>", original.originalContent());
+        assertEquals("\n", original.precedingWhitespace());
+        assertEquals(" ", original.followingWhitespace());
     }
 }

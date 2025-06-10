@@ -23,24 +23,24 @@ class NodeNavigationTest {
         child.addChild(comment);
 
         // Test that getParent() returns ContainerNode
-        ContainerNode rootParent = root.getParent();
+        ContainerNode rootParent = root.parent();
         assertSame(doc, rootParent);
         assertTrue(rootParent instanceof Document);
 
-        ContainerNode childParent = child.getParent();
+        ContainerNode childParent = child.parent();
         assertSame(root, childParent);
         assertTrue(childParent instanceof Element);
 
-        ContainerNode textParent = text.getParent();
+        ContainerNode textParent = text.parent();
         assertSame(child, textParent);
         assertTrue(textParent instanceof Element);
 
-        ContainerNode commentParent = comment.getParent();
+        ContainerNode commentParent = comment.parent();
         assertSame(child, commentParent);
         assertTrue(commentParent instanceof Element);
 
         // Document has no parent
-        assertNull(doc.getParent());
+        assertNull(doc.parent());
     }
 
     @Test
@@ -57,22 +57,22 @@ class NodeNavigationTest {
         child.addChild(comment);
 
         // Root element's parent is Document, so getParentElement() returns null
-        assertNull(root.getParentElement());
+        assertNull(root.parentElement());
 
         // Child element's parent is root Element
-        Element childParentElement = child.getParentElement();
+        Element childParentElement = child.parentElement();
         assertSame(root, childParentElement);
 
         // Text node's parent is child Element
-        Element textParentElement = text.getParentElement();
+        Element textParentElement = text.parentElement();
         assertSame(child, textParentElement);
 
         // Comment's parent is child Element
-        Element commentParentElement = comment.getParentElement();
+        Element commentParentElement = comment.parentElement();
         assertSame(child, commentParentElement);
 
         // Document has no parent element
-        assertNull(doc.getParentElement());
+        assertNull(doc.parentElement());
     }
 
     @Test
@@ -89,13 +89,13 @@ class NodeNavigationTest {
         child.addChild(comment);
 
         // All nodes should return the same document
-        assertSame(doc, root.getDocument());
-        assertSame(doc, child.getDocument());
-        assertSame(doc, text.getDocument());
-        assertSame(doc, comment.getDocument());
+        assertSame(doc, root.document());
+        assertSame(doc, child.document());
+        assertSame(doc, text.document());
+        assertSame(doc, comment.document());
 
         // Document itself returns null (it's the root)
-        assertNull(doc.getDocument());
+        assertNull(doc.document());
     }
 
     @Test
@@ -110,10 +110,10 @@ class NodeNavigationTest {
         child.addChild(text);
 
         // All nodes should return the document
-        Document docDoc = doc.getDocument();
-        Document rootDoc = root.getDocument();
-        Document childDoc = child.getDocument();
-        Document textDoc = text.getDocument();
+        Document docDoc = doc.document();
+        Document rootDoc = root.document();
+        Document childDoc = child.document();
+        Document textDoc = text.document();
 
         assertNull(docDoc); // Document itself returns null
         assertSame(doc, rootDoc);
@@ -132,19 +132,19 @@ class NodeNavigationTest {
         child.addChild(text);
 
         // getParent() tests
-        assertNull(fragmentRoot.getParent());
-        assertSame(fragmentRoot, child.getParent());
-        assertSame(child, text.getParent());
+        assertNull(fragmentRoot.parent());
+        assertSame(fragmentRoot, child.parent());
+        assertSame(child, text.parent());
 
         // getParentElement() tests
-        assertNull(fragmentRoot.getParentElement()); // No parent
-        assertSame(fragmentRoot, child.getParentElement());
-        assertSame(child, text.getParentElement());
+        assertNull(fragmentRoot.parentElement()); // No parent
+        assertSame(fragmentRoot, child.parentElement());
+        assertSame(child, text.parentElement());
 
         // getDocument() tests - should return null since no Document in tree
-        assertNull(fragmentRoot.getDocument());
-        assertNull(child.getDocument());
-        assertNull(text.getDocument());
+        assertNull(fragmentRoot.document());
+        assertNull(child.document());
+        assertNull(text.document());
 
         // No getRoot() method anymore - getDocument() handles the main use case
     }

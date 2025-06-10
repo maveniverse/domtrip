@@ -13,107 +13,107 @@ class TextWhitespaceConvenienceTest {
     void testGetTrimmedContent() {
         // Test with leading and trailing whitespace
         Text text1 = new Text("   Hello World   ");
-        assertEquals("Hello World", text1.getTrimmedContent());
-        assertEquals("   Hello World   ", text1.getContent()); // Original unchanged
+        assertEquals("Hello World", text1.trimmedContent());
+        assertEquals("   Hello World   ", text1.content()); // Original unchanged
 
         // Test with only leading whitespace
         Text text2 = new Text("   Hello World");
-        assertEquals("Hello World", text2.getTrimmedContent());
+        assertEquals("Hello World", text2.trimmedContent());
 
         // Test with only trailing whitespace
         Text text3 = new Text("Hello World   ");
-        assertEquals("Hello World", text3.getTrimmedContent());
+        assertEquals("Hello World", text3.trimmedContent());
 
         // Test with no whitespace
         Text text4 = new Text("Hello World");
-        assertEquals("Hello World", text4.getTrimmedContent());
+        assertEquals("Hello World", text4.trimmedContent());
 
         // Test with empty content
         Text text5 = new Text("");
-        assertEquals("", text5.getTrimmedContent());
+        assertEquals("", text5.trimmedContent());
 
         // Test with whitespace-only content
         Text text6 = new Text("   ");
-        assertEquals("", text6.getTrimmedContent());
+        assertEquals("", text6.trimmedContent());
     }
 
     @Test
     void testGetLeadingWhitespace() {
         // Test with spaces
         Text text1 = new Text("   Hello World");
-        assertEquals("   ", text1.getLeadingWhitespace());
+        assertEquals("   ", text1.leadingWhitespace());
 
         // Test with mixed whitespace
         Text text2 = new Text(" \t\n Hello World");
-        assertEquals(" \t\n ", text2.getLeadingWhitespace());
+        assertEquals(" \t\n ", text2.leadingWhitespace());
 
         // Test with no leading whitespace
         Text text3 = new Text("Hello World   ");
-        assertEquals("", text3.getLeadingWhitespace());
+        assertEquals("", text3.leadingWhitespace());
 
         // Test with empty content
         Text text4 = new Text("");
-        assertEquals("", text4.getLeadingWhitespace());
+        assertEquals("", text4.leadingWhitespace());
 
         // Test with whitespace-only content
         Text text5 = new Text("   ");
-        assertEquals("   ", text5.getLeadingWhitespace());
+        assertEquals("   ", text5.leadingWhitespace());
     }
 
     @Test
     void testGetTrailingWhitespace() {
         // Test with spaces
         Text text1 = new Text("Hello World   ");
-        assertEquals("   ", text1.getTrailingWhitespace());
+        assertEquals("   ", text1.trailingWhitespace());
 
         // Test with mixed whitespace
         Text text2 = new Text("Hello World \t\n ");
-        assertEquals(" \t\n ", text2.getTrailingWhitespace());
+        assertEquals(" \t\n ", text2.trailingWhitespace());
 
         // Test with no trailing whitespace
         Text text3 = new Text("   Hello World");
-        assertEquals("", text3.getTrailingWhitespace());
+        assertEquals("", text3.trailingWhitespace());
 
         // Test with empty content
         Text text4 = new Text("");
-        assertEquals("", text4.getTrailingWhitespace());
+        assertEquals("", text4.trailingWhitespace());
 
         // Test with whitespace-only content
         Text text5 = new Text("   ");
-        assertEquals("   ", text5.getTrailingWhitespace());
+        assertEquals("   ", text5.trailingWhitespace());
     }
 
     @Test
     void testSetContentPreservingWhitespace() {
         // Test with leading and trailing whitespace
         Text text1 = new Text("   Hello World   ");
-        text1.setContentPreservingWhitespace("Goodbye");
-        assertEquals("   Goodbye   ", text1.getContent());
+        text1.contentPreservingWhitespace("Goodbye");
+        assertEquals("   Goodbye   ", text1.content());
 
         // Test with only leading whitespace
         Text text2 = new Text("   Hello World");
-        text2.setContentPreservingWhitespace("Goodbye");
-        assertEquals("   Goodbye", text2.getContent());
+        text2.contentPreservingWhitespace("Goodbye");
+        assertEquals("   Goodbye", text2.content());
 
         // Test with only trailing whitespace
         Text text3 = new Text("Hello World   ");
-        text3.setContentPreservingWhitespace("Goodbye");
-        assertEquals("Goodbye   ", text3.getContent());
+        text3.contentPreservingWhitespace("Goodbye");
+        assertEquals("Goodbye   ", text3.content());
 
         // Test with no whitespace
         Text text4 = new Text("Hello World");
-        text4.setContentPreservingWhitespace("Goodbye");
-        assertEquals("Goodbye", text4.getContent());
+        text4.contentPreservingWhitespace("Goodbye");
+        assertEquals("Goodbye", text4.content());
 
         // Test with null content
         Text text5 = new Text("   Hello World   ");
-        text5.setContentPreservingWhitespace(null);
-        assertEquals("      ", text5.getContent()); // Just the whitespace
+        text5.contentPreservingWhitespace(null);
+        assertEquals("      ", text5.content()); // Just the whitespace
 
         // Test with empty content
         Text text6 = new Text("   Hello World   ");
-        text6.setContentPreservingWhitespace("");
-        assertEquals("      ", text6.getContent()); // Just the whitespace
+        text6.contentPreservingWhitespace("");
+        assertEquals("      ", text6.content()); // Just the whitespace
     }
 
     @Test
@@ -151,15 +151,15 @@ class TextWhitespaceConvenienceTest {
         // Test with complex whitespace pattern
         Text text = new Text(" \t\n  Hello World  \n\t ");
 
-        assertEquals("Hello World", text.getTrimmedContent());
-        assertEquals(" \t\n  ", text.getLeadingWhitespace());
-        assertEquals("  \n\t ", text.getTrailingWhitespace());
+        assertEquals("Hello World", text.trimmedContent());
+        assertEquals(" \t\n  ", text.leadingWhitespace());
+        assertEquals("  \n\t ", text.trailingWhitespace());
         assertTrue(text.hasLeadingWhitespace());
         assertTrue(text.hasTrailingWhitespace());
 
         // Preserve the pattern with new content
-        text.setContentPreservingWhitespace("Goodbye Universe");
-        assertEquals(" \t\n  Goodbye Universe  \n\t ", text.getContent());
+        text.contentPreservingWhitespace("Goodbye Universe");
+        assertEquals(" \t\n  Goodbye Universe  \n\t ", text.content());
     }
 
     @Test
@@ -174,25 +174,25 @@ class TextWhitespaceConvenienceTest {
             """;
 
         Editor editor = new Editor(xml);
-        Element message = editor.findElement("message");
-        Element path = editor.findElement("path");
+        Element message = editor.element("message").orElseThrow();
+        Element path = editor.element("path").orElseThrow();
 
         // Get the text nodes
-        Text messageText = (Text) message.getChildren().get(0);
-        Text pathText = (Text) path.getChildren().get(0);
+        Text messageText = (Text) message.nodes.get(0);
+        Text pathText = (Text) path.nodes.get(0);
 
         // Test convenience methods
-        assertEquals("Welcome to our application!", messageText.getTrimmedContent());
-        assertEquals("/usr/local/bin", pathText.getTrimmedContent());
+        assertEquals("Welcome to our application!", messageText.trimmedContent());
+        assertEquals("/usr/local/bin", pathText.trimmedContent());
 
-        assertEquals("   ", messageText.getLeadingWhitespace());
-        assertEquals("   ", messageText.getTrailingWhitespace());
-        assertEquals("  ", pathText.getLeadingWhitespace());
-        assertEquals("  ", pathText.getTrailingWhitespace());
+        assertEquals("   ", messageText.leadingWhitespace());
+        assertEquals("   ", messageText.trailingWhitespace());
+        assertEquals("  ", pathText.leadingWhitespace());
+        assertEquals("  ", pathText.trailingWhitespace());
 
         // Update content preserving whitespace
-        messageText.setContentPreservingWhitespace("Thank you for using our app!");
-        pathText.setContentPreservingWhitespace("/home/user/bin");
+        messageText.contentPreservingWhitespace("Thank you for using our app!");
+        pathText.contentPreservingWhitespace("/home/user/bin");
 
         // Verify the XML structure is preserved
         String result = editor.toXml();
@@ -209,13 +209,13 @@ class TextWhitespaceConvenienceTest {
         // Test that convenience methods work with CDATA
         Text cdata = new Text("   <script>alert('test');</script>   ", true);
 
-        assertEquals("<script>alert('test');</script>", cdata.getTrimmedContent());
-        assertEquals("   ", cdata.getLeadingWhitespace());
-        assertEquals("   ", cdata.getTrailingWhitespace());
+        assertEquals("<script>alert('test');</script>", cdata.trimmedContent());
+        assertEquals("   ", cdata.leadingWhitespace());
+        assertEquals("   ", cdata.trailingWhitespace());
 
-        cdata.setContentPreservingWhitespace("<script>console.log('hello');</script>");
-        assertEquals("   <script>console.log('hello');</script>   ", cdata.getContent());
-        assertTrue(cdata.isCData());
+        cdata.contentPreservingWhitespace("<script>console.log('hello');</script>");
+        assertEquals("   <script>console.log('hello');</script>   ", cdata.content());
+        assertTrue(cdata.cdata());
     }
 
     @Test
@@ -223,12 +223,12 @@ class TextWhitespaceConvenienceTest {
         // Test with content that has entities
         Text text = new Text("   Hello &amp; welcome   ");
 
-        assertEquals("Hello &amp; welcome", text.getTrimmedContent());
-        assertEquals("   ", text.getLeadingWhitespace());
-        assertEquals("   ", text.getTrailingWhitespace());
+        assertEquals("Hello &amp; welcome", text.trimmedContent());
+        assertEquals("   ", text.leadingWhitespace());
+        assertEquals("   ", text.trailingWhitespace());
 
-        text.setContentPreservingWhitespace("Goodbye &lt;world&gt;");
-        assertEquals("   Goodbye &lt;world&gt;   ", text.getContent());
+        text.contentPreservingWhitespace("Goodbye &lt;world&gt;");
+        assertEquals("   Goodbye &lt;world&gt;   ", text.content());
     }
 
     @Test
@@ -237,15 +237,15 @@ class TextWhitespaceConvenienceTest {
 
         // Convenience methods should not mark as modified
         assertFalse(text.isModified());
-        text.getTrimmedContent();
-        text.getLeadingWhitespace();
-        text.getTrailingWhitespace();
+        text.trimmedContent();
+        text.leadingWhitespace();
+        text.trailingWhitespace();
         text.hasLeadingWhitespace();
         text.hasTrailingWhitespace();
         assertFalse(text.isModified());
 
         // setContentPreservingWhitespace should mark as modified
-        text.setContentPreservingWhitespace("Goodbye");
+        text.contentPreservingWhitespace("Goodbye");
         assertTrue(text.isModified());
     }
 }

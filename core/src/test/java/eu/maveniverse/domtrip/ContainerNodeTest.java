@@ -48,20 +48,20 @@ public class ContainerNodeTest {
         parent.addChild(child2);
         parent.addChild(text);
 
-        assertEquals(3, parent.getChildCount());
+        assertEquals(3, parent.nodeCount());
         assertEquals(child1, parent.getChild(0));
         assertEquals(child2, parent.getChild(1));
         assertEquals(text, parent.getChild(2));
 
         // Test removing children
         assertTrue(parent.removeChild(child2));
-        assertEquals(2, parent.getChildCount());
+        assertEquals(2, parent.nodeCount());
         assertFalse(parent.removeChild(child2)); // Already removed
 
         // Test child parent relationships
-        assertEquals(parent, child1.getParent());
-        assertNull(child2.getParent()); // Removed
-        assertEquals(parent, text.getParent());
+        assertEquals(parent, child1.parent());
+        assertNull(child2.parent()); // Removed
+        assertEquals(parent, text.parent());
     }
 
     @Test
@@ -78,8 +78,8 @@ public class ContainerNodeTest {
         root.addChild(other);
 
         // Test element-specific navigation methods
-        assertEquals(child1, root.findChild("child").orElse(null));
-        assertEquals(2, root.findChildren("child").count());
+        assertEquals(child1, root.child("child").orElse(null));
+        assertEquals(2, root.children("child").count());
         assertEquals(3, root.childElements().count()); // Excludes text node
 
         // Test that these methods are only available on Element, not on leaf nodes
@@ -91,17 +91,17 @@ public class ContainerNodeTest {
         Element element = new Element("ns:test");
 
         // These methods should only be available on Element
-        assertEquals("test", element.getLocalName());
-        assertEquals("ns", element.getPrefix());
-        assertEquals("ns:test", element.getQualifiedName());
+        assertEquals("test", element.localName());
+        assertEquals("ns", element.prefix());
+        assertEquals("ns:test", element.qualifiedName());
 
         // Leaf nodes don't have these methods (enforced by type system)
         Text text = new Text("content");
         Comment comment = new Comment("comment");
 
         // These would be compilation errors:
-        // text.getLocalName();  // Method not available
-        // comment.getPrefix();  // Method not available
+        // text.localName();  // Method not available
+        // comment.prefix();  // Method not available
     }
 
     @Test
@@ -125,8 +125,8 @@ public class ContainerNodeTest {
         element.addChild(text);
         document.addChild(element);
 
-        assertEquals(1, element.getChildCount());
-        assertEquals(1, document.getChildCount());
+        assertEquals(1, element.nodeCount());
+        assertEquals(1, document.nodeCount());
     }
 
     @Test

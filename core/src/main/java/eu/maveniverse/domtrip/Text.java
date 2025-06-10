@@ -38,7 +38,7 @@ package eu.maveniverse.domtrip;
  * }
  *
  * // Access both decoded and raw content
- * String content = text.getContent();     // "Hello & welcome!"
+ * String content = text.content();     // "Hello & welcome!"
  * String raw = text.getRawContent();      // "Hello &amp; welcome!" (if preserved)
  *
  * // Use builder pattern
@@ -62,8 +62,6 @@ package eu.maveniverse.domtrip;
  *   <li>{@code &apos;} ↔ {@code '}</li>
  * </ul>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Node
  * @see Element
  * @see Comment
@@ -94,42 +92,42 @@ public class Text extends Node {
     }
 
     @Override
-    public NodeType getNodeType() {
+    public NodeType type() {
         return NodeType.TEXT;
     }
 
-    public String getContent() {
+    public String content() {
         return content;
     }
 
-    public void setContent(String content) {
+    public void content(String content) {
         this.content = content != null ? content : "";
         this.rawContent = null; // Clear raw content when content is modified
         markModified();
     }
 
-    public String getRawContent() {
+    public String rawContent() {
         return rawContent;
     }
 
-    public void setRawContent(String rawContent) {
+    public void rawContent(String rawContent) {
         this.rawContent = rawContent;
     }
 
-    public boolean isCData() {
+    public boolean cdata() {
         return isCData;
     }
 
-    public void setCData(boolean cData) {
+    public void cdata(boolean cData) {
         this.isCData = cData;
         markModified();
     }
 
-    public boolean isPreserveWhitespace() {
+    public boolean preserveWhitespace() {
         return preserveWhitespace;
     }
 
-    public void setPreserveWhitespace(boolean preserveWhitespace) {
+    public void preserveWhitespace(boolean preserveWhitespace) {
         this.preserveWhitespace = preserveWhitespace;
     }
 
@@ -155,12 +153,11 @@ public class Text extends Node {
      * is preserved for lossless round-trip processing.</p>
      *
      * @return the content with leading and trailing whitespace removed
-     * @since 1.0
-     * @see #getContent()
-     * @see #getLeadingWhitespace()
-     * @see #getTrailingWhitespace()
+     * @see #content()
+     * @see #leadingWhitespace()
+     * @see #trailingWhitespace()
      */
-    public String getTrimmedContent() {
+    public String trimmedContent() {
         return content.trim();
     }
 
@@ -172,11 +169,10 @@ public class Text extends Node {
      * the whitespace structure without modifying the original content.</p>
      *
      * @return the leading whitespace, or empty string if none
-     * @since 1.0
-     * @see #getTrailingWhitespace()
-     * @see #getTrimmedContent()
+     * @see #trailingWhitespace()
+     * @see #trimmedContent()
      */
-    public String getLeadingWhitespace() {
+    public String leadingWhitespace() {
         if (content.isEmpty()) {
             return "";
         }
@@ -197,11 +193,10 @@ public class Text extends Node {
      * the whitespace structure without modifying the original content.</p>
      *
      * @return the trailing whitespace, or empty string if none
-     * @since 1.0
-     * @see #getLeadingWhitespace()
-     * @see #getTrimmedContent()
+     * @see #leadingWhitespace()
+     * @see #trimmedContent()
      */
-    public String getTrailingWhitespace() {
+    public String trailingWhitespace() {
         if (content.isEmpty()) {
             return "";
         }
@@ -224,23 +219,22 @@ public class Text extends Node {
      * <h3>Example:</h3>
      * <pre>{@code
      * // Original: "   Hello World   "
-     * text.setContentPreservingWhitespace("Goodbye");
+     * text.contentPreservingWhitespace("Goodbye");
      * // Result:   "   Goodbye   "
      * }</pre>
      *
      * @param newContent the new content to set (will be placed between existing whitespace)
-     * @since 1.0
-     * @see #setContent(String)
-     * @see #getLeadingWhitespace()
-     * @see #getTrailingWhitespace()
+     * @see #content(String)
+     * @see #leadingWhitespace()
+     * @see #trailingWhitespace()
      */
-    public void setContentPreservingWhitespace(String newContent) {
+    public void contentPreservingWhitespace(String newContent) {
         if (newContent == null) {
             newContent = "";
         }
 
-        String leading = getLeadingWhitespace();
-        String trailing = getTrailingWhitespace();
+        String leading = leadingWhitespace();
+        String trailing = trailingWhitespace();
 
         this.content = leading + newContent + trailing;
         this.rawContent = null; // Clear raw content when content is modified
@@ -251,9 +245,8 @@ public class Text extends Node {
      * Checks if the content has leading whitespace.
      *
      * @return true if the content starts with whitespace characters
-     * @since 1.0
      * @see #hasTrailingWhitespace()
-     * @see #getLeadingWhitespace()
+     * @see #leadingWhitespace()
      */
     public boolean hasLeadingWhitespace() {
         return !content.isEmpty() && Character.isWhitespace(content.charAt(0));
@@ -263,9 +256,8 @@ public class Text extends Node {
      * Checks if the content has trailing whitespace.
      *
      * @return true if the content ends with whitespace characters
-     * @since 1.0
      * @see #hasLeadingWhitespace()
-     * @see #getTrailingWhitespace()
+     * @see #trailingWhitespace()
      */
     public boolean hasTrailingWhitespace() {
         return !content.isEmpty() && Character.isWhitespace(content.charAt(content.length() - 1));
@@ -368,7 +360,6 @@ public class Text extends Node {
      *     .build();
      * }</pre>
      *
-     * @since 1.0
      */
     public static class Builder {
         private String content = "";
@@ -382,7 +373,6 @@ public class Text extends Node {
          *
          * @param content the text content
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withContent(String content) {
             this.content = content != null ? content : "";
@@ -393,7 +383,6 @@ public class Text extends Node {
          * Makes this text node a CDATA section.
          *
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder asCData() {
             this.isCData = true;
@@ -405,7 +394,6 @@ public class Text extends Node {
          *
          * @param preserveWhitespace true to preserve whitespace, false otherwise
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withPreserveWhitespace(boolean preserveWhitespace) {
             this.preserveWhitespace = preserveWhitespace;
@@ -416,11 +404,10 @@ public class Text extends Node {
          * Builds and returns the configured Text instance.
          *
          * @return the constructed Text
-         * @since 1.0
          */
         public Text build() {
             Text text = new Text(content, isCData);
-            text.setPreserveWhitespace(preserveWhitespace);
+            text.preserveWhitespace(preserveWhitespace);
             return text;
         }
 
@@ -435,7 +422,6 @@ public class Text extends Node {
          * @param parent the parent container to add this text to
          * @return the constructed and added Text
          * @throws IllegalArgumentException if editor or parent is null
-         * @since 1.0
          */
         public Text buildAndAddTo(Editor editor, ContainerNode parent) {
             if (editor == null) {
@@ -455,7 +441,6 @@ public class Text extends Node {
      * Creates a new Text builder instance.
      *
      * @return a new Text.Builder for fluent text construction
-     * @since 1.0
      */
     public static Builder builder() {
         return new Builder();

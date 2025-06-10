@@ -1,13 +1,11 @@
 package eu.maveniverse.domtrip;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Represents a namespace context for XML elements, providing namespace URI resolution
@@ -46,7 +44,7 @@ public class NamespaceContext {
      * Gets the namespace URI for the given prefix.
      * Returns null if the prefix is not bound to any namespace.
      */
-    public String getNamespaceURI(String prefix) {
+    public String namespaceURI(String prefix) {
         if (prefix == null) {
             return defaultNamespaceURI;
         }
@@ -63,7 +61,7 @@ public class NamespaceContext {
      * Gets the first prefix bound to the given namespace URI.
      * Returns null if no prefix is bound to the URI.
      */
-    public String getPrefix(String namespaceURI) {
+    public String prefix(String namespaceURI) {
         if (namespaceURI == null) {
             return null;
         }
@@ -84,28 +82,28 @@ public class NamespaceContext {
     /**
      * Gets all prefixes bound to the given namespace URI.
      */
-    public Iterator<String> getPrefixes(String namespaceURI) {
+    public Stream<String> prefixes(String namespaceURI) {
         if (namespaceURI == null) {
-            return Collections.emptyIterator();
+            return Stream.of();
         }
         if ("http://www.w3.org/XML/1998/namespace".equals(namespaceURI)) {
-            return Collections.singleton("xml").iterator();
+            return Stream.of("xml");
         }
         if ("http://www.w3.org/2000/xmlns/".equals(namespaceURI)) {
-            return Collections.singleton("xmlns").iterator();
+            return Stream.of("xmlns");
         }
 
         Set<String> prefixes = uriToPrefixes.get(namespaceURI);
         if (prefixes != null) {
-            return new ArrayList<>(prefixes).iterator();
+            return prefixes.stream();
         }
-        return Collections.emptyIterator();
+        return Stream.of();
     }
 
     /**
      * Gets the default namespace URI.
      */
-    public String getDefaultNamespaceURI() {
+    public String defaultNamespaceURI() {
         return defaultNamespaceURI;
     }
 
@@ -135,14 +133,14 @@ public class NamespaceContext {
     /**
      * Gets all declared prefixes (excluding xml and xmlns).
      */
-    public Set<String> getDeclaredPrefixes() {
+    public Set<String> declaredPrefixes() {
         return new HashSet<>(prefixToUri.keySet());
     }
 
     /**
      * Gets all declared namespace URIs.
      */
-    public Set<String> getDeclaredNamespaceURIs() {
+    public Set<String> declaredNamespaceURIs() {
         Set<String> uris = new HashSet<>(uriToPrefixes.keySet());
         if (defaultNamespaceURI != null) {
             uris.add(defaultNamespaceURI);

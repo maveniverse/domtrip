@@ -33,21 +33,21 @@ public class BuilderApiTest {
                 .rawValue("&lt;raw&gt;")
                 .build();
 
-        assertEquals("test-attr", attr.getName());
-        assertEquals("test-value", attr.getValue());
-        assertEquals(QuoteStyle.SINGLE, attr.getQuoteStyle());
-        assertEquals("  ", attr.getPrecedingWhitespace());
-        assertEquals("&lt;raw&gt;", attr.getRawValue());
+        assertEquals("test-attr", attr.name());
+        assertEquals("test-value", attr.value());
+        assertEquals(QuoteStyle.SINGLE, attr.quoteStyle());
+        assertEquals("  ", attr.precedingWhitespace());
+        assertEquals("&lt;raw&gt;", attr.rawValue());
     }
 
     @Test
     void testAttributeBuilderMinimal() {
         Attribute attr = Attribute.builder().name("simple").value("value").build();
 
-        assertEquals("simple", attr.getName());
-        assertEquals("value", attr.getValue());
-        assertEquals(QuoteStyle.DOUBLE, attr.getQuoteStyle()); // default
-        assertEquals(" ", attr.getPrecedingWhitespace()); // default
+        assertEquals("simple", attr.name());
+        assertEquals("value", attr.value());
+        assertEquals(QuoteStyle.DOUBLE, attr.quoteStyle()); // default
+        assertEquals(" ", attr.precedingWhitespace()); // default
     }
 
     @Test
@@ -60,26 +60,26 @@ public class BuilderApiTest {
     @Test
     void testElementsFactory() {
         // Test text element
-        Element textEl = Element.textElement("name", "content");
-        assertEquals("name", textEl.getName());
-        assertEquals("content", textEl.getTextContent());
+        Element textEl = Element.text("name", "content");
+        assertEquals("name", textEl.name());
+        assertEquals("content", textEl.textContent());
 
         // Test empty element
-        Element emptyEl = Element.emptyElement("empty");
-        assertEquals("empty", emptyEl.getName());
-        assertEquals(0, emptyEl.getChildCount());
+        Element emptyEl = Element.of("empty");
+        assertEquals("empty", emptyEl.name());
+        assertEquals(0, emptyEl.nodeCount());
 
         // Test self-closing element
-        Element selfClosing = Element.selfClosingElement("self");
-        assertEquals("self", selfClosing.getName());
-        assertTrue(selfClosing.isSelfClosing());
+        Element selfClosing = Element.selfClosing("self");
+        assertEquals("self", selfClosing.name());
+        assertTrue(selfClosing.selfClosing());
 
         // Test element with attributes
         Map<String, String> attrs = Map.of("attr1", "val1", "attr2", "val2");
-        Element withAttrs = Element.elementWithAttributes("test", attrs);
-        assertEquals("test", withAttrs.getName());
-        assertEquals("val1", withAttrs.getAttribute("attr1"));
-        assertEquals("val2", withAttrs.getAttribute("attr2"));
+        Element withAttrs = Element.withAttributes("test", attrs);
+        assertEquals("test", withAttrs.name());
+        assertEquals("val1", withAttrs.attribute("attr1"));
+        assertEquals("val2", withAttrs.attribute("attr2"));
     }
 
     @Test
@@ -88,14 +88,14 @@ public class BuilderApiTest {
                 .withText("text content")
                 .withAttribute("attr1", "value1")
                 .withAttributes(Map.of("attr2", "value2", "attr3", "value3"))
-                .withChild(Element.textElement("child", "child content"))
+                .withChild(Element.text("child", "child content"))
                 .withComment("This is a comment")
                 .build();
 
-        assertEquals("complex", element.getName());
-        assertEquals("value1", element.getAttribute("attr1"));
-        assertEquals("value2", element.getAttribute("attr2"));
-        assertEquals("value3", element.getAttribute("attr3"));
+        assertEquals("complex", element.name());
+        assertEquals("value1", element.attribute("attr1"));
+        assertEquals("value2", element.attribute("attr2"));
+        assertEquals("value3", element.attribute("attr3"));
         assertTrue(element.hasChildElements());
         assertTrue(element.hasTextContent());
     }
@@ -105,25 +105,25 @@ public class BuilderApiTest {
         // Test empty document
         Document empty = Document.empty();
         assertNotNull(empty);
-        assertNull(empty.getDocumentElement());
+        assertNull(empty.root());
 
         // Test with XML declaration
         Document withDecl = Document.withXmlDeclaration("1.0", "UTF-8");
-        assertEquals("1.0", withDecl.getVersion());
-        assertEquals("UTF-8", withDecl.getEncoding());
-        assertTrue(withDecl.getXmlDeclaration().contains("version=\"1.0\""));
-        assertTrue(withDecl.getXmlDeclaration().contains("encoding=\"UTF-8\""));
+        assertEquals("1.0", withDecl.version());
+        assertEquals("UTF-8", withDecl.encoding());
+        assertTrue(withDecl.xmlDeclaration().contains("version=\"1.0\""));
+        assertTrue(withDecl.xmlDeclaration().contains("encoding=\"UTF-8\""));
 
         // Test with root element
         Document withRoot = Document.withRootElement("root");
-        assertNotNull(withRoot.getDocumentElement());
-        assertEquals("root", withRoot.getDocumentElement().getName());
+        assertNotNull(withRoot.root());
+        assertEquals("root", withRoot.root().name());
 
         // Test minimal document
         Document minimal = Document.minimal("simple");
-        assertNotNull(minimal.getDocumentElement());
-        assertEquals("simple", minimal.getDocumentElement().getName());
-        assertTrue(minimal.getXmlDeclaration().isEmpty());
+        assertNotNull(minimal.root());
+        assertEquals("simple", minimal.root().name());
+        assertTrue(minimal.xmlDeclaration().isEmpty());
     }
 
     @Test
@@ -137,19 +137,19 @@ public class BuilderApiTest {
                 .withXmlDeclaration()
                 .build();
 
-        assertEquals("1.1", doc.getVersion());
-        assertEquals("ISO-8859-1", doc.getEncoding());
+        assertEquals("1.1", doc.version());
+        assertEquals("ISO-8859-1", doc.encoding());
         assertTrue(doc.isStandalone());
-        assertEquals("<!DOCTYPE html>", doc.getDoctype());
-        assertNotNull(doc.getDocumentElement());
-        assertEquals("html", doc.getDocumentElement().getName());
-        assertTrue(doc.getXmlDeclaration().contains("standalone=\"yes\""));
+        assertEquals("<!DOCTYPE html>", doc.doctype());
+        assertNotNull(doc.root());
+        assertEquals("html", doc.root().name());
+        assertTrue(doc.xmlDeclaration().contains("standalone=\"yes\""));
     }
 
     @Test
     void testEditorFluentBuilder() {
         editor.createDocument("root");
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Test element builder
         Element element = editor.add()
@@ -160,25 +160,25 @@ public class BuilderApiTest {
                 .withAttribute("class", "test")
                 .build();
 
-        assertEquals("test-element", element.getName());
-        assertEquals("element content", element.getTextContent());
-        assertEquals("123", element.getAttribute("id"));
-        assertEquals("test", element.getAttribute("class"));
-        assertEquals(root, element.getParent());
+        assertEquals("test-element", element.name());
+        assertEquals("element content", element.textContent());
+        assertEquals("123", element.attribute("id"));
+        assertEquals("test", element.attribute("class"));
+        assertEquals(root, element.parent());
 
         // Test comment builder
         Comment comment =
                 editor.add().comment().to(root).withContent(" Test comment ").build();
 
-        assertEquals(" Test comment ", comment.getContent());
-        assertEquals(root, comment.getParent());
+        assertEquals(" Test comment ", comment.content());
+        assertEquals(root, comment.parent());
 
         // Test text builder
         Text text =
                 editor.add().text().to(element).withContent("additional text").build();
 
-        assertEquals("additional text", text.getContent());
-        assertFalse(text.isCData());
+        assertEquals("additional text", text.content());
+        assertFalse(text.cdata());
 
         // Test CDATA builder
         Text cdata = editor.add()
@@ -188,8 +188,8 @@ public class BuilderApiTest {
                 .asCData()
                 .build();
 
-        assertEquals("cdata content", cdata.getContent());
-        assertTrue(cdata.isCData());
+        assertEquals("cdata content", cdata.content());
+        assertTrue(cdata.cdata());
     }
 
     @Test
@@ -223,7 +223,7 @@ public class BuilderApiTest {
     @Test
     void testEditorBuilderSelfClosing() {
         editor.createDocument("root");
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         Element selfClosing = editor.add()
                 .element("self-closing")
@@ -232,14 +232,14 @@ public class BuilderApiTest {
                 .selfClosing()
                 .build();
 
-        assertTrue(selfClosing.isSelfClosing());
-        assertEquals("value", selfClosing.getAttribute("attr"));
+        assertTrue(selfClosing.selfClosing());
+        assertEquals("value", selfClosing.attribute("attr"));
     }
 
     @Test
     void testEditorBuilderWithMultipleAttributes() {
         editor.createDocument("root");
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         Map<String, String> attributes = Map.of(
                 "id", "test-id",
@@ -253,10 +253,10 @@ public class BuilderApiTest {
                 .withAttribute("extra", "extra-value")
                 .build();
 
-        assertEquals("test-id", element.getAttribute("id"));
-        assertEquals("test-class", element.getAttribute("class"));
-        assertEquals("test-data", element.getAttribute("data-value"));
-        assertEquals("extra-value", element.getAttribute("extra"));
+        assertEquals("test-id", element.attribute("id"));
+        assertEquals("test-class", element.attribute("class"));
+        assertEquals("test-data", element.attribute("data-value"));
+        assertEquals("extra-value", element.attribute("extra"));
     }
 
     @Test
@@ -269,7 +269,7 @@ public class BuilderApiTest {
                 .withXmlDeclaration()
                 .build();
 
-        Element root = doc.getDocumentElement();
+        Element root = doc.root();
 
         // Add dependencies using element builder
         Element dependencies = Element.builder("dependencies").build();
@@ -280,9 +280,9 @@ public class BuilderApiTest {
                 .build();
         dependencies.addChild(dependency);
 
-        dependency.addChild(Element.textElement("groupId", "junit"));
-        dependency.addChild(Element.textElement("artifactId", "junit"));
-        dependency.addChild(Element.textElement("version", "4.13.2"));
+        dependency.addChild(Element.text("groupId", "junit"));
+        dependency.addChild(Element.text("artifactId", "junit"));
+        dependency.addChild(Element.text("version", "4.13.2"));
 
         // Serialize and verify
         String xml = doc.toXml();

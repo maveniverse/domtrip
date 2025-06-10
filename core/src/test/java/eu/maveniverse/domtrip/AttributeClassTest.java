@@ -22,43 +22,43 @@ public class AttributeClassTest {
 
     @Test
     void testBasicAttributeCreation() {
-        assertEquals("test", attribute.getName());
-        assertEquals("value", attribute.getValue());
+        assertEquals("test", attribute.name());
+        assertEquals("value", attribute.value());
         assertEquals('"', attribute.getQuoteChar());
-        assertEquals(" ", attribute.getPrecedingWhitespace());
-        assertNull(attribute.getRawValue());
+        assertEquals(" ", attribute.precedingWhitespace());
+        assertNull(attribute.rawValue());
     }
 
     @Test
     void testAttributeWithCustomQuote() {
         Attribute attr = new Attribute("name", "value", '\'', "  ");
 
-        assertEquals("name", attr.getName());
-        assertEquals("value", attr.getValue());
+        assertEquals("name", attr.name());
+        assertEquals("value", attr.value());
         assertEquals('\'', attr.getQuoteChar());
-        assertEquals("  ", attr.getPrecedingWhitespace());
+        assertEquals("  ", attr.precedingWhitespace());
     }
 
     @Test
     void testAttributeWithRawValue() {
         Attribute attr = new Attribute("name", "decoded value", '"', " ", "&quot;encoded&quot;");
 
-        assertEquals("name", attr.getName());
-        assertEquals("decoded value", attr.getValue());
-        assertEquals("&quot;encoded&quot;", attr.getRawValue());
+        assertEquals("name", attr.name());
+        assertEquals("decoded value", attr.value());
+        assertEquals("&quot;encoded&quot;", attr.rawValue());
     }
 
     @Test
     void testSetValue() {
-        attribute.setValue("new value");
-        assertEquals("new value", attribute.getValue());
-        assertNull(attribute.getRawValue()); // Should clear raw value
+        attribute.value("new value");
+        assertEquals("new value", attribute.value());
+        assertNull(attribute.rawValue()); // Should clear raw value
     }
 
     @Test
     void testSetRawValue() {
-        attribute.setRawValue("&lt;raw&gt;");
-        assertEquals("&lt;raw&gt;", attribute.getRawValue());
+        attribute.rawValue("&lt;raw&gt;");
+        assertEquals("&lt;raw&gt;", attribute.rawValue());
     }
 
     @Test
@@ -69,17 +69,17 @@ public class AttributeClassTest {
 
     @Test
     void testSetPrecedingWhitespace() {
-        attribute.setPrecedingWhitespace("    ");
-        assertEquals("    ", attribute.getPrecedingWhitespace());
+        attribute.precedingWhitespace("    ");
+        assertEquals("    ", attribute.precedingWhitespace());
 
         // Null should default to single space
-        attribute.setPrecedingWhitespace(null);
-        assertEquals(" ", attribute.getPrecedingWhitespace());
+        attribute.precedingWhitespace(null);
+        assertEquals(" ", attribute.precedingWhitespace());
     }
 
     @Test
     void testSerializationValueWithRaw() {
-        attribute.setRawValue("&lt;raw&gt;");
+        attribute.rawValue("&lt;raw&gt;");
 
         // With useRaw=true, should return raw value
         assertEquals("&lt;raw&gt;", attribute.getSerializationValue(true));

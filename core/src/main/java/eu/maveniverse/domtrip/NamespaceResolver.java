@@ -32,7 +32,7 @@ public class NamespaceResolver {
                 return uri;
             }
 
-            Node parent = current.getParent();
+            Node parent = current.parent();
             current = (parent instanceof Element) ? (Element) parent : null;
         }
 
@@ -64,7 +64,7 @@ public class NamespaceResolver {
                 return prefix;
             }
 
-            Node parent = current.getParent();
+            Node parent = current.parent();
             current = (parent instanceof Element) ? (Element) parent : null;
         }
 
@@ -104,7 +104,7 @@ public class NamespaceResolver {
         // Collect namespace declarations from element and ancestors
         Element current = element;
         while (current != null) {
-            Map<String, String> attributes = current.getAttributes();
+            Map<String, String> attributes = current.attributes();
 
             for (Map.Entry<String, String> entry : attributes.entrySet()) {
                 String attrName = entry.getKey();
@@ -124,7 +124,7 @@ public class NamespaceResolver {
                 }
             }
 
-            Node parent = current.getParent();
+            Node parent = current.parent();
             current = (parent instanceof Element) ? (Element) parent : null;
         }
 
@@ -177,7 +177,7 @@ public class NamespaceResolver {
     }
 
     private static String findNamespaceDeclaration(Element element, String prefix) {
-        Map<String, String> attributes = element.getAttributes();
+        Map<String, String> attributes = element.attributes();
 
         if (prefix == null) {
             // Looking for default namespace
@@ -189,7 +189,7 @@ public class NamespaceResolver {
     }
 
     private static String findPrefixDeclaration(Element element, String namespaceURI) {
-        Map<String, String> attributes = element.getAttributes();
+        Map<String, String> attributes = element.attributes();
 
         for (Map.Entry<String, String> entry : attributes.entrySet()) {
             String attrName = entry.getKey();

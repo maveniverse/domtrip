@@ -22,12 +22,12 @@ public class ConfigurationTest {
         assertTrue(config.isPreserveEntities());
         assertTrue(config.isPreserveProcessingInstructions());
         assertTrue(config.isPreserveCData());
-        assertEquals("UTF-8", config.getDefaultEncoding());
-        assertEquals(QuoteStyle.DOUBLE, config.getDefaultQuoteStyle());
+        assertEquals("UTF-8", config.defaultEncoding());
+        assertEquals(QuoteStyle.DOUBLE, config.defaultQuoteStyle());
         assertTrue(config.isValidateXmlNames());
         assertFalse(config.isStrictParsing());
         assertFalse(config.isPrettyPrint());
-        assertEquals("    ", config.getIndentString());
+        assertEquals("    ", config.indentString());
     }
 
     @Test
@@ -83,12 +83,12 @@ public class ConfigurationTest {
         assertFalse(config.isPreserveEntities());
         assertFalse(config.isPreserveProcessingInstructions());
         assertFalse(config.isPreserveCData());
-        assertEquals("ISO-8859-1", config.getDefaultEncoding());
-        assertEquals(QuoteStyle.SINGLE, config.getDefaultQuoteStyle());
+        assertEquals("ISO-8859-1", config.defaultEncoding());
+        assertEquals(QuoteStyle.SINGLE, config.defaultQuoteStyle());
         assertFalse(config.isValidateXmlNames());
         assertTrue(config.isStrictParsing());
         assertTrue(config.isPrettyPrint());
-        assertEquals("\t", config.getIndentString());
+        assertEquals("\t", config.indentString());
     }
 
     @Test
@@ -97,13 +97,13 @@ public class ConfigurationTest {
                 DomTripConfig.strict().withDefaultEncoding("ISO-8859-1").withDefaultQuoteStyle(QuoteStyle.SINGLE);
 
         Editor editor = new Editor(config);
-        assertEquals(config, editor.getConfig());
+        assertEquals(config, editor.config());
 
         // Test with XML
         String xml = "<root attr=\"value\">content</root>";
         Editor editorWithXml = new Editor(xml, config);
-        assertEquals(config, editorWithXml.getConfig());
-        assertNotNull(editorWithXml.getDocument());
+        assertEquals(config, editorWithXml.config());
+        assertNotNull(editorWithXml.document());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class ConfigurationTest {
         Serializer minimalSerializer = new Serializer(DomTripConfig.minimal());
 
         Editor editor = new Editor(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
         String defaultResult = defaultSerializer.serialize(doc);
         String prettyResult = prettySerializer.serialize(doc);

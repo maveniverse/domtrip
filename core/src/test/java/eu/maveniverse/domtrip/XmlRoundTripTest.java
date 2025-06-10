@@ -85,7 +85,7 @@ public class XmlRoundTripTest {
         String originalXml = "<root>\n" + "  <existing>content</existing>\n" + "</root>";
 
         editor.loadXml(originalXml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Element newElement = editor.addElement(root, "newElement", "new content");
 
         String result = editor.toXml();
@@ -104,7 +104,7 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         editor.loadXml(originalXml);
-        Element element = editor.findElement("element");
+        Element element = editor.element("element").orElseThrow();
         editor.setAttribute(element, "attr1", "modified");
 
         String result = editor.toXml();
@@ -123,7 +123,8 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         editor.loadXml(originalXml);
-        Element toRemove = editor.findChildElement(editor.getDocumentElement(), "remove");
+        Element toRemove = editor.childElement(editor.documentElement().orElseThrow(), "remove")
+                .orElseThrow();
         editor.removeElement(toRemove);
 
         String result = editor.toXml();
@@ -155,14 +156,14 @@ public class XmlRoundTripTest {
         editor.loadXml(originalXml);
 
         // Add a new dependency
-        Element dependencies = editor.findElement("dependencies");
+        Element dependencies = editor.element("dependencies").orElseThrow();
         Element newDep = editor.addElement(dependencies, "dependency");
         editor.addElement(newDep, "groupId", "org.mockito");
         editor.addElement(newDep, "artifactId", "mockito-core");
         editor.addElement(newDep, "version", "4.6.1");
 
         // Modify version
-        Element version = editor.findElement("version");
+        Element version = editor.element("version").orElseThrow();
         editor.setTextContent(version, "1.0.1");
 
         String result = editor.toXml();
@@ -212,7 +213,7 @@ public class XmlRoundTripTest {
     @Test
     void testDocumentCreation() {
         editor.createDocument("newRoot");
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         editor.addElement(root, "child1", "content1");
         editor.addElement(root, "child2", "content2");
@@ -231,7 +232,7 @@ public class XmlRoundTripTest {
         String xml = "<root>\n" + "  <element>text</element>\n" + "  <!-- comment -->\n" + "  <another/>\n" + "</root>";
 
         editor.loadXml(xml);
-        String stats = editor.getDocumentStats();
+        String stats = editor.documentStats();
 
         assertTrue(stats.contains("3 elements")); // root, element, another
         assertTrue(stats.contains("comment"));

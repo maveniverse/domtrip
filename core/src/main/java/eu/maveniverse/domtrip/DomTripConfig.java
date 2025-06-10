@@ -49,8 +49,6 @@ package eu.maveniverse.domtrip;
  *     .withQuoteStyle(QuoteStyle.SINGLE);
  * }</pre>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Editor
  * @see Parser
  * @see Serializer
@@ -209,11 +207,11 @@ public class DomTripConfig {
         return preserveCData;
     }
 
-    public String getDefaultEncoding() {
+    public String defaultEncoding() {
         return defaultEncoding;
     }
 
-    public QuoteStyle getDefaultQuoteStyle() {
+    public QuoteStyle defaultQuoteStyle() {
         return defaultQuoteStyle;
     }
 
@@ -229,11 +227,11 @@ public class DomTripConfig {
         return prettyPrint;
     }
 
-    public String getIndentString() {
+    public String indentString() {
         return indentString;
     }
 
-    public String getLineEnding() {
+    public String lineEnding() {
         return lineEnding;
     }
 

@@ -63,23 +63,22 @@ public class ConfigurationDemo {
         // Default configuration
         Editor defaultEditor = new Editor(xml, DomTripConfig.defaults());
         System.out.println("Default configuration preserves everything:");
-        System.out.println(
-                "- Preserves whitespace: " + defaultEditor.getConfig().isPreserveWhitespace());
-        System.out.println("- Preserves comments: " + defaultEditor.getConfig().isPreserveComments());
-        System.out.println("- Preserves entities: " + defaultEditor.getConfig().isPreserveEntities());
-        System.out.println("- Default quote style: " + defaultEditor.getConfig().getDefaultQuoteStyle());
+        System.out.println("- Preserves whitespace: " + defaultEditor.config().isPreserveWhitespace());
+        System.out.println("- Preserves comments: " + defaultEditor.config().isPreserveComments());
+        System.out.println("- Preserves entities: " + defaultEditor.config().isPreserveEntities());
+        System.out.println("- Default quote style: " + defaultEditor.config().defaultQuoteStyle());
 
         // Strict configuration
         Editor strictEditor = new Editor(xml, DomTripConfig.strict());
         System.out.println("\nStrict configuration enables validation:");
-        System.out.println("- Strict parsing: " + strictEditor.getConfig().isStrictParsing());
-        System.out.println("- Validate XML names: " + strictEditor.getConfig().isValidateXmlNames());
+        System.out.println("- Strict parsing: " + strictEditor.config().isStrictParsing());
+        System.out.println("- Validate XML names: " + strictEditor.config().isValidateXmlNames());
 
         // Lenient configuration
         Editor lenientEditor = new Editor(xml, DomTripConfig.lenient());
         System.out.println("\nLenient configuration disables validation:");
-        System.out.println("- Strict parsing: " + lenientEditor.getConfig().isStrictParsing());
-        System.out.println("- Validate XML names: " + lenientEditor.getConfig().isValidateXmlNames());
+        System.out.println("- Strict parsing: " + lenientEditor.config().isStrictParsing());
+        System.out.println("- Validate XML names: " + lenientEditor.config().isValidateXmlNames());
 
         // Custom configuration
         DomTripConfig customConfig = DomTripConfig.defaults()
@@ -90,11 +89,11 @@ public class ConfigurationDemo {
 
         Editor customEditor = new Editor(xml, customConfig);
         System.out.println("\nCustom configuration:");
-        System.out.println("- Default quote style: " + customEditor.getConfig().getDefaultQuoteStyle());
-        System.out.println("- Default encoding: " + customEditor.getConfig().getDefaultEncoding());
-        System.out.println("- Indent string: '"
-                + customEditor.getConfig().getIndentString().replace("\t", "\\t") + "'");
-        System.out.println("- Pretty print: " + customEditor.getConfig().isPrettyPrint());
+        System.out.println("- Default quote style: " + customEditor.config().defaultQuoteStyle());
+        System.out.println("- Default encoding: " + customEditor.config().defaultEncoding());
+        System.out.println(
+                "- Indent string: '" + customEditor.config().indentString().replace("\t", "\\t") + "'");
+        System.out.println("- Pretty print: " + customEditor.config().isPrettyPrint());
 
         System.out.println();
     }
@@ -162,7 +161,7 @@ public class ConfigurationDemo {
         System.out.println("Quotes preserved: " + mixedQuotesXml.equals(editor.toXml()));
 
         // Demonstrate attribute builder with different quote styles
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         Attribute doubleQuoted = Attribute.builder()
                 .name("new-double")
@@ -182,12 +181,12 @@ public class ConfigurationDemo {
         System.out.println("After adding new attributes: " + editor.toXml());
 
         // Demonstrate immutable quote style changes
-        Attribute original = root.getAttributeObject("attr1");
+        Attribute original = root.attributeObject("attr1");
         Attribute modified = original.withQuoteStyle(QuoteStyle.SINGLE);
 
         System.out.println("Original attribute: " + original);
         System.out.println("Modified attribute: " + modified);
-        System.out.println("Original unchanged: " + (original.getQuoteStyle() == QuoteStyle.DOUBLE));
+        System.out.println("Original unchanged: " + (original.quoteStyle() == QuoteStyle.DOUBLE));
 
         System.out.println();
     }
@@ -224,7 +223,7 @@ public class ConfigurationDemo {
             System.out.println(prettyEditor.toXml());
 
             // Demonstrate adding elements with proper indentation
-            Element root = preserveEditor.getDocumentElement();
+            Element root = preserveEditor.documentElement().orElseThrow();
             preserveEditor.addElement(root, "newChild", "new content");
             System.out.println("\nAfter adding element (indentation preserved):");
             System.out.println(preserveEditor.toXml());

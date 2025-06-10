@@ -48,8 +48,6 @@ package eu.maveniverse.domtrip;
  *   <li>Consider comment placement for readability</li>
  * </ul>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Node
  * @see ProcessingInstruction
  */
@@ -61,7 +59,6 @@ public class Comment extends Node {
      * Creates a new XML comment with the specified content.
      *
      * @param content the comment content (without the <!-- --> delimiters)
-     * @since 1.0
      */
     public Comment(String content) {
         super();
@@ -72,10 +69,9 @@ public class Comment extends Node {
      * Returns the node type for this comment.
      *
      * @return {@link NodeType#COMMENT}
-     * @since 1.0
      */
     @Override
-    public NodeType getNodeType() {
+    public NodeType type() {
         return NodeType.COMMENT;
     }
 
@@ -85,10 +81,9 @@ public class Comment extends Node {
      * <p>Returns the text content without the surrounding comment delimiters.</p>
      *
      * @return the comment content
-     * @since 1.0
-     * @see #setContent(String)
+     * @see #content(String)
      */
-    public String getContent() {
+    public String content() {
         return content;
     }
 
@@ -99,10 +94,9 @@ public class Comment extends Node {
      * should not include the comment delimiters (<!-- -->).</p>
      *
      * @param content the new comment content, or null for empty content
-     * @since 1.0
-     * @see #getContent()
+     * @see #content()
      */
-    public void setContent(String content) {
+    public void content(String content) {
         this.content = content != null ? content : "";
         markModified();
     }
@@ -114,7 +108,6 @@ public class Comment extends Node {
      * any surrounding whitespace.</p>
      *
      * @return the XML string representation of this comment
-     * @since 1.0
      * @see #toXml(StringBuilder)
      */
     @Override
@@ -131,7 +124,6 @@ public class Comment extends Node {
      * comment delimiters, content, and following whitespace.</p>
      *
      * @param sb the StringBuilder to append the XML content to
-     * @since 1.0
      * @see #toXml()
      */
     @Override
@@ -148,7 +140,6 @@ public class Comment extends Node {
      * whitespace characters (spaces, tabs, newlines, etc.).</p>
      *
      * @return true if the comment contains only whitespace, false otherwise
-     * @since 1.0
      * @see #isEmpty()
      */
     public boolean isWhitespaceOnly() {
@@ -161,7 +152,6 @@ public class Comment extends Node {
      * <p>Returns true if the comment has no content at all.</p>
      *
      * @return true if the comment is empty, false otherwise
-     * @since 1.0
      * @see #isWhitespaceOnly()
      */
     public boolean isEmpty() {
@@ -175,7 +165,6 @@ public class Comment extends Node {
      * 50 characters, with newlines escaped for readability.</p>
      *
      * @return a string representation of this comment
-     * @since 1.0
      */
     @Override
     public String toString() {
@@ -202,7 +191,6 @@ public class Comment extends Node {
      *     .build();
      * }</pre>
      *
-     * @since 1.0
      */
     public static class Builder {
         private String content = "";
@@ -214,7 +202,6 @@ public class Comment extends Node {
          *
          * @param content the comment content
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withContent(String content) {
             this.content = content != null ? content : "";
@@ -225,7 +212,6 @@ public class Comment extends Node {
          * Builds and returns the configured Comment instance.
          *
          * @return the constructed Comment
-         * @since 1.0
          */
         public Comment build() {
             return new Comment(content);
@@ -241,7 +227,6 @@ public class Comment extends Node {
          * @param parent the parent container to add this comment to
          * @return the constructed and added Comment
          * @throws IllegalArgumentException if editor or parent is null
-         * @since 1.0
          */
         public Comment buildAndAddTo(Editor editor, ContainerNode parent) {
             if (editor == null) {
@@ -254,9 +239,9 @@ public class Comment extends Node {
             Comment builtComment = build();
 
             // Use Editor's whitespace management
-            String indentation = editor.getWhitespaceManager().inferIndentation(parent);
+            String indentation = editor.whitespaceManager().inferIndentation(parent);
             if (!indentation.isEmpty()) {
-                builtComment.setPrecedingWhitespace("\n" + indentation);
+                builtComment.precedingWhitespace("\n" + indentation);
             }
 
             parent.addChild(builtComment);
@@ -268,7 +253,6 @@ public class Comment extends Node {
      * Creates a new Comment builder instance.
      *
      * @return a new Comment.Builder for fluent comment construction
-     * @since 1.0
      */
     public static Builder builder() {
         return new Builder();

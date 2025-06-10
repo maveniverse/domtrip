@@ -43,7 +43,7 @@
  * Editor editor = new Editor(xmlString);
  *
  * // Make modifications
- * Element root = editor.getDocumentElement();
+ * Element root = editor.root();
  * editor.addElement(root, "newChild", "content");
  *
  * // Serialize with preserved formatting
@@ -77,13 +77,11 @@
  *     "http://schemas.xmlsoap.org/soap/envelope/", "Body");
  *
  * // Namespace resolution
- * String namespaceURI = element.getNamespaceURI();
- * String localName = element.getLocalName();
+ * String namespaceURI = element.namespaceURI();
+ * String localName = element.localName();
  * NamespaceContext context = element.getNamespaceContext();
  * }</pre>
  *
- * @author DomTrip Development Team
  * @version 1.0
- * @since 1.0
  */
 package eu.maveniverse.domtrip;

@@ -46,17 +46,17 @@ public class ImprovedApiDemo {
                 .build();
 
         // Create elements using factory
-        Element dependencies = Element.textElement("dependencies", "");
-        Element dependency = Element.elementWithAttributes("dependency", Map.of("scope", "test", "optional", "true"));
+        Element dependencies = Element.text("dependencies", "");
+        Element dependency = Element.withAttributes("dependency", Map.of("scope", "test", "optional", "true"));
 
         // Add using factory-created elements
-        doc.getDocumentElement().addChild(dependencies);
+        doc.root().addChild(dependencies);
         dependencies.addChild(dependency);
 
         // Add child elements
-        dependency.addChild(Element.textElement("groupId", "junit"));
-        dependency.addChild(Element.textElement("artifactId", "junit"));
-        dependency.addChild(Element.textElement("version", "4.13.2"));
+        dependency.addChild(Element.text("groupId", "junit"));
+        dependency.addChild(Element.text("artifactId", "junit"));
+        dependency.addChild(Element.text("version", "4.13.2"));
 
         System.out.println("Created document using factories:");
         System.out.println(doc.toXml());
@@ -70,7 +70,7 @@ public class ImprovedApiDemo {
         Editor editor = new Editor(DomTripConfig.defaults());
         editor.createDocument("configuration");
 
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Use fluent builder API
         editor.add()
@@ -80,7 +80,7 @@ public class ImprovedApiDemo {
                 .withAttribute("host", "localhost")
                 .build();
 
-        Element database = root.findChild("database").orElse(null);
+        Element database = root.child("database").orElse(null);
 
         editor.add()
                 .element("connection")
@@ -98,7 +98,7 @@ public class ImprovedApiDemo {
         database.setAttribute("custom-attr", "custom-value");
 
         // Show how to work with attribute objects for advanced formatting
-        Attribute originalAttr = database.getAttributeObject("custom-attr");
+        Attribute originalAttr = database.attributeObject("custom-attr");
         if (originalAttr != null) {
             // Create a modified version with different quote style (immutable operation)
             Attribute customAttr = originalAttr.withQuoteStyle(QuoteStyle.SINGLE);
@@ -153,30 +153,29 @@ public class ImprovedApiDemo {
             """;
 
         Editor editor = new Editor(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Enhanced navigation methods
         System.out.println("Finding dependencies using new navigation:");
-        root.findChild("dependencies").ifPresent(deps -> {
+        root.child("dependencies").ifPresent(deps -> {
             System.out.println("Found dependencies element");
 
             // Stream-based navigation
-            deps.findChildren("dependency").forEach(dep -> {
-                dep.findChild("groupId")
-                        .ifPresent(groupId -> System.out.println("  GroupId: " + groupId.getTextContent()));
+            deps.children("dependency").forEach(dep -> {
+                dep.child("groupId").ifPresent(groupId -> System.out.println("  GroupId: " + groupId.textContent()));
             });
         });
 
         // Find all descendants
         System.out.println("All groupId elements in document:");
         root.descendants()
-                .filter(el -> "groupId".equals(el.getName()))
-                .forEach(el -> System.out.println("  " + el.getTextContent()));
+                .filter(el -> "groupId".equals(el.name()))
+                .forEach(el -> System.out.println("  " + el.textContent()));
 
         // Check relationships
-        Element properties = root.findDescendant("properties").orElse(null);
+        Element properties = root.descendant("properties").orElse(null);
         if (properties != null) {
-            System.out.println("Properties depth: " + properties.getDepth());
+            System.out.println("Properties depth: " + properties.depth());
             System.out.println("Is descendant of root: " + properties.isDescendantOf(root));
         }
         System.out.println();

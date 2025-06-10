@@ -55,18 +55,18 @@ public class XmlConformanceTest {
                 + "  attr4=\"no-space\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
-        assertEquals("single", root.getAttribute("attr1"));
-        assertEquals("double", root.getAttribute("attr2"));
-        assertEquals("spaced", root.getAttribute("attr3"));
-        assertEquals("no-space", root.getAttribute("attr4"));
+        assertEquals("single", root.attribute("attr1"));
+        assertEquals("double", root.attribute("attr2"));
+        assertEquals("spaced", root.attribute("attr3"));
+        assertEquals("no-space", root.attribute("attr4"));
 
         // Quote styles should be preserved
-        assertEquals('\'', root.getAttributeQuote("attr1"));
-        assertEquals('"', root.getAttributeQuote("attr2"));
-        assertEquals('\'', root.getAttributeQuote("attr3"));
-        assertEquals('"', root.getAttributeQuote("attr4"));
+        assertEquals('\'', root.attributeQuote("attr1"));
+        assertEquals('"', root.attributeQuote("attr2"));
+        assertEquals('\'', root.attributeQuote("attr3"));
+        assertEquals('"', root.attributeQuote("attr4"));
     }
 
     @Test
@@ -75,8 +75,8 @@ public class XmlConformanceTest {
                 "<root>\n" + "  <text>&lt;tag&gt; &amp; &quot;quotes&quot; &apos;apostrophe&apos;</text>\n" + "</root>";
 
         editor.loadXml(xml);
-        Element textElement = (Element) editor.getDocumentElement().getChild(1);
-        String content = textElement.getTextContent();
+        Element textElement = (Element) editor.documentElement().orElseThrow().getChild(1);
+        String content = textElement.textContent();
 
         // Entities should be decoded in the content
         assertEquals("<tag> & \"quotes\" 'apostrophe'", content);
@@ -125,12 +125,12 @@ public class XmlConformanceTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element element = (Element) editor.getDocumentElement().getChild(1);
-        Element preserve = (Element) editor.getDocumentElement().getChild(3);
+        Element element = (Element) editor.documentElement().orElseThrow().getChild(1);
+        Element preserve = (Element) editor.documentElement().orElseThrow().getChild(3);
 
         // Text content should include whitespace
-        assertEquals("  content with spaces  ", element.getTextContent());
-        assertEquals("  preserve this  ", preserve.getTextContent());
+        assertEquals("  content with spaces  ", element.textContent());
+        assertEquals("  preserve this  ", preserve.textContent());
 
         String result = editor.toXml();
         assertTrue(result.contains(">  content with spaces  <"));
@@ -175,10 +175,10 @@ public class XmlConformanceTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Should have multiple children: text, element, text, element, text
-        assertTrue(root.getChildCount() >= 5);
+        assertTrue(root.nodeCount() >= 5);
 
         String result = editor.toXml();
         assertTrue(result.contains("Text before <element>"));
@@ -191,7 +191,7 @@ public class XmlConformanceTest {
         String xml = "<root>\n" + "  <element>text</element>\n" + "  <!-- comment -->\n" + "  <another/>\n" + "</root>";
 
         editor.loadXml(xml);
-        String stats = editor.getDocumentStats();
+        String stats = editor.documentStats();
 
         // Should count elements, text nodes, and comments
         assertTrue(stats.contains("3 elements")); // root, element, another

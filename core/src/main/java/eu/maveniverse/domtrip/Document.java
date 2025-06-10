@@ -29,8 +29,8 @@ package eu.maveniverse.domtrip;
  * doc.setDocumentElement(root);
  *
  * // Access document properties
- * String encoding = doc.getEncoding(); // "UTF-8"
- * String version = doc.getVersion();   // "1.0"
+ * String encoding = doc.encoding(); // "UTF-8"
+ * String version = doc.version();   // "1.0"
  *
  * // Use builder pattern for complex documents
  * Document complex = Document.builder()
@@ -52,8 +52,6 @@ package eu.maveniverse.domtrip;
  *   <li>An optional DOCTYPE declaration</li>
  * </ul>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Element
  * @see ContainerNode
  * @see Parser
@@ -62,7 +60,7 @@ public class Document extends ContainerNode {
 
     private String xmlDeclaration;
     private String doctype;
-    private Element documentElement;
+    private Element root;
     private String encoding;
     private String version;
     private boolean standalone;
@@ -74,7 +72,6 @@ public class Document extends ContainerNode {
      * and standalone set to false. The XML declaration and DOCTYPE are
      * initially empty.</p>
      *
-     * @since 1.0
      */
     public Document() {
         super();
@@ -89,10 +86,9 @@ public class Document extends ContainerNode {
      * Returns the node type for this document.
      *
      * @return {@link NodeType#DOCUMENT}
-     * @since 1.0
      */
     @Override
-    public NodeType getNodeType() {
+    public NodeType type() {
         return NodeType.DOCUMENT;
     }
 
@@ -103,10 +99,9 @@ public class Document extends ContainerNode {
      * information, formatted as: {@code <?xml version="1.0" encoding="UTF-8"?>}</p>
      *
      * @return the XML declaration string, or empty string if none is set
-     * @since 1.0
      * @see #setXmlDeclaration(String)
      */
-    public String getXmlDeclaration() {
+    public String xmlDeclaration() {
         return xmlDeclaration;
     }
 
@@ -120,7 +115,6 @@ public class Document extends ContainerNode {
      * <p>Example: {@code <?xml version="1.0" encoding="UTF-8" standalone="yes"?>}</p>
      *
      * @param xmlDeclaration the XML declaration string, or null to clear it
-     * @since 1.0
      * @see #getXmlDeclaration()
      */
     public void setXmlDeclaration(String xmlDeclaration) {
@@ -135,10 +129,9 @@ public class Document extends ContainerNode {
      * references to external DTD files or inline DTD definitions.</p>
      *
      * @return the DOCTYPE declaration string, or empty string if none is set
-     * @since 1.0
      * @see #setDoctype(String)
      */
-    public String getDoctype() {
+    public String doctype() {
         return doctype;
     }
 
@@ -153,7 +146,6 @@ public class Document extends ContainerNode {
      * "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">}</p>
      *
      * @param doctype the DOCTYPE declaration string, or null to clear it
-     * @since 1.0
      * @see #getDoctype()
      */
     public void setDoctype(String doctype) {
@@ -168,12 +160,11 @@ public class Document extends ContainerNode {
      * elements in the document. Every well-formed XML document must have exactly
      * one document element.</p>
      *
-     * @return the document element, or null if none is set
-     * @since 1.0
-     * @see #setDocumentElement(Element)
+     * @return the root element, or null if none is set
+     * @see #setRoot(Element)
      */
-    public Element getDocumentElement() {
-        return documentElement;
+    public Element root() {
+        return root;
     }
 
     /**
@@ -183,15 +174,14 @@ public class Document extends ContainerNode {
      * elements. Setting this value marks the document as modified and establishes
      * the parent-child relationship.</p>
      *
-     * @param documentElement the element to set as the document root, or null to clear it
-     * @since 1.0
+     * @param root the element to set as the document root, or null to clear it
      * @see #getDocumentElement()
      * @see #addChild(Node)
      */
-    public void setDocumentElement(Element documentElement) {
-        this.documentElement = documentElement;
-        if (documentElement != null) {
-            documentElement.setParent(this);
+    public void setRoot(Element root) {
+        this.root = root;
+        if (root != null) {
+            root.parent(this);
         }
         markModified();
     }
@@ -203,12 +193,11 @@ public class Document extends ContainerNode {
      * modification flags while still establishing the proper parent-child relationship.</p>
      *
      * @param documentElement the element to set as the document root
-     * @since 1.0
      */
     void setDocumentElementInternal(Element documentElement) {
-        this.documentElement = documentElement;
+        this.root = documentElement;
         if (documentElement != null) {
-            documentElement.setParent(this);
+            documentElement.parent(this);
         }
         // Don't call markModified() here
     }
@@ -220,10 +209,9 @@ public class Document extends ContainerNode {
      * Common values include "UTF-8", "UTF-16", "ISO-8859-1", etc.</p>
      *
      * @return the document encoding, defaults to "UTF-8"
-     * @since 1.0
      * @see #setEncoding(String)
      */
-    public String getEncoding() {
+    public String encoding() {
         return encoding;
     }
 
@@ -235,7 +223,6 @@ public class Document extends ContainerNode {
      * character encoding used.</p>
      *
      * @param encoding the character encoding to use, or null to use default "UTF-8"
-     * @since 1.0
      * @see #getEncoding()
      */
     public void setEncoding(String encoding) {
@@ -250,10 +237,9 @@ public class Document extends ContainerNode {
      * this document conforms to. Common values are "1.0" and "1.1".</p>
      *
      * @return the XML version, defaults to "1.0"
-     * @since 1.0
      * @see #setVersion(String)
      */
-    public String getVersion() {
+    public String version() {
         return version;
     }
 
@@ -264,7 +250,6 @@ public class Document extends ContainerNode {
      * should use version "1.0" unless specific XML 1.1 features are required.</p>
      *
      * @param version the XML version to use, or null to use default "1.0"
-     * @since 1.0
      * @see #getVersion()
      */
     public void setVersion(String version) {
@@ -280,7 +265,6 @@ public class Document extends ContainerNode {
      * declares that it has no external dependencies.</p>
      *
      * @return true if the document is standalone, false otherwise
-     * @since 1.0
      * @see #setStandalone(boolean)
      */
     public boolean isStandalone() {
@@ -294,7 +278,6 @@ public class Document extends ContainerNode {
      * flag affects the XML declaration output.</p>
      *
      * @param standalone true if the document is standalone, false otherwise
-     * @since 1.0
      * @see #isStandalone()
      */
     public void setStandalone(boolean standalone) {
@@ -309,7 +292,6 @@ public class Document extends ContainerNode {
      * XML declaration, DOCTYPE, and all child nodes with preserved formatting.</p>
      *
      * @return the complete XML string representation of this document
-     * @since 1.0
      * @see #toXml(StringBuilder)
      */
     @Override
@@ -334,7 +316,6 @@ public class Document extends ContainerNode {
      * </ul>
      *
      * @param sb the StringBuilder to append the XML content to
-     * @since 1.0
      * @see #toXml()
      */
     @Override
@@ -353,13 +334,13 @@ public class Document extends ContainerNode {
         sb.append(precedingWhitespace);
 
         // Add all children (comments, processing instructions, document element)
-        for (Node child : children) {
+        for (Node child : nodes) {
             child.toXml(sb);
         }
 
         // Add document element if set and not already in children
-        if (documentElement != null && !children.contains(documentElement)) {
-            documentElement.toXml(sb);
+        if (root != null && !nodes.contains(root)) {
+            root.toXml(sb);
         }
 
         // Add following whitespace
@@ -379,7 +360,6 @@ public class Document extends ContainerNode {
      * @param name the name of the element to find
      * @return the first element with the specified name, or null if not found
      * @throws NullPointerException if name is null
-     * @since 1.0
      * @see Element#findChild(String)
      */
     public Element findElement(String name) {
@@ -388,22 +368,33 @@ public class Document extends ContainerNode {
         }
 
         // First check document element
-        if (documentElement != null && name.equals(documentElement.getName())) {
-            return documentElement;
+        if (root != null && name.equals(root.name())) {
+            return root;
         }
 
         // Then search in children
-        for (Node child : children) {
+        for (Node child : nodes) {
             if (child instanceof Element) {
                 Element element = (Element) child;
-                if (name.equals(element.getName())) {
+                if (name.equals(element.name())) {
                     return element;
                 }
             }
         }
 
         // Finally search recursively in document element
-        return findElementRecursive(documentElement, name);
+        return findElementRecursive(root, name);
+    }
+
+    /**
+     * Finds the first element with the specified name in the document.
+     *
+     * @param name the name of the element to find
+     * @return the first element with the specified name, or null if not found
+     * @throws NullPointerException if name is null
+     */
+    public Element element(String name) {
+        return findElement(name);
     }
 
     /**
@@ -412,16 +403,15 @@ public class Document extends ContainerNode {
      * @param node the node to search within
      * @param name the name of the element to find
      * @return the first element with the specified name, or null if not found
-     * @since 1.0
      */
     private Element findElementRecursive(Node node, String name) {
         if (node == null) return null;
 
         if (node instanceof ContainerNode container) {
-            for (Node child : container.getChildren()) {
+            for (Node child : container.nodes) {
                 if (child instanceof Element) {
                     Element element = (Element) child;
-                    if (name.equals(element.getName())) {
+                    if (name.equals(element.name())) {
                         return element;
                     }
                     Element found = findElementRecursive(element, name);
@@ -444,7 +434,6 @@ public class Document extends ContainerNode {
      * <p>The standalone attribute is only included if the standalone flag is true.</p>
      *
      * @return a properly formatted XML declaration string
-     * @since 1.0
      * @see #getVersion()
      * @see #getEncoding()
      * @see #isStandalone()
@@ -467,12 +456,11 @@ public class Document extends ContainerNode {
      * document element (if present).</p>
      *
      * @return a string representation of this document
-     * @since 1.0
      */
     @Override
     public String toString() {
         return "Document{version='" + version + "', encoding='" + encoding + "', documentElement="
-                + (documentElement != null ? documentElement.getName() : "null") + "}";
+                + (root != null ? root.name() : "null") + "}";
     }
 
     /**
@@ -499,7 +487,6 @@ public class Document extends ContainerNode {
      *     .build();
      * }</pre>
      *
-     * @since 1.0
      */
     public static class Builder {
         private final Document document;
@@ -513,7 +500,6 @@ public class Document extends ContainerNode {
          *
          * @param version the XML version (e.g., "1.0", "1.1")
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withVersion(String version) {
             document.setVersion(version);
@@ -525,7 +511,6 @@ public class Document extends ContainerNode {
          *
          * @param encoding the character encoding (e.g., "UTF-8", "ISO-8859-1")
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withEncoding(String encoding) {
             document.setEncoding(encoding);
@@ -537,7 +522,6 @@ public class Document extends ContainerNode {
          *
          * @param standalone true if the document is standalone, false otherwise
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withStandalone(boolean standalone) {
             document.setStandalone(standalone);
@@ -549,7 +533,6 @@ public class Document extends ContainerNode {
          *
          * @param doctype the DOCTYPE declaration string
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withDoctype(String doctype) {
             document.setDoctype(doctype);
@@ -561,10 +544,9 @@ public class Document extends ContainerNode {
          *
          * @param rootElement the root element to set
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withRootElement(Element rootElement) {
-            document.setDocumentElement(rootElement);
+            document.setRoot(rootElement);
             return this;
         }
 
@@ -573,10 +555,9 @@ public class Document extends ContainerNode {
          *
          * @param rootElementName the name of the root element to create
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withRootElement(String rootElementName) {
-            document.setDocumentElement(new Element(rootElementName));
+            document.setRoot(new Element(rootElementName));
             return this;
         }
 
@@ -587,12 +568,11 @@ public class Document extends ContainerNode {
          * flag (if true) based on the current document configuration.</p>
          *
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withXmlDeclaration() {
             StringBuilder xmlDecl = new StringBuilder("<?xml version=\"");
-            xmlDecl.append(document.getVersion()).append("\"");
-            xmlDecl.append(" encoding=\"").append(document.getEncoding()).append("\"");
+            xmlDecl.append(document.version()).append("\"");
+            xmlDecl.append(" encoding=\"").append(document.encoding()).append("\"");
             if (document.isStandalone()) {
                 xmlDecl.append(" standalone=\"yes\"");
             }
@@ -605,7 +585,6 @@ public class Document extends ContainerNode {
          * Builds and returns the configured Document instance.
          *
          * @return the constructed Document
-         * @since 1.0
          */
         public Document build() {
             return document;
@@ -616,7 +595,6 @@ public class Document extends ContainerNode {
      * Creates a new Document builder instance.
      *
      * @return a new Document.Builder for fluent document construction
-     * @since 1.0
      */
     public static Builder builder() {
         return new Builder();
@@ -630,7 +608,6 @@ public class Document extends ContainerNode {
      * <p>Creates a document with UTF-8 encoding, XML version 1.0, and no XML declaration.</p>
      *
      * @return a new empty Document
-     * @since 1.0
      */
     public static Document empty() {
         return new Document();
@@ -645,7 +622,6 @@ public class Document extends ContainerNode {
      * @param version the XML version (e.g., "1.0", "1.1"), or null for default "1.0"
      * @param encoding the character encoding (e.g., "UTF-8"), or null for default "UTF-8"
      * @return a new Document with XML declaration
-     * @since 1.0
      */
     public static Document withXmlDeclaration(String version, String encoding) {
         return Document.builder()
@@ -665,7 +641,6 @@ public class Document extends ContainerNode {
      * @param encoding the character encoding, or null for default "UTF-8"
      * @param standalone true if the document is standalone, false otherwise
      * @return a new Document with XML declaration and standalone attribute
-     * @since 1.0
      */
     public static Document withXmlDeclaration(String version, String encoding, boolean standalone) {
         return Document.builder()
@@ -684,7 +659,6 @@ public class Document extends ContainerNode {
      *
      * @param rootElementName the name of the root element
      * @return a new Document with XML declaration and root element
-     * @since 1.0
      */
     public static Document withRootElement(String rootElementName) {
         return Document.builder()
@@ -705,7 +679,6 @@ public class Document extends ContainerNode {
      * @param encoding the character encoding, or null for default "UTF-8"
      * @param doctype the DOCTYPE declaration string
      * @return a new Document with XML declaration and DOCTYPE
-     * @since 1.0
      */
     public static Document withDoctype(String version, String encoding, String doctype) {
         return Document.builder()
@@ -724,7 +697,6 @@ public class Document extends ContainerNode {
      *
      * @param rootElementName the name of the root element
      * @return a new minimal Document with only a root element
-     * @since 1.0
      */
     public static Document minimal(String rootElementName) {
         return Document.builder().withRootElement(rootElementName).build();

@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,10 +27,10 @@ public class ElementAdvancedTest {
         String xml = "<root><oldName>content</oldName></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Element child = (Element) root.getChild(0);
 
-        child.setName("newName");
+        child.name("newName");
 
         String result = editor.toXml();
         assertTrue(result.contains("<newName>content</newName>"));
@@ -44,7 +44,7 @@ public class ElementAdvancedTest {
 
         // Implementation may handle null gracefully
         assertDoesNotThrow(() -> {
-            element.setName(null);
+            element.name(null);
         });
     }
 
@@ -53,7 +53,7 @@ public class ElementAdvancedTest {
         String xml = "<root attr1=\"value1\" attr2=\"value2\" attr3=\"value3\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         root.removeAttribute("attr2");
 
@@ -68,7 +68,7 @@ public class ElementAdvancedTest {
         String xml = "<root attr=\"value\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Should not throw
         assertDoesNotThrow(() -> {
@@ -81,15 +81,15 @@ public class ElementAdvancedTest {
         String xml = "<root attr1=\"value1\" attr2=\"value2\" attr3=\"value3\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Test individual attributes since getAttributeNames() doesn't exist
         assertTrue(root.hasAttribute("attr1"));
         assertTrue(root.hasAttribute("attr2"));
         assertTrue(root.hasAttribute("attr3"));
-        assertEquals("value1", root.getAttribute("attr1"));
-        assertEquals("value2", root.getAttribute("attr2"));
-        assertEquals("value3", root.getAttribute("attr3"));
+        assertEquals("value1", root.attribute("attr1"));
+        assertEquals("value2", root.attribute("attr2"));
+        assertEquals("value3", root.attribute("attr3"));
     }
 
     @Test
@@ -97,7 +97,7 @@ public class ElementAdvancedTest {
         String xml = "<root attr=\"value\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         assertTrue(root.hasAttribute("attr"));
         assertFalse(root.hasAttribute("nonexistent"));
@@ -108,11 +108,11 @@ public class ElementAdvancedTest {
         String xml = "<root attr1='single' attr2=\"double\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
-        assertEquals('\'', root.getAttributeQuote("attr1"));
-        assertEquals('"', root.getAttributeQuote("attr2"));
-        assertEquals('"', root.getAttributeQuote("nonexistent")); // Default
+        assertEquals('\'', root.attributeQuote("attr1"));
+        assertEquals('"', root.attributeQuote("attr2"));
+        assertEquals('"', root.attributeQuote("nonexistent")); // Default
     }
 
     @Test
@@ -120,7 +120,7 @@ public class ElementAdvancedTest {
         String xml = "<root/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         root.setAttribute("attr1", "value1", '\'');
         root.setAttribute("attr2", "value2", '"');
@@ -135,12 +135,12 @@ public class ElementAdvancedTest {
         String xml = "<root><empty/><normal>content</normal></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Element empty = (Element) root.getChild(0);
         Element normal = (Element) root.getChild(1);
 
-        assertTrue(empty.isSelfClosing());
-        assertFalse(normal.isSelfClosing());
+        assertTrue(empty.selfClosing());
+        assertFalse(normal.selfClosing());
     }
 
     @Test
@@ -148,11 +148,11 @@ public class ElementAdvancedTest {
         String xml = "<root><empty/></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Element empty = (Element) root.getChild(0);
 
         // Add content to self-closing element
-        empty.setTextContent("now has content");
+        empty.textContent("now has content");
 
         String result = editor.toXml();
         assertTrue(result.contains("<empty>now has content</empty>"));
@@ -164,11 +164,11 @@ public class ElementAdvancedTest {
         String xml = "<root><element>content</element></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Element element = (Element) root.getChild(0);
 
         // Remove all content
-        element.setTextContent("");
+        element.textContent("");
 
         String result = editor.toXml();
         // Should still be normal element since it was originally normal
@@ -183,12 +183,12 @@ public class ElementAdvancedTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
-        Element found = editor.findChildElement(root, "child2");
-        assertNotNull(found);
-        assertEquals("child2", found.getName());
-        assertEquals("content2", found.getTextContent());
+        Optional<Element> found = editor.childElement(root, "child2");
+        assertTrue(found.isPresent());
+        assertEquals("child2", found.orElseThrow().name());
+        assertEquals("content2", found.orElseThrow().textContent());
     }
 
     @Test
@@ -196,10 +196,10 @@ public class ElementAdvancedTest {
         String xml = "<root><child>content</child></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
-        Element found = editor.findChildElement(root, "nonexistent");
-        assertNull(found);
+        Optional<Element> found = editor.childElement(root, "nonexistent");
+        assertFalse(found.isPresent());
     }
 
     @Test
@@ -211,9 +211,9 @@ public class ElementAdvancedTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
-        assertTrue(root.getChildCount() >= 4); // At least 2 elements, 1 text, 1 comment
+        assertTrue(root.nodeCount() >= 4); // At least 2 elements, 1 text, 1 comment
     }
 
     @Test
@@ -221,11 +221,11 @@ public class ElementAdvancedTest {
         String xml = "<root><first/><second/></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         Node firstChild = root.getChild(0);
         assertTrue(firstChild instanceof Element);
-        assertEquals("first", ((Element) firstChild).getName());
+        assertEquals("first", ((Element) firstChild).name());
     }
 
     @Test
@@ -233,7 +233,7 @@ public class ElementAdvancedTest {
         String xml = "<root><child/></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Implementation may return null instead of throwing
         assertDoesNotThrow(() -> {
@@ -247,9 +247,9 @@ public class ElementAdvancedTest {
         String xml = "<root><child1/><child2/></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
-        var children = root.getChildren();
+        var children = root.nodes;
         assertNotNull(children);
         assertTrue(children.size() >= 2);
     }
@@ -259,7 +259,7 @@ public class ElementAdvancedTest {
         String xml = "<root><first/><third/></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Element second = new Element("second");
 
         root.insertChild(1, second);
@@ -279,7 +279,7 @@ public class ElementAdvancedTest {
         String xml = "<root><keep1/><remove/><keep2/></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Element toRemove = (Element) root.getChild(1);
 
         root.removeChild(toRemove);
@@ -295,7 +295,7 @@ public class ElementAdvancedTest {
         String xml = "<root><first/><second/><third/></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         Node secondChild = root.getChild(1); // Get second child
         root.removeChild(secondChild); // Remove it
@@ -311,14 +311,14 @@ public class ElementAdvancedTest {
         String xml = "<root><child1/><child2/>text content</root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Remove all children manually since clearChildren() doesn't exist
-        while (root.getChildCount() > 0) {
+        while (root.nodeCount() > 0) {
             root.removeChild(root.getChild(0));
         }
 
-        assertEquals(0, root.getChildCount());
+        assertEquals(0, root.nodeCount());
         String result = editor.toXml();
         assertTrue(result.contains("<root></root>") || result.contains("<root/>"));
     }
@@ -360,10 +360,10 @@ public class ElementAdvancedTest {
         String xml = "<root>Text before <element>element content</element> text after</root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Should have multiple children: text, element, text
-        assertTrue(root.getChildCount() >= 3);
+        assertTrue(root.nodeCount() >= 3);
 
         String result = editor.toXml();
         assertEquals(xml, result);
@@ -374,7 +374,7 @@ public class ElementAdvancedTest {
         String xml = "<root attr=\"value\"><child/></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Initially not modified (just loaded)
         assertFalse(root.isModified());

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
  * Tests for whitespace preservation when modifying text content.
  *
  * This test class ensures that DomTrip preserves formatting and whitespace
- * when using Element.setTextContent() and related text modification methods.
+ * when using Element.textContent() and related text modification methods.
  */
 class WhitespacePreservationTest {
 
@@ -27,11 +27,11 @@ class WhitespacePreservationTest {
             """;
 
         Editor editor = new Editor(originalXml);
-        Element database = editor.findElement("database");
-        Element name = database.findChild("name").orElseThrow();
+        Element database = editor.element("database").orElseThrow();
+        Element name = database.child("name").orElseThrow();
 
         // Change the text content
-        name.setTextContent("newdb");
+        name.textContent("newdb");
 
         String result = editor.toXml();
 
@@ -60,11 +60,11 @@ class WhitespacePreservationTest {
             """;
 
         Editor editor = new Editor(originalXml);
-        Element description = editor.findElement("description");
+        Element description = editor.element("description").orElseThrow();
 
         // Set multiline text content
         String newContent = "Line 1\nLine 2\nLine 3";
-        description.setTextContent(newContent);
+        description.textContent(newContent);
 
         String result = editor.toXml();
 
@@ -86,10 +86,10 @@ class WhitespacePreservationTest {
             """;
 
         Editor editor = new Editor(originalXml);
-        Element item = editor.findElement("item");
+        Element item = editor.element("item").orElseThrow();
 
         // Change content but preserve the whitespace pattern
-        item.setTextContent("   new content   ");
+        item.textContent("   new content   ");
 
         String result = editor.toXml();
 
@@ -108,12 +108,12 @@ class WhitespacePreservationTest {
             """;
 
         Editor editor = new Editor(originalXml);
-        Element path = editor.findElement("path");
-        Element command = editor.findElement("command");
+        Element path = editor.element("path").orElseThrow();
+        Element command = editor.element("command").orElseThrow();
 
         // Set content with special characters
-        path.setTextContent("/home/user/my documents/file.txt");
-        command.setTextContent("echo \"hello world\" && ls -la");
+        path.textContent("/home/user/my documents/file.txt");
+        command.textContent("echo \"hello world\" && ls -la");
 
         String result = editor.toXml();
 
@@ -139,12 +139,12 @@ class WhitespacePreservationTest {
             """;
 
         Editor editor = new Editor(originalXml);
-        Element empty = editor.findElement("empty");
-        Element selfClosing = editor.findElement("selfClosing");
+        Element empty = editor.element("empty").orElseThrow();
+        Element selfClosing = editor.element("selfClosing").orElseThrow();
 
         // Add content to empty elements
-        empty.setTextContent("now has content");
-        selfClosing.setTextContent("no longer self-closing");
+        empty.textContent("now has content");
+        selfClosing.textContent("no longer self-closing");
 
         String result = editor.toXml();
 
@@ -168,12 +168,12 @@ class WhitespacePreservationTest {
             """;
 
         Editor editor = new Editor(originalXml);
-        Element hasContent = editor.findElement("hasContent");
-        Element alsoHasContent = editor.findElement("alsoHasContent");
+        Element hasContent = editor.element("hasContent").orElseThrow();
+        Element alsoHasContent = editor.element("alsoHasContent").orElseThrow();
 
         // Clear content
-        hasContent.setTextContent("");
-        alsoHasContent.setTextContent(null);
+        hasContent.textContent("");
+        alsoHasContent.textContent(null);
 
         String result = editor.toXml();
 
@@ -198,10 +198,10 @@ class WhitespacePreservationTest {
             """;
 
         Editor editor = new Editor(originalXml);
-        Element value = editor.findElement("value");
+        Element value = editor.element("value").orElseThrow();
 
         // Change the value
-        value.setTextContent("new");
+        value.textContent("new");
 
         String result = editor.toXml();
 
@@ -229,12 +229,12 @@ class WhitespacePreservationTest {
             """;
 
         Editor editor = new Editor(originalXml);
-        Element message = editor.findElement("message");
-        Element data = editor.findElement("data");
+        Element message = editor.element("message").orElseThrow();
+        Element data = editor.element("data").orElseThrow();
 
         // Set content that needs entity encoding
-        message.setTextContent("Hello & goodbye");
-        data.setTextContent("<xml>content</xml>");
+        message.textContent("Hello & goodbye");
+        data.textContent("<xml>content</xml>");
 
         String result = editor.toXml();
 
@@ -265,10 +265,10 @@ class WhitespacePreservationTest {
             """;
 
         Editor editor = new Editor(originalXml);
-        Element version = editor.findElement("version");
+        Element version = editor.element("version").orElseThrow();
 
         // Update the version
-        version.setTextContent("2.0.0");
+        version.textContent("2.0.0");
 
         String result = editor.toXml();
 
@@ -306,13 +306,13 @@ class WhitespacePreservationTest {
         Editor editor = new Editor(originalXml);
 
         // Make multiple text content changes
-        Element host = editor.findElement("host");
-        Element port = editor.findElement("port");
-        Element url = editor.findElement("url");
+        Element host = editor.element("host").orElseThrow();
+        Element port = editor.element("port").orElseThrow();
+        Element url = editor.element("url").orElseThrow();
 
-        host.setTextContent("production.example.com");
-        port.setTextContent("443");
-        url.setTextContent("jdbc:mysql://production.example.com/prod");
+        host.textContent("production.example.com");
+        port.textContent("443");
+        url.textContent("jdbc:mysql://production.example.com/prod");
 
         String result = editor.toXml();
 
@@ -321,11 +321,12 @@ class WhitespacePreservationTest {
 
         // Verify the changes persisted
         assertEquals(
-                "production.example.com", roundTripEditor.findElement("host").getTextContent());
-        assertEquals("443", roundTripEditor.findElement("port").getTextContent());
+                "production.example.com",
+                roundTripEditor.element("host").orElseThrow().textContent());
+        assertEquals("443", roundTripEditor.element("port").orElseThrow().textContent());
         assertEquals(
                 "jdbc:mysql://production.example.com/prod",
-                roundTripEditor.findElement("url").getTextContent());
+                roundTripEditor.element("url").orElseThrow().textContent());
 
         // Verify structure is preserved
         assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));

@@ -23,7 +23,7 @@ public class PerformanceTest {
         String xml = "<root>\n" + "  <child attr='value'>content</child>\n" + "</root>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
         // Test that toXml(StringBuilder) produces same result as toXml()
         String directResult = doc.toXml();
@@ -40,7 +40,7 @@ public class PerformanceTest {
         String xml = "<element attr1='value1' attr2=\"value2\">text content</element>";
 
         editor.loadXml(xml);
-        Element element = editor.getDocumentElement();
+        Element element = editor.documentElement().orElseThrow();
 
         // Test element's toXml(StringBuilder) method
         String directResult = element.toXml();
@@ -57,7 +57,7 @@ public class PerformanceTest {
         String xml = "<root>Text with &lt;entities&gt;</root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Text textNode = (Text) root.getChild(0);
 
         // Test text node's toXml(StringBuilder) method
@@ -75,7 +75,7 @@ public class PerformanceTest {
         String xml = "<root><!-- This is a comment --></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Comment comment = (Comment) root.getChild(0);
 
         // Test comment's toXml(StringBuilder) method
@@ -92,7 +92,7 @@ public class PerformanceTest {
     void testLargeDocumentPerformance() {
         // Create a moderately large document
         editor.createDocument("root");
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Add many elements
         for (int i = 0; i < 100; i++) {
@@ -108,7 +108,7 @@ public class PerformanceTest {
 
         long start2 = System.nanoTime();
         StringBuilder sb = new StringBuilder();
-        editor.getDocument().toXml(sb);
+        editor.document().toXml(sb);
         String result2 = sb.toString();
         long time2 = System.nanoTime() - start2;
 
@@ -135,7 +135,7 @@ public class PerformanceTest {
         // Test that nested calls to toXml(StringBuilder) work correctly
         StringBuilder sb = new StringBuilder();
         sb.append("PREFIX:");
-        editor.getDocument().toXml(sb);
+        editor.document().toXml(sb);
         sb.append(":SUFFIX");
 
         String result = sb.toString();

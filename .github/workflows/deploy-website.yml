@@ -40,7 +40,8 @@ jobs:
         echo "SITE_DIR=$SITE_DIR" >> $GITHUB_ENV
         echo "SITE_URL=$SITE_URL" >> $GITHUB_ENV
         echo "SITE_PATH=$SITE_PATH" >> $GITHUB_ENV
-        QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run -DskipTests -Pinclude-javadocs -Dinclude.javadocs=true        
+        echo "FULL_URL=$FULL_URL SITE_DIR=$SITE_DIR SITE_URL=$SITE_URL SITE_PATH=$SITE_PATH"
+        QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run -DskipTests -Pinclude-javadocs        
     
     - name: Upload build artifacts
       uses: actions/upload-pages-artifact@v3

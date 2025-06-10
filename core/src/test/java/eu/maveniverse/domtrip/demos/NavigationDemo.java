@@ -198,10 +198,10 @@ public class NavigationDemo {
 
             // Check if parent has multiple children
             if (parent != null) {
-                System.out.println("  Parent has child elements: " + parent.hasChildElements());
+                System.out.println("  Parent has child elements: " + parent.hasNodeElements());
                 System.out.println("  Parent has text content: " + parent.hasTextContent());
-                System.out.println("  Number of sibling elements: "
-                        + (parent.childElements().count() - 1)); // Subtract self
+                System.out.println(
+                        "  Number of sibling elements: " + (parent.children().count() - 1)); // Subtract self
             }
         });
 
@@ -255,7 +255,7 @@ public class NavigationDemo {
             sections.children("section")
                     .filter(section -> {
                         return section.child("books")
-                                .map(books -> books.childElements().count() > 1)
+                                .map(books -> books.children().count() > 1)
                                 .orElse(false);
                     })
                     .forEach(section -> {
@@ -263,7 +263,7 @@ public class NavigationDemo {
                                 .map(element -> element.textContent())
                                 .orElse("Unknown");
                         long bookCount = section.child("books")
-                                .map(books -> books.childElements().count())
+                                .map(books -> books.children().count())
                                 .orElse(0L);
                         System.out.println("  - " + name + " (" + bookCount + " books)");
                     });
@@ -304,10 +304,10 @@ public class NavigationDemo {
 
         System.out.println(indent + element.name() + attrs);
 
-        if (element.hasTextContent() && !element.hasChildElements()) {
+        if (element.hasTextContent() && !element.hasNodeElements()) {
             System.out.println(indent + "  \"" + element.textContent().trim() + "\"");
         }
 
-        element.childElements().forEach(child -> printTreeStructure(child, depth + 1));
+        element.children().forEach(child -> printTreeStructure(child, depth + 1));
     }
 }

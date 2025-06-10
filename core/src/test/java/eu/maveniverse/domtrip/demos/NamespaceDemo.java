@@ -94,11 +94,11 @@ public class NamespaceDemo {
                 .namespaceDeclaration("content", "http://example.com/content");
 
         // Add children in different namespaces using QName
-        root.addChild(Element.text(QName.of("http://example.com/metadata", "title", "meta"), "Document Title"));
-        root.addChild(Element.text(QName.of("http://example.com/metadata", "author", "meta"), "John Doe"));
-        root.addChild(Element.text(QName.of("http://example.com/doc", "summary"), "Document summary"));
-        root.addChild(Element.text(QName.of("http://example.com/content", "section", "content"), "Section 1"));
-        root.addChild(Element.text(QName.of("http://example.com/content", "section", "content"), "Section 2"));
+        root.addNode(Element.text(QName.of("http://example.com/metadata", "title", "meta"), "Document Title"));
+        root.addNode(Element.text(QName.of("http://example.com/metadata", "author", "meta"), "John Doe"));
+        root.addNode(Element.text(QName.of("http://example.com/doc", "summary"), "Document summary"));
+        root.addNode(Element.text(QName.of("http://example.com/content", "section", "content"), "Section 1"));
+        root.addNode(Element.text(QName.of("http://example.com/content", "section", "content"), "Section 2"));
 
         System.out.println("Created document:\n" + root.toXml());
 
@@ -185,18 +185,18 @@ public class NamespaceDemo {
 
         // Create header using QName
         Element header = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Header", "soap"));
-        soapEnvelope.addChild(header);
+        soapEnvelope.addNode(header);
 
         // Create body using QName
         Element body = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"));
 
         // Add a custom method call in body using QName
         Element methodCall = Element.of("GetUserInfo").namespaceDeclaration(null, "http://example.com/userservice");
-        methodCall.addChild(Element.text(QName.of("http://example.com/userservice", "userId"), "12345"));
-        methodCall.addChild(Element.text(QName.of("http://example.com/userservice", "includeDetails"), "true"));
+        methodCall.addNode(Element.text(QName.of("http://example.com/userservice", "userId"), "12345"));
+        methodCall.addNode(Element.text(QName.of("http://example.com/userservice", "includeDetails"), "true"));
 
-        body.addChild(methodCall);
-        soapEnvelope.addChild(body);
+        body.addNode(methodCall);
+        soapEnvelope.addNode(body);
 
         System.out.println("SOAP envelope with namespaces:");
         System.out.println(soapEnvelope.toXml());

@@ -183,7 +183,7 @@ public class SerializerTest {
 
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
-        Element element = (Element) root.getChild(0);
+        Element element = (Element) root.getNode(0);
 
         // Modify the element
         element.attribute("attr", "modified");
@@ -224,7 +224,7 @@ public class SerializerTest {
             Element child = new Element("element" + i);
             child.attribute("id", String.valueOf(i));
             child.textContent("Content " + i);
-            root.addChild(child);
+            root.addNode(child);
         }
 
         String result = serializer.serialize(doc);
@@ -248,7 +248,7 @@ public class SerializerTest {
         Element current = root;
         for (int i = 0; i < 100; i++) {
             Element child = new Element("level" + i);
-            current.addChild(child);
+            current.addNode(child);
             current = child;
         }
         current.textContent("deep content");
@@ -329,7 +329,7 @@ public class SerializerTest {
             child.attribute("id", String.valueOf(i));
             child.attribute("name", "element" + i);
             child.textContent("Content for element " + i);
-            root.addChild(child);
+            root.addNode(child);
         }
 
         // Measure serialization time

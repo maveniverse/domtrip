@@ -466,7 +466,7 @@ public class Element extends ContainerNode {
         // Add new text content if not empty
         if (content != null && !content.isEmpty()) {
             Text textNode = new Text(content);
-            addChild(textNode);
+            addNode(textNode);
         }
 
         markModified();
@@ -867,7 +867,7 @@ public class Element extends ContainerNode {
     public static Element text(String name, String content) {
         Element element = new Element(name);
         if (content != null && !content.isEmpty()) {
-            element.addChild(new Text(content));
+            element.addNode(new Text(content));
         }
         return element;
     }
@@ -924,7 +924,7 @@ public class Element extends ContainerNode {
             }
         }
         if (content != null && !content.isEmpty()) {
-            element.addChild(new Text(content));
+            element.addNode(new Text(content));
         }
         return element;
     }
@@ -943,7 +943,7 @@ public class Element extends ContainerNode {
     public static Element cdata(String name, String content) {
         Element element = new Element(name);
         if (content != null) {
-            element.addChild(new Text(content, true));
+            element.addNode(new Text(content, true));
         }
         return element;
     }
@@ -990,7 +990,7 @@ public class Element extends ContainerNode {
     public static Element text(QName qname, String content) {
         Element element = element(qname);
         if (content != null && !content.isEmpty()) {
-            element.addChild(new Text(content));
+            element.addNode(new Text(content));
         }
         return element;
     }

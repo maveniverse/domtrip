@@ -131,7 +131,7 @@ public class EntityPreservationTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element modify = (Element) editor.root().orElseThrow().getChild(3); // Find modify element
+        Element modify = (Element) editor.root().orElseThrow().getNode(3); // Find modify element
         modify.textContent("new content");
 
         String result = editor.toXml();

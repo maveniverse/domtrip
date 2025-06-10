@@ -75,7 +75,7 @@ public class XmlConformanceTest {
                 "<root>\n" + "  <text>&lt;tag&gt; &amp; &quot;quotes&quot; &apos;apostrophe&apos;</text>\n" + "</root>";
 
         editor.loadXml(xml);
-        Element textElement = (Element) editor.root().orElseThrow().getChild(1);
+        Element textElement = (Element) editor.root().orElseThrow().getNode(1);
         String content = textElement.textContent();
 
         // Entities should be decoded in the content
@@ -125,8 +125,8 @@ public class XmlConformanceTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element element = (Element) editor.root().orElseThrow().getChild(1);
-        Element preserve = (Element) editor.root().orElseThrow().getChild(3);
+        Element element = (Element) editor.root().orElseThrow().getNode(1);
+        Element preserve = (Element) editor.root().orElseThrow().getNode(3);
 
         // Text content should include whitespace
         assertEquals("  content with spaces  ", element.textContent());

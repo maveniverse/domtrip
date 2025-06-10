@@ -181,7 +181,7 @@ public class Document extends ContainerNode {
      * @param root the element to set as the document root, or null to clear it
      * @return this document for method chaining
      * @see #root()
-     * @see #addChild(Node)
+     * @see #addNode(Node)
      */
     public Document root(Element root) {
         this.root = root;

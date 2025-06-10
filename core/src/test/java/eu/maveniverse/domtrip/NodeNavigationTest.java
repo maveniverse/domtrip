@@ -17,10 +17,10 @@ class NodeNavigationTest {
         Text text = new Text("Hello");
         Comment comment = new Comment("A comment");
 
-        doc.addChild(root);
-        root.addChild(child);
-        child.addChild(text);
-        child.addChild(comment);
+        doc.addNode(root);
+        root.addNode(child);
+        child.addNode(text);
+        child.addNode(comment);
 
         // Test that getParent() returns ContainerNode
         ContainerNode rootParent = root.parent();
@@ -51,10 +51,10 @@ class NodeNavigationTest {
         Text text = new Text("Hello");
         Comment comment = new Comment("A comment");
 
-        doc.addChild(root);
-        root.addChild(child);
-        child.addChild(text);
-        child.addChild(comment);
+        doc.addNode(root);
+        root.addNode(child);
+        child.addNode(text);
+        child.addNode(comment);
 
         // Root element's parent is Document, so getParentElement() returns null
         assertNull(root.parentElement());
@@ -83,10 +83,10 @@ class NodeNavigationTest {
         Text text = new Text("Hello");
         Comment comment = new Comment("A comment");
 
-        doc.addChild(root);
-        root.addChild(child);
-        child.addChild(text);
-        child.addChild(comment);
+        doc.addNode(root);
+        root.addNode(child);
+        child.addNode(text);
+        child.addNode(comment);
 
         // All nodes should return the same document
         assertSame(doc, root.document());
@@ -105,9 +105,9 @@ class NodeNavigationTest {
         Element child = new Element("child");
         Text text = new Text("Hello");
 
-        doc.addChild(root);
-        root.addChild(child);
-        child.addChild(text);
+        doc.addNode(root);
+        root.addNode(child);
+        child.addNode(text);
 
         // All nodes should return the document
         Document docDoc = doc.document();
@@ -128,8 +128,8 @@ class NodeNavigationTest {
         Element child = new Element("child");
         Text text = new Text("Hello");
 
-        fragmentRoot.addChild(child);
-        child.addChild(text);
+        fragmentRoot.addNode(child);
+        child.addNode(text);
 
         // getParent() tests
         assertNull(fragmentRoot.parent());

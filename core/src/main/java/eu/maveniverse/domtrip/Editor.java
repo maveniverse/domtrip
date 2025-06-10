@@ -248,26 +248,26 @@ public class Editor {
         // If so, insert the new element before it, and add proper closing whitespace after
         int childCount = parent.nodeCount();
         if (childCount > 0) {
-            Node lastChild = parent.getChild(childCount - 1);
+            Node lastChild = parent.getNode(childCount - 1);
             if (lastChild instanceof Text lastText) {
                 String content = lastText.content();
                 // Use WhitespaceManager to check if it's whitespace only
                 if (whitespaceManager.isWhitespaceOnly(content) && content.contains("\n")) {
                     // Insert before the last text node
-                    parent.insertChild(childCount - 1, newElement);
+                    parent.insertNode(childCount - 1, newElement);
                     return newElement;
                 }
             }
         }
 
         // Default: add at the end
-        parent.addChild(newElement);
+        parent.addNode(newElement);
 
         // Add closing whitespace if parent has indentation
         if (!indentation.isEmpty() && parent.parent() != null) {
             String parentIndent = whitespaceManager.inferIndentation(parent.parent());
             Text closingWhitespace = new Text("\n" + parentIndent);
-            parent.addChild(closingWhitespace);
+            parent.addNode(closingWhitespace);
         }
 
         return newElement;
@@ -317,13 +317,13 @@ public class Editor {
             newElement.precedingWhitespace("\n" + indentation);
         }
 
-        parent.addChild(newElement);
+        parent.addNode(newElement);
 
         // Add closing whitespace if parent has indentation
         if (!indentation.isEmpty() && parent.parent() != null) {
             String parentIndent = whitespaceManager.inferIndentation(parent.parent());
             Text closingWhitespace = new Text("\n" + parentIndent);
-            parent.addChild(closingWhitespace);
+            parent.addNode(closingWhitespace);
         }
 
         return newElement;
@@ -356,7 +356,7 @@ public class Editor {
 
         Node parent = element.parent();
         if (parent instanceof ContainerNode container) {
-            return container.removeChild(element);
+            return container.removeNode(element);
         }
         return false;
     }
@@ -457,7 +457,7 @@ public class Editor {
             comment.precedingWhitespace("\n" + indentation);
         }
 
-        parent.addChild(comment);
+        parent.addNode(comment);
         return comment;
     }
 
@@ -531,10 +531,7 @@ public class Editor {
         }
 
         return Arrays.stream(path)
-                .reduce(
-                        root(),
-                        (current, elementName) -> current.flatMap(el -> el.child(elementName)),
-                        (a, b) -> b);
+                .reduce(root(), (current, elementName) -> current.flatMap(el -> el.child(elementName)), (a, b) -> b);
     }
 
     /**
@@ -553,28 +550,6 @@ public class Editor {
     }
 
     /**
-     * Finds the first child element with the given name under the specified parent.
-     *
-     * @param parent the parent element
-     * @param name the child element name
-     * @return an Optional containing the first matching child element, or empty if none found
-     */
-    public Optional<Element> child(Element parent, String name) {
-        return parent != null ? parent.child(name) : Optional.empty();
-    }
-
-    /**
-     * Finds the first child element with the given QName under the specified parent.
-     *
-     * @param parent the parent element
-     * @param qname the child element QName
-     * @return an Optional containing the first matching child element, or empty if none found
-     */
-    public Optional<Element> child(Element parent, QName qname) {
-        return parent != null ? parent.child(qname) : Optional.empty();
-    }
-
-    /**
      * Creates a new XML document with the specified root element
      */
     public void createDocument(String rootElementName) throws InvalidXmlException {
@@ -587,7 +562,7 @@ public class Editor {
         document.xmlDeclaration("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         Element rootElement = new Element(rootElementName.trim());
         document.root(rootElement);
-        document.addChild(rootElement);
+        document.addNode(rootElement);
     }
 
     /**
@@ -665,8 +640,7 @@ public class Editor {
      */
     public Element findOrCreateElement(String name) throws InvalidXmlException {
         return element(name).orElseGet(() -> {
-            Element root = root()
-                    .orElseThrow(
+            Element root = root().orElseThrow(
                             () -> new InvalidXmlException("No document root element available to add new element"));
             try {
                 return addElement(root, name);
@@ -689,8 +663,7 @@ public class Editor {
         }
 
         return element(qname).orElseGet(() -> {
-            Element root = root()
-                    .orElseThrow(
+            Element root = root().orElseThrow(
                             () -> new InvalidXmlException("No document root element available to add new element"));
             try {
                 return addElement(root, qname);
@@ -956,7 +929,7 @@ public class Editor {
          */
         public EditorElementBuilder withText(String content) {
             if (content != null && !content.isEmpty()) {
-                element.addChild(new Text(content));
+                element.addNode(new Text(content));
             }
             return this;
         }
@@ -1046,7 +1019,7 @@ public class Editor {
                 element.precedingWhitespace("\n" + indentation);
             }
 
-            parent.addChild(element);
+            parent.addNode(element);
             return element;
         }
     }
@@ -1107,7 +1080,7 @@ public class Editor {
                 comment.precedingWhitespace("\n" + indentation);
             }
 
-            parent.addChild(comment);
+            parent.addNode(comment);
             return comment;
         }
     }
@@ -1171,7 +1144,7 @@ public class Editor {
                 throw new IllegalStateException("Parent node must be specified");
             }
 
-            parent.addChild(text);
+            parent.addNode(text);
             return text;
         }
     }

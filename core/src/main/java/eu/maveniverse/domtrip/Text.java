@@ -437,7 +437,7 @@ public class Text extends Node {
             }
 
             Text builtText = build();
-            parent.addChild(builtText);
+            parent.addNode(builtText);
             return builtText;
         }
     }

@@ -44,19 +44,19 @@ public class ContainerNodeTest {
         Text text = new Text("text content");
 
         // Test adding children
-        parent.addChild(child1);
-        parent.addChild(child2);
-        parent.addChild(text);
+        parent.addNode(child1);
+        parent.addNode(child2);
+        parent.addNode(text);
 
         assertEquals(3, parent.nodeCount());
-        assertEquals(child1, parent.getChild(0));
-        assertEquals(child2, parent.getChild(1));
-        assertEquals(text, parent.getChild(2));
+        assertEquals(child1, parent.getNode(0));
+        assertEquals(child2, parent.getNode(1));
+        assertEquals(text, parent.getNode(2));
 
         // Test removing children
-        assertTrue(parent.removeChild(child2));
+        assertTrue(parent.removeNode(child2));
         assertEquals(2, parent.nodeCount());
-        assertFalse(parent.removeChild(child2)); // Already removed
+        assertFalse(parent.removeNode(child2)); // Already removed
 
         // Test child parent relationships
         assertEquals(parent, child1.parent());
@@ -72,15 +72,15 @@ public class ContainerNodeTest {
         Element other = new Element("other");
         Text text = new Text("text");
 
-        root.addChild(child1);
-        root.addChild(text);
-        root.addChild(child2);
-        root.addChild(other);
+        root.addNode(child1);
+        root.addNode(text);
+        root.addNode(child2);
+        root.addNode(other);
 
         // Test element-specific navigation methods
         assertEquals(child1, root.child("child").orElse(null));
         assertEquals(2, root.children("child").count());
-        assertEquals(3, root.childElements().count()); // Excludes text node
+        assertEquals(3, root.children().count()); // Excludes text node
 
         // Test that these methods are only available on Element, not on leaf nodes
         // This is enforced by the type system - leaf nodes don't have these methods
@@ -122,8 +122,8 @@ public class ContainerNodeTest {
         assertTrue(document instanceof ContainerNode);
 
         // Verify they can manage children
-        element.addChild(text);
-        document.addChild(element);
+        element.addNode(text);
+        document.addNode(element);
 
         assertEquals(1, element.nodeCount());
         assertEquals(1, document.nodeCount());
@@ -135,8 +135,8 @@ public class ContainerNodeTest {
         Element child = new Element("child");
         Text text = new Text("content");
 
-        root.addChild(child);
-        child.addChild(text);
+        root.addNode(child);
+        child.addNode(text);
 
         // Mark nodes as modified
         root.markModified();

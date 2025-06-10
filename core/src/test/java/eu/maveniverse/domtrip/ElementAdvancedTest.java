@@ -28,7 +28,7 @@ public class ElementAdvancedTest {
 
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
-        Element child = (Element) root.getChild(0);
+        Element child = (Element) root.getNode(0);
 
         child.name("newName");
 
@@ -136,8 +136,8 @@ public class ElementAdvancedTest {
 
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
-        Element empty = (Element) root.getChild(0);
-        Element normal = (Element) root.getChild(1);
+        Element empty = (Element) root.getNode(0);
+        Element normal = (Element) root.getNode(1);
 
         assertTrue(empty.selfClosing());
         assertFalse(normal.selfClosing());
@@ -149,7 +149,7 @@ public class ElementAdvancedTest {
 
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
-        Element empty = (Element) root.getChild(0);
+        Element empty = (Element) root.getNode(0);
 
         // Add content to self-closing element
         empty.textContent("now has content");
@@ -165,7 +165,7 @@ public class ElementAdvancedTest {
 
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
-        Element element = (Element) root.getChild(0);
+        Element element = (Element) root.getNode(0);
 
         // Remove all content
         element.textContent("");
@@ -185,7 +185,7 @@ public class ElementAdvancedTest {
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
 
-        Optional<Element> found = editor.child(root, "child2");
+        Optional<Element> found = root.child("child2");
         assertTrue(found.isPresent());
         assertEquals("child2", found.orElseThrow().name());
         assertEquals("content2", found.orElseThrow().textContent());
@@ -198,7 +198,7 @@ public class ElementAdvancedTest {
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
 
-        Optional<Element> found = editor.child(root, "nonexistent");
+        Optional<Element> found = root.child("nonexistent");
         assertFalse(found.isPresent());
     }
 
@@ -223,7 +223,7 @@ public class ElementAdvancedTest {
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
 
-        Node firstChild = root.getChild(0);
+        Node firstChild = root.getNode(0);
         assertTrue(firstChild instanceof Element);
         assertEquals("first", ((Element) firstChild).name());
     }
@@ -237,7 +237,7 @@ public class ElementAdvancedTest {
 
         // Implementation may return null instead of throwing
         assertDoesNotThrow(() -> {
-            Node result = root.getChild(10);
+            Node result = root.getNode(10);
             // May be null or throw, both are acceptable
         });
     }
@@ -262,7 +262,7 @@ public class ElementAdvancedTest {
         Element root = editor.root().orElseThrow();
         Element second = new Element("second");
 
-        root.insertChild(1, second);
+        root.insertNode(1, second);
 
         String result = editor.toXml();
         // Order should be first, second, third
@@ -280,9 +280,9 @@ public class ElementAdvancedTest {
 
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
-        Element toRemove = (Element) root.getChild(1);
+        Element toRemove = (Element) root.getNode(1);
 
-        root.removeChild(toRemove);
+        root.removeNode(toRemove);
 
         String result = editor.toXml();
         assertTrue(result.contains("<keep1"));
@@ -297,8 +297,8 @@ public class ElementAdvancedTest {
         editor.loadXml(xml);
         Element root = editor.root().orElseThrow();
 
-        Node secondChild = root.getChild(1); // Get second child
-        root.removeChild(secondChild); // Remove it
+        Node secondChild = root.getNode(1); // Get second child
+        root.removeNode(secondChild); // Remove it
 
         String result = editor.toXml();
         assertTrue(result.contains("<first"));
@@ -315,7 +315,7 @@ public class ElementAdvancedTest {
 
         // Remove all children manually since clearChildren() doesn't exist
         while (root.nodeCount() > 0) {
-            root.removeChild(root.getChild(0));
+            root.removeNode(root.getNode(0));
         }
 
         assertEquals(0, root.nodeCount());
@@ -328,8 +328,8 @@ public class ElementAdvancedTest {
         Element element = new Element("testElement");
         element.attribute("attr1", "value1");
         element.attribute("attr2", "value2");
-        element.addChild(new Element("child1"));
-        element.addChild(new Element("child2"));
+        element.addNode(new Element("child1"));
+        element.addNode(new Element("child2"));
 
         String str = element.toString();
         assertTrue(str.contains("Element{"));

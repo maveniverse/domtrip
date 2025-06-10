@@ -244,7 +244,7 @@ public class Comment extends Node {
                 builtComment.precedingWhitespace("\n" + indentation);
             }
 
-            parent.addChild(builtComment);
+            parent.addNode(builtComment);
             return builtComment;
         }
     }

@@ -51,7 +51,7 @@ public class ElementQuery {
 
     private final Element rootElement;
     private final Stream<Element> baseStream;
-    private Predicate<Element> filter;
+    private final Predicate<Element> filter;
 
     /**
      * Creates a new ElementQuery starting from the given element.

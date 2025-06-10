@@ -286,7 +286,6 @@ public class SerializerTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
         StringBuilder sb = new StringBuilder();
         doc.toXml(sb);

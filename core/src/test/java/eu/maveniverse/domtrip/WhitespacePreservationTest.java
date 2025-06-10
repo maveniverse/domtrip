@@ -26,7 +26,8 @@ class WhitespacePreservationTest {
             </config>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
         Element database = doc.root().descendant("database").orElseThrow();
         Element name = database.child("name").orElseThrow();
 
@@ -59,7 +60,8 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
         Element description = doc.root().descendant("description").orElseThrow();
 
         // Set multiline text content
@@ -85,7 +87,8 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
         Element item = doc.root().descendant("item").orElseThrow();
 
         // Change content but preserve the whitespace pattern
@@ -107,7 +110,8 @@ class WhitespacePreservationTest {
             </config>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
         Element path = doc.root().descendant("path").orElseThrow();
         Element command = doc.root().descendant("command").orElseThrow();
 
@@ -138,7 +142,8 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
         Element empty = doc.root().descendant("empty").orElseThrow();
         Element selfClosing = doc.root().descendant("selfClosing").orElseThrow();
 
@@ -167,7 +172,8 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
         Element hasContent = doc.root().descendant("hasContent").orElseThrow();
         Element alsoHasContent = doc.root().descendant("alsoHasContent").orElseThrow();
 
@@ -197,7 +203,8 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
         Element value = doc.root().descendant("value").orElseThrow();
 
         // Change the value
@@ -228,7 +235,8 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
         Element message = doc.root().descendant("message").orElseThrow();
         Element data = doc.root().descendant("data").orElseThrow();
 
@@ -264,7 +272,8 @@ class WhitespacePreservationTest {
             </project>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
         Element version = doc.root().descendant("version").orElseThrow();
 
         // Update the version
@@ -303,7 +312,8 @@ class WhitespacePreservationTest {
             </config>
             """;
 
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
 
         // Make multiple text content changes
         Element host = doc.root().descendant("host").orElseThrow();
@@ -322,11 +332,28 @@ class WhitespacePreservationTest {
         // Verify the changes persisted
         assertEquals(
                 "production.example.com",
-                roundTripEditor.element("host").orElseThrow().textContent());
-        assertEquals("443", roundTripEditor.element("port").orElseThrow().textContent());
+                roundTripEditor
+                        .root()
+                        .orElseThrow()
+                        .descendant("host")
+                        .orElseThrow()
+                        .textContent());
+        assertEquals(
+                "443",
+                roundTripEditor
+                        .root()
+                        .orElseThrow()
+                        .descendant("port")
+                        .orElseThrow()
+                        .textContent());
         assertEquals(
                 "jdbc:mysql://production.example.com/prod",
-                roundTripEditor.element("url").orElseThrow().textContent());
+                roundTripEditor
+                        .root()
+                        .orElseThrow()
+                        .descendant("url")
+                        .orElseThrow()
+                        .textContent());
 
         // Verify structure is preserved
         assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));

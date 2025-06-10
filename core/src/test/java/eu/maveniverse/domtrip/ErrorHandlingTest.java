@@ -173,6 +173,7 @@ public class ErrorHandlingTest {
     @Test
     void testFindElementInEmptyDocument() {
         // Don't load any XML
+        Document doc = Document.of("<root/>");
         Optional<Element> result = doc.root().descendant("nonexistent");
         assertFalse(result.isPresent());
     }
@@ -184,8 +185,7 @@ public class ErrorHandlingTest {
         Editor editor = new Editor(doc);
 
         // This should return empty Optional for null name
-        Optional<Element> result = doc.root().descendant((String) null);
-        assertFalse(result.isPresent());
+        assertThrows(NullPointerException.class, () -> doc.root().descendant((String) null));
     }
 
     @Test
@@ -224,10 +224,10 @@ public class ErrorHandlingTest {
         }
         largeXml.append("</root>");
 
-        editor.loadXml(largeXml.toString());
+        editor = new Editor(Document.of(largeXml.toString()));
         String result = editor.toXml();
         assertNotNull(result);
-        assertTrue(result.length() > 0);
+        assertTrue(!result.isEmpty());
     }
 
     @Test
@@ -244,7 +244,7 @@ public class ErrorHandlingTest {
             nestedXml.append("</level").append(i).append(">");
         }
 
-        editor.loadXml(nestedXml.toString());
+        editor = new Editor(Document.of(nestedXml.toString()));
         String result = editor.toXml();
         assertNotNull(result);
         assertTrue(result.contains("content"));
@@ -264,7 +264,7 @@ public class ErrorHandlingTest {
         }
         xmlWithManyAttrs.append("/>");
 
-        editor.loadXml(xmlWithManyAttrs.toString());
+        editor = new Editor(Document.of(xmlWithManyAttrs.toString()));
         Element root = editor.root().orElseThrow();
         assertEquals("value0", root.attribute("attr0"));
         assertEquals("value49", root.attribute("attr49"));

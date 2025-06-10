@@ -66,7 +66,7 @@ public class ImprovedApiDemo {
         System.out.println("2. Fluent Builders Demo:");
 
         // Create editor with configuration
-        Editor editor = new Editor(Document.of(DomTripConfig.defaults()));
+        Editor editor = new Editor(DomTripConfig.defaults());
         editor.createDocument("configuration");
 
         Element root = editor.root().orElseThrow();
@@ -116,15 +116,15 @@ public class ImprovedApiDemo {
         String xml = "<root><element attr=\"value\">content</element></root>";
 
         // Default configuration
-        Editor defaultEditor = new Editor(Document.of(xml, DomTripConfig.defaults()));
+        Editor defaultEditor = new Editor(Document.of(xml), DomTripConfig.defaults());
         System.out.println("Default config: " + defaultEditor.toXml());
 
         // Strict configuration
-        Editor strictEditor = new Editor(Document.of(xml, DomTripConfig.strict()));
+        Editor strictEditor = new Editor(Document.of(xml), DomTripConfig.strict());
         System.out.println("Strict config: " + strictEditor.toXml());
 
         // Pretty print configuration
-        Editor prettyEditor = new Editor(Document.of(xml, DomTripConfig.prettyPrint()));
+        Editor prettyEditor = new Editor(Document.of(xml), DomTripConfig.prettyPrint());
         System.out.println("Pretty print config: " + prettyEditor.toXml());
         System.out.println();
     }

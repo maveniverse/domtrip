@@ -216,7 +216,7 @@ public class AttributeFormattingPreservationTest {
         Element root = doc.root();
 
         // Add new attribute via Editor - should infer single quotes (majority)
-        root.attribute("attr4", "value4");
+        editor.setAttribute(root, "attr4", "value4");
 
         assertEquals('\'', root.attributeQuote("attr4"));
         assertEquals("value4", root.attribute("attr4"));
@@ -254,7 +254,7 @@ public class AttributeFormattingPreservationTest {
         assertTrue(existingWhitespace.length() > 1, "attr2 should have custom whitespace");
 
         // Add new attribute via Editor - should infer custom spacing
-        root.attribute("attr3", "value3");
+        editor.setAttribute(root, "attr3", "value3");
 
         String attr3Whitespace = root.attributeObject("attr3").precedingWhitespace();
         assertEquals(existingWhitespace, attr3Whitespace);
@@ -270,7 +270,7 @@ public class AttributeFormattingPreservationTest {
         Element element = doc.root();
 
         // Add new attribute via Editor - should infer alignment pattern
-        element.attribute("attr3", "value3");
+        editor.setAttribute(element, "attr3", "value3");
 
         String result = editor.toXml();
 
@@ -319,7 +319,7 @@ public class AttributeFormattingPreservationTest {
         Element element = doc.root();
 
         // This is the exact call from the documentation
-        element.attribute("attr3", "value3");
+        editor.setAttribute(element, "attr3", "value3");
 
         String result = editor.toXml();
 
@@ -399,7 +399,7 @@ public class AttributeFormattingPreservationTest {
         Element config = doc.root().descendant("configuration").orElseThrow();
 
         // Add new attribute via Editor - should infer alignment
-        config.attribute("newAttr", "newValue");
+        editor.setAttribute(config, "newAttr", "newValue");
 
         String result = editor.toXml();
 

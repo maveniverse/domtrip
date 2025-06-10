@@ -12,7 +12,7 @@ class EditorConstructorTest {
 
     @Test
     void testDefaultConstructor() {
-        Editor editor = new Editor(Document.of());
+        Editor editor = new Editor();
         assertNotNull(editor);
         assertNull(editor.document());
         assertNotNull(editor.config());
@@ -21,7 +21,7 @@ class EditorConstructorTest {
     @Test
     void testConfigConstructor() {
         DomTripConfig config = DomTripConfig.prettyPrint();
-        Editor editor = new Editor(Document.of(config));
+        Editor editor = new Editor(config);
         assertNotNull(editor);
         assertNull(editor.document());
         assertEquals(config, editor.config());
@@ -40,7 +40,7 @@ class EditorConstructorTest {
     void testStringWithConfigConstructor() throws ParseException {
         String xml = "<?xml version=\"1.0\"?><root><child>value</child></root>";
         DomTripConfig config = DomTripConfig.minimal();
-        Editor editor = new Editor(Document.of(xml, config));
+        Editor editor = new Editor(Document.of(xml), config);
         assertNotNull(editor);
         assertNotNull(editor.document());
         assertEquals("root", editor.root().orElseThrow().name());
@@ -52,7 +52,7 @@ class EditorConstructorTest {
         // Create a document programmatically
         Document doc = Document.of().root(new Element("project"));
 
-        Editor editor = new Editor(Document.of(doc));
+        Editor editor = new Editor(doc);
         assertNotNull(editor);
         assertSame(doc, editor.document());
         assertEquals("project", editor.root().orElseThrow().name());
@@ -66,7 +66,7 @@ class EditorConstructorTest {
 
         DomTripConfig config = DomTripConfig.prettyPrint().withIndentString("  ");
 
-        Editor editor = new Editor(Document.of(doc, config));
+        Editor editor = new Editor(doc, config);
         assertNotNull(editor);
         assertSame(doc, editor.document());
         assertEquals("maven", editor.root().orElseThrow().name());
@@ -78,10 +78,10 @@ class EditorConstructorTest {
         // Parse with Parser directly
         Parser parser = new Parser();
         String xml = "<?xml version=\"1.0\"?><config><database><host>localhost</host></database></config>";
-        Document document = parser.parse(xml);
+        Document doc = parser.parse(xml);
 
         // Create Editor from existing Document
-        Editor editor = new Editor(Document.of(document));
+        Editor editor = new Editor(doc);
 
         // Verify we can use the Editor API
         Element root = editor.root().orElseThrow();
@@ -114,7 +114,7 @@ class EditorConstructorTest {
 
         // Create Editor with custom config
         DomTripConfig config = DomTripConfig.prettyPrint().withIndentString("    ");
-        Editor editor = new Editor(Document.of(doc, config));
+        Editor editor = new Editor(doc, config);
 
         // Build document structure using Editor
         Element root = editor.root().orElseThrow();

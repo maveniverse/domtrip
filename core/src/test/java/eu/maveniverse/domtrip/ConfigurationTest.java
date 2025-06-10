@@ -96,12 +96,12 @@ public class ConfigurationTest {
         DomTripConfig config =
                 DomTripConfig.strict().withDefaultEncoding("ISO-8859-1").withDefaultQuoteStyle(QuoteStyle.SINGLE);
 
-        Editor editor = new Editor(Document.of(config));
+        Editor editor = new Editor(config);
         assertEquals(config, editor.config());
 
         // Test with XML
         String xml = "<root attr=\"value\">content</root>";
-        Editor editorWithXml = new Editor(Document.of(xml, config));
+        Editor editorWithXml = new Editor(Document.of(xml), config);
         assertEquals(config, editorWithXml.config());
         assertNotNull(editorWithXml.document());
     }

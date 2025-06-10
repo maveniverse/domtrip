@@ -173,7 +173,8 @@ class TextWhitespaceConvenienceTest {
             </config>
             """;
 
-        Editor editor = new Editor(Document.of(xml));
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element message = doc.root().descendant("message").orElseThrow();
         Element path = doc.root().descendant("path").orElseThrow();
 

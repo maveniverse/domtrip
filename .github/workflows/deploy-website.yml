@@ -46,7 +46,7 @@ jobs:
         QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run \
             -DskipTests -Pinclude-javadocs \
             -Dquarkus.http.root-path=$SITE_PATH \
-            -Dsite.url=$SITE_URL"
+            -Dsite.url=$SITE_URL
     
     - name: Upload build artifacts
       uses: actions/upload-pages-artifact@v3

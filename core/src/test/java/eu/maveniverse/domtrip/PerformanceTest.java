@@ -41,7 +41,7 @@ public class PerformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element element = editor.root().orElseThrow();
+        Element element = editor.root();
 
         // Test element's toXml(StringBuilder) method
         String directResult = element.toXml();
@@ -59,7 +59,7 @@ public class PerformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Text textNode = (Text) root.getNode(0);
 
         // Test text node's toXml(StringBuilder) method
@@ -78,7 +78,7 @@ public class PerformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Comment comment = (Comment) root.getNode(0);
 
         // Test comment's toXml(StringBuilder) method
@@ -95,7 +95,7 @@ public class PerformanceTest {
     void testLargeDocumentPerformance() {
         // Create a moderately large document
         editor.createDocument("root");
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Add many elements
         for (int i = 0; i < 100; i++) {

@@ -23,7 +23,7 @@ public class IndentationTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         editor.addElement(root, "newElement", "new content");
 
         String result = editor.toXml();
@@ -39,7 +39,7 @@ public class IndentationTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         editor.addElement(root, "newElement", "new content");
 
         String result = editor.toXml();
@@ -74,7 +74,7 @@ public class IndentationTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         editor.addElement(root, "element3", "content3");
 
         String result = editor.toXml();
@@ -91,7 +91,7 @@ public class IndentationTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         editor.addComment(root, "This is a comment");
 
         String result = editor.toXml();
@@ -108,7 +108,7 @@ public class IndentationTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Element newElement = editor.addElement(root, "newEmpty");
 
         String result = editor.toXml();
@@ -121,7 +121,7 @@ public class IndentationTest {
     @Test
     void testDocumentCreationIndentation() {
         editor.createDocument("root");
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         editor.addElement(root, "child1", "content1");
         editor.addElement(root, "child2", "content2");

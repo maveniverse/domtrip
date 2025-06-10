@@ -149,7 +149,7 @@ public class BuilderApiTest {
     @Test
     void testEditorFluentBuilder() {
         editor.createDocument("root");
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Test element builder
         Element element = editor.add()
@@ -223,7 +223,7 @@ public class BuilderApiTest {
     @Test
     void testEditorBuilderSelfClosing() {
         editor.createDocument("root");
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         Element selfClosing = editor.add()
                 .element("self-closing")
@@ -239,7 +239,7 @@ public class BuilderApiTest {
     @Test
     void testEditorBuilderWithMultipleAttributes() {
         editor.createDocument("root");
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         Map<String, String> attributes = Map.of(
                 "id", "test-id",

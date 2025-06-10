@@ -49,7 +49,7 @@ public class EnhancedNavigationTest {
 
         editor = new Editor(Document.of(xml));
         document = editor.document();
-        root = editor.root().orElseThrow();
+        root = editor.root();
     }
 
     @Test

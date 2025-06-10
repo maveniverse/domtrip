@@ -128,9 +128,11 @@ public class BuilderPatternsDemo {
         System.out.println("4. Fluent Editor API Demo:");
 
         // Create editor with configuration
-        Editor editor = new Editor(Document.of(DomTripConfig.defaults())
-                .withDefaultQuoteStyle(QuoteStyle.SINGLE)
-                .withPrettyPrint(true));
+        Editor editor = new Editor(
+                Document.of(),
+                DomTripConfig.defaults()
+                        .withDefaultQuoteStyle(QuoteStyle.SINGLE)
+                        .withPrettyPrint(true));
 
         editor.createDocument("project");
         Element root = editor.root().orElseThrow();

@@ -1,5 +1,6 @@
 package eu.maveniverse.domtrip.demos;
 
+import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 
@@ -38,7 +39,8 @@ public class EditorDemo {
         System.out.println("=== XML Round-Trip Editor Demo ===\n");
 
         // Create editor and load XML
-        Editor editor = new Editor(Document.of(originalXml));
+        Document doc = Document.of(originalXml);
+        Editor editor = new Editor(doc);
 
         System.out.println("1. Original XML:");
         System.out.println(originalXml);
@@ -130,7 +132,8 @@ public class EditorDemo {
         // Feature 4: Minimal change serialization
         System.out.println("\n4. Minimal Change Serialization:");
         String complexXml = "<root>\n  <unchanged>content</unchanged>\n  <toModify>old</toModify>\n</root>";
-        editor = new Editor(Document.of(complexXml));
+        Document doc = Document.of(complexXml);
+        editor = new Editor(doc);
         Element toModify = doc.root().descendant("toModify").orElseThrow();
         editor.setTextContent(toModify, "new");
 

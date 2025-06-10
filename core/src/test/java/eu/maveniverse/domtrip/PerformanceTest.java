@@ -24,7 +24,6 @@ public class PerformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
         // Test that toXml(StringBuilder) produces same result as toXml()
         String directResult = doc.toXml();

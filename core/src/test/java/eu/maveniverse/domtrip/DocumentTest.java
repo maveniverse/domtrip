@@ -121,7 +121,6 @@ public class DocumentTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", doc.xmlDeclaration());
         assertNotNull(doc.root());
@@ -147,7 +146,6 @@ public class DocumentTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
         assertTrue(doc.xmlDeclaration().contains("standalone=\"yes\""));
     }
@@ -219,9 +217,8 @@ public class DocumentTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
-        Element found = doc.root().descendant("grandchild");
+        Element found = doc.root().descendant("grandchild").orElse(null);
         assertNotNull(found);
         assertEquals("grandchild", found.name());
         assertEquals("content", found.textContent());
@@ -233,9 +230,8 @@ public class DocumentTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
-        Element found = doc.root().descendant("nonexistent");
+        Element found = doc.root().descendant("nonexistent").orElse(null);
         assertNull(found);
     }
 
@@ -245,11 +241,10 @@ public class DocumentTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
         // This throws NPE in current implementation
         assertThrows(NullPointerException.class, () -> {
-            doc.root().descendant(null);
+            doc.root().descendant((String) null);
         });
     }
 
@@ -295,7 +290,6 @@ public class DocumentTest {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
         // Initially not modified (just loaded)
         assertFalse(doc.isModified());

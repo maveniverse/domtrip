@@ -1,5 +1,6 @@
 package eu.maveniverse.domtrip.demos;
 
+import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.NamespaceContext;

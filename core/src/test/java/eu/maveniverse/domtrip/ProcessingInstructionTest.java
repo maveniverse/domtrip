@@ -112,7 +112,6 @@ public class ProcessingInstructionTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
         // Check that processing instructions are preserved in document
         boolean foundStylesheet = false;
@@ -136,7 +135,6 @@ public class ProcessingInstructionTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
         // Find and modify the processing instruction
         for (Node child : doc.nodes) {
@@ -221,7 +219,6 @@ public class ProcessingInstructionTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Document doc = editor.document();
 
         // XML declaration should be stored separately, not as a PI
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>", doc.xmlDeclaration());

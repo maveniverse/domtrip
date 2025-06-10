@@ -3,6 +3,7 @@ package eu.maveniverse.domtrip;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -740,6 +741,7 @@ public class Element extends ContainerNode {
      * @return an Optional containing the first matching descendant element, or empty if none found
      */
     public Optional<Element> descendant(String name) {
+        Objects.requireNonNull(name);
         return descendants().filter(element -> name.equals(element.name())).findFirst();
     }
 

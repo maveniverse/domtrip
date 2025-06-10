@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.demos;
 
 import eu.maveniverse.domtrip.Attribute;
+import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
@@ -61,7 +62,7 @@ public class ConfigurationDemo {
         System.out.println("1. Configuration Options Demo:");
 
         // Default configuration
-        Editor defaultEditor = new Editor(Document.of(xml, DomTripConfig.defaults()));
+        Editor defaultEditor = new Editor(Document.of(xml), DomTripConfig.strict());
         System.out.println("Default configuration preserves everything:");
         System.out.println("- Preserves whitespace: " + defaultEditor.config().isPreserveWhitespace());
         System.out.println("- Preserves comments: " + defaultEditor.config().isPreserveComments());
@@ -69,13 +70,13 @@ public class ConfigurationDemo {
         System.out.println("- Default quote style: " + defaultEditor.config().defaultQuoteStyle());
 
         // Strict configuration
-        Editor strictEditor = new Editor(Document.of(xml, DomTripConfig.strict()));
+        Editor strictEditor = new Editor(Document.of(xml), DomTripConfig.strict());
         System.out.println("\nStrict configuration enables validation:");
         System.out.println("- Strict parsing: " + strictEditor.config().isStrictParsing());
         System.out.println("- Validate XML names: " + strictEditor.config().isValidateXmlNames());
 
         // Lenient configuration
-        Editor lenientEditor = new Editor(Document.of(xml, DomTripConfig.lenient()));
+        Editor lenientEditor = new Editor(Document.of(xml), DomTripConfig.lenient());
         System.out.println("\nLenient configuration disables validation:");
         System.out.println("- Strict parsing: " + lenientEditor.config().isStrictParsing());
         System.out.println("- Validate XML names: " + lenientEditor.config().isValidateXmlNames());
@@ -87,7 +88,7 @@ public class ConfigurationDemo {
                 .withIndentString("\t")
                 .withPrettyPrint(true);
 
-        Editor customEditor = new Editor(Document.of(xml, customConfig));
+        Editor customEditor = new Editor(Document.of(xml), customConfig);
         System.out.println("\nCustom configuration:");
         System.out.println("- Default quote style: " + customEditor.config().defaultQuoteStyle());
         System.out.println("- Default encoding: " + customEditor.config().defaultEncoding());
@@ -206,19 +207,19 @@ public class ConfigurationDemo {
         try {
             // Test with whitespace preservation
             DomTripConfig preserveConfig = DomTripConfig.defaults().withWhitespacePreservation(true);
-            Editor preserveEditor = new Editor(Document.of(xml, preserveConfig));
+            Editor preserveEditor = new Editor(Document.of(xml), preserveConfig);
             System.out.println("\nWith whitespace preservation:");
             System.out.println(preserveEditor.toXml());
 
             // Test with different indentation
             DomTripConfig tabConfig = DomTripConfig.defaults().withIndentString("\t");
-            Editor tabEditor = new Editor(Document.of(xml, tabConfig));
+            Editor tabEditor = new Editor(Document.of(xml), tabConfig);
             System.out.println("\nWith tab indentation config:");
             System.out.println(tabEditor.toXml());
 
             // Test pretty printing
             DomTripConfig prettyConfig = DomTripConfig.prettyPrint().withIndentString("  ");
-            Editor prettyEditor = new Editor(Document.of(xml, prettyConfig));
+            Editor prettyEditor = new Editor(Document.of(xml), prettyConfig);
             System.out.println("\nWith pretty printing:");
             System.out.println(prettyEditor.toXml());
 

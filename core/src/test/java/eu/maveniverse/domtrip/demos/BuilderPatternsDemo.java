@@ -19,7 +19,7 @@ public class BuilderPatternsDemo {
     public static void main(String[] args) {
         System.out.println("=== Builder Patterns Demo ===\n");
 
-        demonstrateAttributeBuilder();
+        demonstrateAttributeFactory();
         demonstrateElementFactory();
         demonstrateDocumentBuilder();
         demonstrateFluentEditorApi();
@@ -27,20 +27,15 @@ public class BuilderPatternsDemo {
         System.out.println("\n=== Demo Complete ===");
     }
 
-    private static void demonstrateAttributeBuilder() {
-        System.out.println("1. Attribute Builder Demo:");
+    private static void demonstrateAttributeFactory() {
+        System.out.println("1. Attribute Factory Demo:");
 
         // Simple attribute
-        Attribute simple = Attribute.builder().name("id").value("123").build();
+        Attribute simple = Attribute.of("id", "123");
 
         // Complex attribute with custom formatting
-        Attribute complex = Attribute.builder()
-                .name("data-config")
-                .value("complex value with <entities>")
-                .quoteStyle(QuoteStyle.SINGLE)
-                .precedingWhitespace("  ")
-                .rawValue("&lt;raw&gt; value")
-                .build();
+        Attribute complex = Attribute.of("data-config", "complex value with <entities>", QuoteStyle.SINGLE, "  ")
+                .rawValue("&lt;raw&gt; value");
 
         System.out.println("Simple attribute: " + simple);
         System.out.println("Complex attribute: " + complex);

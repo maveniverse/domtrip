@@ -23,18 +23,18 @@ package eu.maveniverse.domtrip;
  * // Create basic attribute
  * Attribute attr = new Attribute("class", "important");
  *
- * // Create with specific quote style
- * Attribute quoted = new Attribute("id", "main", QuoteStyle.SINGLE, " ");
+ * // Create using factory methods
+ * Attribute simple = Attribute.of("class", "important");
+ * Attribute withQuotes = Attribute.of("id", "main", QuoteStyle.SINGLE);
+ * Attribute complete = Attribute.of("data-value", "test & example", QuoteStyle.DOUBLE, "  ");
  *
- * // Use builder pattern
- * Attribute complex = Attribute.builder()
- *     .name("data-value")
- *     .value("test & example")
- *     .quoteStyle(QuoteStyle.DOUBLE)
- *     .precedingWhitespace("  ")
- *     .build();
+ * // Create and modify with fluent API
+ * Attribute fluent = Attribute.of("class", "initial")
+ *     .value("updated")
+ *     .quoteStyle(QuoteStyle.SINGLE)
+ *     .precedingWhitespace("  ");
  *
- * // Create variations
+ * // Create immutable variations
  * Attribute modified = attr.withValue("critical").withQuoteStyle(QuoteStyle.SINGLE);
  * }</pre>
  *
@@ -249,56 +249,6 @@ public class Attribute {
     }
 
     /**
-     * Builder for creating Attribute instances with fluent API.
-     */
-    public static class Builder {
-        private String name;
-        private String value;
-        private QuoteStyle quoteStyle = QuoteStyle.DOUBLE;
-        private String precedingWhitespace = " ";
-        private String rawValue;
-
-        public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder value(String value) {
-            this.value = value;
-            return this;
-        }
-
-        public Builder quoteStyle(QuoteStyle quoteStyle) {
-            this.quoteStyle = quoteStyle;
-            return this;
-        }
-
-        public Builder precedingWhitespace(String whitespace) {
-            this.precedingWhitespace = whitespace;
-            return this;
-        }
-
-        public Builder rawValue(String rawValue) {
-            this.rawValue = rawValue;
-            return this;
-        }
-
-        public Attribute build() {
-            if (name == null) {
-                throw new IllegalStateException("Attribute name is required");
-            }
-            return new Attribute(name, value, quoteStyle, precedingWhitespace, rawValue);
-        }
-    }
-
-    /**
-     * Creates a new Builder instance.
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
      * Creates an attribute with the specified name and value.
      *
      * <p>Factory method following modern Java naming conventions.</p>
@@ -341,5 +291,20 @@ public class Attribute {
             throw new IllegalArgumentException("QName cannot be null");
         }
         return new Attribute(qname.qualifiedName(), value);
+    }
+
+    /**
+     * Creates an attribute with all formatting options.
+     *
+     * <p>Factory method for creating attributes with complete control over formatting.</p>
+     *
+     * @param name the attribute name
+     * @param value the attribute value
+     * @param quoteStyle the quote style to use
+     * @param precedingWhitespace the whitespace before the attribute
+     * @return a new Attribute
+     */
+    public static Attribute of(String name, String value, QuoteStyle quoteStyle, String precedingWhitespace) {
+        return new Attribute(name, value, quoteStyle, precedingWhitespace);
     }
 }

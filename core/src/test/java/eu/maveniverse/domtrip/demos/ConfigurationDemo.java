@@ -164,17 +164,9 @@ public class ConfigurationDemo {
         // Demonstrate attribute builder with different quote styles
         Element root = editor.root();
 
-        Attribute doubleQuoted = Attribute.builder()
-                .name("new-double")
-                .value("value with 'single' quotes")
-                .quoteStyle(QuoteStyle.DOUBLE)
-                .build();
+        Attribute doubleQuoted = Attribute.of("new-double", "value with 'single' quotes", QuoteStyle.DOUBLE);
 
-        Attribute singleQuoted = Attribute.builder()
-                .name("new-single")
-                .value("value with \"double\" quotes")
-                .quoteStyle(QuoteStyle.SINGLE)
-                .build();
+        Attribute singleQuoted = Attribute.of("new-single", "value with \"double\" quotes", QuoteStyle.SINGLE);
 
         root.attributeObject("new-double", doubleQuoted);
         root.attributeObject("new-single", singleQuoted);

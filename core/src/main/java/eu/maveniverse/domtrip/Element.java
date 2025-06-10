@@ -144,6 +144,13 @@ public class Element extends ContainerNode {
     }
 
     // Attribute management
+
+    /**
+     * Gets the value of the specified attribute.
+     *
+     * @param name the attribute name
+     * @return the attribute value, or null if the attribute doesn't exist
+     */
     public String attribute(String name) {
         Attribute attr = attributes.get(name);
         return attr != null ? attr.value() : null;
@@ -220,12 +227,22 @@ public class Element extends ContainerNode {
         // Don't call markModified() here
     }
 
+    /**
+     * Removes the specified attribute from this element.
+     *
+     * @param name the name of the attribute to remove
+     */
     public void removeAttribute(String name) {
         if (attributes.remove(name) != null) {
             markModified();
         }
     }
 
+    /**
+     * Gets all attributes as a map of names to values.
+     *
+     * @return a map containing all attribute names and their values
+     */
     public Map<String, String> attributes() {
         Map<String, String> result = new LinkedHashMap<>();
         for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
@@ -243,10 +260,22 @@ public class Element extends ContainerNode {
         return new LinkedHashMap<>(attributes);
     }
 
+    /**
+     * Checks if this element has the specified attribute.
+     *
+     * @param name the attribute name to check
+     * @return true if the attribute exists, false otherwise
+     */
     public boolean hasAttribute(String name) {
         return attributes.containsKey(name);
     }
 
+    /**
+     * Gets the Attribute object for the specified attribute name.
+     *
+     * @param name the attribute name
+     * @return the Attribute object, or null if the attribute doesn't exist
+     */
     public Attribute attributeObject(String name) {
         return attributes.get(name);
     }
@@ -267,6 +296,14 @@ public class Element extends ContainerNode {
     }
 
     // Attribute formatting management
+
+    /**
+     * Sets the preceding whitespace for the specified attribute.
+     *
+     * @param attributeName the name of the attribute
+     * @param whitespace the whitespace to set before the attribute
+     * @return this element for method chaining
+     */
     public Element attributeWhitespace(String attributeName, String whitespace) {
         Attribute attr = attributes.get(attributeName);
         if (attr != null) {
@@ -275,11 +312,24 @@ public class Element extends ContainerNode {
         return this;
     }
 
+    /**
+     * Gets the preceding whitespace for the specified attribute.
+     *
+     * @param attributeName the name of the attribute
+     * @return the preceding whitespace, or a single space if not set
+     */
     public String attributeWhitespace(String attributeName) {
         Attribute attr = attributes.get(attributeName);
         return attr != null ? attr.precedingWhitespace() : " ";
     }
 
+    /**
+     * Sets the quote character for the specified attribute.
+     *
+     * @param attributeName the name of the attribute
+     * @param quoteChar the quote character to use (single or double quote)
+     * @return this element for method chaining
+     */
     public Element attributeQuote(String attributeName, char quoteChar) {
         Attribute attr = attributes.get(attributeName);
         if (attr != null) {
@@ -288,34 +338,74 @@ public class Element extends ContainerNode {
         return this;
     }
 
+    /**
+     * Gets the quote character for the specified attribute.
+     *
+     * @param attributeName the name of the attribute
+     * @return the quote character, or double quote if not set
+     */
     public char attributeQuote(String attributeName) {
         Attribute attr = attributes.get(attributeName);
         return attr != null ? attr.quoteStyle().getCharacter() : '"';
     }
 
     // Tag formatting
+
+    /**
+     * Gets the whitespace within the opening tag (before the closing &gt;).
+     *
+     * @return the whitespace within the opening tag
+     */
     public String openTagWhitespace() {
         return openTagWhitespace;
     }
 
+    /**
+     * Sets the whitespace within the opening tag (before the closing &gt;).
+     *
+     * @param whitespace the whitespace to set
+     * @return this element for method chaining
+     */
     public Element openTagWhitespace(String whitespace) {
         this.openTagWhitespace = whitespace != null ? whitespace : "";
         return this;
     }
 
+    /**
+     * Gets the whitespace within the closing tag (before the element name).
+     *
+     * @return the whitespace within the closing tag
+     */
     public String closeTagWhitespace() {
         return closeTagWhitespace;
     }
 
+    /**
+     * Sets the whitespace within the closing tag (before the element name).
+     *
+     * @param whitespace the whitespace to set
+     * @return this element for method chaining
+     */
     public Element closeTagWhitespace(String whitespace) {
         this.closeTagWhitespace = whitespace != null ? whitespace : "";
         return this;
     }
 
+    /**
+     * Checks if this element is self-closing.
+     *
+     * @return true if the element is self-closing, false otherwise
+     */
     public boolean selfClosing() {
         return selfClosing;
     }
 
+    /**
+     * Sets whether this element should be self-closing.
+     *
+     * @param selfClosing true to make the element self-closing, false otherwise
+     * @return this element for method chaining
+     */
     public Element selfClosing(boolean selfClosing) {
         this.selfClosing = selfClosing;
         markModified();
@@ -330,19 +420,42 @@ public class Element extends ContainerNode {
     }
 
     // Original tag preservation
+
+    /**
+     * Gets the original opening tag as it appeared in the source XML.
+     *
+     * @return the original opening tag string
+     */
     public String originalOpenTag() {
         return originalOpenTag;
     }
 
+    /**
+     * Sets the original opening tag for formatting preservation.
+     *
+     * @param originalOpenTag the original opening tag string
+     * @return this element for method chaining
+     */
     public Element originalOpenTag(String originalOpenTag) {
         this.originalOpenTag = originalOpenTag != null ? originalOpenTag : "";
         return this;
     }
 
+    /**
+     * Gets the original closing tag as it appeared in the source XML.
+     *
+     * @return the original closing tag string
+     */
     public String originalCloseTag() {
         return originalCloseTag;
     }
 
+    /**
+     * Sets the original closing tag for formatting preservation.
+     *
+     * @param originalCloseTag the original closing tag string
+     * @return this element for method chaining
+     */
     public Element originalCloseTag(String originalCloseTag) {
         this.originalCloseTag = originalCloseTag != null ? originalCloseTag : "";
         return this;

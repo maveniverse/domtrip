@@ -61,49 +61,103 @@ public class Serializer {
     private String indentString;
     private boolean prettyPrint;
 
+    /**
+     * Creates a new Serializer with default settings.
+     *
+     * <p>Default settings include formatting preservation enabled,
+     * two-space indentation, and pretty printing disabled.</p>
+     */
     public Serializer() {
         this.preserveFormatting = true;
         this.indentString = "  "; // Two spaces
         this.prettyPrint = false;
     }
 
+    /**
+     * Creates a new Serializer with specified formatting preservation setting.
+     *
+     * @param preserveFormatting true to preserve original formatting, false otherwise
+     */
     public Serializer(boolean preserveFormatting) {
         this();
         this.preserveFormatting = preserveFormatting;
     }
 
+    /**
+     * Creates a new Serializer with the specified configuration.
+     *
+     * @param config the DomTripConfig to use for serialization settings
+     */
     public Serializer(DomTripConfig config) {
         this.preserveFormatting = config.isPreserveWhitespace();
         this.prettyPrint = config.isPrettyPrint();
         this.indentString = config.indentString();
     }
 
+    /**
+     * Checks if formatting preservation is enabled.
+     *
+     * @return true if original formatting is preserved, false otherwise
+     */
     public boolean isPreserveFormatting() {
         return preserveFormatting;
     }
 
+    /**
+     * Sets whether to preserve original formatting.
+     *
+     * @param preserveFormatting true to preserve formatting, false otherwise
+     */
     public void setPreserveFormatting(boolean preserveFormatting) {
         this.preserveFormatting = preserveFormatting;
     }
 
+    /**
+     * Gets the indentation string used for pretty printing.
+     *
+     * @return the indentation string
+     */
     public String getIndentString() {
         return indentString;
     }
 
+    /**
+     * Sets the indentation string for pretty printing.
+     *
+     * @param indentString the indentation string, or null for default
+     */
     public void setIndentString(String indentString) {
         this.indentString = indentString != null ? indentString : "  ";
     }
 
+    /**
+     * Checks if pretty printing is enabled.
+     *
+     * @return true if pretty printing is enabled, false otherwise
+     */
     public boolean isPrettyPrint() {
         return prettyPrint;
     }
 
+    /**
+     * Sets whether to enable pretty printing.
+     *
+     * @param prettyPrint true to enable pretty printing, false otherwise
+     */
     public void setPrettyPrint(boolean prettyPrint) {
         this.prettyPrint = prettyPrint;
     }
 
     /**
-     * Serializes an XML document to string with custom configuration
+     * Serializes an XML document to string with custom configuration.
+     *
+     * <p>Creates a temporary serializer with the specified configuration
+     * and uses it to serialize the document. This allows one-time use
+     * of different serialization settings without modifying this serializer.</p>
+     *
+     * @param document the document to serialize
+     * @param config the configuration to use for serialization
+     * @return the serialized XML string, or empty string if document is null
      */
     public String serialize(Document document, DomTripConfig config) {
         if (document == null) {
@@ -116,7 +170,14 @@ public class Serializer {
     }
 
     /**
-     * Serializes an XML document to string
+     * Serializes an XML document to string using this serializer's configuration.
+     *
+     * <p>If formatting preservation is enabled and the document is unmodified,
+     * the original formatting will be preserved. Otherwise, the document will
+     * be serialized according to this serializer's configuration.</p>
+     *
+     * @param document the document to serialize
+     * @return the serialized XML string, or empty string if document is null
      */
     public String serialize(Document document) {
         if (document == null) {
@@ -152,7 +213,14 @@ public class Serializer {
     }
 
     /**
-     * Serializes a single node
+     * Serializes a single node to string.
+     *
+     * <p>If formatting preservation is enabled and the node is unmodified,
+     * the original formatting will be preserved. Otherwise, the node will
+     * be serialized according to this serializer's configuration.</p>
+     *
+     * @param node the node to serialize
+     * @return the serialized XML string, or empty string if node is null
      */
     public String serialize(Node node) {
         if (node == null) {

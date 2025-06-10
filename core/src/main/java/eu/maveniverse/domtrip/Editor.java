@@ -176,7 +176,9 @@ public class Editor {
     }
 
     /**
-     * Gets the current XML document
+     * Gets the current XML document being edited.
+     *
+     * @return the current Document, or null if no document is loaded
      */
     public Document document() {
         return document;
@@ -438,7 +440,13 @@ public class Editor {
     }
 
     /**
-     * Creates a new XML document with the specified root element
+     * Creates a new XML document with the specified root element.
+     *
+     * <p>This method creates a new document with a default XML declaration
+     * and the specified root element. Any existing document will be replaced.</p>
+     *
+     * @param rootElementName the name of the root element
+     * @throws InvalidXmlException if the root element name is null or empty
      */
     public void createDocument(String rootElementName) throws InvalidXmlException {
         if (rootElementName == null || rootElementName.trim().isEmpty()) {
@@ -471,7 +479,13 @@ public class Editor {
     }
 
     /**
-     * Validates that the document is well-formed
+     * Validates that the document is well-formed.
+     *
+     * <p>Performs basic well-formedness validation including checking
+     * for the presence of a root element. Additional validation rules
+     * may be added in the future.</p>
+     *
+     * @return true if the document is well-formed, false otherwise
      */
     public boolean isWellFormed() {
         if (document == null) {
@@ -489,7 +503,13 @@ public class Editor {
     }
 
     /**
-     * Gets statistics about the document
+     * Gets statistics about the document structure.
+     *
+     * <p>Returns a formatted string containing counts of different
+     * node types in the document including elements, text nodes,
+     * comments, and total nodes.</p>
+     *
+     * @return a string containing document statistics
      */
     public String documentStats() {
         if (document == null) {
@@ -529,6 +549,13 @@ public class Editor {
 
     /**
      * Batch operation to set multiple attributes on an element.
+     *
+     * <p>Sets multiple attributes at once with intelligent formatting preservation.
+     * Each attribute uses inferred formatting based on existing patterns on the element.</p>
+     *
+     * @param element the element to modify
+     * @param attributes a map of attribute names to values
+     * @throws InvalidXmlException if any attribute operation is invalid
      */
     public void setAttributes(Element element, Map<String, String> attributes) throws InvalidXmlException {
         if (element != null && attributes != null) {
@@ -540,6 +567,13 @@ public class Editor {
 
     /**
      * Batch operation to add multiple child elements with text content.
+     *
+     * <p>Creates multiple child elements at once, each with the specified text content.
+     * This is more efficient than adding elements individually.</p>
+     *
+     * @param parent the parent element to add children to
+     * @param nameValuePairs a map of element names to text content values
+     * @throws InvalidXmlException if any element creation is invalid
      */
     public void addElements(Element parent, Map<String, String> nameValuePairs) throws InvalidXmlException {
         if (parent != null && nameValuePairs != null) {
@@ -569,7 +603,13 @@ public class Editor {
     }
 
     /**
-     * Serializes with custom configuration.
+     * Serializes the document to XML string with custom configuration.
+     *
+     * <p>Uses the provided configuration instead of the editor's default
+     * configuration for this serialization operation only.</p>
+     *
+     * @param config the configuration to use for serialization
+     * @return the XML string, or empty string if no document is loaded
      */
     public String toXml(DomTripConfig config) {
         if (document == null) {
@@ -581,6 +621,8 @@ public class Editor {
 
     /**
      * Gets the configuration used by this editor.
+     *
+     * @return the DomTripConfig instance used by this editor
      */
     public DomTripConfig config() {
         return config;

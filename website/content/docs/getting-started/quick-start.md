@@ -30,7 +30,7 @@ public class QuickStart {
             </config>
             """;
         
-        Editor editor = new Editor(originalXml);
+        Editor editor = new Editor(Document.of(originalXml));
         
         // 2. Make some changes
         Element database = editor.findElement("database");
@@ -69,14 +69,14 @@ Notice how:
 
 ```java
 // From string
-Editor editor = new Editor(xmlString);
+Editor editor = new Editor(Document.of(xmlString));
 
 // From file
 String xml = Files.readString(Paths.get("config.xml"));
-Editor editor = new Editor(xml);
+Editor editor = new Editor(Document.of(xml));
 
 // With custom configuration
-Editor editor = new Editor(xml, DomTripConfig.prettyPrint());
+Editor editor = new Editor(Document.of(xml), DomTripConfig.prettyPrint());
 ```
 
 ### 2. Finding Elements
@@ -195,7 +195,7 @@ public class MavenPomEditor {
                                    String version) throws Exception {
         // Load POM
         String xml = Files.readString(Paths.get(pomPath));
-        Editor editor = new Editor(xml);
+        Editor editor = new Editor(Document.of(xml));
         
         // Find or create dependencies section
         Element project = editor.getDocumentElement();
@@ -264,7 +264,7 @@ DomTrip provides specific exception types for better error handling:
 
 ```java
 try {
-    Editor editor = new Editor(malformedXml);
+    Editor editor = new Editor(Document.of(malformedXml));
 } catch (ParseException e) {
     System.err.println("XML parsing failed: " + e.getMessage());
 } catch (InvalidXmlException e) {

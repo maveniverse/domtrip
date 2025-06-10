@@ -64,10 +64,21 @@ public class Parser {
     private int position;
     private int length;
 
+    /**
+     * Creates a new Parser instance with default settings.
+     */
     public Parser() {}
 
     /**
-     * Parses an XML string into a lossless XML document tree
+     * Parses an XML string into a lossless XML document tree.
+     *
+     * <p>This method performs complete XML parsing while preserving all formatting
+     * information including whitespace, comments, attribute styles, and entity encoding.
+     * The resulting Document can be used for lossless round-trip editing.</p>
+     *
+     * @param xml the XML string to parse
+     * @return a Document containing the parsed XML with preserved formatting
+     * @throws ParseException if the XML is malformed or cannot be parsed
      */
     public Document parse(String xml) throws ParseException {
         if (xml == null || xml.trim().isEmpty()) {

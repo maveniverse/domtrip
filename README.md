@@ -34,7 +34,7 @@ Add DomTrip to your Maven project:
 
 ```java
 // Load and edit XML while preserving formatting
-Editor editor = new Editor(xmlString);
+Editor editor = new Editor(Document.of(xmlString));
 
 // Make targeted changes
 Element version = editor.findElement("version");
@@ -170,7 +170,7 @@ DomTripConfig pretty = DomTripConfig.prettyPrint()
     .withIndentation("  ")
     .withQuoteStyle(QuoteStyle.DOUBLE);
 
-Editor editor = new Editor(xml, pretty);
+Editor editor = new Editor(Document.of(xml), pretty);
 ```
 
 ## 🏛️ Architecture

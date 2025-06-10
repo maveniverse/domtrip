@@ -27,9 +27,9 @@ DomTripConfig config = DomTripConfig.prettyPrint();
 Editor editor = new Editor(config);
 ```
 
-### `Editor(String xml)`
+### `Editor(Document document)`
 
-Creates a new editor and loads XML content.
+Creates a new editor with an existing Document object.
 
 ```java
 String xml = """
@@ -38,46 +38,37 @@ String xml = """
         <child>value</child>
     </root>
     """;
-Editor editor = new Editor(xml);
-```
-
-### `Editor(String xml, DomTripConfig config)`
-
-Creates a new editor with custom configuration and loads XML content.
-
-```java
-Editor editor = new Editor(xml, DomTripConfig.strict());
-```
-
-### `Editor(Document document)`
-
-Creates a new editor with an existing Document object.
-
-```java
-// Working with an existing document
-Document existingDoc = parser.parse(xmlString);
-Editor editor = new Editor(existingDoc);
-
-// Working with a programmatically created document
-Document doc = Document.builder()
-    .withRootElement("project")
-    .withXmlDeclaration()
-    .build();
+Document doc = Document.of(xml);
 Editor editor = new Editor(doc);
 ```
-
-**Throws:** `IllegalArgumentException` if document is null.
 
 ### `Editor(Document document, DomTripConfig config)`
 
 Creates a new editor with an existing Document and custom configuration.
 
 ```java
+Document doc = Document.of(xml);
+Editor editor = new Editor(doc, DomTripConfig.strict());
+```
+
+**Throws:** `IllegalArgumentException` if document is null.
+
+## Advanced Constructor Examples
+
+```java
+// Working with an existing document
+Document existingDoc = Document.of(xmlString);
+Editor editor = new Editor(existingDoc);
+
+// Working with a programmatically created document
+Document doc = Document.withRootElement("project");
+Editor editor = new Editor(doc);
+
 // Working with existing document and custom config
-Document existingDoc = parser.parse(xmlString);
+Document existingDoc = Document.of(xmlString);
 DomTripConfig config = DomTripConfig.prettyPrint()
     .withIndentString("  ")
-    .withCommentPreservation(true);
+    .withPreserveComments(true);
 Editor editor = new Editor(existingDoc, config);
 
 // Working with builder-created document
@@ -85,34 +76,22 @@ Document doc = Document.withRootElement("maven");
 Editor editor = new Editor(doc, DomTripConfig.minimal());
 ```
 
-**Throws:** `IllegalArgumentException` if document is null.
-
 ## Document Management
 
-### `loadXml(String xml)`
-
-Loads XML content into the editor.
-
-```java
-editor.loadXml(xmlString);
-```
-
-**Throws:** `ParseException` if the XML is malformed.
-
-### `getDocument()`
+### `document()`
 
 Gets the current XML document.
 
 ```java
-Document document = editor.getDocument();
+Document document = editor.document();
 ```
 
-### `getDocumentElement()`
+### `root()`
 
 Gets the root element of the document.
 
 ```java
-Element root = editor.getDocumentElement();
+Element root = editor.root();
 ```
 
 ### `createDocument(String rootElementName)`
@@ -121,7 +100,7 @@ Creates a new document with the specified root element.
 
 ```java
 editor.createDocument("project");
-Element root = editor.getDocumentElement(); // <project></project>
+Element root = editor.root(); // <project></project>
 ```
 
 ## Serialization
@@ -143,12 +122,12 @@ String prettyXml = editor.toXml(DomTripConfig.prettyPrint());
 String minimalXml = editor.toXml(DomTripConfig.minimal());
 ```
 
-### `toXmlPretty()`
+### Pretty Printing
 
-Serializes with pretty printing enabled.
+For pretty printing, use the configuration approach:
 
 ```java
-String prettyXml = editor.toXmlPretty();
+String prettyXml = editor.toXml(DomTripConfig.prettyPrint());
 ```
 
 ## Element Operations
@@ -176,7 +155,7 @@ List<Element> dependencies = editor.findElements("dependency");
 Adds a new child element to the parent.
 
 ```java
-Element parent = editor.getDocumentElement();
+Element parent = editor.root();
 Element child = editor.addElement(parent, "newChild");
 ```
 
@@ -351,12 +330,12 @@ editor.add()
 
 ## Configuration
 
-### `getConfig()`
+### `config()`
 
 Gets the configuration used by this editor.
 
 ```java
-DomTripConfig config = editor.getConfig();
+DomTripConfig config = editor.config();
 ```
 
 ## Exception Handling

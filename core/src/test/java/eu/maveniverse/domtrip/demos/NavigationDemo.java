@@ -16,7 +16,7 @@ public class NavigationDemo {
 
         // Create a complex XML structure for navigation
         String complexXml = createComplexXml();
-        Editor editor = new Editor(complexXml);
+        Editor editor = new Editor(Document.of(complexXml));
 
         demonstrateBasicNavigation(editor);
         demonstrateStreamNavigation(editor);

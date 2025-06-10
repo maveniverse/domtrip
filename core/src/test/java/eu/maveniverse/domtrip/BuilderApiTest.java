@@ -20,7 +20,7 @@ public class BuilderApiTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
@@ -104,7 +104,7 @@ public class BuilderApiTest {
     @Test
     void testDocumentsFactory() {
         // Test empty document
-        Document empty = Document.empty();
+        Document empty = Document.of();
         assertNotNull(empty);
         assertNull(empty.root());
 

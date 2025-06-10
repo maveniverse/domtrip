@@ -20,10 +20,10 @@ class ElementWhitespaceTest {
             </root>
             """;
 
-        Editor editor = new Editor(xml);
-        Element item = editor.element("item").orElseThrow();
-        Element path = editor.element("path").orElseThrow();
-        Element empty = editor.element("empty").orElseThrow();
+        Editor editor = new Editor(Document.of(xml));
+        Element item = doc.root().descendant("item").orElseThrow();
+        Element path = doc.root().descendant("path").orElseThrow();
+        Element empty = doc.root().descendant("empty").orElseThrow();
 
         // Test preserving whitespace pattern
         item.textPreservingWhitespace("new value");
@@ -55,11 +55,11 @@ class ElementWhitespaceTest {
             </root>
             """;
 
-        Editor editor = new Editor(xml);
-        Element item = editor.element("item").orElseThrow();
-        Element clean = editor.element("clean").orElseThrow();
-        Element empty = editor.element("empty").orElseThrow();
-        Element whitespace = editor.element("whitespace").orElseThrow();
+        Editor editor = new Editor(Document.of(xml));
+        Element item = doc.root().descendant("item").orElseThrow();
+        Element clean = doc.root().descendant("clean").orElseThrow();
+        Element empty = doc.root().descendant("empty").orElseThrow();
+        Element whitespace = doc.root().descendant("whitespace").orElseThrow();
 
         assertEquals("value with spaces", item.trimmedTextContent());
         assertEquals("no spaces", clean.trimmedTextContent());
@@ -83,9 +83,9 @@ class ElementWhitespaceTest {
             </root>
             """;
 
-        Editor editor = new Editor(xml);
-        Element test1 = editor.element("test1").orElseThrow();
-        Element test2 = editor.element("test2").orElseThrow();
+        Editor editor = new Editor(Document.of(xml));
+        Element test1 = doc.root().descendant("test1").orElseThrow();
+        Element test2 = doc.root().descendant("test2").orElseThrow();
 
         // Regular setTextContent destroys whitespace
         test1.textContent("new content");
@@ -112,8 +112,8 @@ class ElementWhitespaceTest {
             </config>
             """;
 
-        Editor editor = new Editor(xml);
-        Element description = editor.element("description").orElseThrow();
+        Editor editor = new Editor(Document.of(xml));
+        Element description = doc.root().descendant("description").orElseThrow();
 
         String originalContent = description.textContent();
         String trimmedContent = description.trimmedTextContent();
@@ -163,8 +163,8 @@ class ElementWhitespaceTest {
             </root>
             """;
 
-        Editor editor = new Editor(xml);
-        Element parent = editor.element("parent").orElseThrow();
+        Editor editor = new Editor(Document.of(xml));
+        Element parent = doc.root().descendant("parent").orElseThrow();
 
         // Element has whitespace text nodes around the child element
         // getTrimmedTextContent() returns the trimmed concatenation of all text
@@ -200,8 +200,8 @@ class ElementWhitespaceTest {
             <message>   Hello &amp; welcome   </message>
             """;
 
-        Editor editor = new Editor(xml);
-        Element message = editor.element("message").orElseThrow();
+        Editor editor = new Editor(Document.of(xml));
+        Element message = doc.root().descendant("message").orElseThrow();
 
         // DomTrip unescapes entities when parsing, so &amp; becomes &
         assertEquals("Hello & welcome", message.trimmedTextContent());
@@ -231,13 +231,13 @@ class ElementWhitespaceTest {
             </configuration>
             """;
 
-        Editor editor = new Editor(configXml);
+        Editor editor = new Editor(Document.of(configXml));
 
         // Get elements
-        Element host = editor.element("host").orElseThrow();
-        Element port = editor.element("port").orElseThrow();
-        Element name = editor.element("name").orElseThrow();
-        Element level = editor.element("level").orElseThrow();
+        Element host = doc.root().descendant("host").orElseThrow();
+        Element port = doc.root().descendant("port").orElseThrow();
+        Element name = doc.root().descendant("name").orElseThrow();
+        Element level = doc.root().descendant("level").orElseThrow();
 
         // Verify trimmed content
         assertEquals("localhost", host.trimmedTextContent());
@@ -280,8 +280,8 @@ class ElementWhitespaceTest {
             </root>
             """;
 
-        Editor editor = new Editor(xml);
-        Element item = editor.element("item").orElseThrow();
+        Editor editor = new Editor(Document.of(xml));
+        Element item = doc.root().descendant("item").orElseThrow();
 
         // Test with null content
         item.textPreservingWhitespace(null);
@@ -301,8 +301,8 @@ class ElementWhitespaceTest {
             <item>   original   </item>
             """;
 
-        Editor editor = new Editor(xml);
-        Element item = editor.element("item").orElseThrow();
+        Editor editor = new Editor(Document.of(xml));
+        Element item = doc.root().descendant("item").orElseThrow();
 
         // getTrimmedTextContent should not mark as modified
         assertFalse(item.isModified());

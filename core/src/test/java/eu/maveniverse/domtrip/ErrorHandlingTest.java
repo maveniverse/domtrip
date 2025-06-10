@@ -22,7 +22,7 @@ public class ErrorHandlingTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
         parser = new Parser();
     }
 
@@ -75,7 +75,8 @@ public class ErrorHandlingTest {
     @Test
     void testAddElementWithNullName() throws ParseException {
         String xml = "<root/>";
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         assertThrows(InvalidXmlException.class, () -> {
@@ -86,7 +87,8 @@ public class ErrorHandlingTest {
     @Test
     void testAddElementWithEmptyName() throws ParseException {
         String xml = "<root/>";
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         assertThrows(InvalidXmlException.class, () -> {
@@ -97,7 +99,8 @@ public class ErrorHandlingTest {
     @Test
     void testAddElementWithWhitespaceOnlyName() throws ParseException {
         String xml = "<root/>";
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         assertThrows(InvalidXmlException.class, () -> {
@@ -115,7 +118,8 @@ public class ErrorHandlingTest {
     @Test
     void testAddCommentWithNullContent() throws ParseException {
         String xml = "<root/>";
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         // Should not throw - null content should be handled gracefully
@@ -127,7 +131,8 @@ public class ErrorHandlingTest {
     @Test
     void testSetAttributeWithNullName() throws ParseException {
         String xml = "<root/>";
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         // Implementation may handle null name gracefully
@@ -139,7 +144,8 @@ public class ErrorHandlingTest {
     @Test
     void testSetAttributeWithNullValue() throws ParseException {
         String xml = "<root/>";
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         // Should handle null value gracefully
@@ -150,7 +156,8 @@ public class ErrorHandlingTest {
     @Test
     void testRemoveNonExistentElement() throws ParseException {
         String xml = "<root><child/></root>";
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         Element child = (Element) root.getNode(0);
 
@@ -166,17 +173,18 @@ public class ErrorHandlingTest {
     @Test
     void testFindElementInEmptyDocument() {
         // Don't load any XML
-        Optional<Element> result = editor.element("nonexistent");
+        Optional<Element> result = doc.root().descendant("nonexistent");
         assertFalse(result.isPresent());
     }
 
     @Test
     void testFindElementWithNullName() throws ParseException {
         String xml = "<root><child/></root>";
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
 
         // This should return empty Optional for null name
-        Optional<Element> result = editor.element((String) null);
+        Optional<Element> result = doc.root().descendant((String) null);
         assertFalse(result.isPresent());
     }
 
@@ -267,7 +275,8 @@ public class ErrorHandlingTest {
         // Test with valid but unusual element names
         String xml = "<root><element-with-dashes/><element_with_underscores/><element.with.dots/></root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
         assertTrue(result.contains("element-with-dashes"));
         assertTrue(result.contains("element_with_underscores"));
@@ -279,7 +288,8 @@ public class ErrorHandlingTest {
         // Test with valid but unusual attribute names
         String xml = "<root attr-dash=\"value1\" attr_underscore=\"value2\" attr.dot=\"value3\"/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         assertEquals("value1", root.attribute("attr-dash"));
         assertEquals("value2", root.attribute("attr_underscore"));

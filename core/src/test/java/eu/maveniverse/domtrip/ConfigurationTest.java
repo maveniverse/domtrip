@@ -96,12 +96,12 @@ public class ConfigurationTest {
         DomTripConfig config =
                 DomTripConfig.strict().withDefaultEncoding("ISO-8859-1").withDefaultQuoteStyle(QuoteStyle.SINGLE);
 
-        Editor editor = new Editor(config);
+        Editor editor = new Editor(Document.of(config));
         assertEquals(config, editor.config());
 
         // Test with XML
         String xml = "<root attr=\"value\">content</root>";
-        Editor editorWithXml = new Editor(xml, config);
+        Editor editorWithXml = new Editor(Document.of(xml, config));
         assertEquals(config, editorWithXml.config());
         assertNotNull(editorWithXml.document());
     }
@@ -115,7 +115,7 @@ public class ConfigurationTest {
         Serializer prettySerializer = new Serializer(DomTripConfig.prettyPrint());
         Serializer minimalSerializer = new Serializer(DomTripConfig.minimal());
 
-        Editor editor = new Editor(xml);
+        Editor editor = new Editor(Document.of(xml));
         Document doc = editor.document();
 
         String defaultResult = defaultSerializer.serialize(doc);

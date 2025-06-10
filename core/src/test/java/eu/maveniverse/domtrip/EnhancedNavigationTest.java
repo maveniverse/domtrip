@@ -47,7 +47,7 @@ public class EnhancedNavigationTest {
             </project>
             """;
 
-        editor = new Editor(xml);
+        editor = new Editor(Document.of(xml));
         document = editor.document();
         root = editor.root().orElseThrow();
     }

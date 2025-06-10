@@ -16,7 +16,7 @@ public class TextNodeTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
@@ -248,7 +248,8 @@ public class TextNodeTest {
     void testTextInDocument() {
         String xml = "<root>Simple text content</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         Text textNode = (Text) root.getNode(0);
 
@@ -260,7 +261,8 @@ public class TextNodeTest {
     void testCDataInDocument() {
         String xml = "<root><![CDATA[function() { return x < y; }]]></root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         Text cdataNode = (Text) root.getNode(0);
 
@@ -272,7 +274,8 @@ public class TextNodeTest {
     void testMixedTextAndCData() {
         String xml = "<root>Text before <![CDATA[CDATA content]]> text after</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertTrue(result.contains("Text before"));
@@ -284,7 +287,8 @@ public class TextNodeTest {
     void testTextWithEntities() {
         String xml = "<root>Text with &lt;entities&gt; &amp; symbols</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         Text textNode = (Text) root.getNode(0);
 

@@ -14,14 +14,15 @@ public class IndentationTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
     void testIndentationInference() {
         String xml = "<root>\n" + "    <existing>content</existing>\n" + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         editor.addElement(root, "newElement", "new content");
 
@@ -36,7 +37,8 @@ public class IndentationTest {
     void testTabIndentation() {
         String xml = "<root>\n" + "\t<existing>content</existing>\n" + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         editor.addElement(root, "newElement", "new content");
 
@@ -51,8 +53,9 @@ public class IndentationTest {
     void testNestedIndentation() {
         String xml = "<root>\n" + "  <parent>\n" + "    <child>content</child>\n" + "  </parent>\n" + "</root>";
 
-        editor.loadXml(xml);
-        Element parent = editor.element("parent").orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element parent = doc.root().descendant("parent").orElseThrow();
         editor.addElement(parent, "newChild", "new content");
 
         String result = editor.toXml();
@@ -69,7 +72,8 @@ public class IndentationTest {
                 + "  <element2>content2</element2>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         editor.addElement(root, "element3", "content3");
 
@@ -85,7 +89,8 @@ public class IndentationTest {
     void testCommentIndentation() {
         String xml = "<root>\n" + "  <element>content</element>\n" + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         editor.addComment(root, "This is a comment");
 
@@ -101,7 +106,8 @@ public class IndentationTest {
     void testEmptyElementIndentation() {
         String xml = "<root>\n" + "  <existing/>\n" + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         Element newElement = editor.addElement(root, "newEmpty");
 

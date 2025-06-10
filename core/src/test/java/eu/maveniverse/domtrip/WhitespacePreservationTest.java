@@ -26,8 +26,8 @@ class WhitespacePreservationTest {
             </config>
             """;
 
-        Editor editor = new Editor(originalXml);
-        Element database = editor.element("database").orElseThrow();
+        Editor editor = new Editor(Document.of(originalXml));
+        Element database = doc.root().descendant("database").orElseThrow();
         Element name = database.child("name").orElseThrow();
 
         // Change the text content
@@ -59,8 +59,8 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(originalXml);
-        Element description = editor.element("description").orElseThrow();
+        Editor editor = new Editor(Document.of(originalXml));
+        Element description = doc.root().descendant("description").orElseThrow();
 
         // Set multiline text content
         String newContent = "Line 1\nLine 2\nLine 3";
@@ -85,8 +85,8 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(originalXml);
-        Element item = editor.element("item").orElseThrow();
+        Editor editor = new Editor(Document.of(originalXml));
+        Element item = doc.root().descendant("item").orElseThrow();
 
         // Change content but preserve the whitespace pattern
         item.textContent("   new content   ");
@@ -107,9 +107,9 @@ class WhitespacePreservationTest {
             </config>
             """;
 
-        Editor editor = new Editor(originalXml);
-        Element path = editor.element("path").orElseThrow();
-        Element command = editor.element("command").orElseThrow();
+        Editor editor = new Editor(Document.of(originalXml));
+        Element path = doc.root().descendant("path").orElseThrow();
+        Element command = doc.root().descendant("command").orElseThrow();
 
         // Set content with special characters
         path.textContent("/home/user/my documents/file.txt");
@@ -138,9 +138,9 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(originalXml);
-        Element empty = editor.element("empty").orElseThrow();
-        Element selfClosing = editor.element("selfClosing").orElseThrow();
+        Editor editor = new Editor(Document.of(originalXml));
+        Element empty = doc.root().descendant("empty").orElseThrow();
+        Element selfClosing = doc.root().descendant("selfClosing").orElseThrow();
 
         // Add content to empty elements
         empty.textContent("now has content");
@@ -167,9 +167,9 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(originalXml);
-        Element hasContent = editor.element("hasContent").orElseThrow();
-        Element alsoHasContent = editor.element("alsoHasContent").orElseThrow();
+        Editor editor = new Editor(Document.of(originalXml));
+        Element hasContent = doc.root().descendant("hasContent").orElseThrow();
+        Element alsoHasContent = doc.root().descendant("alsoHasContent").orElseThrow();
 
         // Clear content
         hasContent.textContent("");
@@ -197,8 +197,8 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(originalXml);
-        Element value = editor.element("value").orElseThrow();
+        Editor editor = new Editor(Document.of(originalXml));
+        Element value = doc.root().descendant("value").orElseThrow();
 
         // Change the value
         value.textContent("new");
@@ -228,9 +228,9 @@ class WhitespacePreservationTest {
             </root>
             """;
 
-        Editor editor = new Editor(originalXml);
-        Element message = editor.element("message").orElseThrow();
-        Element data = editor.element("data").orElseThrow();
+        Editor editor = new Editor(Document.of(originalXml));
+        Element message = doc.root().descendant("message").orElseThrow();
+        Element data = doc.root().descendant("data").orElseThrow();
 
         // Set content that needs entity encoding
         message.textContent("Hello & goodbye");
@@ -264,8 +264,8 @@ class WhitespacePreservationTest {
             </project>
             """;
 
-        Editor editor = new Editor(originalXml);
-        Element version = editor.element("version").orElseThrow();
+        Editor editor = new Editor(Document.of(originalXml));
+        Element version = doc.root().descendant("version").orElseThrow();
 
         // Update the version
         version.textContent("2.0.0");
@@ -303,12 +303,12 @@ class WhitespacePreservationTest {
             </config>
             """;
 
-        Editor editor = new Editor(originalXml);
+        Editor editor = new Editor(Document.of(originalXml));
 
         // Make multiple text content changes
-        Element host = editor.element("host").orElseThrow();
-        Element port = editor.element("port").orElseThrow();
-        Element url = editor.element("url").orElseThrow();
+        Element host = doc.root().descendant("host").orElseThrow();
+        Element port = doc.root().descendant("port").orElseThrow();
+        Element url = doc.root().descendant("url").orElseThrow();
 
         host.textContent("production.example.com");
         port.textContent("443");
@@ -317,7 +317,7 @@ class WhitespacePreservationTest {
         String result = editor.toXml();
 
         // Parse the result and verify it's still valid
-        Editor roundTripEditor = new Editor(result);
+        Editor roundTripEditor = new Editor(Document.of(result));
 
         // Verify the changes persisted
         assertEquals(

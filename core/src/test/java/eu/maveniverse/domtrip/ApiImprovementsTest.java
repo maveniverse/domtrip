@@ -18,7 +18,7 @@ public class ApiImprovementsTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
@@ -96,15 +96,15 @@ public class ApiImprovementsTest {
         Element child2 = editor.addElement(root, "child2", "content2");
 
         // Test Optional return types
-        Optional<Element> foundChild1 = editor.element("child1");
+        Optional<Element> foundChild1 = doc.root().descendant("child1");
         assertTrue(foundChild1.isPresent());
         assertEquals("content1", foundChild1.orElseThrow().textContent());
 
-        Optional<Element> notFound = editor.element("nonexistent");
+        Optional<Element> notFound = doc.root().descendant("nonexistent");
         assertFalse(notFound.isPresent());
 
         // Test Stream return types
-        List<Element> allChildren = editor.elements("child1").collect(Collectors.toList());
+        List<Element> allChildren = doc.root().descendants("child1").collect(Collectors.toList());
         assertEquals(1, allChildren.size());
         assertEquals("child1", allChildren.get(0).name());
     }
@@ -122,7 +122,7 @@ public class ApiImprovementsTest {
         assertEquals("http://maven.apache.org/POM/4.0.0", dependency.namespaceURI());
 
         // Find element by QName
-        Optional<Element> found = editor.element(dependencyQName);
+        Optional<Element> found = doc.root().descendant(dependencyQName);
         assertTrue(found.isPresent());
         assertEquals(dependency, found.orElseThrow());
     }
@@ -231,7 +231,7 @@ public class ApiImprovementsTest {
         assertEquals("http://schemas.xmlsoap.org/soap/envelope/", envelope.namespaceURI());
 
         // Test QName element creation
-        Element body = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"));
+        Element body = Element.of(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"));
         body.addNode(new Text("body content"));
 
         assertEquals("soap:Body", body.name());
@@ -244,28 +244,28 @@ public class ApiImprovementsTest {
         Element root = editor.root().orElseThrow();
 
         // Test findOrCreateElement
-        Element version = editor.findOrCreateElement("version");
-        assertNotNull(version);
+        Element version = // FIXME: editor.findOrCreateElement("version");
+                assertNotNull(version);
         assertEquals("version", version.name());
 
         // Should find existing element on second call
-        Element sameVersion = editor.findOrCreateElement("version");
-        assertEquals(version, sameVersion);
+        Element sameVersion = // FIXME: editor.findOrCreateElement("version");
+                assertEquals(version, sameVersion);
 
         // Test setElementText with return value
-        boolean updated = editor.setElementText("version", "1.0.0");
-        assertTrue(updated);
+        boolean updated = // FIXME: editor.setElementText("version", "1.0.0");
+                assertTrue(updated);
         assertEquals("1.0.0", version.textContent());
 
-        boolean notUpdated = editor.setElementText("nonexistent", "value");
-        assertFalse(notUpdated);
+        boolean notUpdated = // FIXME: editor.setElementText("nonexistent", "value");
+                assertFalse(notUpdated);
 
         // Test setElementAttribute with return value
-        boolean attrSet = editor.setElementAttribute("version", "type", "release");
-        assertTrue(attrSet);
+        boolean attrSet = // FIXME: editor.setElementAttribute("version", "type", "release");
+                assertTrue(attrSet);
         assertEquals("release", version.attribute("type"));
 
-        boolean attrNotSet = editor.setElementAttribute("nonexistent", "attr", "value");
-        assertFalse(attrNotSet);
+        boolean attrNotSet = // FIXME: editor.setElementAttribute("nonexistent", "attr", "value");
+                assertFalse(attrNotSet);
     }
 }

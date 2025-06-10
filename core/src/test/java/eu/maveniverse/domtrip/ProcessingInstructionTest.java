@@ -17,7 +17,7 @@ public class ProcessingInstructionTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
@@ -25,7 +25,8 @@ public class ProcessingInstructionTest {
         String xml =
                 "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n" + "<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertTrue(result.contains("<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>"));
@@ -94,7 +95,8 @@ public class ProcessingInstructionTest {
                 + "  <?internal-pi some data?>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertTrue(result.contains("<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>"));
@@ -108,7 +110,8 @@ public class ProcessingInstructionTest {
     void testProcessingInstructionInDocument() {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet href=\"style.css\"?>\n" + "<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
         // Check that processing instructions are preserved in document
@@ -131,7 +134,8 @@ public class ProcessingInstructionTest {
     void testProcessingInstructionModification() {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?custom-pi original=\"data\"?>\n" + "<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
         // Find and modify the processing instruction
@@ -155,7 +159,8 @@ public class ProcessingInstructionTest {
     void testProcessingInstructionWithSpecialCharacters() {
         String xml = "<?target data with <special> &amp; characters?>\n<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Processing instructions should preserve content exactly
@@ -190,7 +195,8 @@ public class ProcessingInstructionTest {
                 + "  <another>more content</another>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertTrue(result.contains("<?processing instruction?>"));
@@ -202,7 +208,8 @@ public class ProcessingInstructionTest {
         // Test malformed PI (should still be handled)
         String xml = "<?no-target-just-data?>\n<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertTrue(result.contains("<?no-target-just-data?>"));
@@ -212,7 +219,8 @@ public class ProcessingInstructionTest {
     void testXmlDeclarationAsProcessingInstruction() {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
         // XML declaration should be stored separately, not as a PI

@@ -12,7 +12,7 @@ class EditorConstructorTest {
 
     @Test
     void testDefaultConstructor() {
-        Editor editor = new Editor();
+        Editor editor = new Editor(Document.of());
         assertNotNull(editor);
         assertNull(editor.document());
         assertNotNull(editor.config());
@@ -21,7 +21,7 @@ class EditorConstructorTest {
     @Test
     void testConfigConstructor() {
         DomTripConfig config = DomTripConfig.prettyPrint();
-        Editor editor = new Editor(config);
+        Editor editor = new Editor(Document.of(config));
         assertNotNull(editor);
         assertNull(editor.document());
         assertEquals(config, editor.config());
@@ -30,7 +30,7 @@ class EditorConstructorTest {
     @Test
     void testStringConstructor() throws ParseException {
         String xml = "<?xml version=\"1.0\"?><root><child>value</child></root>";
-        Editor editor = new Editor(xml);
+        Editor editor = new Editor(Document.of(xml));
         assertNotNull(editor);
         assertNotNull(editor.document());
         assertEquals("root", editor.root().orElseThrow().name());
@@ -40,7 +40,7 @@ class EditorConstructorTest {
     void testStringWithConfigConstructor() throws ParseException {
         String xml = "<?xml version=\"1.0\"?><root><child>value</child></root>";
         DomTripConfig config = DomTripConfig.minimal();
-        Editor editor = new Editor(xml, config);
+        Editor editor = new Editor(Document.of(xml, config));
         assertNotNull(editor);
         assertNotNull(editor.document());
         assertEquals("root", editor.root().orElseThrow().name());
@@ -52,7 +52,7 @@ class EditorConstructorTest {
         // Create a document programmatically
         Document doc = Document.of().root(new Element("project"));
 
-        Editor editor = new Editor(doc);
+        Editor editor = new Editor(Document.of(doc));
         assertNotNull(editor);
         assertSame(doc, editor.document());
         assertEquals("project", editor.root().orElseThrow().name());
@@ -66,7 +66,7 @@ class EditorConstructorTest {
 
         DomTripConfig config = DomTripConfig.prettyPrint().withIndentString("  ");
 
-        Editor editor = new Editor(doc, config);
+        Editor editor = new Editor(Document.of(doc, config));
         assertNotNull(editor);
         assertSame(doc, editor.document());
         assertEquals("maven", editor.root().orElseThrow().name());
@@ -81,20 +81,20 @@ class EditorConstructorTest {
         Document document = parser.parse(xml);
 
         // Create Editor from existing Document
-        Editor editor = new Editor(document);
+        Editor editor = new Editor(Document.of(document));
 
         // Verify we can use the Editor API
         Element root = editor.root().orElseThrow();
         assertEquals("config", root.name());
 
-        Optional<Element> database = editor.element("database");
+        Optional<Element> database = doc.root().descendant("database");
         assertTrue(database.isPresent());
 
         // Add a new element
         editor.addElement(database.orElseThrow(), "port", "5432");
 
         // Verify the change
-        Optional<Element> port = editor.element("port");
+        Optional<Element> port = doc.root().descendant("port");
         assertTrue(port.isPresent());
         assertEquals("5432", port.orElseThrow().textContent());
 
@@ -114,7 +114,7 @@ class EditorConstructorTest {
 
         // Create Editor with custom config
         DomTripConfig config = DomTripConfig.prettyPrint().withIndentString("    ");
-        Editor editor = new Editor(doc, config);
+        Editor editor = new Editor(Document.of(doc, config));
 
         // Build document structure using Editor
         Element root = editor.root().orElseThrow();
@@ -123,9 +123,11 @@ class EditorConstructorTest {
         editor.addElement(root, "version", "1.0.0");
 
         // Verify structure
-        assertEquals("com.example", editor.element("groupId").orElseThrow().textContent());
-        assertEquals("my-project", editor.element("artifactId").orElseThrow().textContent());
-        assertEquals("1.0.0", editor.element("version").orElseThrow().textContent());
+        assertEquals(
+                "com.example", doc.root().descendant("groupId").orElseThrow().textContent());
+        assertEquals(
+                "my-project", doc.root().descendant("artifactId").orElseThrow().textContent());
+        assertEquals("1.0.0", doc.root().descendant("version").orElseThrow().textContent());
 
         // Verify serialization with pretty printing
         String result = editor.toXml();

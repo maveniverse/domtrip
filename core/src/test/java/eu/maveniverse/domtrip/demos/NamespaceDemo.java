@@ -26,9 +26,9 @@ public class NamespaceDemo {
         System.out.println("1. Basic Namespace Creation:");
 
         // Create elements with different namespace patterns using QName
-        Element defaultNs = Element.element(QName.of("http://example.com/default", "root"));
-        Element prefixedNs = Element.element(QName.of("http://example.com/ns", "element", "ex"));
-        Element withPreferredPrefix = Element.element(QName.of("http://example.com/api", "data", "api"));
+        Element defaultNs = Element.of(QName.of("http://example.com/default", "root"));
+        Element prefixedNs = Element.of(QName.of("http://example.com/ns", "element", "ex"));
+        Element withPreferredPrefix = Element.of(QName.of("http://example.com/api", "data", "api"));
         Element textInNs = Element.text(QName.of("http://example.com/content", "title"), "My Title");
 
         System.out.println("Default namespace element: " + defaultNs.toXml());
@@ -54,7 +54,7 @@ public class NamespaceDemo {
             </root>
             """;
 
-        Editor editor = new Editor(xml);
+        Editor editor = new Editor(Document.of(xml));
         Element root = editor.root().orElseThrow();
 
         // Demonstrate namespace-aware methods
@@ -135,7 +135,7 @@ public class NamespaceDemo {
             </root>
             """;
 
-        Editor editor = new Editor(xml);
+        Editor editor = new Editor(Document.of(xml));
         Element root = editor.root().orElseThrow();
 
         // Get namespace context at different levels
@@ -184,11 +184,11 @@ public class NamespaceDemo {
         soapEnvelope.name("soap:Envelope");
 
         // Create header using QName
-        Element header = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Header", "soap"));
+        Element header = Element.of(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Header", "soap"));
         soapEnvelope.addNode(header);
 
         // Create body using QName
-        Element body = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"));
+        Element body = Element.of(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"));
 
         // Add a custom method call in body using QName
         Element methodCall = Element.of("GetUserInfo").namespaceDeclaration(null, "http://example.com/userservice");

@@ -89,7 +89,7 @@ public class ApiImprovementsTest {
     void testStandardizedReturnTypes() throws Exception {
         // Create a test document
         editor.createDocument("root");
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         // Add some elements
         Element child1 = editor.addElement(root, "child1", "content1");
@@ -112,7 +112,7 @@ public class ApiImprovementsTest {
     @Test
     void testQNameElementCreation() throws Exception {
         editor.createDocument("root");
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         // Create element with QName
         QName dependencyQName = QName.of("http://maven.apache.org/POM/4.0.0", "dependency");
@@ -131,7 +131,7 @@ public class ApiImprovementsTest {
     void testElementQueryAPI() throws Exception {
         // Create a test document with multiple elements
         editor.createDocument("project");
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         // Add dependencies
         Element dependencies = editor.addElement(root, "dependencies");
@@ -168,7 +168,7 @@ public class ApiImprovementsTest {
     void testPathBasedNavigation() throws Exception {
         // Create a nested document structure
         editor.createDocument("project");
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         Element dependencies = editor.addElement(root, "dependencies");
         Element dependency = editor.addElement(dependencies, "dependency");
@@ -192,7 +192,7 @@ public class ApiImprovementsTest {
     @Test
     void testEnhancedElementNavigation() throws Exception {
         editor.createDocument("root");
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         // Add child elements
         Element child1 = editor.addElement(root, "child", "content1");
@@ -241,7 +241,7 @@ public class ApiImprovementsTest {
     @Test
     void testImprovedConvenienceMethods() throws Exception {
         editor.createDocument("root");
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         // Test findOrCreateElement
         Element version = editor.findOrCreateElement("version");

@@ -22,7 +22,7 @@ public class IndentationTest {
         String xml = "<root>\n" + "    <existing>content</existing>\n" + "</root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         editor.addElement(root, "newElement", "new content");
 
         String result = editor.toXml();
@@ -37,7 +37,7 @@ public class IndentationTest {
         String xml = "<root>\n" + "\t<existing>content</existing>\n" + "</root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         editor.addElement(root, "newElement", "new content");
 
         String result = editor.toXml();
@@ -70,7 +70,7 @@ public class IndentationTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         editor.addElement(root, "element3", "content3");
 
         String result = editor.toXml();
@@ -86,7 +86,7 @@ public class IndentationTest {
         String xml = "<root>\n" + "  <element>content</element>\n" + "</root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         editor.addComment(root, "This is a comment");
 
         String result = editor.toXml();
@@ -102,7 +102,7 @@ public class IndentationTest {
         String xml = "<root>\n" + "  <existing/>\n" + "</root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         Element newElement = editor.addElement(root, "newEmpty");
 
         String result = editor.toXml();
@@ -115,7 +115,7 @@ public class IndentationTest {
     @Test
     void testDocumentCreationIndentation() {
         editor.createDocument("root");
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         editor.addElement(root, "child1", "content1");
         editor.addElement(root, "child2", "content2");

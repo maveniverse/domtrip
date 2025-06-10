@@ -32,10 +32,10 @@ public abstract class ContainerNode extends Node {
     /**
      * Adds a child node to this container.
      */
-    public void addChild(Node child) {
-        if (child != null) {
-            child.parent(this);
-            nodes.add(child);
+    public void addNode(Node node) {
+        if (node != null) {
+            node.parent(this);
+            nodes.add(node);
             // If this is an Element and it was self-closing, make it not self-closing
             if (this instanceof Element element) {
                 if (element.selfClosing()) {
@@ -49,10 +49,10 @@ public abstract class ContainerNode extends Node {
     /**
      * Adds a child without marking as modified (for use during parsing).
      */
-    void addChildInternal(Node child) {
-        if (child != null) {
-            child.parent(this);
-            nodes.add(child);
+    void addNodeInternal(Node node) {
+        if (node != null) {
+            node.parent(this);
+            nodes.add(node);
             // Don't call markModified() here
         }
     }
@@ -60,10 +60,10 @@ public abstract class ContainerNode extends Node {
     /**
      * Inserts a child at the specified index.
      */
-    public void insertChild(int index, Node child) {
-        if (child != null && index >= 0 && index <= nodes.size()) {
-            child.parent(this);
-            nodes.add(index, child);
+    public void insertNode(int index, Node node) {
+        if (node != null && index >= 0 && index <= nodes.size()) {
+            node.parent(this);
+            nodes.add(index, node);
             // If this is an Element and it was self-closing, make it not self-closing
             if (this instanceof Element element) {
                 if (element.selfClosing()) {
@@ -77,9 +77,9 @@ public abstract class ContainerNode extends Node {
     /**
      * Removes a child node from this container.
      */
-    public boolean removeChild(Node child) {
-        if (nodes.remove(child)) {
-            child.parent(null);
+    public boolean removeNode(Node node) {
+        if (nodes.remove(node)) {
+            node.parent(null);
             markModified();
             return true;
         }
@@ -89,7 +89,7 @@ public abstract class ContainerNode extends Node {
     /**
      * Gets the child at the specified index.
      */
-    public Node getChild(int index) {
+    public Node getNode(int index) {
         if (index >= 0 && index < nodes.size()) {
             return nodes.get(index);
         }
@@ -106,10 +106,10 @@ public abstract class ContainerNode extends Node {
     /**
      * Finds the first text node child.
      */
-    public Optional<Text> findTextChild() {
+    public Optional<Text> findTextNode() {
         return nodes.stream()
-                .filter(child -> child instanceof Text)
-                .map(child -> (Text) child)
+                .filter(node -> node instanceof Text)
+                .map(node -> (Text) node)
                 .findFirst();
     }
 
@@ -118,8 +118,8 @@ public abstract class ContainerNode extends Node {
      */
     public String textContent() {
         StringBuilder sb = new StringBuilder();
-        for (Node child : nodes) {
-            if (child instanceof Text textNode) {
+        for (Node node : nodes) {
+            if (node instanceof Text textNode) {
                 sb.append(textNode.content());
             }
         }
@@ -129,22 +129,15 @@ public abstract class ContainerNode extends Node {
     /**
      * Checks if this node has any child elements.
      */
-    public boolean hasChildElements() {
-        return nodes.stream().anyMatch(child -> child instanceof Element);
+    public boolean hasNodeElements() {
+        return nodes.stream().anyMatch(node -> node instanceof Element);
     }
 
     /**
      * Checks if this node has any text content.
      */
     public boolean hasTextContent() {
-        return nodes.stream().anyMatch(child -> child instanceof Text);
-    }
-
-    /**
-     * Returns a stream of all child elements.
-     */
-    public Stream<Element> childElements() {
-        return nodes.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
+        return nodes.stream().anyMatch(node -> node instanceof Text);
     }
 
     /**
@@ -157,9 +150,9 @@ public abstract class ContainerNode extends Node {
     /**
      * Clears all children from this container.
      */
-    public void clearChildren() {
-        for (Node child : nodes) {
-            child.parent(null);
+    public void clearNodes() {
+        for (Node node : nodes) {
+            node.parent(null);
         }
         nodes.clear();
         markModified();
@@ -168,8 +161,8 @@ public abstract class ContainerNode extends Node {
     @Override
     public void clearModified() {
         super.clearModified();
-        for (Node child : nodes) {
-            child.clearModified();
+        for (Node node : nodes) {
+            node.clearModified();
         }
     }
 }

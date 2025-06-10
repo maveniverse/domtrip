@@ -49,13 +49,13 @@ public class ImprovedApiDemo {
         Element dependency = Element.withAttributes("dependency", Map.of("scope", "test", "optional", "true"));
 
         // Add using factory-created elements
-        doc.root().addChild(dependencies);
-        dependencies.addChild(dependency);
+        doc.root().addNode(dependencies);
+        dependencies.addNode(dependency);
 
         // Add child elements
-        dependency.addChild(Element.text("groupId", "junit"));
-        dependency.addChild(Element.text("artifactId", "junit"));
-        dependency.addChild(Element.text("version", "4.13.2"));
+        dependency.addNode(Element.text("groupId", "junit"));
+        dependency.addNode(Element.text("artifactId", "junit"));
+        dependency.addNode(Element.text("version", "4.13.2"));
 
         System.out.println("Created document using factories:");
         System.out.println(doc.toXml());

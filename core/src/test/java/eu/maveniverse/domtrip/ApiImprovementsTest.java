@@ -232,7 +232,7 @@ public class ApiImprovementsTest {
 
         // Test QName element creation
         Element body = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"));
-        body.addChild(new Text("body content"));
+        body.addNode(new Text("body content"));
 
         assertEquals("soap:Body", body.name());
         assertEquals("body content", body.textContent());

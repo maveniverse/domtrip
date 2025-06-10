@@ -134,7 +134,7 @@ public class EnhancedNavigationTest {
     @Test
     void testChildElements() {
         // Test direct child elements
-        List<Element> rootChildren = root.childElements().toList();
+        List<Element> rootChildren = root.children().toList();
         assertEquals(5, rootChildren.size()); // groupId, artifactId, version, dependencies, properties
 
         List<String> childNames = rootChildren.stream().map(Element::name).toList();
@@ -146,7 +146,7 @@ public class EnhancedNavigationTest {
 
         // Test child elements of dependencies
         Element dependencies = root.child("dependencies").orElseThrow();
-        List<Element> depChildren = dependencies.childElements().toList();
+        List<Element> depChildren = dependencies.children().toList();
         assertEquals(2, depChildren.size());
         assertTrue(depChildren.stream().allMatch(el -> "dependency".equals(el.name())));
     }
@@ -195,13 +195,13 @@ public class EnhancedNavigationTest {
 
     @Test
     void testHasChildElements() {
-        assertTrue(root.hasChildElements());
+        assertTrue(root.hasNodeElements());
 
         Element dependencies = root.child("dependencies").orElseThrow();
-        assertTrue(dependencies.hasChildElements());
+        assertTrue(dependencies.hasNodeElements());
 
         Element groupId = root.child("groupId").orElseThrow();
-        assertFalse(groupId.hasChildElements());
+        assertFalse(groupId.hasNodeElements());
     }
 
     @Test

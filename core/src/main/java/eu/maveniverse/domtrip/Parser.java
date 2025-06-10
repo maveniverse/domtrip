@@ -94,7 +94,7 @@ public class Parser {
                     String decodedText = Text.unescapeTextContent(rawText);
                     Text textNode = new Text(decodedText, rawText);
                     ContainerNode current = (ContainerNode) nodeStack.peek();
-                    current.addChildInternal(textNode);
+                    current.addNodeInternal(textNode);
                     precedingWhitespace.setLength(0);
                 }
 
@@ -106,12 +106,12 @@ public class Parser {
                             // Parse comment
                             Comment comment = parseComment();
                             ContainerNode current = (ContainerNode) nodeStack.peek();
-                            current.addChildInternal(comment);
+                            current.addNodeInternal(comment);
                         } else if (position + 8 < length && xml.startsWith("<![CDATA[", position)) {
                             // Parse CDATA
                             Text cdata = parseCData();
                             ContainerNode current = (ContainerNode) nodeStack.peek();
-                            current.addChildInternal(cdata);
+                            current.addNodeInternal(cdata);
                         } else if (position + 9 < length && xml.startsWith("<!DOCTYPE", position)) {
                             // Parse DOCTYPE declaration
                             String doctype = parseDoctype();
@@ -129,7 +129,7 @@ public class Parser {
                             // Add other processing instructions as nodes
                             ProcessingInstruction piNode = new ProcessingInstruction(pi);
                             ContainerNode current = (ContainerNode) nodeStack.peek();
-                            current.addChildInternal(piNode);
+                            current.addNodeInternal(piNode);
                         }
                     } else if (nextChar == '/') {
                         // Parse closing tag
@@ -138,7 +138,7 @@ public class Parser {
                         // Parse opening tag
                         Element element = parseOpeningTag();
                         ContainerNode current = (ContainerNode) nodeStack.peek();
-                        current.addChildInternal(element);
+                        current.addNodeInternal(element);
 
                         if (!element.selfClosing()) {
                             nodeStack.push(element);
@@ -157,7 +157,7 @@ public class Parser {
             String rawText = precedingWhitespace.toString();
             String decodedText = Text.unescapeTextContent(rawText);
             Text textNode = new Text(decodedText, rawText);
-            document.addChildInternal(textNode);
+            document.addNodeInternal(textNode);
         }
 
         // Set the document element (first element child)

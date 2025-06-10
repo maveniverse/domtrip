@@ -235,7 +235,7 @@ public class ElementQuery {
      * @return a new ElementQuery with the has children filter applied
      */
     public ElementQuery withChildren() {
-        return new ElementQuery(rootElement, baseStream, filter.and(Element::hasChildElements));
+        return new ElementQuery(rootElement, baseStream, filter.and(Element::hasNodeElements));
     }
 
     /**
@@ -244,7 +244,7 @@ public class ElementQuery {
      * @return a new ElementQuery with the no children filter applied
      */
     public ElementQuery withoutChildren() {
-        return new ElementQuery(rootElement, baseStream, filter.and(element -> !element.hasChildElements()));
+        return new ElementQuery(rootElement, baseStream, filter.and(element -> !element.hasNodeElements()));
     }
 
     /**

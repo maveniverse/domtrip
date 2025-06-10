@@ -89,15 +89,15 @@ public class BuilderApiTest {
                 .attribute("attr2", "value2")
                 .attribute("attr3", "value3");
 
-        element.addChild(new Text("text content"));
-        element.addChild(Element.text("child", "child content"));
-        element.addChild(new Comment("This is a comment"));
+        element.addNode(new Text("text content"));
+        element.addNode(Element.text("child", "child content"));
+        element.addNode(new Comment("This is a comment"));
 
         assertEquals("complex", element.name());
         assertEquals("value1", element.attribute("attr1"));
         assertEquals("value2", element.attribute("attr2"));
         assertEquals("value3", element.attribute("attr3"));
-        assertTrue(element.hasChildElements());
+        assertTrue(element.hasNodeElements());
         assertTrue(element.hasTextContent());
     }
 
@@ -272,14 +272,14 @@ public class BuilderApiTest {
 
         // Add dependencies using element builder
         Element dependencies = Element.of("dependencies");
-        root.addChild(dependencies);
+        root.addNode(dependencies);
 
         Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
-        dependencies.addChild(dependency);
+        dependencies.addNode(dependency);
 
-        dependency.addChild(Element.text("groupId", "junit"));
-        dependency.addChild(Element.text("artifactId", "junit"));
-        dependency.addChild(Element.text("version", "4.13.2"));
+        dependency.addNode(Element.text("groupId", "junit"));
+        dependency.addNode(Element.text("artifactId", "junit"));
+        dependency.addNode(Element.text("version", "4.13.2"));
 
         // Serialize and verify
         String xml = doc.toXml();

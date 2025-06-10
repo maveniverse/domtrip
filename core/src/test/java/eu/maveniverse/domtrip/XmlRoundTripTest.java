@@ -123,8 +123,7 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         editor.loadXml(originalXml);
-        Element toRemove = editor.child(editor.root().orElseThrow(), "remove")
-                .orElseThrow();
+        Element toRemove = editor.root().orElseThrow().child("remove").orElseThrow();
         editor.removeElement(toRemove);
 
         String result = editor.toXml();

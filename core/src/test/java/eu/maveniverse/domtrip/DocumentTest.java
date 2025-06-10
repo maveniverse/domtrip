@@ -153,7 +153,7 @@ public class DocumentTest {
     void testDocumentToXml() {
         document.xmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
-        root.addChild(new Text("content"));
+        root.addNode(new Text("content"));
         document.root(root);
 
         String xml = document.toXml();

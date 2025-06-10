@@ -671,7 +671,7 @@ public class Editor {
 
         private EditorElementBuilder(Editor editor, QName qname) {
             this.editor = editor;
-            this.element = Element.element(qname);
+            this.element = Element.of(qname);
         }
 
         /**

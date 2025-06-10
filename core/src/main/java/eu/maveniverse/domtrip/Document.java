@@ -403,17 +403,6 @@ public class Document extends ContainerNode {
     /**
      * Creates an empty document with default settings.
      *
-     * <p>Creates a document with UTF-8 encoding, XML version 1.0, and no XML declaration.</p>
-     *
-     * @return a new empty Document
-     */
-    public static Document empty() {
-        return new Document();
-    }
-
-    /**
-     * Creates an empty document with default settings.
-     *
      * <p>Alias for {@link #empty()} following modern Java naming conventions.</p>
      *
      * @return a new empty Document

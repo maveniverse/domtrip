@@ -2,7 +2,6 @@ package eu.maveniverse.domtrip;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -14,20 +13,14 @@ import org.junit.jupiter.api.Test;
  */
 public class AttributeFormattingPreservationTest {
 
-    private Editor editor;
-
-    @BeforeEach
-    void setUp() {
-        editor = new Editor();
-    }
-
     @Test
     void testSetAttributePreservesQuoteStyle() {
         // Original XML with mixed quote styles
         String xml = "<root attr1='single' attr2=\"double\"/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Update existing attributes - should preserve quote styles
         root.attribute("attr1", "updated1");
@@ -45,8 +38,9 @@ public class AttributeFormattingPreservationTest {
         // Original XML with custom whitespace
         String xml = "<root  attr1=\"value1\"   attr2=\"value2\"/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Get original whitespace patterns
         String originalWhitespace1 = root.attributeObject("attr1").precedingWhitespace();
@@ -66,8 +60,9 @@ public class AttributeFormattingPreservationTest {
         // Original XML with custom whitespace
         String xml = "<root   attr1='value1'    attr2=\"value2\"/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Get original whitespace patterns
         String originalWhitespace1 = root.attributeObject("attr1").precedingWhitespace();
@@ -88,8 +83,9 @@ public class AttributeFormattingPreservationTest {
     void testNewAttributesUseDefaults() {
         String xml = "<root existing='value'/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Add new attributes
         root.attribute("new1", "value1");
@@ -113,8 +109,9 @@ public class AttributeFormattingPreservationTest {
                 + "  </items>\n"
                 + "</configuration>";
 
-        editor.loadXml(xml);
-        Element config = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element config = doc.root();
 
         // Update combine.children value - should preserve single quotes and whitespace
         config.attribute("combine.children", "merge");
@@ -131,8 +128,9 @@ public class AttributeFormattingPreservationTest {
         // XML with various formatting patterns
         String xml = "<element\n" + "    attr1=\"value1\"\n" + "  attr2='value2'\n" + "     attr3=\"value3\"/>";
 
-        editor.loadXml(xml);
-        Element element = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element element = doc.root();
 
         // Store original formatting
         String ws1 = element.attributeObject("attr1").precedingWhitespace();
@@ -193,8 +191,9 @@ public class AttributeFormattingPreservationTest {
     void testNullAndEmptyValues() {
         String xml = "<root attr='existing'/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Test null value
         root.attribute("attr", null);
@@ -212,8 +211,9 @@ public class AttributeFormattingPreservationTest {
         // XML with predominantly single quotes
         String xml = "<root attr1='value1' attr2='value2' attr3=\"value3\"/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Add new attribute via Editor - should infer single quotes (majority)
         root.attribute("attr4", "value4");
@@ -227,8 +227,9 @@ public class AttributeFormattingPreservationTest {
         // XML with predominantly double quotes
         String xml = "<root attr1=\"value1\" attr2=\"value2\" attr3='value3'/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Add new attribute via Editor - should infer double quotes (majority)
         root.attribute("attr4", "value4");
@@ -242,8 +243,9 @@ public class AttributeFormattingPreservationTest {
         // XML with custom spacing
         String xml = "<root  attr1=\"value1\"   attr2=\"value2\"/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Get the custom whitespace pattern from existing attributes
         String existingWhitespace = root.attributeObject("attr2").precedingWhitespace();
@@ -263,8 +265,9 @@ public class AttributeFormattingPreservationTest {
         // XML with multi-line attribute alignment - exact example from documentation
         String xml = "<element attr1=\"value1\"\n" + "         attr2=\"value2\"/>";
 
-        editor.loadXml(xml);
-        Element element = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element element = doc.root();
 
         // Add new attribute via Editor - should infer alignment pattern
         element.attribute("attr3", "value3");
@@ -311,8 +314,9 @@ public class AttributeFormattingPreservationTest {
         // Exact example from documentation comments
         String xml = "<element attr1=\"value1\"\n" + "         attr2=\"value2\"/>";
 
-        editor.loadXml(xml);
-        Element element = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element element = doc.root();
 
         // This is the exact call from the documentation
         element.attribute("attr3", "value3");
@@ -350,8 +354,9 @@ public class AttributeFormattingPreservationTest {
     void testEditorSetAttributeWithNoExistingAttributes() {
         String xml = "<root/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Add attribute to element with no existing attributes
         root.attribute("newAttr", "newValue");
@@ -366,8 +371,9 @@ public class AttributeFormattingPreservationTest {
     void testEditorSetAttributePreservesExistingFormatting() {
         String xml = "<root attr1='existing'/>";
 
-        editor.loadXml(xml);
-        Element root = editor.root().orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = doc.root();
 
         // Update existing attribute via Editor - should preserve formatting
         root.attribute("attr1", "updated");
@@ -388,8 +394,9 @@ public class AttributeFormattingPreservationTest {
                 + "  </configuration>\n"
                 + "</plugin>";
 
-        editor.loadXml(xml);
-        Element config = editor.element("configuration").orElseThrow();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element config = doc.root().descendant("configuration").orElseThrow();
 
         // Add new attribute via Editor - should infer alignment
         config.attribute("newAttr", "newValue");

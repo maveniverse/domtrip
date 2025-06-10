@@ -324,4 +324,22 @@ public class Attribute {
     public static Attribute of(String name, String value, QuoteStyle quoteStyle) {
         return new Attribute(name, value, quoteStyle, " ");
     }
+
+    /**
+     * Creates an attribute from a QName and value.
+     *
+     * <p>Creates an attribute using the QName's qualified name as the attribute name.
+     * This is useful for creating namespaced attributes.</p>
+     *
+     * @param qname the QName for the attribute
+     * @param value the attribute value
+     * @return a new Attribute
+     * @throws IllegalArgumentException if qname is null
+     */
+    public static Attribute of(QName qname, String value) {
+        if (qname == null) {
+            throw new IllegalArgumentException("QName cannot be null");
+        }
+        return new Attribute(qname.qualifiedName(), value);
+    }
 }

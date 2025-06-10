@@ -33,7 +33,7 @@ class EditorConstructorTest {
         Editor editor = new Editor(xml);
         assertNotNull(editor);
         assertNotNull(editor.document());
-        assertEquals("root", editor.documentElement().orElseThrow().name());
+        assertEquals("root", editor.root().orElseThrow().name());
     }
 
     @Test
@@ -43,7 +43,7 @@ class EditorConstructorTest {
         Editor editor = new Editor(xml, config);
         assertNotNull(editor);
         assertNotNull(editor.document());
-        assertEquals("root", editor.documentElement().orElseThrow().name());
+        assertEquals("root", editor.root().orElseThrow().name());
         assertEquals(config, editor.config());
     }
 
@@ -55,7 +55,7 @@ class EditorConstructorTest {
         Editor editor = new Editor(doc);
         assertNotNull(editor);
         assertSame(doc, editor.document());
-        assertEquals("project", editor.documentElement().orElseThrow().name());
+        assertEquals("project", editor.root().orElseThrow().name());
         assertNotNull(editor.config());
     }
 
@@ -69,7 +69,7 @@ class EditorConstructorTest {
         Editor editor = new Editor(doc, config);
         assertNotNull(editor);
         assertSame(doc, editor.document());
-        assertEquals("maven", editor.documentElement().orElseThrow().name());
+        assertEquals("maven", editor.root().orElseThrow().name());
         assertEquals(config, editor.config());
     }
 
@@ -84,7 +84,7 @@ class EditorConstructorTest {
         Editor editor = new Editor(document);
 
         // Verify we can use the Editor API
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         assertEquals("config", root.name());
 
         Optional<Element> database = editor.element("database");
@@ -117,7 +117,7 @@ class EditorConstructorTest {
         Editor editor = new Editor(doc, config);
 
         // Build document structure using Editor
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         editor.addElement(root, "groupId", "com.example");
         editor.addElement(root, "artifactId", "my-project");
         editor.addElement(root, "version", "1.0.0");

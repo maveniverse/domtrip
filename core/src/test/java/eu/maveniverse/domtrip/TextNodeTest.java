@@ -249,7 +249,7 @@ public class TextNodeTest {
         String xml = "<root>Simple text content</root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         Text textNode = (Text) root.getChild(0);
 
         assertEquals("Simple text content", textNode.content());
@@ -261,7 +261,7 @@ public class TextNodeTest {
         String xml = "<root><![CDATA[function() { return x < y; }]]></root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         Text cdataNode = (Text) root.getChild(0);
 
         assertEquals("function() { return x < y; }", cdataNode.content());
@@ -285,7 +285,7 @@ public class TextNodeTest {
         String xml = "<root>Text with &lt;entities&gt; &amp; symbols</root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         Text textNode = (Text) root.getChild(0);
 
         // Content should be decoded

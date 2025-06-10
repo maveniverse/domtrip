@@ -161,7 +161,7 @@ public class ConfigurationDemo {
         System.out.println("Quotes preserved: " + mixedQuotesXml.equals(editor.toXml()));
 
         // Demonstrate attribute builder with different quote styles
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         Attribute doubleQuoted = Attribute.builder()
                 .name("new-double")
@@ -223,7 +223,7 @@ public class ConfigurationDemo {
             System.out.println(prettyEditor.toXml());
 
             // Demonstrate adding elements with proper indentation
-            Element root = preserveEditor.documentElement().orElseThrow();
+            Element root = preserveEditor.root().orElseThrow();
             preserveEditor.addElement(root, "newChild", "new content");
             System.out.println("\nAfter adding element (indentation preserved):");
             System.out.println(preserveEditor.toXml());

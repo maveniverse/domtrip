@@ -527,12 +527,12 @@ public class Editor {
      */
     public Optional<Element> path(String... path) {
         if (path == null || path.length == 0) {
-            return documentElement();
+            return root();
         }
 
         return Arrays.stream(path)
                 .reduce(
-                        documentElement(),
+                        root(),
                         (current, elementName) -> current.flatMap(el -> el.child(elementName)),
                         (a, b) -> b);
     }
@@ -545,11 +545,11 @@ public class Editor {
      */
     public Optional<Element> path(QName... path) {
         if (path == null || path.length == 0) {
-            return documentElement();
+            return root();
         }
 
         return Arrays.stream(path)
-                .reduce(documentElement(), (current, qname) -> current.flatMap(el -> el.child(qname)), (a, b) -> b);
+                .reduce(root(), (current, qname) -> current.flatMap(el -> el.child(qname)), (a, b) -> b);
     }
 
     /**
@@ -559,7 +559,7 @@ public class Editor {
      * @param name the child element name
      * @return an Optional containing the first matching child element, or empty if none found
      */
-    public Optional<Element> childElement(Element parent, String name) {
+    public Optional<Element> child(Element parent, String name) {
         return parent != null ? parent.child(name) : Optional.empty();
     }
 
@@ -570,7 +570,7 @@ public class Editor {
      * @param qname the child element QName
      * @return an Optional containing the first matching child element, or empty if none found
      */
-    public Optional<Element> childElement(Element parent, QName qname) {
+    public Optional<Element> child(Element parent, QName qname) {
         return parent != null ? parent.child(qname) : Optional.empty();
     }
 
@@ -595,7 +595,7 @@ public class Editor {
      *
      * @return an Optional containing the root element, or empty if no document is loaded
      */
-    public Optional<Element> documentElement() {
+    public Optional<Element> root() {
         return Optional.ofNullable(document != null ? document.root() : null);
     }
 
@@ -665,7 +665,7 @@ public class Editor {
      */
     public Element findOrCreateElement(String name) throws InvalidXmlException {
         return element(name).orElseGet(() -> {
-            Element root = documentElement()
+            Element root = root()
                     .orElseThrow(
                             () -> new InvalidXmlException("No document root element available to add new element"));
             try {
@@ -689,7 +689,7 @@ public class Editor {
         }
 
         return element(qname).orElseGet(() -> {
-            Element root = documentElement()
+            Element root = root()
                     .orElseThrow(
                             () -> new InvalidXmlException("No document root element available to add new element"));
             try {

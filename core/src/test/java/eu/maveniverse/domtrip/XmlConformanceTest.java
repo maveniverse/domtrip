@@ -55,7 +55,7 @@ public class XmlConformanceTest {
                 + "  attr4=\"no-space\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         assertEquals("single", root.attribute("attr1"));
         assertEquals("double", root.attribute("attr2"));
@@ -75,7 +75,7 @@ public class XmlConformanceTest {
                 "<root>\n" + "  <text>&lt;tag&gt; &amp; &quot;quotes&quot; &apos;apostrophe&apos;</text>\n" + "</root>";
 
         editor.loadXml(xml);
-        Element textElement = (Element) editor.documentElement().orElseThrow().getChild(1);
+        Element textElement = (Element) editor.root().orElseThrow().getChild(1);
         String content = textElement.textContent();
 
         // Entities should be decoded in the content
@@ -125,8 +125,8 @@ public class XmlConformanceTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element element = (Element) editor.documentElement().orElseThrow().getChild(1);
-        Element preserve = (Element) editor.documentElement().orElseThrow().getChild(3);
+        Element element = (Element) editor.root().orElseThrow().getChild(1);
+        Element preserve = (Element) editor.root().orElseThrow().getChild(3);
 
         // Text content should include whitespace
         assertEquals("  content with spaces  ", element.textContent());
@@ -175,7 +175,7 @@ public class XmlConformanceTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         // Should have multiple children: text, element, text, element, text
         assertTrue(root.nodeCount() >= 5);

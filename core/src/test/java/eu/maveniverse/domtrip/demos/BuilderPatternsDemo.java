@@ -133,7 +133,7 @@ public class BuilderPatternsDemo {
                 .withPrettyPrint(true));
 
         editor.createDocument("project");
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
 
         // Build complex structure using fluent API
         editor.add().element("modelVersion").to(root).withText("4.0.0").build();

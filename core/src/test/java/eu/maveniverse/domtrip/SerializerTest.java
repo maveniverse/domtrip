@@ -182,7 +182,7 @@ public class SerializerTest {
         String xml = "<root><element attr=\"original\">original content</element></root>";
 
         editor.loadXml(xml);
-        Element root = editor.documentElement().orElseThrow();
+        Element root = editor.root().orElseThrow();
         Element element = (Element) root.getChild(0);
 
         // Modify the element

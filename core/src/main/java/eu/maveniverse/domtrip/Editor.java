@@ -2,7 +2,6 @@ package eu.maveniverse.domtrip;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * High-level API for editing XML documents while preserving original formatting.
@@ -24,10 +23,11 @@ import java.util.stream.Stream;
  * <h3>Basic Usage:</h3>
  * <pre>{@code
  * // Parse existing XML
- * Editor editor = new Editor(xmlString);
+ * Document doc = Document.of(xmlString);
+ * Editor editor = new Editor(doc);
  *
  * // Make modifications
- * Element root = editor.root();
+ * Element root = editor.root().orElseThrow();
  * editor.addElement(root, "newChild", "content");
  * editor.setAttribute(root, "version", "2.0");  // Intelligently preserves formatting
  *
@@ -55,7 +55,8 @@ import java.util.stream.Stream;
  *     .withIndentation("  ")
  *     .withPreserveComments(true);
  *
- * Editor editor = new Editor(xmlString, config);
+ * Document doc = Document.of(xmlString);
+ * Editor editor = new Editor(doc, config);
  *
  * // Different output styles
  * String pretty = editor.toXml(DomTripConfig.prettyPrint());
@@ -76,17 +77,14 @@ import java.util.stream.Stream;
  * <h3>Working with Existing Documents:</h3>
  * <pre>{@code
  * // Use an existing Document object
- * Document existingDoc = parser.parse(xmlString);
+ * Document existingDoc = Document.of(xmlString);
  * Editor editor = new Editor(existingDoc);
  *
  * // Or with custom configuration
  * Editor editor = new Editor(existingDoc, DomTripConfig.prettyPrint());
  *
  * // Work with programmatically created documents
- * Document doc = Document.builder()
- *     .withRootElement("project")
- *     .withXmlDeclaration()
- *     .build();
+ * Document doc = Document.withRootElement("project");
  * Editor editor = new Editor(doc);
  * }</pre>
  *
@@ -109,15 +107,6 @@ public class Editor {
 
     public Editor(DomTripConfig config) {
         this((Document) null, config);
-    }
-
-    public Editor(String xml) throws ParseException {
-        this(xml, null);
-    }
-
-    public Editor(String xml, DomTripConfig config) throws ParseException {
-        this((Document) null, config);
-        loadXml(xml);
     }
 
     /**
@@ -189,13 +178,6 @@ public class Editor {
         this.serializer = new Serializer();
         this.whitespaceManager = new WhitespaceManager(this.config);
         this.document = document; // Can be null for empty editors
-    }
-
-    /**
-     * Loads XML content into the editor
-     */
-    public void loadXml(String xml) throws ParseException {
-        this.document = parser.parse(xml);
     }
 
     /**
@@ -461,59 +443,6 @@ public class Editor {
     }
 
     /**
-     * Finds the first element with the given name in the document.
-     *
-     * @param name the element name to search for
-     * @return an Optional containing the first matching element, or empty if none found
-     */
-    public Optional<Element> element(String name) {
-        if (name == null) {
-            return Optional.empty();
-        }
-        Element found = document != null ? document.findElement(name) : null;
-        return Optional.ofNullable(found);
-    }
-
-    /**
-     * Finds the first element with the given QName in the document.
-     *
-     * @param qname the QName to search for
-     * @return an Optional containing the first matching element, or empty if none found
-     */
-    public Optional<Element> element(QName qname) {
-        if (qname == null || document == null) {
-            return Optional.empty();
-        }
-        return document.root() != null ? document.root().descendant(qname) : Optional.empty();
-    }
-
-    /**
-     * Finds all elements with the given name in the document.
-     *
-     * @param name the element name to search for
-     * @return a Stream of matching elements
-     */
-    public Stream<Element> elements(String name) {
-        if (name == null || document == null || document.root() == null) {
-            return Stream.empty();
-        }
-        return document.root().descendants(name);
-    }
-
-    /**
-     * Finds all elements with the given QName in the document.
-     *
-     * @param qname the QName to search for
-     * @return a Stream of matching elements
-     */
-    public Stream<Element> elements(QName qname) {
-        if (qname == null || document == null || document.root() == null) {
-            return Stream.empty();
-        }
-        return document.root().descendants(qname);
-    }
-
-    /**
      * Creates a new XML document with the specified root element
      */
     public void createDocument(String rootElementName) throws InvalidXmlException {
@@ -594,135 +523,6 @@ public class Editor {
     }
 
     // Convenience methods for common operations
-
-    /**
-     * Finds or creates an element with the given name.
-     *
-     * @param name the element name
-     * @return the found or newly created element
-     * @throws InvalidXmlException if the element cannot be created
-     */
-    public Element findOrCreateElement(String name) throws InvalidXmlException {
-        return element(name).orElseGet(() -> {
-            Element root = root().orElseThrow(
-                            () -> new InvalidXmlException("No document root element available to add new element"));
-            try {
-                return addElement(root, name);
-            } catch (InvalidXmlException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    /**
-     * Finds or creates an element with the given QName.
-     *
-     * @param qname the element QName
-     * @return the found or newly created element
-     * @throws InvalidXmlException if the element cannot be created
-     */
-    public Element findOrCreateElement(QName qname) throws InvalidXmlException {
-        if (qname == null) {
-            throw new InvalidXmlException("QName cannot be null");
-        }
-
-        return element(qname).orElseGet(() -> {
-            Element root = root().orElseThrow(
-                            () -> new InvalidXmlException("No document root element available to add new element"));
-            try {
-                return addElement(root, qname);
-            } catch (InvalidXmlException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    /**
-     * Sets element text content by name (finds first matching element).
-     *
-     * @param elementName the element name
-     * @param text the text content to set
-     * @return true if the element was found and updated, false otherwise
-     * @throws InvalidXmlException if the text content cannot be set
-     */
-    public boolean setElementText(String elementName, String text) throws InvalidXmlException {
-        return element(elementName)
-                .map(el -> {
-                    try {
-                        setTextContent(el, text);
-                        return true;
-                    } catch (InvalidXmlException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .orElse(false);
-    }
-
-    /**
-     * Sets element text content by QName (finds first matching element).
-     *
-     * @param qname the element QName
-     * @param text the text content to set
-     * @return true if the element was found and updated, false otherwise
-     * @throws InvalidXmlException if the text content cannot be set
-     */
-    public boolean setElementText(QName qname, String text) throws InvalidXmlException {
-        return element(qname)
-                .map(el -> {
-                    try {
-                        setTextContent(el, text);
-                        return true;
-                    } catch (InvalidXmlException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .orElse(false);
-    }
-
-    /**
-     * Sets element attribute by element name (finds first matching element).
-     *
-     * @param elementName the element name
-     * @param attrName the attribute name
-     * @param attrValue the attribute value
-     * @return true if the element was found and updated, false otherwise
-     * @throws InvalidXmlException if the attribute cannot be set
-     */
-    public boolean setElementAttribute(String elementName, String attrName, String attrValue)
-            throws InvalidXmlException {
-        return element(elementName)
-                .map(el -> {
-                    try {
-                        setAttribute(el, attrName, attrValue);
-                        return true;
-                    } catch (InvalidXmlException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .orElse(false);
-    }
-
-    /**
-     * Sets element attribute by QName (finds first matching element).
-     *
-     * @param qname the element QName
-     * @param attrName the attribute name
-     * @param attrValue the attribute value
-     * @return true if the element was found and updated, false otherwise
-     * @throws InvalidXmlException if the attribute cannot be set
-     */
-    public boolean setElementAttribute(QName qname, String attrName, String attrValue) throws InvalidXmlException {
-        return element(qname)
-                .map(el -> {
-                    try {
-                        setAttribute(el, attrName, attrValue);
-                        return true;
-                    } catch (InvalidXmlException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .orElse(false);
-    }
 
     /**
      * Batch operation to set multiple attributes on an element.

@@ -360,83 +360,6 @@ public class Document extends ContainerNode {
     }
 
     /**
-     * Finds the first element with the given name in the document.
-     *
-     * <p>This method searches for an element by name in the following order:</p>
-     * <ol>
-     *   <li>The document element itself</li>
-     *   <li>Direct children of the document</li>
-     *   <li>Recursively within the document element tree</li>
-     * </ol>
-     *
-     * @param name the name of the element to find
-     * @return the first element with the specified name, or null if not found
-     * @throws NullPointerException if name is null
-     * @see Element#findChild(String)
-     */
-    public Element findElement(String name) {
-        if (name == null) {
-            throw new NullPointerException("Element name cannot be null");
-        }
-
-        // First check document element
-        if (root != null && name.equals(root.name())) {
-            return root;
-        }
-
-        // Then search in children
-        for (Node child : nodes) {
-            if (child instanceof Element) {
-                Element element = (Element) child;
-                if (name.equals(element.name())) {
-                    return element;
-                }
-            }
-        }
-
-        // Finally search recursively in document element
-        return findElementRecursive(root, name);
-    }
-
-    /**
-     * Finds the first element with the specified name in the document.
-     *
-     * @param name the name of the element to find
-     * @return the first element with the specified name, or null if not found
-     * @throws NullPointerException if name is null
-     */
-    public Element element(String name) {
-        return findElement(name);
-    }
-
-    /**
-     * Recursively searches for an element with the given name within a node tree.
-     *
-     * @param node the node to search within
-     * @param name the name of the element to find
-     * @return the first element with the specified name, or null if not found
-     */
-    private Element findElementRecursive(Node node, String name) {
-        if (node == null) return null;
-
-        if (node instanceof ContainerNode container) {
-            for (Node child : container.nodes) {
-                if (child instanceof Element) {
-                    Element element = (Element) child;
-                    if (name.equals(element.name())) {
-                        return element;
-                    }
-                    Element found = findElementRecursive(element, name);
-                    if (found != null) {
-                        return found;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
      * Creates a minimal XML declaration based on current document settings.
      *
      * <p>Generates an XML declaration using the current version, encoding, and
@@ -497,6 +420,27 @@ public class Document extends ContainerNode {
      */
     public static Document of() {
         return new Document();
+    }
+
+    /**
+     * Creates a document by parsing the provided XML string.
+     *
+     * <p>This is a convenience method that combines document creation and XML parsing
+     * in a single call. It uses the default parser configuration.</p>
+     *
+     * @param xml the XML string to parse
+     * @return a new Document containing the parsed XML
+     * @throws InvalidXmlException if the XML is malformed or cannot be parsed
+     */
+    public static Document of(String xml) throws InvalidXmlException {
+        if (xml == null || xml.trim().isEmpty()) {
+            throw new InvalidXmlException("XML string cannot be null or empty");
+        }
+        try {
+            return new Parser().parse(xml);
+        } catch (ParseException e) {
+            throw new InvalidXmlException("Failed to parse XML: " + e.getMessage(), e);
+        }
     }
 
     /**

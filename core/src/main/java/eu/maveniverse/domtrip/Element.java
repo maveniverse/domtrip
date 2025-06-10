@@ -1,5 +1,6 @@
 package eu.maveniverse.domtrip;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -784,6 +785,44 @@ public class Element extends ContainerNode {
      */
     public ElementQuery query() {
         return new ElementQuery(this);
+    }
+
+    // Path-based navigation methods
+
+    /**
+     * Finds an element by following a path of element names from this element.
+     *
+     * <p>Example: {@code element.path("dependencies", "dependency")} will find
+     * the first dependency element under this element's dependencies child.</p>
+     *
+     * @param path the path of element names to follow
+     * @return an Optional containing the element at the end of the path, or empty if not found
+     */
+    public Optional<Element> path(String... path) {
+        if (path == null || path.length == 0) {
+            return Optional.of(this);
+        }
+
+        return Arrays.stream(path)
+                .reduce(
+                        Optional.of(this),
+                        (current, elementName) -> current.flatMap(el -> el.child(elementName)),
+                        (a, b) -> b);
+    }
+
+    /**
+     * Finds an element by following a path of QNames from this element.
+     *
+     * @param path the path of QNames to follow
+     * @return an Optional containing the element at the end of the path, or empty if not found
+     */
+    public Optional<Element> path(QName... path) {
+        if (path == null || path.length == 0) {
+            return Optional.of(this);
+        }
+
+        return Arrays.stream(path)
+                .reduce(Optional.of(this), (current, qname) -> current.flatMap(el -> el.child(qname)), (a, b) -> b);
     }
 
     /**

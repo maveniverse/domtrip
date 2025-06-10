@@ -175,16 +175,16 @@ public class ApiImprovementsTest {
         Element groupId = editor.addElement(dependency, "groupId", "junit");
 
         // Test path-based navigation
-        Optional<Element> foundGroupId = editor.path("dependencies", "dependency", "groupId");
+        Optional<Element> foundGroupId = root.path("dependencies", "dependency", "groupId");
         assertTrue(foundGroupId.isPresent());
         assertEquals("junit", foundGroupId.orElseThrow().textContent());
 
         // Test path that doesn't exist
-        Optional<Element> notFound = editor.path("dependencies", "nonexistent");
+        Optional<Element> notFound = root.path("dependencies", "nonexistent");
         assertFalse(notFound.isPresent());
 
         // Test partial path
-        Optional<Element> foundDependencies = editor.path("dependencies");
+        Optional<Element> foundDependencies = root.path("dependencies");
         assertTrue(foundDependencies.isPresent());
         assertEquals("dependencies", foundDependencies.orElseThrow().name());
     }

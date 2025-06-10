@@ -126,10 +126,7 @@ public class Editor {
      * Editor editor = new Editor(existingDoc);
      *
      * // Working with a programmatically created document
-     * Document doc = Document.builder()
-     *     .withRootElement("project")
-     *     .withXmlDeclaration()
-     *     .build();
+     * Document doc = Document.withRootElement("project");
      * Editor editor = new Editor(doc);
      *
      * // Continue editing

@@ -23,6 +23,13 @@ package eu.maveniverse.domtrip;
  * // Create a comment
  * Comment comment = new Comment("This is a comment");
  *
+ * // Create using factory method
+ * Comment factoryComment = Comment.of("This is a factory comment");
+ *
+ * // Create and modify with fluent API
+ * Comment fluentComment = Comment.of("Initial content")
+ *     .content("Updated content");
+ *
  * // Add to document
  * document.addChild(comment);
  *
@@ -34,11 +41,6 @@ package eu.maveniverse.domtrip;
  * if (comment.isWhitespaceOnly()) {
  *     // Handle whitespace-only comment
  * }
- *
- * // Use builder pattern
- * Comment builderComment = Comment.builder()
- *     .withContent("This is a builder comment")
- *     .build();
  * }</pre>
  *
  * <h3>Best Practices:</h3>
@@ -96,9 +98,10 @@ public class Comment extends Node {
      * @param content the new comment content, or null for empty content
      * @see #content()
      */
-    public void content(String content) {
+    public Comment content(String content) {
         this.content = content != null ? content : "";
         markModified();
+        return this;
     }
 
     /**
@@ -170,92 +173,6 @@ public class Comment extends Node {
     public String toString() {
         String displayContent = content.length() > 50 ? content.substring(0, 47) + "..." : content;
         return "Comment{content='" + displayContent.replace("\n", "\\n") + "'}";
-    }
-
-    /**
-     * Builder for creating Comment instances with fluent API.
-     *
-     * <p>The Comment.Builder provides a convenient way to construct XML comments
-     * with proper content handling.</p>
-     *
-     * <h3>Usage Examples:</h3>
-     * <pre>{@code
-     * // Simple comment
-     * Comment comment = Comment.builder()
-     *     .withContent("This is a comment")
-     *     .build();
-     *
-     * // Multi-line comment
-     * Comment multiLine = Comment.builder()
-     *     .withContent("Line 1\nLine 2\nLine 3")
-     *     .build();
-     * }</pre>
-     *
-     */
-    public static class Builder {
-        private String content = "";
-
-        private Builder() {}
-
-        /**
-         * Sets the content of the comment.
-         *
-         * @param content the comment content
-         * @return this builder for method chaining
-         */
-        public Builder withContent(String content) {
-            this.content = content != null ? content : "";
-            return this;
-        }
-
-        /**
-         * Builds and returns the configured Comment instance.
-         *
-         * @return the constructed Comment
-         */
-        public Comment build() {
-            return new Comment(content);
-        }
-
-        /**
-         * Builds the comment and adds it to the specified parent using Editor's whitespace management.
-         *
-         * <p>This method integrates with the Editor's whitespace management to properly
-         * format the comment when adding it to the document tree.</p>
-         *
-         * @param editor the Editor instance for whitespace management
-         * @param parent the parent container to add this comment to
-         * @return the constructed and added Comment
-         * @throws IllegalArgumentException if editor or parent is null
-         */
-        public Comment buildAndAddTo(Editor editor, ContainerNode parent) {
-            if (editor == null) {
-                throw new IllegalArgumentException("Editor cannot be null");
-            }
-            if (parent == null) {
-                throw new IllegalArgumentException("Parent cannot be null");
-            }
-
-            Comment builtComment = build();
-
-            // Use Editor's whitespace management
-            String indentation = editor.whitespaceManager().inferIndentation(parent);
-            if (!indentation.isEmpty()) {
-                builtComment.precedingWhitespace("\n" + indentation);
-            }
-
-            parent.addNode(builtComment);
-            return builtComment;
-        }
-    }
-
-    /**
-     * Creates a new Comment builder instance.
-     *
-     * @return a new Comment.Builder for fluent comment construction
-     */
-    public static Builder builder() {
-        return new Builder();
     }
 
     /**

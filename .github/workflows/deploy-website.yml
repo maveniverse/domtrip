@@ -31,7 +31,16 @@ jobs:
         cache: 'maven'
 
     - name: Build website with Javadocs
-      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run -DskipTests  -Pinclude-javadocs -Dinclude.javadocs=true
+      run: |
+        # Fetch GitHub Pages URL
+        FULL_URL=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.html_url' 2>/dev/null || echo '')
+        SITE_URL=$(echo "$FULL_URL" | sed -E 's|(https?://[^/]+).*|\1|')        # Extract base URL
+        SITE_PATH=$(echo "$FULL_URL" | sed -E 's|https?://[^/]+||')             # Extract path
+        SITE_DIR="./"
+        echo "SITE_DIR=$SITE_DIR" >> $GITHUB_ENV
+        echo "SITE_URL=$SITE_URL" >> $GITHUB_ENV
+        echo "SITE_PATH=$SITE_PATH" >> $GITHUB_ENV
+        QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run -DskipTests -Pinclude-javadocs -Dinclude.javadocs=true        
     
     - name: Upload build artifacts
       uses: actions/upload-pages-artifact@v3

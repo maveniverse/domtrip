@@ -69,4 +69,44 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!-- Profile to include Javadocs in the website -->
+    <profile>
+      <id>include-javadocs</id>
+      <activation>
+        <property>
+          <name>include.javadocs</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <!-- Generate Javadocs during build -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.1.1</version>
+            <executions>
+              <execution>
+                <id>generate-javadocs</id>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <phase>process-resources</phase>
+                <configuration>
+                  <executable>bash</executable>
+                  <workingDirectory>${project.parent.basedir}</workingDirectory>
+                  <arguments>
+                    <argument>scripts/generate-javadocs.sh</argument>
+                    <argument>--static-generation</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

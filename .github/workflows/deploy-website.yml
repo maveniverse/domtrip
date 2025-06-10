@@ -30,8 +30,8 @@ jobs:
         java-version: '21'
         cache: 'maven'
 
-    - name: Build website
-      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run -DskipTests
+    - name: Build website with Javadocs
+      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run -DskipTests  -Pinclude-javadocs -Dinclude.javadocs=true
     
     - name: Upload build artifacts
       uses: actions/upload-pages-artifact@v3

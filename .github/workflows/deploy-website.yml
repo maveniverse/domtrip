@@ -31,6 +31,7 @@ jobs:
         cache: 'maven'
 
     - name: Build website with Javadocs
+      shell: bash
       run: |
         # Fetch GitHub Pages URL
         FULL_URL=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.html_url' 2>/dev/null || echo '')

@@ -56,7 +56,7 @@ public class NamespaceDemo {
             """;
 
         Editor editor = new Editor(Document.of(xml));
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Demonstrate namespace-aware methods
         System.out.println("Root element:");
@@ -137,7 +137,7 @@ public class NamespaceDemo {
             """;
 
         Editor editor = new Editor(Document.of(xml));
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Get namespace context at different levels
         NamespaceContext rootContext = root.namespaceContext();

@@ -77,7 +77,7 @@ public class ErrorHandlingTest {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, (String) null);
@@ -89,7 +89,7 @@ public class ErrorHandlingTest {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, "");
@@ -101,7 +101,7 @@ public class ErrorHandlingTest {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, "   ");
@@ -120,7 +120,7 @@ public class ErrorHandlingTest {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Should not throw - null content should be handled gracefully
         Comment comment = editor.addComment(root, null);
@@ -133,7 +133,7 @@ public class ErrorHandlingTest {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Implementation may handle null name gracefully
         assertDoesNotThrow(() -> {
@@ -146,7 +146,7 @@ public class ErrorHandlingTest {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Should handle null value gracefully
         root.attribute("test", null);
@@ -158,7 +158,7 @@ public class ErrorHandlingTest {
         String xml = "<root><child/></root>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Element child = (Element) root.getNode(0);
 
         // Remove the child
@@ -265,7 +265,7 @@ public class ErrorHandlingTest {
         xmlWithManyAttrs.append("/>");
 
         editor = new Editor(Document.of(xmlWithManyAttrs.toString()));
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         assertEquals("value0", root.attribute("attr0"));
         assertEquals("value49", root.attribute("attr49"));
     }
@@ -290,7 +290,7 @@ public class ErrorHandlingTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         assertEquals("value1", root.attribute("attr-dash"));
         assertEquals("value2", root.attribute("attr_underscore"));
         assertEquals("value3", root.attribute("attr.dot"));

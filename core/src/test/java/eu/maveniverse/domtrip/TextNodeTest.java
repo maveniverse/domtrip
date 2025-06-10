@@ -250,7 +250,7 @@ public class TextNodeTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Text textNode = (Text) root.getNode(0);
 
         assertEquals("Simple text content", textNode.content());
@@ -263,7 +263,7 @@ public class TextNodeTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Text cdataNode = (Text) root.getNode(0);
 
         assertEquals("function() { return x < y; }", cdataNode.content());
@@ -289,7 +289,7 @@ public class TextNodeTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Text textNode = (Text) root.getNode(0);
 
         // Content should be decoded

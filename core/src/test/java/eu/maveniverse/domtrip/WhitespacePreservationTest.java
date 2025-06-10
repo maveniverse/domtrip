@@ -332,28 +332,12 @@ class WhitespacePreservationTest {
         // Verify the changes persisted
         assertEquals(
                 "production.example.com",
-                roundTripEditor
-                        .root()
-                        .orElseThrow()
-                        .descendant("host")
-                        .orElseThrow()
-                        .textContent());
+                roundTripEditor.root().descendant("host").orElseThrow().textContent());
         assertEquals(
-                "443",
-                roundTripEditor
-                        .root()
-                        .orElseThrow()
-                        .descendant("port")
-                        .orElseThrow()
-                        .textContent());
+                "443", roundTripEditor.root().descendant("port").orElseThrow().textContent());
         assertEquals(
                 "jdbc:mysql://production.example.com/prod",
-                roundTripEditor
-                        .root()
-                        .orElseThrow()
-                        .descendant("url")
-                        .orElseThrow()
-                        .textContent());
+                roundTripEditor.root().descendant("url").orElseThrow().textContent());
 
         // Verify structure is preserved
         assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));

@@ -28,7 +28,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Element child = (Element) root.getNode(0);
 
         child.name("newName");
@@ -55,7 +55,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         root.removeAttribute("attr2");
 
@@ -71,7 +71,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Should not throw
         assertDoesNotThrow(() -> {
@@ -85,7 +85,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Test individual attributes since getAttributeNames() doesn't exist
         assertTrue(root.hasAttribute("attr1"));
@@ -102,7 +102,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         assertTrue(root.hasAttribute("attr"));
         assertFalse(root.hasAttribute("nonexistent"));
@@ -114,7 +114,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         assertEquals('\'', root.attributeQuote("attr1"));
         assertEquals('"', root.attributeQuote("attr2"));
@@ -127,7 +127,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         root.attribute("attr1", "value1", '\'');
         root.attribute("attr2", "value2", '"');
@@ -143,7 +143,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Element empty = (Element) root.getNode(0);
         Element normal = (Element) root.getNode(1);
 
@@ -157,7 +157,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Element empty = (Element) root.getNode(0);
 
         // Add content to self-closing element
@@ -174,7 +174,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Element element = (Element) root.getNode(0);
 
         // Remove all content
@@ -194,7 +194,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         Optional<Element> found = root.child("child2");
         assertTrue(found.isPresent());
@@ -208,7 +208,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         Optional<Element> found = root.child("nonexistent");
         assertFalse(found.isPresent());
@@ -224,7 +224,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         assertTrue(root.nodeCount() >= 4); // At least 2 elements, 1 text, 1 comment
     }
@@ -235,7 +235,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         Node firstChild = root.getNode(0);
         assertTrue(firstChild instanceof Element);
@@ -248,7 +248,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Implementation may return null instead of throwing
         assertDoesNotThrow(() -> {
@@ -263,7 +263,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         var children = root.nodes;
         assertNotNull(children);
@@ -276,7 +276,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Element second = new Element("second");
 
         root.insertNode(1, second);
@@ -297,7 +297,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
         Element toRemove = (Element) root.getNode(1);
 
         root.removeNode(toRemove);
@@ -314,7 +314,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         Node secondChild = root.getNode(1); // Get second child
         root.removeNode(secondChild); // Remove it
@@ -331,7 +331,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Remove all children manually since clearChildren() doesn't exist
         while (root.nodeCount() > 0) {
@@ -382,7 +382,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Should have multiple children: text, element, text
         assertTrue(root.nodeCount() >= 3);
@@ -397,7 +397,7 @@ public class ElementAdvancedTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Initially not modified (just loaded)
         assertFalse(root.isModified());

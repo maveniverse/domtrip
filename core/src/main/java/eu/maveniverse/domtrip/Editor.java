@@ -1,7 +1,6 @@
 package eu.maveniverse.domtrip;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * High-level API for editing XML documents while preserving original formatting.
@@ -95,7 +94,6 @@ import java.util.Optional;
  */
 public class Editor {
 
-    private final Parser parser = new Parser();
     private final Serializer serializer;
     private final WhitespaceManager whitespaceManager;
     private final DomTripConfig config;
@@ -122,7 +120,7 @@ public class Editor {
      * <h3>Usage Examples:</h3>
      * <pre>{@code
      * // Working with an existing document
-     * Document existingDoc = parser.parse(xmlString);
+     * Document existingDoc = Document.of(xmlString);
      * Editor editor = new Editor(existingDoc);
      *
      * // Working with a programmatically created document
@@ -153,7 +151,7 @@ public class Editor {
      * <h3>Usage Examples:</h3>
      * <pre>{@code
      * // Working with existing document and custom config
-     * Document existingDoc = parser.parse(xmlString);
+     * Document existingDoc = Document.of(xmlString);
      * DomTripConfig config = DomTripConfig.prettyPrint()
      *     .withIndentString("  ")
      *     .withCommentPreservation(true);
@@ -458,10 +456,18 @@ public class Editor {
     /**
      * Gets the root element of the document.
      *
-     * @return an Optional containing the root element, or empty if no document is loaded
+     * @return the root element of the document
+     * @throws IllegalStateException if no document is loaded or document has no root element
      */
-    public Optional<Element> root() {
-        return Optional.ofNullable(document != null ? document.root() : null);
+    public Element root() {
+        if (document == null) {
+            throw new IllegalStateException("No document loaded");
+        }
+        Element root = document.root();
+        if (root == null) {
+            throw new IllegalStateException("Document has no root element");
+        }
+        return root;
     }
 
     /**

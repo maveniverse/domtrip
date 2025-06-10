@@ -87,7 +87,7 @@ public class NavigationDemo {
     private static void demonstrateBasicNavigation(Editor editor) {
         System.out.println("1. Basic Navigation Demo:");
 
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Find direct children
         root.child("metadata").ifPresent(metadata -> {
@@ -127,7 +127,7 @@ public class NavigationDemo {
     private static void demonstrateStreamNavigation(Editor editor) {
         System.out.println("2. Stream-Based Navigation Demo:");
 
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Find all books using streams
         List<Element> allBooks =
@@ -179,7 +179,7 @@ public class NavigationDemo {
     private static void demonstrateRelationshipMethods(Editor editor) {
         System.out.println("3. Relationship Methods Demo:");
 
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Find a deeply nested element and explore relationships
         root.descendant("title").ifPresent(title -> {
@@ -217,7 +217,7 @@ public class NavigationDemo {
     private static void demonstrateAdvancedQueries(Editor editor) {
         System.out.println("4. Advanced Query Demo:");
 
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Complex query: Find books published after 1950 that are available
         System.out.println("Books published after 1950 that are available:");

@@ -90,7 +90,7 @@ public class ApiImprovementsTest {
         // Create a test document
         editor.createDocument("root");
         Document doc = editor.document();
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Add some elements
         Element child1 = editor.addElement(root, "child1", "content1");
@@ -114,7 +114,7 @@ public class ApiImprovementsTest {
     void testQNameElementCreation() throws Exception {
         editor.createDocument("root");
         Document doc = editor.document();
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Create element with QName
         QName dependencyQName = QName.of("http://maven.apache.org/POM/4.0.0", "dependency");
@@ -133,7 +133,7 @@ public class ApiImprovementsTest {
     void testElementQueryAPI() throws Exception {
         // Create a test document with multiple elements
         editor.createDocument("project");
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Add dependencies
         Element dependencies = editor.addElement(root, "dependencies");
@@ -170,7 +170,7 @@ public class ApiImprovementsTest {
     void testPathBasedNavigation() throws Exception {
         // Create a nested document structure
         editor.createDocument("project");
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         Element dependencies = editor.addElement(root, "dependencies");
         Element dependency = editor.addElement(dependencies, "dependency");
@@ -194,7 +194,7 @@ public class ApiImprovementsTest {
     @Test
     void testEnhancedElementNavigation() throws Exception {
         editor.createDocument("root");
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Add child elements
         Element child1 = editor.addElement(root, "child", "content1");
@@ -245,7 +245,7 @@ public class ApiImprovementsTest {
     void testImprovedConvenienceMethods() throws Exception {
         editor.createDocument("root");
         Document doc = editor.document();
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Test findOrCreateElement
         Element version = // FIXME: editor.findOrCreateElement("version");

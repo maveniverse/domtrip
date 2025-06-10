@@ -50,7 +50,7 @@ public class NamespaceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         assertEquals("root", root.localName());
         assertNull(root.prefix());
@@ -87,7 +87,7 @@ public class NamespaceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Find by namespace and local name using QName
         List<Element> defaultTitles = root.descendants(QName.of("http://example.com/default", "title"))
@@ -125,7 +125,7 @@ public class NamespaceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         NamespaceContext rootContext = root.namespaceContext();
         assertEquals("http://example.com/default", rootContext.defaultNamespaceURI());

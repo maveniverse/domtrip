@@ -60,7 +60,7 @@ public class EntityPreservationTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Add new attribute - should use default double quotes
         root.attribute("newAttr", "newValue");
@@ -79,7 +79,7 @@ public class EntityPreservationTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Add new element with entities
         editor.addElement(root, "content", "Text with <tags> & entities");
@@ -138,7 +138,7 @@ public class EntityPreservationTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element modify = (Element) editor.root().orElseThrow().getNode(3); // Find modify element
+        Element modify = (Element) editor.root().getNode(3); // Find modify element
         modify.textContent("new content");
 
         String result = editor.toXml();

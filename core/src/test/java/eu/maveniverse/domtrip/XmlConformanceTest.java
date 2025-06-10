@@ -58,7 +58,7 @@ public class XmlConformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         assertEquals("single", root.attribute("attr1"));
         assertEquals("double", root.attribute("attr2"));
@@ -79,7 +79,7 @@ public class XmlConformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element textElement = (Element) editor.root().orElseThrow().getNode(1);
+        Element textElement = (Element) editor.root().getNode(1);
         String content = textElement.textContent();
 
         // Entities should be decoded in the content
@@ -132,8 +132,8 @@ public class XmlConformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element element = (Element) editor.root().orElseThrow().getNode(1);
-        Element preserve = (Element) editor.root().orElseThrow().getNode(3);
+        Element element = (Element) editor.root().getNode(1);
+        Element preserve = (Element) editor.root().getNode(3);
 
         // Text content should include whitespace
         assertEquals("  content with spaces  ", element.textContent());
@@ -185,7 +185,7 @@ public class XmlConformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element root = editor.root().orElseThrow();
+        Element root = editor.root();
 
         // Should have multiple children: text, element, text, element, text
         assertTrue(root.nodeCount() >= 5);

@@ -40,7 +40,8 @@
  * <h2>Usage Example</h2>
  * <pre>{@code
  * // Parse XML while preserving formatting
- * Editor editor = new Editor(xmlString);
+ * Document doc = Document.of(xmlString);
+ * Editor editor = new Editor(doc);
  *
  * // Make modifications
  * Element root = editor.root();
@@ -62,24 +63,25 @@
  *     .withCommentPreservation(true)
  *     .withPrettyPrint(false);
  *
- * Editor editor = new Editor(xmlString, config);
+ * Document doc = Document.of(xmlString);
+ * Editor editor = new Editor(doc, config);
  * }</pre>
  *
  * <h2>Namespace Support</h2>
  * <p>DomTrip provides comprehensive namespace handling:</p>
  * <pre>{@code
- * // Create elements with namespaces
- * Element soapEnvelope = Element.namespacedElement("soap", "Envelope",
- *     "http://schemas.xmlsoap.org/soap/envelope/");
+ * // Create elements with namespaces using QName
+ * QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
+ * Element envelope = Element.of(soapEnvelope);
  *
  * // Namespace-aware navigation
- * Optional<Element> body = root.findChildByNamespace(
- *     "http://schemas.xmlsoap.org/soap/envelope/", "Body");
+ * Optional<Element> body = root.descendant(
+ *     QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body"));
  *
  * // Namespace resolution
  * String namespaceURI = element.namespaceURI();
  * String localName = element.localName();
- * NamespaceContext context = element.getNamespaceContext();
+ * String prefix = element.prefix();
  * }</pre>
  *
  * @version 1.0

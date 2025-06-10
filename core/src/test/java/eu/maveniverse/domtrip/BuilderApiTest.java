@@ -195,7 +195,7 @@ public class BuilderApiTest {
         assertThrows(IllegalStateException.class, () -> {
             try {
                 editor.add().element("test").build();
-            } catch (InvalidXmlException e) {
+            } catch (DomTripException e) {
                 throw new RuntimeException(e);
             }
         });
@@ -204,7 +204,7 @@ public class BuilderApiTest {
         assertThrows(IllegalStateException.class, () -> {
             try {
                 editor.add().comment().withContent("test").build();
-            } catch (InvalidXmlException e) {
+            } catch (DomTripException e) {
                 throw new RuntimeException(e);
             }
         });

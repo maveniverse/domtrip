@@ -3,17 +3,10 @@ package eu.maveniverse.domtrip;
 /**
  * Base exception class for all DomTrip-related errors.
  *
- * <p>DomTripException serves as the root exception for all errors that can
+ * <p>DomTripException serves as the exception for all errors that can
  * occur during XML processing with DomTrip. It extends RuntimeException to
  * provide unchecked exception semantics, making the API easier to use while
  * still allowing proper error handling when needed.</p>
- *
- * <h3>Exception Hierarchy:</h3>
- * <ul>
- *   <li>{@link ParseException} - Errors during XML parsing</li>
- *   <li>{@link InvalidXmlException} - Invalid XML structure or content</li>
- *   <li>{@link NodeNotFoundException} - Missing nodes during navigation</li>
- * </ul>
  *
  * <h3>Usage Example:</h3>
  * <pre>{@code
@@ -33,12 +26,22 @@ package eu.maveniverse.domtrip;
  *   <li>Providing meaningful error messages to users</li>
  *   <li>Logging sufficient detail for debugging</li>
  * </ul>
- *
- * @see ParseException
- * @see InvalidXmlException
- * @see NodeNotFoundException
  */
 public class DomTripException extends RuntimeException {
+
+    protected final int position;
+    protected final String xmlContent;
+
+    /**
+     * Creates a new DomTripException with the specified message.
+     *
+     * @param message the detail message explaining the error
+     */
+    public DomTripException(String message, int position, String xmlContent) {
+        super(message + (position >= 0 ? " at position " + position : ""));
+        this.position = position;
+        this.xmlContent = xmlContent;
+    }
 
     /**
      * Creates a new DomTripException with the specified message.
@@ -46,7 +49,7 @@ public class DomTripException extends RuntimeException {
      * @param message the detail message explaining the error
      */
     public DomTripException(String message) {
-        super(message);
+        this(message, null);
     }
 
     /**
@@ -57,6 +60,8 @@ public class DomTripException extends RuntimeException {
      */
     public DomTripException(String message, Throwable cause) {
         super(message, cause);
+        this.position = -1;
+        this.xmlContent = null;
     }
 
     /**
@@ -66,5 +71,28 @@ public class DomTripException extends RuntimeException {
      */
     public DomTripException(Throwable cause) {
         super(cause);
+        this.position = -1;
+        this.xmlContent = null;
+    }
+
+    /**
+     * Gets the character position where the parsing error occurred.
+     *
+     * @return the character position, or -1 if position is not available
+     */
+    public int getPosition() {
+        return position;
+    }
+
+    /**
+     * Gets the XML content that was being parsed when the error occurred.
+     *
+     * <p>This can be used to provide context around the error position
+     * for debugging purposes.</p>
+     *
+     * @return the XML content, or null if not available
+     */
+    public String getXmlContent() {
+        return xmlContent;
     }
 }

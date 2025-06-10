@@ -47,7 +47,7 @@ import java.util.Deque;
  * try {
  *     Document document = parser.parse(xmlString);
  *     // Use the parsed document
- * } catch (ParseException e) {
+ * } catch (DomTripException e) {
  *     // Handle parsing errors
  *     System.err.println("Parse error at position " + e.getPosition() + ": " + e.getMessage());
  * }
@@ -55,7 +55,7 @@ import java.util.Deque;
  *
  * @see Document
  * @see Element
- * @see ParseException
+ * @see DomTripException
  * @see Serializer
  */
 public class Parser {
@@ -78,11 +78,11 @@ public class Parser {
      *
      * @param xml the XML string to parse
      * @return a Document containing the parsed XML with preserved formatting
-     * @throws ParseException if the XML is malformed or cannot be parsed
+     * @throws DomTripException if the XML is malformed or cannot be parsed
      */
-    public Document parse(String xml) throws ParseException {
+    public Document parse(String xml) throws DomTripException {
         if (xml == null || xml.trim().isEmpty()) {
-            throw new ParseException("XML content cannot be null or empty");
+            throw new DomTripException("XML content cannot be null or empty");
         }
 
         this.xml = xml;
@@ -182,7 +182,7 @@ public class Parser {
         return document;
     }
 
-    private Comment parseComment() throws ParseException {
+    private Comment parseComment() throws DomTripException {
         position += 4; // Skip "<!--"
 
         StringBuilder content = new StringBuilder();
@@ -195,10 +195,10 @@ public class Parser {
             position++;
         }
 
-        throw new ParseException("Unclosed comment", position, xml);
+        throw new DomTripException("Unclosed comment", position, xml);
     }
 
-    private Text parseCData() throws ParseException {
+    private Text parseCData() throws DomTripException {
         position += 9; // Skip "<![CDATA["
 
         StringBuilder content = new StringBuilder();
@@ -211,10 +211,10 @@ public class Parser {
             position++;
         }
 
-        throw new ParseException("Unclosed CDATA section", position, xml);
+        throw new DomTripException("Unclosed CDATA section", position, xml);
     }
 
-    private String parseProcessingInstruction() throws ParseException {
+    private String parseProcessingInstruction() throws DomTripException {
         int start = position;
         position += 2; // Skip "<?"
 
@@ -226,10 +226,10 @@ public class Parser {
             position++;
         }
 
-        throw new ParseException("Unclosed processing instruction", position, xml);
+        throw new DomTripException("Unclosed processing instruction", position, xml);
     }
 
-    private String parseDoctype() throws ParseException {
+    private String parseDoctype() throws DomTripException {
         int start = position;
         position += 9; // Skip "<!DOCTYPE"
 
@@ -260,7 +260,7 @@ public class Parser {
             position++;
         }
 
-        throw new ParseException("Unclosed DOCTYPE declaration", position, xml);
+        throw new DomTripException("Unclosed DOCTYPE declaration", position, xml);
     }
 
     private void skipDeclaration() {
@@ -272,7 +272,7 @@ public class Parser {
         }
     }
 
-    private Element parseOpeningTag() throws ParseException {
+    private Element parseOpeningTag() throws DomTripException {
         int start = position;
         position++; // Skip '<'
 
@@ -288,7 +288,7 @@ public class Parser {
 
         String elementName = name.toString();
         if (elementName.isEmpty()) {
-            throw new ParseException("Empty element name", position, xml);
+            throw new DomTripException("Empty element name", position, xml);
         }
 
         Element element = new Element(elementName);
@@ -327,7 +327,7 @@ public class Parser {
         return element;
     }
 
-    private void parseAttribute(Element element, String precedingWhitespace) throws ParseException {
+    private void parseAttribute(Element element, String precedingWhitespace) throws DomTripException {
         // Parse attribute name
         StringBuilder name = new StringBuilder();
         while (position < length && xml.charAt(position) != '=' && !Character.isWhitespace(xml.charAt(position))) {
@@ -360,7 +360,7 @@ public class Parser {
                 if (position < length) {
                     position++; // Skip closing quote
                 } else {
-                    throw new ParseException("Unclosed attribute value", position, xml);
+                    throw new DomTripException("Unclosed attribute value", position, xml);
                 }
 
                 // Set attribute with original quote character and raw value (internal method doesn't mark as modified)
@@ -370,7 +370,7 @@ public class Parser {
                 String actualWhitespace = precedingWhitespace.isEmpty() ? " " : precedingWhitespace;
                 element.attributeInternal(name.toString(), decodedValue, quote, actualWhitespace, rawValue);
             } else {
-                throw new ParseException("Missing attribute value quote", position, xml);
+                throw new DomTripException("Missing attribute value quote", position, xml);
             }
         }
     }

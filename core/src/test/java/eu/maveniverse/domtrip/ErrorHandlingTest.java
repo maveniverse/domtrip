@@ -28,21 +28,21 @@ public class ErrorHandlingTest {
 
     @Test
     void testParseNullXml() {
-        assertThrows(ParseException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             parser.parse(null);
         });
     }
 
     @Test
     void testParseEmptyXml() {
-        assertThrows(ParseException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             parser.parse("");
         });
     }
 
     @Test
     void testParseWhitespaceOnlyXml() {
-        assertThrows(ParseException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             parser.parse("   \n\t  ");
         });
     }
@@ -67,56 +67,56 @@ public class ErrorHandlingTest {
 
     @Test
     void testAddElementWithNullParent() {
-        assertThrows(InvalidXmlException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             editor.addElement(null, "test");
         });
     }
 
     @Test
-    void testAddElementWithNullName() throws ParseException {
+    void testAddElementWithNullName() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        assertThrows(InvalidXmlException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             editor.addElement(root, (String) null);
         });
     }
 
     @Test
-    void testAddElementWithEmptyName() throws ParseException {
+    void testAddElementWithEmptyName() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        assertThrows(InvalidXmlException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             editor.addElement(root, "");
         });
     }
 
     @Test
-    void testAddElementWithWhitespaceOnlyName() throws ParseException {
+    void testAddElementWithWhitespaceOnlyName() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        assertThrows(InvalidXmlException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             editor.addElement(root, "   ");
         });
     }
 
     @Test
     void testAddCommentWithNullParent() {
-        assertThrows(InvalidXmlException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             editor.addComment(null, "test comment");
         });
     }
 
     @Test
-    void testAddCommentWithNullContent() throws ParseException {
+    void testAddCommentWithNullContent() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
@@ -129,7 +129,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testSetAttributeWithNullName() throws ParseException {
+    void testSetAttributeWithNullName() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
@@ -142,7 +142,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testSetAttributeWithNullValue() throws ParseException {
+    void testSetAttributeWithNullValue() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
@@ -154,7 +154,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testRemoveNonExistentElement() throws ParseException {
+    void testRemoveNonExistentElement() throws DomTripException {
         String xml = "<root><child/></root>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
@@ -179,7 +179,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testFindElementWithNullName() throws ParseException {
+    void testFindElementWithNullName() throws DomTripException {
         String xml = "<root><child/></root>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
@@ -197,20 +197,20 @@ public class ErrorHandlingTest {
 
     @Test
     void testCreateDocumentWithNullRootName() {
-        assertThrows(InvalidXmlException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             editor.createDocument(null);
         });
     }
 
     @Test
     void testCreateDocumentWithEmptyRootName() {
-        assertThrows(InvalidXmlException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             editor.createDocument("");
         });
     }
 
     @Test
-    void testLargeXmlDocument() throws ParseException {
+    void testLargeXmlDocument() throws DomTripException {
         // Test with a large XML document to ensure no memory issues
         StringBuilder largeXml = new StringBuilder("<root>");
         for (int i = 0; i < 1000; i++) {
@@ -231,7 +231,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testDeeplyNestedXml() throws ParseException {
+    void testDeeplyNestedXml() throws DomTripException {
         // Test with deeply nested XML
         StringBuilder nestedXml = new StringBuilder();
         int depth = 100;
@@ -251,7 +251,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testXmlWithManyAttributes() throws ParseException {
+    void testXmlWithManyAttributes() throws DomTripException {
         // Test element with many attributes
         StringBuilder xmlWithManyAttrs = new StringBuilder("<root");
         for (int i = 0; i < 50; i++) {
@@ -271,7 +271,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testSpecialCharactersInElementNames() throws ParseException {
+    void testSpecialCharactersInElementNames() throws DomTripException {
         // Test with valid but unusual element names
         String xml = "<root><element-with-dashes/><element_with_underscores/><element.with.dots/></root>";
 
@@ -284,7 +284,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testSpecialCharactersInAttributeNames() throws ParseException {
+    void testSpecialCharactersInAttributeNames() throws DomTripException {
         // Test with valid but unusual attribute names
         String xml = "<root attr-dash=\"value1\" attr_underscore=\"value2\" attr.dot=\"value3\"/>";
 

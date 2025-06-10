@@ -420,17 +420,13 @@ public class Document extends ContainerNode {
      *
      * @param xml the XML string to parse
      * @return a new Document containing the parsed XML
-     * @throws InvalidXmlException if the XML is malformed or cannot be parsed
+     * @throws DomTripException if the XML is malformed or cannot be parsed
      */
-    public static Document of(String xml) throws InvalidXmlException {
+    public static Document of(String xml) throws DomTripException {
         if (xml == null || xml.trim().isEmpty()) {
-            throw new InvalidXmlException("XML string cannot be null or empty");
+            throw new DomTripException("XML string cannot be null or empty");
         }
-        try {
-            return new Parser().parse(xml);
-        } catch (ParseException e) {
-            throw new InvalidXmlException("Failed to parse XML: " + e.getMessage(), e);
-        }
+        return new Parser().parse(xml);
     }
 
     /**

@@ -206,12 +206,12 @@ public class Editor {
     /**
      * Adds a new element as a child of the specified parent element
      */
-    public Element addElement(Element parent, String elementName) throws InvalidXmlException {
+    public Element addElement(Element parent, String elementName) throws DomTripException {
         if (parent == null) {
-            throw new InvalidXmlException("Parent element cannot be null");
+            throw new DomTripException("Parent element cannot be null");
         }
         if (elementName == null || elementName.trim().isEmpty()) {
-            throw new InvalidXmlException("Element name cannot be null or empty");
+            throw new DomTripException("Element name cannot be null or empty");
         }
 
         Element newElement = new Element(elementName.trim());
@@ -254,7 +254,7 @@ public class Editor {
     /**
      * Adds a new element with text content
      */
-    public Element addElement(Element parent, String elementName, String textContent) throws InvalidXmlException {
+    public Element addElement(Element parent, String elementName, String textContent) throws DomTripException {
         Element element = addElement(parent, elementName);
         if (textContent != null && !textContent.isEmpty()) {
             element.textContent(textContent);
@@ -268,14 +268,14 @@ public class Editor {
      * @param parent the parent element
      * @param qname the QName for the new element
      * @return the newly created element
-     * @throws InvalidXmlException if the element cannot be added
+     * @throws DomTripException if the element cannot be added
      */
-    public Element addElement(Element parent, QName qname) throws InvalidXmlException {
+    public Element addElement(Element parent, QName qname) throws DomTripException {
         if (parent == null) {
-            throw new InvalidXmlException("Parent element cannot be null");
+            throw new DomTripException("Parent element cannot be null");
         }
         if (qname == null) {
-            throw new InvalidXmlException("QName cannot be null");
+            throw new DomTripException("QName cannot be null");
         }
 
         Element newElement = Element.of(qname);
@@ -314,9 +314,9 @@ public class Editor {
      * @param qname the QName for the new element
      * @param textContent the text content for the element
      * @return the newly created element
-     * @throws InvalidXmlException if the element cannot be added
+     * @throws DomTripException if the element cannot be added
      */
-    public Element addElement(Element parent, QName qname, String textContent) throws InvalidXmlException {
+    public Element addElement(Element parent, QName qname, String textContent) throws DomTripException {
         Element element = addElement(parent, qname);
         if (textContent != null && !textContent.isEmpty()) {
             element.textContent(textContent);
@@ -368,15 +368,15 @@ public class Editor {
      * @param element the element to modify
      * @param name the attribute name
      * @param value the attribute value
-     * @throws InvalidXmlException if element is null or name is invalid
+     * @throws DomTripException if element is null or name is invalid
      * @see #setAttributes(Element, Map)
      */
-    public void setAttribute(Element element, String name, String value) throws InvalidXmlException {
+    public void setAttribute(Element element, String name, String value) throws DomTripException {
         if (element == null) {
-            throw new InvalidXmlException("Element cannot be null");
+            throw new DomTripException("Element cannot be null");
         }
         if (name == null || name.trim().isEmpty()) {
-            throw new InvalidXmlException("Attribute name cannot be null or empty");
+            throw new DomTripException("Attribute name cannot be null or empty");
         }
 
         String trimmedName = name.trim();
@@ -411,9 +411,9 @@ public class Editor {
     /**
      * Sets the text content of an element
      */
-    public void setTextContent(Element element, String content) throws InvalidXmlException {
+    public void setTextContent(Element element, String content) throws DomTripException {
         if (element == null) {
-            throw new InvalidXmlException("Element cannot be null");
+            throw new DomTripException("Element cannot be null");
         }
 
         element.textContent(content);
@@ -422,9 +422,9 @@ public class Editor {
     /**
      * Adds a comment as a child of the specified parent
      */
-    public Comment addComment(ContainerNode parent, String content) throws InvalidXmlException {
+    public Comment addComment(ContainerNode parent, String content) throws DomTripException {
         if (parent == null) {
-            throw new InvalidXmlException("Parent cannot be null");
+            throw new DomTripException("Parent cannot be null");
         }
 
         Comment comment = new Comment(content != null ? content : "");
@@ -446,11 +446,11 @@ public class Editor {
      * and the specified root element. Any existing document will be replaced.</p>
      *
      * @param rootElementName the name of the root element
-     * @throws InvalidXmlException if the root element name is null or empty
+     * @throws DomTripException if the root element name is null or empty
      */
-    public void createDocument(String rootElementName) throws InvalidXmlException {
+    public void createDocument(String rootElementName) throws DomTripException {
         if (rootElementName == null || rootElementName.trim().isEmpty()) {
-            throw new InvalidXmlException("Root element name cannot be null or empty");
+            throw new DomTripException("Root element name cannot be null or empty");
         }
 
         this.document = new Document();
@@ -555,9 +555,9 @@ public class Editor {
      *
      * @param element the element to modify
      * @param attributes a map of attribute names to values
-     * @throws InvalidXmlException if any attribute operation is invalid
+     * @throws DomTripException if any attribute operation is invalid
      */
-    public void setAttributes(Element element, Map<String, String> attributes) throws InvalidXmlException {
+    public void setAttributes(Element element, Map<String, String> attributes) throws DomTripException {
         if (element != null && attributes != null) {
             for (Map.Entry<String, String> entry : attributes.entrySet()) {
                 setAttribute(element, entry.getKey(), entry.getValue());
@@ -573,9 +573,9 @@ public class Editor {
      *
      * @param parent the parent element to add children to
      * @param nameValuePairs a map of element names to text content values
-     * @throws InvalidXmlException if any element creation is invalid
+     * @throws DomTripException if any element creation is invalid
      */
-    public void addElements(Element parent, Map<String, String> nameValuePairs) throws InvalidXmlException {
+    public void addElements(Element parent, Map<String, String> nameValuePairs) throws DomTripException {
         if (parent != null && nameValuePairs != null) {
             for (Map.Entry<String, String> entry : nameValuePairs.entrySet()) {
                 addElement(parent, entry.getKey(), entry.getValue());
@@ -588,14 +588,14 @@ public class Editor {
      *
      * @param parent the parent element
      * @param qnameValuePairs a map of QNames to text content
-     * @throws InvalidXmlException if any element cannot be added
+     * @throws DomTripException if any element cannot be added
      */
-    public void addQNameElements(Element parent, Map<QName, String> qnameValuePairs) throws InvalidXmlException {
+    public void addQNameElements(Element parent, Map<QName, String> qnameValuePairs) throws DomTripException {
         if (parent != null && qnameValuePairs != null) {
             qnameValuePairs.forEach((qname, value) -> {
                 try {
                     addElement(parent, qname, value);
-                } catch (InvalidXmlException e) {
+                } catch (DomTripException e) {
                     throw new RuntimeException("Failed to add element: " + qname, e);
                 }
             });
@@ -815,9 +815,9 @@ public class Editor {
          * Builds and adds the element to the document.
          *
          * @return the created and added element
-         * @throws InvalidXmlException if the element cannot be added
+         * @throws DomTripException if the element cannot be added
          */
-        public Element build() throws InvalidXmlException {
+        public Element build() throws DomTripException {
             if (parent == null) {
                 throw new IllegalStateException("Parent node must be specified");
             }
@@ -876,9 +876,9 @@ public class Editor {
          * Builds and adds the comment to the document.
          *
          * @return the created and added comment
-         * @throws InvalidXmlException if the comment cannot be added
+         * @throws DomTripException if the comment cannot be added
          */
-        public Comment build() throws InvalidXmlException {
+        public Comment build() throws DomTripException {
             if (parent == null) {
                 throw new IllegalStateException("Parent node must be specified");
             }

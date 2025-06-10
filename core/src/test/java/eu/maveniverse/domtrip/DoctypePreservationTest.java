@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class DoctypePreservationTest {
 
     @Test
-    void testSimpleDoctype() throws ParseException {
+    void testSimpleDoctype() throws DomTripException {
         String xml =
                 """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -33,7 +33,7 @@ class DoctypePreservationTest {
     }
 
     @Test
-    void testDoctypeWithPublicId() throws ParseException {
+    void testDoctypeWithPublicId() throws DomTripException {
         String xml =
                 """
             <?xml version="1.0"?>
@@ -58,7 +58,7 @@ class DoctypePreservationTest {
     }
 
     @Test
-    void testDoctypeWithSystemId() throws ParseException {
+    void testDoctypeWithSystemId() throws DomTripException {
         String xml =
                 """
             <!DOCTYPE note SYSTEM "note.dtd">
@@ -82,7 +82,7 @@ class DoctypePreservationTest {
     }
 
     @Test
-    void testDoctypeWithInternalSubset() throws ParseException {
+    void testDoctypeWithInternalSubset() throws DomTripException {
         String xml =
                 """
             <!DOCTYPE note [
@@ -117,7 +117,7 @@ class DoctypePreservationTest {
     }
 
     @Test
-    void testDoctypeWithMixedPublicAndInternal() throws ParseException {
+    void testDoctypeWithMixedPublicAndInternal() throws DomTripException {
         String xml =
                 """
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -149,7 +149,7 @@ class DoctypePreservationTest {
     }
 
     @Test
-    void testNoDoctypePreservation() throws ParseException {
+    void testNoDoctypePreservation() throws DomTripException {
         String xml =
                 """
             <?xml version="1.0"?>
@@ -170,7 +170,7 @@ class DoctypePreservationTest {
     }
 
     @Test
-    void testLosslessRoundTrip() throws ParseException {
+    void testLosslessRoundTrip() throws DomTripException {
         String originalXml =
                 """
             <?xml version="1.0" encoding="UTF-8"?>

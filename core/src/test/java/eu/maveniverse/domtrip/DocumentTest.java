@@ -116,7 +116,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentWithXmlDeclaration() throws ParseException {
+    void testDocumentWithXmlDeclaration() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root/>";
 
         Document doc = Document.of(xml);
@@ -128,7 +128,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentWithDoctype() throws ParseException {
+    void testDocumentWithDoctype() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root SYSTEM \"root.dtd\">\n" + "<root/>";
 
         Document doc = Document.of(xml);
@@ -141,7 +141,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentWithStandaloneDeclaration() throws ParseException {
+    void testDocumentWithStandaloneDeclaration() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
 
         Document doc = Document.of(xml);
@@ -178,7 +178,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentWithComments() throws ParseException {
+    void testDocumentWithComments() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!-- Document comment -->\n"
                 + "<root>\n"
                 + "  <!-- Element comment -->\n"
@@ -194,7 +194,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentWithProcessingInstructions() throws ParseException {
+    void testDocumentWithProcessingInstructions() throws DomTripException {
         String xml =
                 "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n" + "<root/>";
 

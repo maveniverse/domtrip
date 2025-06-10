@@ -92,7 +92,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    void testEditorWithConfiguration() throws ParseException {
+    void testEditorWithConfiguration() throws DomTripException {
         DomTripConfig config =
                 DomTripConfig.strict().withDefaultEncoding("ISO-8859-1").withDefaultQuoteStyle(QuoteStyle.SINGLE);
 
@@ -107,7 +107,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    void testSerializerWithConfig() throws ParseException {
+    void testSerializerWithConfig() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n<!-- Comment -->\n<root attr=\"value\">content</root>";
 
         // Test with different configurations

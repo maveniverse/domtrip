@@ -28,7 +28,7 @@ class EditorConstructorTest {
     }
 
     @Test
-    void testStringConstructor() throws ParseException {
+    void testStringConstructor() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?><root><child>value</child></root>";
         Editor editor = new Editor(Document.of(xml));
         assertNotNull(editor);
@@ -37,7 +37,7 @@ class EditorConstructorTest {
     }
 
     @Test
-    void testStringWithConfigConstructor() throws ParseException {
+    void testStringWithConfigConstructor() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?><root><child>value</child></root>";
         DomTripConfig config = DomTripConfig.minimal();
         Editor editor = new Editor(Document.of(xml), config);
@@ -74,7 +74,7 @@ class EditorConstructorTest {
     }
 
     @Test
-    void testWorkingWithExistingDocument() throws ParseException {
+    void testWorkingWithExistingDocument() throws DomTripException {
         // Parse with Parser directly
         Parser parser = new Parser();
         String xml = "<?xml version=\"1.0\"?><config><database><host>localhost</host></database></config>";

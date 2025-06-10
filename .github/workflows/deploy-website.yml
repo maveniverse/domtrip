@@ -32,6 +32,8 @@ jobs:
 
     - name: Build website with Javadocs
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
       run: |
         # Fetch GitHub Pages URL
         FULL_URL=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.html_url' 2>/dev/null || echo '')
@@ -41,7 +43,7 @@ jobs:
         echo "SITE_DIR=$SITE_DIR" >> $GITHUB_ENV
         echo "SITE_URL=$SITE_URL" >> $GITHUB_ENV
         echo "SITE_PATH=$SITE_PATH" >> $GITHUB_ENV
-        echo "FULL_URL=$FULL_URL SITE_DIR=$SITE_DIR SITE_URL=$SITE_URL SITE_PATH=$SITE_PATH"
+        echo "GITHUB_REPOSITORY=$GITHUB_REPOSITORY FULL_URL=$FULL_URL SITE_DIR=$SITE_DIR SITE_URL=$SITE_URL SITE_PATH=$SITE_PATH"
         QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run -DskipTests -Pinclude-javadocs        
     
     - name: Upload build artifacts

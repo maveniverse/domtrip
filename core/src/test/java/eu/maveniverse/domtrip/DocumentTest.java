@@ -21,7 +21,7 @@ public class DocumentTest {
     @BeforeEach
     void setUp() {
         document = new Document();
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
@@ -119,7 +119,8 @@ public class DocumentTest {
     void testDocumentWithXmlDeclaration() throws ParseException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", doc.xmlDeclaration());
@@ -131,7 +132,8 @@ public class DocumentTest {
     void testDocumentWithDoctype() throws ParseException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root SYSTEM \"root.dtd\">\n" + "<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // DOCTYPE may not be fully supported yet
@@ -143,7 +145,8 @@ public class DocumentTest {
     void testDocumentWithStandaloneDeclaration() throws ParseException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
         assertTrue(doc.xmlDeclaration().contains("standalone=\"yes\""));
@@ -185,7 +188,8 @@ public class DocumentTest {
                 + "</root>\n"
                 + "<!-- Final comment -->";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertEquals(xml, result);
@@ -196,7 +200,8 @@ public class DocumentTest {
         String xml =
                 "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n" + "<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // XML declaration may not be preserved exactly
@@ -212,10 +217,11 @@ public class DocumentTest {
                 + "  <child2/>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
-        Element found = doc.element("grandchild");
+        Element found = doc.root().descendant("grandchild");
         assertNotNull(found);
         assertEquals("grandchild", found.name());
         assertEquals("content", found.textContent());
@@ -225,10 +231,11 @@ public class DocumentTest {
     void testDocumentFindElementNotFound() {
         String xml = "<root><child/></root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
-        Element found = doc.element("nonexistent");
+        Element found = doc.root().descendant("nonexistent");
         assertNull(found);
     }
 
@@ -236,12 +243,13 @@ public class DocumentTest {
     void testDocumentFindElementWithNullName() {
         String xml = "<root><child/></root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
         // This throws NPE in current implementation
         assertThrows(NullPointerException.class, () -> {
-            doc.element(null);
+            doc.root().descendant(null);
         });
     }
 
@@ -254,7 +262,8 @@ public class DocumentTest {
                 + "  <!-- Another comment -->\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String stats = editor.documentStats();
 
         assertNotNull(stats);
@@ -273,7 +282,8 @@ public class DocumentTest {
     void testDocumentWithWhitespace() {
         String xml = "<?xml version=\"1.0\"?>\n\n" + "<root>\n" + "  \n" + "  <child/>\n" + "  \n" + "</root>\n\n";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Whitespace should be preserved
@@ -283,7 +293,8 @@ public class DocumentTest {
     @Test
     void testDocumentModificationTracking() {
         String xml = "<root/>";
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
         // Initially not modified (just loaded)
@@ -306,7 +317,8 @@ public class DocumentTest {
                 + "</root>\n"
                 + "<!-- Footer -->";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertEquals(xml, result);

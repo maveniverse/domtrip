@@ -65,7 +65,7 @@ public class BuilderPatternsDemo {
 
         Element cdataElement = Element.cdata("script", "function test() { return x < y && z > 0; }");
 
-        Element namespaced = Element.element(QName.of("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"));
+        Element namespaced = Element.of(QName.of("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"));
 
         // Using element fluent API for complex structures
         Element complex = Element.of("article").attribute("id", "article-1").attribute("class", "blog-post");
@@ -128,7 +128,7 @@ public class BuilderPatternsDemo {
         System.out.println("4. Fluent Editor API Demo:");
 
         // Create editor with configuration
-        Editor editor = new Editor(DomTripConfig.defaults()
+        Editor editor = new Editor(Document.of(DomTripConfig.defaults())
                 .withDefaultQuoteStyle(QuoteStyle.SINGLE)
                 .withPrettyPrint(true));
 

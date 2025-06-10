@@ -15,7 +15,7 @@ public class EntityPreservationTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
@@ -24,7 +24,8 @@ public class EntityPreservationTest {
                 + "  <mixed>More &lt;content&gt; with &quot;quotes&quot;</mixed>\n"
                 + "</root>";
 
-        editor.loadXml(xmlWithEntities);
+        Document doc = Document.of(xmlWithEntities);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Entities should be preserved exactly
@@ -40,7 +41,8 @@ public class EntityPreservationTest {
         String xmlWithMixedQuotes = "<root attr1='single quotes' attr2=\"double quotes\">\n"
                 + "  <element other=\"normal\"/>\n" + "</root>";
 
-        editor.loadXml(xmlWithMixedQuotes);
+        Document doc = Document.of(xmlWithMixedQuotes);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Quote styles should be preserved
@@ -56,7 +58,8 @@ public class EntityPreservationTest {
     void testNewAttributeQuoteStyle() {
         String xml = "<root existing='value'/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         // Add new attribute - should use default double quotes
@@ -74,7 +77,8 @@ public class EntityPreservationTest {
     void testEntityInNewContent() {
         String xml = "<root/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         // Add new element with entities
@@ -91,7 +95,8 @@ public class EntityPreservationTest {
         String xmlWithCData =
                 "<root>\n" + "  <script><![CDATA[function() { return x < y && z > 0; }]]></script>\n" + "</root>";
 
-        editor.loadXml(xmlWithCData);
+        Document doc = Document.of(xmlWithCData);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // CDATA should be preserved exactly
@@ -109,7 +114,8 @@ public class EntityPreservationTest {
                 + "  <template><![CDATA[<html><body>Hello &world;</body></html>]]></template>\n"
                 + "</config>";
 
-        editor.loadXml(complexXml);
+        Document doc = Document.of(complexXml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // All formatting should be preserved
@@ -130,7 +136,8 @@ public class EntityPreservationTest {
                 + "  <modify>old content</modify>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element modify = (Element) editor.root().orElseThrow().getNode(3); // Find modify element
         modify.textContent("new content");
 

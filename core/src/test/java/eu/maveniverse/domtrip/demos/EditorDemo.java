@@ -38,7 +38,7 @@ public class EditorDemo {
         System.out.println("=== XML Round-Trip Editor Demo ===\n");
 
         // Create editor and load XML
-        Editor editor = new Editor(originalXml);
+        Editor editor = new Editor(Document.of(originalXml));
 
         System.out.println("1. Original XML:");
         System.out.println(originalXml);
@@ -56,7 +56,7 @@ public class EditorDemo {
 
         // Test 2: Add a new dependency
         System.out.println("\n3. Adding new dependency...");
-        Element dependencies = editor.element("dependencies").orElseThrow();
+        Element dependencies = doc.root().descendant("dependencies").orElseThrow();
         Element newDep = editor.addElement(dependencies, "dependency");
         editor.addElement(newDep, "groupId", "org.mockito");
         editor.addElement(newDep, "artifactId", "mockito-core");
@@ -68,7 +68,7 @@ public class EditorDemo {
 
         // Test 3: Modify existing element
         System.out.println("\n4. Modifying version...");
-        Element version = editor.element("version").orElseThrow();
+        Element version = doc.root().descendant("version").orElseThrow();
         editor.setTextContent(version, "1.0.1-SNAPSHOT");
 
         System.out.println("Result after version change:");
@@ -76,7 +76,7 @@ public class EditorDemo {
 
         // Test 4: Add comment
         System.out.println("\n5. Adding comment...");
-        Element properties = editor.element("properties").orElseThrow();
+        Element properties = doc.root().descendant("properties").orElseThrow();
         editor.addComment(properties, " Updated compiler settings ");
 
         System.out.println("Result after adding comment:");
@@ -110,7 +110,7 @@ public class EditorDemo {
                 + "    </element>\n"
                 + "</root>";
 
-        Editor editor = new Editor(xmlWithSpaces);
+        Editor editor = new Editor(Document.of(xmlWithSpaces));
         System.out.println("Original: " + xmlWithSpaces.replace("\n", "\\n"));
         System.out.println("Round-trip: " + editor.toXml().replace("\n", "\\n"));
         System.out.println("Preserved: " + xmlWithSpaces.equals(editor.toXml()));
@@ -118,20 +118,20 @@ public class EditorDemo {
         // Feature 2: Comment preservation
         System.out.println("\n2. Comment Preservation:");
         String xmlWithComments = "<!-- Header -->\n<root>\n  <!-- Inline -->\n  <element/>\n</root>";
-        editor = new Editor(xmlWithComments);
+        editor = new Editor(Document.of(xmlWithComments));
         System.out.println("Comments preserved: " + xmlWithComments.equals(editor.toXml()));
 
         // Feature 3: CDATA preservation
         System.out.println("\n3. CDATA Preservation:");
         String xmlWithCData = "<root><script><![CDATA[if (x < y) { alert(\"test\"); }]]></script></root>";
-        editor = new Editor(xmlWithCData);
+        editor = new Editor(Document.of(xmlWithCData));
         System.out.println("CDATA preserved: " + xmlWithCData.equals(editor.toXml()));
 
         // Feature 4: Minimal change serialization
         System.out.println("\n4. Minimal Change Serialization:");
         String complexXml = "<root>\n  <unchanged>content</unchanged>\n  <toModify>old</toModify>\n</root>";
-        editor = new Editor(complexXml);
-        Element toModify = editor.element("toModify").orElseThrow();
+        editor = new Editor(Document.of(complexXml));
+        Element toModify = doc.root().descendant("toModify").orElseThrow();
         editor.setTextContent(toModify, "new");
 
         String result = editor.toXml();

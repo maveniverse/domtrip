@@ -18,7 +18,7 @@ public class SerializerTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
         serializer = new Serializer();
     }
 
@@ -154,7 +154,8 @@ public class SerializerTest {
                 + "  <empty/>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // XML declaration may not be preserved exactly
@@ -171,7 +172,8 @@ public class SerializerTest {
                 + "    </element>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertEquals(xml, result);
@@ -181,7 +183,8 @@ public class SerializerTest {
     void testSerializeModifiedElement() {
         String xml = "<root><element attr=\"original\">original content</element></root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         Element element = (Element) root.getNode(0);
 
@@ -201,7 +204,8 @@ public class SerializerTest {
                 + "  <attr value=\"&quot;quoted&quot; &amp; escaped\"/>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Entities should be preserved in output
@@ -269,7 +273,8 @@ public class SerializerTest {
                 + "  <ns:element>custom namespace</ns:element>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertEquals(xml, result);
@@ -279,7 +284,8 @@ public class SerializerTest {
     void testSerializeStringBuilderMethod() {
         String xml = "<root><child>content</child></root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
         StringBuilder sb = new StringBuilder();
@@ -296,7 +302,8 @@ public class SerializerTest {
                 + "  <with-content>content</with-content>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Should preserve original formatting
@@ -310,7 +317,8 @@ public class SerializerTest {
     void testSerializeWithMultipleTextNodes() {
         String xml = "<root>Text 1<element/>Text 2<another/>Text 3</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         assertEquals(xml, result);

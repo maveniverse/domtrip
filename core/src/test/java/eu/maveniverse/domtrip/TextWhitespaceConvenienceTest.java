@@ -173,9 +173,9 @@ class TextWhitespaceConvenienceTest {
             </config>
             """;
 
-        Editor editor = new Editor(xml);
-        Element message = editor.element("message").orElseThrow();
-        Element path = editor.element("path").orElseThrow();
+        Editor editor = new Editor(Document.of(xml));
+        Element message = doc.root().descendant("message").orElseThrow();
+        Element path = doc.root().descendant("path").orElseThrow();
 
         // Get the text nodes
         Text messageText = (Text) message.nodes.get(0);

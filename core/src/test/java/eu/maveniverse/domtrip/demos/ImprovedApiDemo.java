@@ -66,7 +66,7 @@ public class ImprovedApiDemo {
         System.out.println("2. Fluent Builders Demo:");
 
         // Create editor with configuration
-        Editor editor = new Editor(DomTripConfig.defaults());
+        Editor editor = new Editor(Document.of(DomTripConfig.defaults()));
         editor.createDocument("configuration");
 
         Element root = editor.root().orElseThrow();
@@ -116,15 +116,15 @@ public class ImprovedApiDemo {
         String xml = "<root><element attr=\"value\">content</element></root>";
 
         // Default configuration
-        Editor defaultEditor = new Editor(xml, DomTripConfig.defaults());
+        Editor defaultEditor = new Editor(Document.of(xml, DomTripConfig.defaults()));
         System.out.println("Default config: " + defaultEditor.toXml());
 
         // Strict configuration
-        Editor strictEditor = new Editor(xml, DomTripConfig.strict());
+        Editor strictEditor = new Editor(Document.of(xml, DomTripConfig.strict()));
         System.out.println("Strict config: " + strictEditor.toXml());
 
         // Pretty print configuration
-        Editor prettyEditor = new Editor(xml, DomTripConfig.prettyPrint());
+        Editor prettyEditor = new Editor(Document.of(xml, DomTripConfig.prettyPrint()));
         System.out.println("Pretty print config: " + prettyEditor.toXml());
         System.out.println();
     }
@@ -151,7 +151,7 @@ public class ImprovedApiDemo {
             </project>
             """;
 
-        Editor editor = new Editor(xml);
+        Editor editor = new Editor(Document.of(xml));
         Element root = editor.root().orElseThrow();
 
         // Enhanced navigation methods
@@ -184,7 +184,7 @@ public class ImprovedApiDemo {
         System.out.println("5. Serialization Options Demo:");
 
         String xml = "<?xml version=\"1.0\"?>\n<!-- Comment -->\n<root attr=\"value\">content</root>";
-        Editor editor = new Editor(xml);
+        Editor editor = new Editor(Document.of(xml));
 
         // Different serialization options
         System.out.println("Default serialization:");

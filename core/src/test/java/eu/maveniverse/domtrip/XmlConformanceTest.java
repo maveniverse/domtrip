@@ -16,7 +16,7 @@ public class XmlConformanceTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
@@ -25,7 +25,8 @@ public class XmlConformanceTest {
                 + "  <element attr=\"value\">content</element>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         assertTrue(editor.isWellFormed());
 
         String result = editor.toXml();
@@ -39,7 +40,8 @@ public class XmlConformanceTest {
     void testEmptyElements() {
         String xml = "<root>\n" + "  <empty/>\n" + "  <also-empty></also-empty>\n" + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Should preserve original formatting
@@ -54,7 +56,8 @@ public class XmlConformanceTest {
                 + "  attr3=  'spaced'\n"
                 + "  attr4=\"no-space\"/>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         assertEquals("single", root.attribute("attr1"));
@@ -74,7 +77,8 @@ public class XmlConformanceTest {
         String xml =
                 "<root>\n" + "  <text>&lt;tag&gt; &amp; &quot;quotes&quot; &apos;apostrophe&apos;</text>\n" + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element textElement = (Element) editor.root().orElseThrow().getNode(1);
         String content = textElement.textContent();
 
@@ -92,7 +96,8 @@ public class XmlConformanceTest {
                 + "  <mixed>Text <![CDATA[and CDATA]]> together</mixed>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // CDATA should be preserved exactly
@@ -109,7 +114,8 @@ public class XmlConformanceTest {
                 + "       comment -->\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Comments should be preserved
@@ -124,7 +130,8 @@ public class XmlConformanceTest {
                 + "    <preserve xml:space=\"preserve\">  preserve this  </preserve>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element element = (Element) editor.root().orElseThrow().getNode(1);
         Element preserve = (Element) editor.root().orElseThrow().getNode(3);
 
@@ -144,7 +151,8 @@ public class XmlConformanceTest {
                 + "  <ns:element>namespaced</ns:element>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Namespace declarations should be preserved
@@ -160,7 +168,8 @@ public class XmlConformanceTest {
                 + "  <?target instruction data?>\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String result = editor.toXml();
 
         // Processing instructions should be preserved
@@ -174,7 +183,8 @@ public class XmlConformanceTest {
                 + "  <another>more content</another> and more text\n"
                 + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         // Should have multiple children: text, element, text, element, text
@@ -190,7 +200,8 @@ public class XmlConformanceTest {
     void testDocumentStats() {
         String xml = "<root>\n" + "  <element>text</element>\n" + "  <!-- comment -->\n" + "  <another/>\n" + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         String stats = editor.documentStats();
 
         // Should count elements, text nodes, and comments

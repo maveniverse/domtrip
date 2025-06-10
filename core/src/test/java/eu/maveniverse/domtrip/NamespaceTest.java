@@ -20,18 +20,18 @@ public class NamespaceTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
     void testBasicNamespaceCreation() {
-        Element defaultNs = Element.element(QName.of("http://example.com/default", "root"));
+        Element defaultNs = Element.of(QName.of("http://example.com/default", "root"));
         assertEquals("root", defaultNs.name());
         assertEquals("root", defaultNs.localName());
         assertNull(defaultNs.prefix());
         assertEquals("http://example.com/default", defaultNs.attribute("xmlns"));
 
-        Element prefixed = Element.element(QName.of("http://example.com/ns", "element", "ex"));
+        Element prefixed = Element.of(QName.of("http://example.com/ns", "element", "ex"));
         assertEquals("ex:element", prefixed.name());
         assertEquals("element", prefixed.localName());
         assertEquals("ex", prefixed.prefix());
@@ -48,7 +48,8 @@ public class NamespaceTest {
             </root>
             """;
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         assertEquals("root", root.localName());
@@ -84,7 +85,8 @@ public class NamespaceTest {
             </root>
             """;
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         // Find by namespace and local name using QName
@@ -121,7 +123,8 @@ public class NamespaceTest {
             </root>
             """;
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
 
         NamespaceContext rootContext = root.namespaceContext();
@@ -234,11 +237,11 @@ public class NamespaceTest {
         assertEquals("http://example.com/ns", namespacedText.attribute("xmlns:ex"));
         assertEquals("My Title", namespacedText.textContent());
 
-        Element withPreferred = Element.element(QName.of("http://example.com/api", "data", "api"));
+        Element withPreferred = Element.of(QName.of("http://example.com/api", "data", "api"));
         assertEquals("api:data", withPreferred.name());
         assertEquals("http://example.com/api", withPreferred.attribute("xmlns:api"));
 
-        Element withoutPrefix = Element.element(QName.of("http://example.com/api", "data"));
+        Element withoutPrefix = Element.of(QName.of("http://example.com/api", "data"));
         assertEquals("data", withoutPrefix.name());
         assertEquals("http://example.com/api", withoutPrefix.attribute("xmlns"));
     }

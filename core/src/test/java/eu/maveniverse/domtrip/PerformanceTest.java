@@ -15,14 +15,15 @@ public class PerformanceTest {
 
     @BeforeEach
     void setUp() {
-        editor = new Editor();
+        editor = new Editor(Document.of());
     }
 
     @Test
     void testToXmlStringBuilderMethod() {
         String xml = "<root>\n" + "  <child attr='value'>content</child>\n" + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Document doc = editor.document();
 
         // Test that toXml(StringBuilder) produces same result as toXml()
@@ -39,7 +40,8 @@ public class PerformanceTest {
     void testElementToXmlStringBuilder() {
         String xml = "<element attr1='value1' attr2=\"value2\">text content</element>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element element = editor.root().orElseThrow();
 
         // Test element's toXml(StringBuilder) method
@@ -56,7 +58,8 @@ public class PerformanceTest {
     void testTextNodeToXmlStringBuilder() {
         String xml = "<root>Text with &lt;entities&gt;</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         Text textNode = (Text) root.getNode(0);
 
@@ -74,7 +77,8 @@ public class PerformanceTest {
     void testCommentToXmlStringBuilder() {
         String xml = "<root><!-- This is a comment --></root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
         Element root = editor.root().orElseThrow();
         Comment comment = (Comment) root.getNode(0);
 
@@ -130,7 +134,8 @@ public class PerformanceTest {
     void testNestedStringBuilderCalls() {
         String xml = "<root>\n" + "  <parent>\n" + "    <child>content</child>\n" + "  </parent>\n" + "</root>";
 
-        editor.loadXml(xml);
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
 
         // Test that nested calls to toXml(StringBuilder) work correctly
         StringBuilder sb = new StringBuilder();

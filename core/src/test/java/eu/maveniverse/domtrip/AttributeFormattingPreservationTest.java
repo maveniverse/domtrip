@@ -30,8 +30,8 @@ public class AttributeFormattingPreservationTest {
         Element root = editor.documentElement().orElseThrow();
 
         // Update existing attributes - should preserve quote styles
-        root.setAttribute("attr1", "updated1");
-        root.setAttribute("attr2", "updated2");
+        root.attribute("attr1", "updated1");
+        root.attribute("attr2", "updated2");
 
         String result = editor.toXml();
 
@@ -53,8 +53,8 @@ public class AttributeFormattingPreservationTest {
         String originalWhitespace2 = root.attributeObject("attr2").precedingWhitespace();
 
         // Update existing attributes
-        root.setAttribute("attr1", "updated1");
-        root.setAttribute("attr2", "updated2");
+        root.attribute("attr1", "updated1");
+        root.attribute("attr2", "updated2");
 
         // Verify whitespace is preserved
         assertEquals(originalWhitespace1, root.attributeObject("attr1").precedingWhitespace());
@@ -74,14 +74,14 @@ public class AttributeFormattingPreservationTest {
         String originalWhitespace2 = root.attributeObject("attr2").precedingWhitespace();
 
         // Update with specific quote characters
-        root.setAttribute("attr1", "updated1", '"'); // Change to double quotes
-        root.setAttribute("attr2", "updated2", '\''); // Change to single quotes
+        root.attribute("attr1", "updated1", '"'); // Change to double quotes
+        root.attribute("attr2", "updated2", '\''); // Change to single quotes
 
         // Verify whitespace is preserved but quotes are changed
         assertEquals(originalWhitespace1, root.attributeObject("attr1").precedingWhitespace());
         assertEquals(originalWhitespace2, root.attributeObject("attr2").precedingWhitespace());
-        assertEquals('"', root.attributeObject("attr1").getQuoteChar());
-        assertEquals('\'', root.attributeObject("attr2").getQuoteChar());
+        assertEquals('"', root.attributeObject("attr1").quoteStyle().getCharacter());
+        assertEquals('\'', root.attributeObject("attr2").quoteStyle().getCharacter());
     }
 
     @Test
@@ -92,16 +92,16 @@ public class AttributeFormattingPreservationTest {
         Element root = editor.documentElement().orElseThrow();
 
         // Add new attributes
-        root.setAttribute("new1", "value1");
-        root.setAttribute("new2", "value2", '\'');
+        root.attribute("new1", "value1");
+        root.attribute("new2", "value2", '\'');
 
         // Verify new attributes use defaults
         Attribute new1 = root.attributeObject("new1");
         Attribute new2 = root.attributeObject("new2");
 
-        assertEquals('"', new1.getQuoteChar(), "New attribute should use default double quotes");
+        assertEquals('"', new1.quoteStyle().getCharacter(), "New attribute should use default double quotes");
         assertEquals(" ", new1.precedingWhitespace(), "New attribute should use default whitespace");
-        assertEquals('\'', new2.getQuoteChar(), "New attribute should use specified quote char");
+        assertEquals('\'', new2.quoteStyle().getCharacter(), "New attribute should use specified quote char");
         assertEquals(" ", new2.precedingWhitespace(), "New attribute should use default whitespace");
     }
 
@@ -117,7 +117,7 @@ public class AttributeFormattingPreservationTest {
         Element config = editor.documentElement().orElseThrow();
 
         // Update combine.children value - should preserve single quotes and whitespace
-        config.setAttribute("combine.children", "merge");
+        config.attribute("combine.children", "merge");
 
         String result = editor.toXml();
 
@@ -138,22 +138,22 @@ public class AttributeFormattingPreservationTest {
         String ws1 = element.attributeObject("attr1").precedingWhitespace();
         String ws2 = element.attributeObject("attr2").precedingWhitespace();
         String ws3 = element.attributeObject("attr3").precedingWhitespace();
-        char q1 = element.attributeObject("attr1").getQuoteChar();
-        char q2 = element.attributeObject("attr2").getQuoteChar();
-        char q3 = element.attributeObject("attr3").getQuoteChar();
+        char q1 = element.attributeObject("attr1").quoteStyle().getCharacter();
+        char q2 = element.attributeObject("attr2").quoteStyle().getCharacter();
+        char q3 = element.attributeObject("attr3").quoteStyle().getCharacter();
 
         // Update all attributes
-        element.setAttribute("attr1", "updated1");
-        element.setAttribute("attr2", "updated2");
-        element.setAttribute("attr3", "updated3");
+        element.attribute("attr1", "updated1");
+        element.attribute("attr2", "updated2");
+        element.attribute("attr3", "updated3");
 
         // Verify all formatting is preserved
         assertEquals(ws1, element.attributeObject("attr1").precedingWhitespace());
         assertEquals(ws2, element.attributeObject("attr2").precedingWhitespace());
         assertEquals(ws3, element.attributeObject("attr3").precedingWhitespace());
-        assertEquals(q1, element.attributeObject("attr1").getQuoteChar());
-        assertEquals(q2, element.attributeObject("attr2").getQuoteChar());
-        assertEquals(q3, element.attributeObject("attr3").getQuoteChar());
+        assertEquals(q1, element.attributeObject("attr1").quoteStyle().getCharacter());
+        assertEquals(q2, element.attributeObject("attr2").quoteStyle().getCharacter());
+        assertEquals(q3, element.attributeObject("attr3").quoteStyle().getCharacter());
     }
 
     @Test
@@ -161,13 +161,13 @@ public class AttributeFormattingPreservationTest {
         // Create element with raw value
         Element element = new Element("test");
         Attribute attr = new Attribute("attr", "decoded", '"', " ", "&quot;raw&quot;");
-        element.setAttributeObject("attr", attr);
+        element.attributeObject("attr", attr);
 
         // Verify raw value exists
         assertNotNull(element.attributeObject("attr").rawValue());
 
         // Update using setAttribute
-        element.setAttribute("attr", "updated");
+        element.attribute("attr", "updated");
 
         // Verify raw value is cleared (as expected when setting programmatically)
         assertNull(element.attributeObject("attr").rawValue());
@@ -180,8 +180,8 @@ public class AttributeFormattingPreservationTest {
         Element element = new Element("test");
 
         // Setting new attributes should work as before
-        element.setAttribute("attr1", "value1");
-        element.setAttribute("attr2", "value2", '\'');
+        element.attribute("attr1", "value1");
+        element.attribute("attr2", "value2", '\'');
 
         assertEquals("value1", element.attribute("attr1"));
         assertEquals("value2", element.attribute("attr2"));
@@ -197,12 +197,12 @@ public class AttributeFormattingPreservationTest {
         Element root = editor.documentElement().orElseThrow();
 
         // Test null value
-        root.setAttribute("attr", null);
+        root.attribute("attr", null);
         assertNull(root.attribute("attr"));
         assertEquals('\'', root.attributeQuote("attr")); // Quote style preserved
 
         // Test empty value
-        root.setAttribute("attr", "");
+        root.attribute("attr", "");
         assertEquals("", root.attribute("attr"));
         assertEquals('\'', root.attributeQuote("attr")); // Quote style preserved
     }
@@ -216,7 +216,7 @@ public class AttributeFormattingPreservationTest {
         Element root = editor.documentElement().orElseThrow();
 
         // Add new attribute via Editor - should infer single quotes (majority)
-        editor.setAttribute(root, "attr4", "value4");
+        root.attribute("attr4", "value4");
 
         assertEquals('\'', root.attributeQuote("attr4"));
         assertEquals("value4", root.attribute("attr4"));
@@ -231,7 +231,7 @@ public class AttributeFormattingPreservationTest {
         Element root = editor.documentElement().orElseThrow();
 
         // Add new attribute via Editor - should infer double quotes (majority)
-        editor.setAttribute(root, "attr4", "value4");
+        root.attribute("attr4", "value4");
 
         assertEquals('"', root.attributeQuote("attr4"));
         assertEquals("value4", root.attribute("attr4"));
@@ -252,7 +252,7 @@ public class AttributeFormattingPreservationTest {
         assertTrue(existingWhitespace.length() > 1, "attr2 should have custom whitespace");
 
         // Add new attribute via Editor - should infer custom spacing
-        editor.setAttribute(root, "attr3", "value3");
+        root.attribute("attr3", "value3");
 
         String attr3Whitespace = root.attributeObject("attr3").precedingWhitespace();
         assertEquals(existingWhitespace, attr3Whitespace);
@@ -267,7 +267,7 @@ public class AttributeFormattingPreservationTest {
         Element element = editor.documentElement().orElseThrow();
 
         // Add new attribute via Editor - should infer alignment pattern
-        editor.setAttribute(element, "attr3", "value3");
+        element.attribute("attr3", "value3");
 
         String result = editor.toXml();
 
@@ -315,7 +315,7 @@ public class AttributeFormattingPreservationTest {
         Element element = editor.documentElement().orElseThrow();
 
         // This is the exact call from the documentation
-        editor.setAttribute(element, "attr3", "value3");
+        element.attribute("attr3", "value3");
 
         String result = editor.toXml();
 
@@ -334,7 +334,7 @@ public class AttributeFormattingPreservationTest {
         assertNotNull(attr3, "attr3 should exist");
 
         // Should infer double quotes from existing attributes
-        assertEquals('"', attr3.getQuoteChar(), "Should infer double quotes from existing attributes");
+        assertEquals('"', attr3.quoteStyle().getCharacter(), "Should infer double quotes from existing attributes");
 
         // Should infer multi-line alignment pattern
         String attr3Whitespace = attr3.precedingWhitespace();
@@ -354,7 +354,7 @@ public class AttributeFormattingPreservationTest {
         Element root = editor.documentElement().orElseThrow();
 
         // Add attribute to element with no existing attributes
-        editor.setAttribute(root, "newAttr", "newValue");
+        root.attribute("newAttr", "newValue");
 
         // Should use defaults
         assertEquals('"', root.attributeQuote("newAttr"));
@@ -370,7 +370,7 @@ public class AttributeFormattingPreservationTest {
         Element root = editor.documentElement().orElseThrow();
 
         // Update existing attribute via Editor - should preserve formatting
-        editor.setAttribute(root, "attr1", "updated");
+        root.attribute("attr1", "updated");
 
         assertEquals('\'', root.attributeQuote("attr1"));
         assertEquals("updated", root.attribute("attr1"));
@@ -392,7 +392,7 @@ public class AttributeFormattingPreservationTest {
         Element config = editor.element("configuration").orElseThrow();
 
         // Add new attribute via Editor - should infer alignment
-        editor.setAttribute(config, "newAttr", "newValue");
+        config.attribute("newAttr", "newValue");
 
         String result = editor.toXml();
 

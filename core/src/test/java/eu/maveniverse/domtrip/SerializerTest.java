@@ -38,7 +38,7 @@ public class SerializerTest {
     @Test
     void testSerializeDocumentWithOnlyXmlDeclaration() {
         Document doc = new Document();
-        doc.setXmlDeclaration("<?xml version=\"1.0\"?>");
+        doc.xmlDeclaration("<?xml version=\"1.0\"?>");
 
         String result = serializer.serialize(doc);
         assertEquals("<?xml version=\"1.0\"?>", result);
@@ -47,10 +47,10 @@ public class SerializerTest {
     @Test
     void testSerializeDocumentWithDoctype() {
         Document doc = new Document();
-        doc.setXmlDeclaration("<?xml version=\"1.0\"?>");
-        doc.setDoctype("<!DOCTYPE root SYSTEM \"root.dtd\">");
+        doc.xmlDeclaration("<?xml version=\"1.0\"?>");
+        doc.doctype("<!DOCTYPE root SYSTEM \"root.dtd\">");
         Element root = new Element("root");
-        doc.setRoot(root);
+        doc.root(root);
 
         String result = serializer.serialize(doc);
         assertTrue(result.contains("<?xml version=\"1.0\"?>"));
@@ -70,8 +70,8 @@ public class SerializerTest {
     @Test
     void testSerializeElementWithAttributes() {
         Element element = new Element("test");
-        element.setAttribute("attr1", "value1");
-        element.setAttribute("attr2", "value2");
+        element.attribute("attr1", "value1");
+        element.attribute("attr2", "value2");
 
         String result = element.toXml();
         assertTrue(result.contains("attr1=\"value1\""));
@@ -81,7 +81,7 @@ public class SerializerTest {
     @Test
     void testSerializeElementWithSpecialCharactersInAttributes() {
         Element element = new Element("test");
-        element.setAttribute("attr", "value with <tags> & \"quotes\"");
+        element.attribute("attr", "value with <tags> & \"quotes\"");
 
         String result = element.toXml();
         assertTrue(result.contains("&lt;tags&gt;"));
@@ -92,8 +92,8 @@ public class SerializerTest {
     @Test
     void testSerializeElementWithMixedQuotes() {
         Element element = new Element("test");
-        element.setAttribute("single", "value", '\'');
-        element.setAttribute("double", "value", '"');
+        element.attribute("single", "value", '\'');
+        element.attribute("double", "value", '"');
 
         String result = element.toXml();
         assertTrue(result.contains("single='value'"));
@@ -186,7 +186,7 @@ public class SerializerTest {
         Element element = (Element) root.getChild(0);
 
         // Modify the element
-        element.setAttribute("attr", "modified");
+        element.attribute("attr", "modified");
         element.textContent("modified content");
 
         String result = editor.toXml();
@@ -215,14 +215,14 @@ public class SerializerTest {
     void testSerializeLargeDocument() {
         // Create a large document
         Document doc = new Document();
-        doc.setXmlDeclaration("<?xml version=\"1.0\"?>");
+        doc.xmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
-        doc.setRoot(root);
+        doc.root(root);
 
         // Add many child elements
         for (int i = 0; i < 1000; i++) {
             Element child = new Element("element" + i);
-            child.setAttribute("id", String.valueOf(i));
+            child.attribute("id", String.valueOf(i));
             child.textContent("Content " + i);
             root.addChild(child);
         }
@@ -243,7 +243,7 @@ public class SerializerTest {
         // Create deeply nested structure
         Document doc = new Document();
         Element root = new Element("root");
-        doc.setRoot(root);
+        doc.root(root);
 
         Element current = root;
         for (int i = 0; i < 100; i++) {
@@ -320,14 +320,14 @@ public class SerializerTest {
     void testSerializePerformance() {
         // Create a moderately complex document
         Document doc = new Document();
-        doc.setXmlDeclaration("<?xml version=\"1.0\"?>");
+        doc.xmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
-        doc.setRoot(root);
+        doc.root(root);
 
         for (int i = 0; i < 100; i++) {
             Element child = new Element("element");
-            child.setAttribute("id", String.valueOf(i));
-            child.setAttribute("name", "element" + i);
+            child.attribute("id", String.valueOf(i));
+            child.attribute("name", "element" + i);
             child.textContent("Content for element " + i);
             root.addChild(child);
         }

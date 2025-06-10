@@ -38,12 +38,11 @@ public class ImprovedApiDemo {
         System.out.println("1. Factory Methods Demo:");
 
         // Create document using factory
-        Document doc = Document.builder()
-                .withVersion("1.0")
-                .withEncoding("UTF-8")
-                .withRootElement("project")
-                .withXmlDeclaration()
-                .build();
+        Document doc = Document.of()
+                .version("1.0")
+                .encoding("UTF-8")
+                .root(new Element("project"))
+                .withXmlDeclaration();
 
         // Create elements using factory
         Element dependencies = Element.text("dependencies", "");
@@ -95,7 +94,7 @@ public class ImprovedApiDemo {
                 .build();
 
         // Demonstrate attribute builder and immutable operations
-        database.setAttribute("custom-attr", "custom-value");
+        database.attribute("custom-attr", "custom-value");
 
         // Show how to work with attribute objects for advanced formatting
         Attribute originalAttr = database.attributeObject("custom-attr");

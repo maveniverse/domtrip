@@ -145,10 +145,12 @@ public abstract class Node {
      * tree consistency.</p>
      *
      * @param parent the parent container node to set, or null to clear the parent
+     * @return this node for method chaining
      * @see #parent()
      */
-    public void parent(ContainerNode parent) {
+    public Node parent(ContainerNode parent) {
         this.parent = parent;
+        return this;
     }
 
     /**
@@ -172,11 +174,13 @@ public abstract class Node {
      * before this node when serializing to XML.</p>
      *
      * @param whitespace the whitespace string to set, null is treated as empty string
+     * @return this node for method chaining
      * @see #precedingWhitespace()
      */
-    public void precedingWhitespace(String whitespace) {
+    public Node precedingWhitespace(String whitespace) {
         this.precedingWhitespace = whitespace != null ? whitespace : "";
         markModified();
+        return this;
     }
 
     /**
@@ -199,10 +203,12 @@ public abstract class Node {
      * after this node when serializing to XML.</p>
      *
      * @param whitespace the whitespace string to set, null is treated as empty string
+     * @return this node for method chaining
      * @see #followingWhitespace()
      */
-    public void followingWhitespace(String whitespace) {
+    public Node followingWhitespace(String whitespace) {
         this.followingWhitespace = whitespace != null ? whitespace : "";
+        return this;
     }
 
     // Modification tracking

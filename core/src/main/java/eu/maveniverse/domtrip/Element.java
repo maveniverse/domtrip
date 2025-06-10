@@ -134,10 +134,12 @@ public class Element extends ContainerNode {
      * Sets the element name.
      *
      * @param name the new element name
+     * @return this element for method chaining
      */
-    public void name(String name) {
+    public Element name(String name) {
         this.name = name;
         markModified();
+        return this;
     }
 
     // Attribute management
@@ -156,19 +158,20 @@ public class Element extends ContainerNode {
      * <h3>Examples:</h3>
      * <pre>{@code
      * // Original: <element attr1='existing' />
-     * element.setAttribute("attr1", "updated");
+     * element.attribute("attr1", "updated");
      * // Result:   <element attr1='updated' />  (preserves single quotes)
      *
-     * element.setAttribute("attr2", "new");
+     * element.attribute("attr2", "new");
      * // Result:   <element attr1='updated' attr2="new" />  (uses default double quotes)
      * }</pre>
      *
      * @param name the attribute name
      * @param value the attribute value
-     * @see #setAttribute(String, String, char)
-     * @see #getAttributeObject(String)
+     * @return this element for method chaining
+     * @see #attribute(String, String, char)
+     * @see #attributeObject(String)
      */
-    public void setAttribute(String name, String value) {
+    public Element attribute(String name, String value) {
         Attribute existingAttr = attributes.get(name);
         if (existingAttr != null) {
             // Preserve existing formatting by updating the existing attribute
@@ -178,6 +181,7 @@ public class Element extends ContainerNode {
             attributes.put(name, new Attribute(name, value));
         }
         markModified();
+        return this;
     }
 
     /**
@@ -190,25 +194,27 @@ public class Element extends ContainerNode {
      * @param name the attribute name
      * @param value the attribute value
      * @param quoteChar the quote character to use (' or ")
-     * @see #setAttribute(String, String)
+     * @return this element for method chaining
+     * @see #attribute(String, String)
      */
-    public void setAttribute(String name, String value, char quoteChar) {
+    public Element attribute(String name, String value, char quoteChar) {
         Attribute existingAttr = attributes.get(name);
         if (existingAttr != null) {
             // Preserve existing whitespace but update quote style and value
             existingAttr.value(value);
-            existingAttr.setQuoteChar(quoteChar);
+            existingAttr.quoteStyle(QuoteStyle.fromChar(quoteChar));
         } else {
             // Create new attribute with specified quote character
             attributes.put(name, new Attribute(name, value, quoteChar, " "));
         }
         markModified();
+        return this;
     }
 
     /**
      * Sets attribute without marking as modified (for use during parsing)
      */
-    void setAttributeInternal(String name, String value, char quoteChar, String precedingWhitespace, String rawValue) {
+    void attributeInternal(String name, String value, char quoteChar, String precedingWhitespace, String rawValue) {
         attributes.put(name, new Attribute(name, value, quoteChar, precedingWhitespace, rawValue));
         // Don't call markModified() here
     }
@@ -246,20 +252,26 @@ public class Element extends ContainerNode {
 
     /**
      * Sets an attribute using an Attribute object.
+     *
+     * @param name the attribute name
+     * @param attribute the Attribute object to set
+     * @return this element for method chaining
      */
-    public void setAttributeObject(String name, Attribute attribute) {
+    public Element attributeObject(String name, Attribute attribute) {
         if (name != null && attribute != null) {
             attributes.put(name, attribute);
             markModified();
         }
+        return this;
     }
 
-    // Attribute formatting management (for backward compatibility)
-    public void setAttributeWhitespace(String attributeName, String whitespace) {
+    // Attribute formatting management
+    public Element attributeWhitespace(String attributeName, String whitespace) {
         Attribute attr = attributes.get(attributeName);
         if (attr != null) {
             attr.precedingWhitespace(whitespace);
         }
+        return this;
     }
 
     public String attributeWhitespace(String attributeName) {
@@ -267,16 +279,17 @@ public class Element extends ContainerNode {
         return attr != null ? attr.precedingWhitespace() : " ";
     }
 
-    public void attributeQuote(String attributeName, char quoteChar) {
+    public Element attributeQuote(String attributeName, char quoteChar) {
         Attribute attr = attributes.get(attributeName);
         if (attr != null) {
-            attr.setQuoteChar(quoteChar);
+            attr.quoteStyle(QuoteStyle.fromChar(quoteChar));
         }
+        return this;
     }
 
     public char attributeQuote(String attributeName) {
         Attribute attr = attributes.get(attributeName);
-        return attr != null ? attr.getQuoteChar() : '"';
+        return attr != null ? attr.quoteStyle().getCharacter() : '"';
     }
 
     // Tag formatting
@@ -284,31 +297,34 @@ public class Element extends ContainerNode {
         return openTagWhitespace;
     }
 
-    public void openTagWhitespace(String whitespace) {
+    public Element openTagWhitespace(String whitespace) {
         this.openTagWhitespace = whitespace != null ? whitespace : "";
+        return this;
     }
 
     public String closeTagWhitespace() {
         return closeTagWhitespace;
     }
 
-    public void closeTagWhitespace(String whitespace) {
+    public Element closeTagWhitespace(String whitespace) {
         this.closeTagWhitespace = whitespace != null ? whitespace : "";
+        return this;
     }
 
     public boolean selfClosing() {
         return selfClosing;
     }
 
-    public void selfClosing(boolean selfClosing) {
+    public Element selfClosing(boolean selfClosing) {
         this.selfClosing = selfClosing;
         markModified();
+        return this;
     }
 
     /**
      * Sets self-closing flag without marking as modified (for internal use)
      */
-    void setSelfClosingInternal(boolean selfClosing) {
+    void selfClosingInternal(boolean selfClosing) {
         this.selfClosing = selfClosing;
     }
 
@@ -317,16 +333,18 @@ public class Element extends ContainerNode {
         return originalOpenTag;
     }
 
-    public void originalOpenTag(String originalOpenTag) {
+    public Element originalOpenTag(String originalOpenTag) {
         this.originalOpenTag = originalOpenTag != null ? originalOpenTag : "";
+        return this;
     }
 
     public String originalCloseTag() {
         return originalCloseTag;
     }
 
-    public void originalCloseTag(String originalCloseTag) {
+    public Element originalCloseTag(String originalCloseTag) {
         this.originalCloseTag = originalCloseTag != null ? originalCloseTag : "";
+        return this;
     }
 
     @Override
@@ -437,10 +455,11 @@ public class Element extends ContainerNode {
      * use {@link #textPreservingWhitespace(String)} instead.</p>
      *
      * @param content the new text content
+     * @return this element for method chaining
      * @see #textPreservingWhitespace(String)
      * @see #textContent()
      */
-    public void textContent(String content) {
+    public Element textContent(String content) {
         // Remove all existing text children
         nodes.removeIf(child -> child instanceof Text);
 
@@ -451,6 +470,7 @@ public class Element extends ContainerNode {
         }
 
         markModified();
+        return this;
     }
 
     /**
@@ -473,11 +493,12 @@ public class Element extends ContainerNode {
      * }</pre>
      *
      * @param content the new text content
+     * @return this element for method chaining
      * @see #textContent(String)
      * @see #textContent()
      * @see #trimmedTextContent()
      */
-    public void textPreservingWhitespace(String content) {
+    public Element textPreservingWhitespace(String content) {
         if (content == null) {
             content = "";
         }
@@ -492,6 +513,7 @@ public class Element extends ContainerNode {
             // No existing text, just set normally
             textContent(content);
         }
+        return this;
     }
 
     /**
@@ -577,13 +599,18 @@ public class Element extends ContainerNode {
 
     /**
      * Sets a namespace declaration attribute (xmlns or xmlns:prefix).
+     *
+     * @param prefix the namespace prefix, or null/empty for default namespace
+     * @param namespaceURI the namespace URI
+     * @return this element for method chaining
      */
-    public void setNamespaceDeclaration(String prefix, String namespaceURI) {
+    public Element namespaceDeclaration(String prefix, String namespaceURI) {
         if (prefix == null || prefix.isEmpty()) {
-            setAttribute("xmlns", namespaceURI);
+            attribute("xmlns", namespaceURI);
         } else {
-            setAttribute("xmlns:" + prefix, namespaceURI);
+            attribute("xmlns:" + prefix, namespaceURI);
         }
+        return this;
     }
 
     /**
@@ -792,281 +819,6 @@ public class Element extends ContainerNode {
         return "Element{name='" + name + "', attributes=" + attributes.size() + ", children=" + nodes.size() + "}";
     }
 
-    /**
-     * Builder for creating complex element structures with fluent API.
-     *
-     * <p>The Element.Builder provides a convenient way to construct XML elements
-     * with attributes, child nodes, and namespace declarations using method chaining.</p>
-     *
-     * <h3>Usage Examples:</h3>
-     * <pre>{@code
-     * // Simple element with text content
-     * Element version = Element.builder("version")
-     *     .withText("1.0.0")
-     *     .build();
-     *
-     * // Element with attributes and children
-     * Element dependency = Element.builder("dependency")
-     *     .withAttribute("scope", "test")
-     *     .withAttribute("optional", "true")
-     *     .withChild(Element.builder("groupId").withText("junit").build())
-     *     .withChild(Element.builder("artifactId").withText("junit").build())
-     *     .build();
-     *
-     * // Self-closing element
-     * Element input = Element.builder("input")
-     *     .withAttribute("type", "text")
-     *     .withAttribute("name", "username")
-     *     .selfClosing()
-     *     .build();
-     * }</pre>
-     *
-     */
-    public static class Builder {
-        private final Element element;
-
-        private Builder(String name) {
-            this.element = new Element(name);
-        }
-
-        /**
-         * Adds text content to the element.
-         *
-         * @param content the text content to add
-         * @return this builder for method chaining
-         */
-        public Builder withText(String content) {
-            if (content != null && !content.isEmpty()) {
-                element.addChild(new Text(content));
-            }
-            return this;
-        }
-
-        /**
-         * Adds CDATA content to the element.
-         *
-         * @param content the CDATA content to add
-         * @return this builder for method chaining
-         */
-        public Builder withCData(String content) {
-            if (content != null) {
-                element.addChild(new Text(content, true));
-            }
-            return this;
-        }
-
-        /**
-         * Adds an attribute to the element.
-         *
-         * @param name the attribute name
-         * @param value the attribute value
-         * @return this builder for method chaining
-         */
-        public Builder withAttribute(String name, String value) {
-            element.setAttribute(name, value);
-            return this;
-        }
-
-        /**
-         * Adds an attribute to the element using a QName.
-         *
-         * @param qname the attribute QName
-         * @param value the attribute value
-         * @return this builder for method chaining
-         */
-        public Builder withAttribute(QName qname, String value) {
-            if (qname != null) {
-                element.setAttribute(qname.qualifiedName(), value);
-            }
-            return this;
-        }
-
-        /**
-         * Adds multiple attributes to the element.
-         *
-         * @param attributes a map of attribute names to values
-         * @return this builder for method chaining
-         */
-        public Builder withAttributes(Map<String, String> attributes) {
-            if (attributes != null) {
-                for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                    element.setAttribute(entry.getKey(), entry.getValue());
-                }
-            }
-            return this;
-        }
-
-        /**
-         * Adds multiple attributes to the element using QNames.
-         *
-         * @param qnameAttributes a map of attribute QNames to values
-         * @return this builder for method chaining
-         */
-        public Builder withQNameAttributes(Map<QName, String> qnameAttributes) {
-            if (qnameAttributes != null) {
-                qnameAttributes.forEach((qname, value) -> {
-                    if (qname != null) {
-                        element.setAttribute(qname.qualifiedName(), value);
-                    }
-                });
-            }
-            return this;
-        }
-
-        /**
-         * Adds a child element.
-         *
-         * @param child the child element to add
-         * @return this builder for method chaining
-         */
-        public Builder withChild(Element child) {
-            element.addChild(child);
-            return this;
-        }
-
-        /**
-         * Adds a child element with the specified name and text content.
-         *
-         * @param name the child element name
-         * @param textContent the text content for the child element
-         * @return this builder for method chaining
-         */
-        public Builder withChild(String name, String textContent) {
-            element.addChild(Element.text(name, textContent));
-            return this;
-        }
-
-        /**
-         * Adds a child element with the specified QName and text content.
-         *
-         * @param qname the child element QName
-         * @param textContent the text content for the child element
-         * @return this builder for method chaining
-         */
-        public Builder withChild(QName qname, String textContent) {
-            if (qname != null) {
-                Element child = Element.text(qname.qualifiedName(), textContent);
-                // Add namespace declaration if needed and not already declared
-                if (qname.hasNamespace() && !isNamespaceDeclared(element, qname)) {
-                    child.setNamespaceDeclaration(qname.prefix(), qname.namespaceURI());
-                }
-                element.addChild(child);
-            }
-            return this;
-        }
-
-        /**
-         * Adds multiple child elements.
-         *
-         * @param children the child elements to add
-         * @return this builder for method chaining
-         */
-        public Builder withChildren(java.util.List<Element> children) {
-            if (children != null) {
-                for (Element child : children) {
-                    element.addChild(child);
-                }
-            }
-            return this;
-        }
-
-        /**
-         * Adds a comment as a child node.
-         *
-         * @param comment the comment text
-         * @return this builder for method chaining
-         */
-        public Builder withComment(String comment) {
-            element.addChild(new Comment(comment != null ? comment : ""));
-            return this;
-        }
-
-        /**
-         * Makes this element self-closing.
-         *
-         * @return this builder for method chaining
-         */
-        public Builder selfClosing() {
-            element.selfClosing(true);
-            return this;
-        }
-
-        /**
-         * Adds a namespace declaration to the element.
-         *
-         * @param prefix the namespace prefix (null for default namespace)
-         * @param namespaceURI the namespace URI
-         * @return this builder for method chaining
-         */
-        public Builder withNamespace(String prefix, String namespaceURI) {
-            element.setNamespaceDeclaration(prefix, namespaceURI);
-            return this;
-        }
-
-        /**
-         * Sets the default namespace for the element.
-         *
-         * @param namespaceURI the default namespace URI
-         * @return this builder for method chaining
-         */
-        public Builder withDefaultNamespace(String namespaceURI) {
-            element.setNamespaceDeclaration(null, namespaceURI);
-            return this;
-        }
-
-        /**
-         * Builds and returns the configured Element instance.
-         *
-         * @return the constructed Element
-         */
-        public Element build() {
-            return element;
-        }
-
-        /**
-         * Builds the element and adds it to the specified parent using Editor's whitespace management.
-         *
-         * <p>This method integrates with the Editor's whitespace management to properly
-         * format the element when adding it to the document tree.</p>
-         *
-         * @param editor the Editor instance for whitespace management
-         * @param parent the parent container to add this element to
-         * @return the constructed and added Element
-         * @throws IllegalArgumentException if editor or parent is null
-         * @throws IllegalStateException if parent is not a container node
-         */
-        public Element buildAndAddTo(Editor editor, ContainerNode parent) {
-            if (editor == null) {
-                throw new IllegalArgumentException("Editor cannot be null");
-            }
-            if (parent == null) {
-                throw new IllegalArgumentException("Parent cannot be null");
-            }
-
-            Element builtElement = build();
-
-            // Use Editor's whitespace management
-            String indentation = editor.whitespaceManager().inferIndentation(parent);
-            if (!indentation.isEmpty()) {
-                builtElement.precedingWhitespace("\n" + indentation);
-            }
-
-            parent.addChild(builtElement);
-            return builtElement;
-        }
-    }
-
-    /**
-     * Creates a new Element builder instance.
-     *
-     * @param name the element name
-     * @return a new Element.Builder for fluent element construction
-     * @throws IllegalArgumentException if name is null or empty
-     */
-    public static Builder builder(String name) {
-        return new Builder(name);
-    }
-
     // Factory methods for common element patterns
 
     /**
@@ -1076,6 +828,18 @@ public class Element extends ContainerNode {
      * @return a new Element
      */
     public static Element of(String name) {
+        return new Element(name);
+    }
+
+    /**
+     * Creates a simple element.
+     *
+     * <p>Alias for {@link #of(String)} for consistency.</p>
+     *
+     * @param name the element name
+     * @return a new Element
+     */
+    public static Element element(String name) {
         return new Element(name);
     }
 
@@ -1101,7 +865,11 @@ public class Element extends ContainerNode {
      * @return a new Element with text content
      */
     public static Element text(String name, String content) {
-        return Element.builder(name).withText(content).build();
+        Element element = new Element(name);
+        if (content != null && !content.isEmpty()) {
+            element.addChild(new Text(content));
+        }
+        return element;
     }
 
     /**
@@ -1114,7 +882,7 @@ public class Element extends ContainerNode {
      * @return a new self-closing Element
      */
     public static Element selfClosing(String name) {
-        return Element.builder(name).selfClosing().build();
+        return new Element(name).selfClosing(true);
     }
 
     /**
@@ -1128,7 +896,13 @@ public class Element extends ContainerNode {
      * @return a new Element with attributes
      */
     public static Element withAttributes(String name, Map<String, String> attributes) {
-        return Element.builder(name).withAttributes(attributes).build();
+        Element element = new Element(name);
+        if (attributes != null) {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                element.attribute(entry.getKey(), entry.getValue());
+            }
+        }
+        return element;
     }
 
     /**
@@ -1143,10 +917,16 @@ public class Element extends ContainerNode {
      * @return a new Element with text content and attributes
      */
     public static Element elementWithTextAndAttributes(String name, String content, Map<String, String> attributes) {
-        return Element.builder(name)
-                .withAttributes(attributes)
-                .withText(content)
-                .build();
+        Element element = new Element(name);
+        if (attributes != null) {
+            for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                element.attribute(entry.getKey(), entry.getValue());
+            }
+        }
+        if (content != null && !content.isEmpty()) {
+            element.addChild(new Text(content));
+        }
+        return element;
     }
 
     /**
@@ -1161,27 +941,11 @@ public class Element extends ContainerNode {
      * @return a new Element with CDATA content
      */
     public static Element cdata(String name, String content) {
-        return Element.builder(name).withCData(content).build();
-    }
-
-    // QName factory methods
-
-    /**
-     * Creates a builder for an element with the specified QName.
-     *
-     * <p>Note: Namespace declarations should be added separately when the element
-     * is added to a document context where they can be checked for existing declarations.</p>
-     *
-     * @param qname the QName for the element
-     * @return a new Element.Builder configured with the QName
-     * @throws IllegalArgumentException if qname is null
-     */
-    public static Builder builder(QName qname) {
-        if (qname == null) {
-            throw new IllegalArgumentException("QName cannot be null");
+        Element element = new Element(name);
+        if (content != null) {
+            element.addChild(new Text(content, true));
         }
-
-        return Element.builder(qname.qualifiedName());
+        return element;
     }
 
     // Namespace factory methods
@@ -1206,9 +970,9 @@ public class Element extends ContainerNode {
         // Add namespace declaration if needed
         if (qname.hasNamespace()) {
             if (qname.hasPrefix()) {
-                element.setNamespaceDeclaration(qname.prefix(), qname.namespaceURI());
+                element.namespaceDeclaration(qname.prefix(), qname.namespaceURI());
             } else {
-                element.setNamespaceDeclaration(null, qname.namespaceURI());
+                element.namespaceDeclaration(null, qname.namespaceURI());
             }
         }
 

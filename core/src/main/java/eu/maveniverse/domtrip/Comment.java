@@ -257,4 +257,16 @@ public class Comment extends Node {
     public static Builder builder() {
         return new Builder();
     }
+
+    /**
+     * Creates a comment with the specified content.
+     *
+     * <p>Factory method following modern Java naming conventions.</p>
+     *
+     * @param content the comment content
+     * @return a new Comment
+     */
+    public static Comment of(String content) {
+        return new Comment(content);
+    }
 }

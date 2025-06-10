@@ -136,12 +136,12 @@ public class ApiImprovementsTest {
         // Add dependencies
         Element dependencies = editor.addElement(root, "dependencies");
         Element dep1 = editor.addElement(dependencies, "dependency");
-        editor.setAttribute(dep1, "scope", "test");
+        dep1.attribute("scope", "test");
         editor.addElement(dep1, "groupId", "junit");
         editor.addElement(dep1, "artifactId", "junit");
 
         Element dep2 = editor.addElement(dependencies, "dependency");
-        editor.setAttribute(dep2, "scope", "compile");
+        dep2.attribute("scope", "compile");
         editor.addElement(dep2, "groupId", "commons-lang");
         editor.addElement(dep2, "artifactId", "commons-lang");
 
@@ -223,17 +223,16 @@ public class ApiImprovementsTest {
         QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
         Element envelope = Element.of(soapEnvelope);
         // Add namespace declaration for the test to work
-        envelope.setAttribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
+        envelope.attribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
         assertEquals("soap:Envelope", envelope.name());
         assertEquals("Envelope", envelope.localName());
         assertEquals("soap", envelope.prefix());
         assertEquals("http://schemas.xmlsoap.org/soap/envelope/", envelope.namespaceURI());
 
-        // Test QName builder
-        Element body = Element.builder(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"))
-                .withText("body content")
-                .build();
+        // Test QName element creation
+        Element body = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"));
+        body.addChild(new Text("body content"));
 
         assertEquals("soap:Body", body.name());
         assertEquals("body content", body.textContent());

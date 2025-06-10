@@ -115,11 +115,13 @@ public class Document extends ContainerNode {
      * <p>Example: {@code <?xml version="1.0" encoding="UTF-8" standalone="yes"?>}</p>
      *
      * @param xmlDeclaration the XML declaration string, or null to clear it
-     * @see #getXmlDeclaration()
+     * @return this document for method chaining
+     * @see #xmlDeclaration()
      */
-    public void setXmlDeclaration(String xmlDeclaration) {
+    public Document xmlDeclaration(String xmlDeclaration) {
         this.xmlDeclaration = xmlDeclaration != null ? xmlDeclaration : "";
         markModified();
+        return this;
     }
 
     /**
@@ -146,11 +148,13 @@ public class Document extends ContainerNode {
      * "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">}</p>
      *
      * @param doctype the DOCTYPE declaration string, or null to clear it
-     * @see #getDoctype()
+     * @return this document for method chaining
+     * @see #doctype()
      */
-    public void setDoctype(String doctype) {
+    public Document doctype(String doctype) {
         this.doctype = doctype != null ? doctype : "";
         markModified();
+        return this;
     }
 
     /**
@@ -175,15 +179,17 @@ public class Document extends ContainerNode {
      * the parent-child relationship.</p>
      *
      * @param root the element to set as the document root, or null to clear it
-     * @see #getDocumentElement()
+     * @return this document for method chaining
+     * @see #root()
      * @see #addChild(Node)
      */
-    public void setRoot(Element root) {
+    public Document root(Element root) {
         this.root = root;
         if (root != null) {
             root.parent(this);
         }
         markModified();
+        return this;
     }
 
     /**
@@ -194,7 +200,7 @@ public class Document extends ContainerNode {
      *
      * @param documentElement the element to set as the document root
      */
-    void setDocumentElementInternal(Element documentElement) {
+    void rootInternal(Element documentElement) {
         this.root = documentElement;
         if (documentElement != null) {
             documentElement.parent(this);
@@ -223,11 +229,13 @@ public class Document extends ContainerNode {
      * character encoding used.</p>
      *
      * @param encoding the character encoding to use, or null to use default "UTF-8"
-     * @see #getEncoding()
+     * @return this document for method chaining
+     * @see #encoding()
      */
-    public void setEncoding(String encoding) {
+    public Document encoding(String encoding) {
         this.encoding = encoding != null ? encoding : "UTF-8";
         markModified();
+        return this;
     }
 
     /**
@@ -250,11 +258,13 @@ public class Document extends ContainerNode {
      * should use version "1.0" unless specific XML 1.1 features are required.</p>
      *
      * @param version the XML version to use, or null to use default "1.0"
-     * @see #getVersion()
+     * @return this document for method chaining
+     * @see #version()
      */
-    public void setVersion(String version) {
+    public Document version(String version) {
         this.version = version != null ? version : "1.0";
         markModified();
+        return this;
     }
 
     /**
@@ -278,11 +288,13 @@ public class Document extends ContainerNode {
      * flag affects the XML declaration output.</p>
      *
      * @param standalone true if the document is standalone, false otherwise
+     * @return this document for method chaining
      * @see #isStandalone()
      */
-    public void setStandalone(boolean standalone) {
+    public Document standalone(boolean standalone) {
         this.standalone = standalone;
         markModified();
+        return this;
     }
 
     /**
@@ -463,143 +475,6 @@ public class Document extends ContainerNode {
                 + (root != null ? root.name() : "null") + "}";
     }
 
-    /**
-     * Builder for creating complex document structures with fluent API.
-     *
-     * <p>The Document.Builder provides a convenient way to construct XML documents
-     * with proper configuration of version, encoding, DOCTYPE, and root elements.</p>
-     *
-     * <h3>Usage Examples:</h3>
-     * <pre>{@code
-     * // Simple document
-     * Document doc = Document.builder()
-     *     .withRootElement("html")
-     *     .build();
-     *
-     * // Complex document with full configuration
-     * Document complex = Document.builder()
-     *     .withVersion("1.1")
-     *     .withEncoding("UTF-8")
-     *     .withStandalone(true)
-     *     .withDoctype("<!DOCTYPE html>")
-     *     .withRootElement("html")
-     *     .withXmlDeclaration()
-     *     .build();
-     * }</pre>
-     *
-     */
-    public static class Builder {
-        private final Document document;
-
-        private Builder() {
-            this.document = new Document();
-        }
-
-        /**
-         * Sets the XML version for the document.
-         *
-         * @param version the XML version (e.g., "1.0", "1.1")
-         * @return this builder for method chaining
-         */
-        public Builder withVersion(String version) {
-            document.setVersion(version);
-            return this;
-        }
-
-        /**
-         * Sets the character encoding for the document.
-         *
-         * @param encoding the character encoding (e.g., "UTF-8", "ISO-8859-1")
-         * @return this builder for method chaining
-         */
-        public Builder withEncoding(String encoding) {
-            document.setEncoding(encoding);
-            return this;
-        }
-
-        /**
-         * Sets the standalone flag for the document.
-         *
-         * @param standalone true if the document is standalone, false otherwise
-         * @return this builder for method chaining
-         */
-        public Builder withStandalone(boolean standalone) {
-            document.setStandalone(standalone);
-            return this;
-        }
-
-        /**
-         * Sets the DOCTYPE declaration for the document.
-         *
-         * @param doctype the DOCTYPE declaration string
-         * @return this builder for method chaining
-         */
-        public Builder withDoctype(String doctype) {
-            document.setDoctype(doctype);
-            return this;
-        }
-
-        /**
-         * Sets the root element using an existing Element instance.
-         *
-         * @param rootElement the root element to set
-         * @return this builder for method chaining
-         */
-        public Builder withRootElement(Element rootElement) {
-            document.setRoot(rootElement);
-            return this;
-        }
-
-        /**
-         * Creates and sets the root element with the specified name.
-         *
-         * @param rootElementName the name of the root element to create
-         * @return this builder for method chaining
-         */
-        public Builder withRootElement(String rootElementName) {
-            document.setRoot(new Element(rootElementName));
-            return this;
-        }
-
-        /**
-         * Generates and sets an XML declaration based on current document settings.
-         *
-         * <p>The XML declaration will include the version, encoding, and standalone
-         * flag (if true) based on the current document configuration.</p>
-         *
-         * @return this builder for method chaining
-         */
-        public Builder withXmlDeclaration() {
-            StringBuilder xmlDecl = new StringBuilder("<?xml version=\"");
-            xmlDecl.append(document.version()).append("\"");
-            xmlDecl.append(" encoding=\"").append(document.encoding()).append("\"");
-            if (document.isStandalone()) {
-                xmlDecl.append(" standalone=\"yes\"");
-            }
-            xmlDecl.append("?>");
-            document.setXmlDeclaration(xmlDecl.toString());
-            return this;
-        }
-
-        /**
-         * Builds and returns the configured Document instance.
-         *
-         * @return the constructed Document
-         */
-        public Document build() {
-            return document;
-        }
-    }
-
-    /**
-     * Creates a new Document builder instance.
-     *
-     * @return a new Document.Builder for fluent document construction
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
     // Factory methods for common document patterns
 
     /**
@@ -614,6 +489,17 @@ public class Document extends ContainerNode {
     }
 
     /**
+     * Creates an empty document with default settings.
+     *
+     * <p>Alias for {@link #empty()} following modern Java naming conventions.</p>
+     *
+     * @return a new empty Document
+     */
+    public static Document of() {
+        return new Document();
+    }
+
+    /**
      * Creates a document with XML declaration.
      *
      * <p>Creates a document with the specified version and encoding, automatically
@@ -624,11 +510,10 @@ public class Document extends ContainerNode {
      * @return a new Document with XML declaration
      */
     public static Document withXmlDeclaration(String version, String encoding) {
-        return Document.builder()
-                .withVersion(version != null ? version : "1.0")
-                .withEncoding(encoding != null ? encoding : "UTF-8")
-                .withXmlDeclaration()
-                .build();
+        return new Document()
+                .version(version != null ? version : "1.0")
+                .encoding(encoding != null ? encoding : "UTF-8")
+                .withXmlDeclaration();
     }
 
     /**
@@ -643,12 +528,11 @@ public class Document extends ContainerNode {
      * @return a new Document with XML declaration and standalone attribute
      */
     public static Document withXmlDeclaration(String version, String encoding, boolean standalone) {
-        return Document.builder()
-                .withVersion(version != null ? version : "1.0")
-                .withEncoding(encoding != null ? encoding : "UTF-8")
-                .withStandalone(standalone)
-                .withXmlDeclaration()
-                .build();
+        return new Document()
+                .version(version != null ? version : "1.0")
+                .encoding(encoding != null ? encoding : "UTF-8")
+                .standalone(standalone)
+                .withXmlDeclaration();
     }
 
     /**
@@ -661,12 +545,11 @@ public class Document extends ContainerNode {
      * @return a new Document with XML declaration and root element
      */
     public static Document withRootElement(String rootElementName) {
-        return Document.builder()
-                .withVersion("1.0")
-                .withEncoding("UTF-8")
-                .withRootElement(rootElementName)
-                .withXmlDeclaration()
-                .build();
+        return new Document()
+                .version("1.0")
+                .encoding("UTF-8")
+                .root(new Element(rootElementName))
+                .withXmlDeclaration();
     }
 
     /**
@@ -681,12 +564,11 @@ public class Document extends ContainerNode {
      * @return a new Document with XML declaration and DOCTYPE
      */
     public static Document withDoctype(String version, String encoding, String doctype) {
-        return Document.builder()
-                .withVersion(version != null ? version : "1.0")
-                .withEncoding(encoding != null ? encoding : "UTF-8")
-                .withDoctype(doctype)
-                .withXmlDeclaration()
-                .build();
+        return new Document()
+                .version(version != null ? version : "1.0")
+                .encoding(encoding != null ? encoding : "UTF-8")
+                .doctype(doctype)
+                .withXmlDeclaration();
     }
 
     /**
@@ -699,6 +581,26 @@ public class Document extends ContainerNode {
      * @return a new minimal Document with only a root element
      */
     public static Document minimal(String rootElementName) {
-        return Document.builder().withRootElement(rootElementName).build();
+        return new Document().root(new Element(rootElementName));
+    }
+
+    /**
+     * Generates and sets an XML declaration based on current document settings.
+     *
+     * <p>The XML declaration will include the version, encoding, and standalone
+     * flag (if true) based on the current document configuration.</p>
+     *
+     * @return this document for method chaining
+     */
+    public Document withXmlDeclaration() {
+        StringBuilder xmlDecl = new StringBuilder("<?xml version=\"");
+        xmlDecl.append(version()).append("\"");
+        xmlDecl.append(" encoding=\"").append(encoding()).append("\"");
+        if (isStandalone()) {
+            xmlDecl.append(" standalone=\"yes\"");
+        }
+        xmlDecl.append("?>");
+        xmlDeclaration(xmlDecl.toString());
+        return this;
     }
 }

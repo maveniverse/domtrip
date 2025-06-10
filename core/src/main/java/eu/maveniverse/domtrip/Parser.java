@@ -115,7 +115,7 @@ public class Parser {
                         } else if (position + 9 < length && xml.startsWith("<!DOCTYPE", position)) {
                             // Parse DOCTYPE declaration
                             String doctype = parseDoctype();
-                            document.setDoctype(doctype);
+                            document.doctype(doctype);
                         } else {
                             // Skip other declarations
                             skipDeclaration();
@@ -124,7 +124,7 @@ public class Parser {
                         // Parse processing instruction
                         String pi = parseProcessingInstruction();
                         if (pi.startsWith("<?xml")) {
-                            document.setXmlDeclaration(pi);
+                            document.xmlDeclaration(pi);
                         } else {
                             // Add other processing instructions as nodes
                             ProcessingInstruction piNode = new ProcessingInstruction(pi);
@@ -163,7 +163,7 @@ public class Parser {
         // Set the document element (first element child)
         for (Node child : document.nodes) {
             if (child instanceof Element) {
-                document.setDocumentElementInternal((Element) child);
+                document.rootInternal((Element) child);
                 break;
             }
         }
@@ -357,7 +357,7 @@ public class Parser {
                 String decodedValue = Text.unescapeTextContent(rawValue);
                 // Use the actual preceding whitespace, or default to single space if empty
                 String actualWhitespace = precedingWhitespace.isEmpty() ? " " : precedingWhitespace;
-                element.setAttributeInternal(name.toString(), decodedValue, quote, actualWhitespace, rawValue);
+                element.attributeInternal(name.toString(), decodedValue, quote, actualWhitespace, rawValue);
             } else {
                 throw new ParseException("Missing attribute value quote", position, xml);
             }

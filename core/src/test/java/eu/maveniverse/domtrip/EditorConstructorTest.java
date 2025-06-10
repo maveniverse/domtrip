@@ -50,10 +50,7 @@ class EditorConstructorTest {
     @Test
     void testDocumentConstructor() {
         // Create a document programmatically
-        Document doc = Document.builder()
-                .withRootElement("project")
-                .withXmlDeclaration()
-                .build();
+        Document doc = Document.of().root(new Element("project"));
 
         Editor editor = new Editor(doc);
         assertNotNull(editor);
@@ -65,11 +62,7 @@ class EditorConstructorTest {
     @Test
     void testDocumentWithConfigConstructor() {
         // Create a document programmatically
-        Document doc = Document.builder()
-                .withRootElement("maven")
-                .withVersion("1.1")
-                .withEncoding("UTF-16")
-                .build();
+        Document doc = Document.of().root(new Element("maven")).version("1.1").encoding("UTF-16");
 
         DomTripConfig config = DomTripConfig.prettyPrint().withIndentString("  ");
 
@@ -113,12 +106,11 @@ class EditorConstructorTest {
     @Test
     void testBuilderCreatedDocumentWithEditor() {
         // Create document with builder
-        Document doc = Document.builder()
-                .withRootElement("project")
-                .withVersion("1.0")
-                .withEncoding("UTF-8")
-                .withXmlDeclaration()
-                .build();
+        Document doc = Document.of()
+                .root(new Element("project"))
+                .version("1.0")
+                .encoding("UTF-8")
+                .withXmlDeclaration();
 
         // Create Editor with custom config
         DomTripConfig config = DomTripConfig.prettyPrint().withIndentString("    ");

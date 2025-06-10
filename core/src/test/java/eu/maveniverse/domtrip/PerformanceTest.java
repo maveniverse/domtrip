@@ -97,8 +97,8 @@ public class PerformanceTest {
         // Add many elements
         for (int i = 0; i < 100; i++) {
             Element child = editor.addElement(root, "item" + i, "content " + i);
-            editor.setAttribute(child, "id", String.valueOf(i));
-            editor.setAttribute(child, "type", "test");
+            child.attribute("id", String.valueOf(i));
+            child.attribute("type", "test");
         }
 
         // Measure time for both methods (not a strict performance test, just ensuring they work)

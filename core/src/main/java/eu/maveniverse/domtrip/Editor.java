@@ -1,6 +1,5 @@
 package eu.maveniverse.domtrip;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -512,41 +511,6 @@ public class Editor {
             return Stream.empty();
         }
         return document.root().descendants(qname);
-    }
-
-    // Path-based navigation methods
-
-    /**
-     * Finds an element by following a path of element names from the document root.
-     *
-     * <p>Example: {@code path("project", "dependencies", "dependency")} will find
-     * the first dependency element under project/dependencies.</p>
-     *
-     * @param path the path of element names to follow
-     * @return an Optional containing the element at the end of the path, or empty if not found
-     */
-    public Optional<Element> path(String... path) {
-        if (path == null || path.length == 0) {
-            return root();
-        }
-
-        return Arrays.stream(path)
-                .reduce(root(), (current, elementName) -> current.flatMap(el -> el.child(elementName)), (a, b) -> b);
-    }
-
-    /**
-     * Finds an element by following a path of QNames from the document root.
-     *
-     * @param path the path of QNames to follow
-     * @return an Optional containing the element at the end of the path, or empty if not found
-     */
-    public Optional<Element> path(QName... path) {
-        if (path == null || path.length == 0) {
-            return root();
-        }
-
-        return Arrays.stream(path)
-                .reduce(root(), (current, qname) -> current.flatMap(el -> el.child(qname)), (a, b) -> b);
     }
 
     /**

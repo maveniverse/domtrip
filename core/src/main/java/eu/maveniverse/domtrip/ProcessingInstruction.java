@@ -27,14 +27,18 @@ package eu.maveniverse.domtrip;
  * ProcessingInstruction pi = new ProcessingInstruction("xml-stylesheet",
  *     "type=\"text/xsl\" href=\"style.xsl\"");
  *
+ * // Create using factory methods
+ * ProcessingInstruction factoryPI = ProcessingInstruction.of("xml-stylesheet",
+ *     "type=\"text/css\" href=\"style.css\"");
+ * ProcessingInstruction simplePI = ProcessingInstruction.of("target");
+ *
+ * // Create and modify with fluent API
+ * ProcessingInstruction fluentPI = ProcessingInstruction.of("target", "data")
+ *     .target("new-target")
+ *     .data("new data");
+ *
  * // Add to document
  * document.addChild(pi);
- *
- * // Use builder pattern
- * ProcessingInstruction builderPI = ProcessingInstruction.builder()
- *     .withTarget("xml-stylesheet")
- *     .withData("type=\"text/css\" href=\"style.css\"")
- *     .build();
  * }</pre>
  *
  * @see Node
@@ -80,20 +84,22 @@ public class ProcessingInstruction extends Node {
         return target;
     }
 
-    public void target(String target) {
+    public ProcessingInstruction target(String target) {
         this.target = target != null ? target : "";
         this.originalContent = ""; // Clear original when modified
         markModified();
+        return this;
     }
 
     public String data() {
         return data;
     }
 
-    public void data(String data) {
+    public ProcessingInstruction data(String data) {
         this.data = data != null ? data : "";
         this.originalContent = ""; // Clear original when modified
         markModified();
+        return this;
     }
 
     public String originalContent() {
@@ -155,71 +161,27 @@ public class ProcessingInstruction extends Node {
     }
 
     /**
-     * Builder for creating ProcessingInstruction instances with fluent API.
+     * Creates a processing instruction with the specified target and data.
      *
-     * <p>The ProcessingInstruction.Builder provides a convenient way to construct
-     * XML processing instructions with proper target and data handling.</p>
+     * <p>Factory method following modern Java naming conventions.</p>
      *
-     * <h3>Usage Examples:</h3>
-     * <pre>{@code
-     * // Stylesheet processing instruction
-     * ProcessingInstruction stylesheet = ProcessingInstruction.builder()
-     *     .withTarget("xml-stylesheet")
-     *     .withData("type=\"text/xsl\" href=\"transform.xsl\"")
-     *     .build();
-     *
-     * // Simple processing instruction
-     * ProcessingInstruction simple = ProcessingInstruction.builder()
-     *     .withTarget("custom-app")
-     *     .withData("config=debug")
-     *     .build();
-     * }</pre>
-     *
+     * @param target the processing instruction target
+     * @param data the processing instruction data
+     * @return a new ProcessingInstruction
      */
-    public static class Builder {
-        private String target = "";
-        private String data = "";
-
-        private Builder() {}
-
-        /**
-         * Sets the target of the processing instruction.
-         *
-         * @param target the PI target
-         * @return this builder for method chaining
-         */
-        public Builder withTarget(String target) {
-            this.target = target != null ? target : "";
-            return this;
-        }
-
-        /**
-         * Sets the data of the processing instruction.
-         *
-         * @param data the PI data
-         * @return this builder for method chaining
-         */
-        public Builder withData(String data) {
-            this.data = data != null ? data : "";
-            return this;
-        }
-
-        /**
-         * Builds and returns the configured ProcessingInstruction instance.
-         *
-         * @return the constructed ProcessingInstruction
-         */
-        public ProcessingInstruction build() {
-            return new ProcessingInstruction(target, data);
-        }
+    public static ProcessingInstruction of(String target, String data) {
+        return new ProcessingInstruction(target, data);
     }
 
     /**
-     * Creates a new ProcessingInstruction builder instance.
+     * Creates a processing instruction with only a target (no data).
      *
-     * @return a new ProcessingInstruction.Builder for fluent PI construction
+     * <p>Factory method for simple processing instructions.</p>
+     *
+     * @param target the processing instruction target
+     * @return a new ProcessingInstruction with empty data
      */
-    public static Builder builder() {
-        return new Builder();
+    public static ProcessingInstruction of(String target) {
+        return new ProcessingInstruction(target, "");
     }
 }

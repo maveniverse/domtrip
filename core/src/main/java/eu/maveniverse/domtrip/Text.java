@@ -29,8 +29,14 @@ package eu.maveniverse.domtrip;
  * // Create regular text content
  * Text text = new Text("Hello & welcome!");
  *
- * // Create CDATA section
- * Text cdata = new Text("<script>alert('test');</script>", true);
+ * // Create using factory methods
+ * Text factoryText = Text.of("Hello World");
+ * Text cdataText = Text.cdata("<script>alert('test');</script>");
+ * Text explicitCdata = Text.of("content", true);
+ *
+ * // Create and modify with fluent API
+ * Text fluentText = Text.of("Regular text").asCData();
+ * Text preservedText = Text.of("  spaces  ").preserveWhitespace(false);
  *
  * // Check content properties
  * if (text.isWhitespaceOnly()) {
@@ -40,16 +46,6 @@ package eu.maveniverse.domtrip;
  * // Access both decoded and raw content
  * String content = text.content();     // "Hello & welcome!"
  * String raw = text.getRawContent();      // "Hello &amp; welcome!" (if preserved)
- *
- * // Use builder pattern
- * Text builderText = Text.builder()
- *     .withContent("Hello World")
- *     .build();
- *
- * Text cdataText = Text.builder()
- *     .withContent("<script>alert('test');</script>")
- *     .asCData()
- *     .build();
  * }</pre>
  *
  * <h3>Entity Handling:</h3>
@@ -340,118 +336,6 @@ public class Text extends Node {
     }
 
     /**
-     * Builder for creating Text instances with fluent API.
-     *
-     * <p>The Text.Builder provides a convenient way to construct XML text nodes
-     * with proper content handling and CDATA support.</p>
-     *
-     * <h3>Usage Examples:</h3>
-     * <pre>{@code
-     * // Simple text content
-     * Text text = Text.builder()
-     *     .withContent("Hello World")
-     *     .build();
-     *
-     * // CDATA section
-     * Text cdata = Text.builder()
-     *     .withContent("<script>alert('test');</script>")
-     *     .asCData()
-     *     .build();
-     *
-     * // Text with whitespace preservation disabled
-     * Text normalized = Text.builder()
-     *     .withContent("  Multiple   spaces  ")
-     *     .withPreserveWhitespace(false)
-     *     .build();
-     * }</pre>
-     *
-     */
-    public static class Builder {
-        private String content = "";
-        private boolean isCData = false;
-        private boolean preserveWhitespace = true;
-
-        private Builder() {}
-
-        /**
-         * Sets the text content.
-         *
-         * @param content the text content
-         * @return this builder for method chaining
-         */
-        public Builder withContent(String content) {
-            this.content = content != null ? content : "";
-            return this;
-        }
-
-        /**
-         * Makes this text node a CDATA section.
-         *
-         * @return this builder for method chaining
-         */
-        public Builder asCData() {
-            this.isCData = true;
-            return this;
-        }
-
-        /**
-         * Sets whether to preserve whitespace in the content.
-         *
-         * @param preserveWhitespace true to preserve whitespace, false otherwise
-         * @return this builder for method chaining
-         */
-        public Builder withPreserveWhitespace(boolean preserveWhitespace) {
-            this.preserveWhitespace = preserveWhitespace;
-            return this;
-        }
-
-        /**
-         * Builds and returns the configured Text instance.
-         *
-         * @return the constructed Text
-         */
-        public Text build() {
-            Text text = new Text(content, isCData);
-            text.preserveWhitespace(preserveWhitespace);
-            return text;
-        }
-
-        /**
-         * Builds the text node and adds it to the specified parent.
-         *
-         * <p>This method creates the text node and adds it directly to the parent
-         * container. Text nodes typically don't need special whitespace management
-         * as they are content nodes.</p>
-         *
-         * @param editor the Editor instance (for consistency, though not used for text)
-         * @param parent the parent container to add this text to
-         * @return the constructed and added Text
-         * @throws IllegalArgumentException if editor or parent is null
-         */
-        public Text buildAndAddTo(Editor editor, ContainerNode parent) {
-            if (editor == null) {
-                throw new IllegalArgumentException("Editor cannot be null");
-            }
-            if (parent == null) {
-                throw new IllegalArgumentException("Parent cannot be null");
-            }
-
-            Text builtText = build();
-            parent.addNode(builtText);
-            return builtText;
-        }
-    }
-
-    /**
-     * Creates a new Text builder instance.
-     *
-     * @return a new Text.Builder for fluent text construction
-     */
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    /**
      * Creates a text node with the specified content.
      *
      * <p>Factory method following modern Java naming conventions.</p>
@@ -473,5 +357,31 @@ public class Text extends Node {
      */
     public static Text cdata(String content) {
         return new Text(content, true);
+    }
+
+    /**
+     * Creates a text node with the specified content and CDATA flag.
+     *
+     * <p>Factory method for creating text nodes with explicit CDATA control.</p>
+     *
+     * @param content the text content
+     * @param isCData true to create a CDATA section, false for regular text
+     * @return a new Text node
+     */
+    public static Text of(String content, boolean isCData) {
+        return new Text(content, isCData);
+    }
+
+    /**
+     * Converts this text node to a CDATA section.
+     *
+     * <p>Fluent setter for converting existing text to CDATA format.</p>
+     *
+     * @return this text node for method chaining
+     */
+    public Text asCData() {
+        this.isCData = true;
+        markModified();
+        return this;
     }
 }

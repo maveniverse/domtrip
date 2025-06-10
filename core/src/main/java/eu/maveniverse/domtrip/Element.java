@@ -960,7 +960,7 @@ public class Element extends ContainerNode {
      * @param attributes a map of attribute names to values
      * @return a new Element with text content and attributes
      */
-    public static Element elementWithTextAndAttributes(String name, String content, Map<String, String> attributes) {
+    public static Element withTextAndAttributes(String name, String content, Map<String, String> attributes) {
         Element element = new Element(name);
         if (attributes != null) {
             for (Map.Entry<String, String> entry : attributes.entrySet()) {
@@ -1016,28 +1016,28 @@ public class Element extends ContainerNode {
      * Creates a comment node.
      *
      * <p>Creates a Comment node with the specified content. This is a convenience
-     * method equivalent to {@link Comment#builder()}.</p>
+     * method equivalent to {@link Comment#of(String)}.</p>
      *
      * @param content the comment content
      * @return a new Comment node
-     * @see Comment#builder()
+     * @see Comment#of(String)
      */
     public static Comment comment(String content) {
-        return Comment.builder().withContent(content).build();
+        return Comment.of(content);
     }
 
     /**
      * Creates a processing instruction.
      *
      * <p>Creates a ProcessingInstruction node with the specified target and data.
-     * This is a convenience method equivalent to {@link ProcessingInstruction#builder()}.</p>
+     * This is a convenience method equivalent to {@link ProcessingInstruction#of(String, String)}.</p>
      *
      * @param target the processing instruction target
      * @param data the processing instruction data
      * @return a new ProcessingInstruction node
-     * @see ProcessingInstruction#builder()
+     * @see ProcessingInstruction#of(String, String)
      */
     public static ProcessingInstruction processingInstruction(String target, String data) {
-        return ProcessingInstruction.builder().withTarget(target).withData(data).build();
+        return ProcessingInstruction.of(target, data);
     }
 }

@@ -2,3 +2,6 @@ target
 .idea
 *.iml
 
+# Generated Javadocs (generated during build, not committed)
+website/public/javadoc/
+

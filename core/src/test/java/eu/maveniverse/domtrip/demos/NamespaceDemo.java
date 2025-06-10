@@ -88,11 +88,10 @@ public class NamespaceDemo {
         System.out.println("3. Namespace-Aware Navigation:");
 
         // Create a document with multiple elements in different namespaces
-        Element root = Element.builder("document")
-                .withDefaultNamespace("http://example.com/doc")
-                .withNamespace("meta", "http://example.com/metadata")
-                .withNamespace("content", "http://example.com/content")
-                .build();
+        Element root = Element.of("document")
+                .namespaceDeclaration(null, "http://example.com/doc")
+                .namespaceDeclaration("meta", "http://example.com/metadata")
+                .namespaceDeclaration("content", "http://example.com/content");
 
         // Add children in different namespaces using QName
         root.addChild(Element.text(QName.of("http://example.com/metadata", "title", "meta"), "Document Title"));
@@ -176,11 +175,10 @@ public class NamespaceDemo {
         System.out.println("5. Complex Namespace Document Creation:");
 
         // Create a complex document using builder pattern with namespaces
-        Element soapEnvelope = Element.builder("Envelope")
-                .withNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/")
-                .withNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance")
-                .withNamespace("xsd", "http://www.w3.org/2001/XMLSchema")
-                .build();
+        Element soapEnvelope = Element.of("Envelope")
+                .namespaceDeclaration("soap", "http://schemas.xmlsoap.org/soap/envelope/")
+                .namespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance")
+                .namespaceDeclaration("xsd", "http://www.w3.org/2001/XMLSchema");
 
         // Set the element name to include namespace prefix
         soapEnvelope.name("soap:Envelope");
@@ -193,11 +191,9 @@ public class NamespaceDemo {
         Element body = Element.element(QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap"));
 
         // Add a custom method call in body using QName
-        Element methodCall = Element.builder("GetUserInfo")
-                .withDefaultNamespace("http://example.com/userservice")
-                .withChild(Element.text(QName.of("http://example.com/userservice", "userId"), "12345"))
-                .withChild(Element.text(QName.of("http://example.com/userservice", "includeDetails"), "true"))
-                .build();
+        Element methodCall = Element.of("GetUserInfo").namespaceDeclaration(null, "http://example.com/userservice");
+        methodCall.addChild(Element.text(QName.of("http://example.com/userservice", "userId"), "12345"));
+        methodCall.addChild(Element.text(QName.of("http://example.com/userservice", "includeDetails"), "true"));
 
         body.addChild(methodCall);
         soapEnvelope.addChild(body);

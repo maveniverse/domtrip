@@ -305,9 +305,9 @@ public class Editor {
         // Add namespace declaration if needed and not already declared
         if (qname.hasNamespace() && !isNamespaceDeclaredInHierarchy(parent, qname)) {
             if (qname.hasPrefix()) {
-                newElement.setNamespaceDeclaration(qname.prefix(), qname.namespaceURI());
+                newElement.namespaceDeclaration(qname.prefix(), qname.namespaceURI());
             } else {
-                newElement.setNamespaceDeclaration(null, qname.namespaceURI());
+                newElement.namespaceDeclaration(null, qname.namespaceURI());
             }
         }
 
@@ -407,13 +407,13 @@ public class Editor {
         // Check if attribute already exists
         if (element.hasAttribute(trimmedName)) {
             // Use Element's setAttribute which preserves existing formatting
-            element.setAttribute(trimmedName, safeValue);
+            element.attribute(trimmedName, safeValue);
         } else {
             // New attribute - infer formatting from existing attributes
             AttributeFormatting formatting = inferAttributeFormatting(element);
             Attribute newAttr =
                     new Attribute(trimmedName, safeValue, formatting.quoteStyle, formatting.precedingWhitespace);
-            element.setAttributeObject(trimmedName, newAttr);
+            element.attributeObject(trimmedName, newAttr);
         }
     }
 
@@ -584,9 +584,9 @@ public class Editor {
 
         this.document = new Document();
         // Add default XML declaration for new documents
-        document.setXmlDeclaration("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        document.xmlDeclaration("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         Element rootElement = new Element(rootElementName.trim());
-        document.setRoot(rootElement);
+        document.root(rootElement);
         document.addChild(rootElement);
     }
 
@@ -924,17 +924,17 @@ public class Editor {
      */
     public static class EditorElementBuilder {
         private final Editor editor;
-        private final Element.Builder elementBuilder;
+        private final Element element;
         private ContainerNode parent;
 
         private EditorElementBuilder(Editor editor, String name) {
             this.editor = editor;
-            this.elementBuilder = Element.builder(name);
+            this.element = new Element(name);
         }
 
         private EditorElementBuilder(Editor editor, QName qname) {
             this.editor = editor;
-            this.elementBuilder = Element.builder(qname);
+            this.element = Element.element(qname);
         }
 
         /**
@@ -955,7 +955,9 @@ public class Editor {
          * @return this builder for method chaining
          */
         public EditorElementBuilder withText(String content) {
-            elementBuilder.withText(content);
+            if (content != null && !content.isEmpty()) {
+                element.addChild(new Text(content));
+            }
             return this;
         }
 
@@ -967,7 +969,7 @@ public class Editor {
          * @return this builder for method chaining
          */
         public EditorElementBuilder withAttribute(String name, String value) {
-            elementBuilder.withAttribute(name, value);
+            element.attribute(name, value);
             return this;
         }
 
@@ -979,7 +981,9 @@ public class Editor {
          * @return this builder for method chaining
          */
         public EditorElementBuilder withAttribute(QName qname, String value) {
-            elementBuilder.withAttribute(qname, value);
+            if (qname != null) {
+                element.attribute(qname.qualifiedName(), value);
+            }
             return this;
         }
 
@@ -990,7 +994,11 @@ public class Editor {
          * @return this builder for method chaining
          */
         public EditorElementBuilder withAttributes(Map<String, String> attributes) {
-            elementBuilder.withAttributes(attributes);
+            if (attributes != null) {
+                for (Map.Entry<String, String> entry : attributes.entrySet()) {
+                    element.attribute(entry.getKey(), entry.getValue());
+                }
+            }
             return this;
         }
 
@@ -1001,7 +1009,13 @@ public class Editor {
          * @return this builder for method chaining
          */
         public EditorElementBuilder withQNameAttributes(Map<QName, String> qnameAttributes) {
-            elementBuilder.withQNameAttributes(qnameAttributes);
+            if (qnameAttributes != null) {
+                qnameAttributes.forEach((qname, value) -> {
+                    if (qname != null) {
+                        element.attribute(qname.qualifiedName(), value);
+                    }
+                });
+            }
             return this;
         }
 
@@ -1011,7 +1025,7 @@ public class Editor {
          * @return this builder for method chaining
          */
         public EditorElementBuilder selfClosing() {
-            elementBuilder.selfClosing();
+            element.selfClosing(true);
             return this;
         }
 
@@ -1026,7 +1040,14 @@ public class Editor {
                 throw new IllegalStateException("Parent node must be specified");
             }
 
-            return elementBuilder.buildAndAddTo(editor, parent);
+            // Use Editor's whitespace management
+            String indentation = editor.whitespaceManager().inferIndentation(parent);
+            if (!indentation.isEmpty()) {
+                element.precedingWhitespace("\n" + indentation);
+            }
+
+            parent.addChild(element);
+            return element;
         }
     }
 
@@ -1039,12 +1060,12 @@ public class Editor {
      */
     public static class EditorCommentBuilder {
         private final Editor editor;
-        private final Comment.Builder commentBuilder;
+        private final Comment comment;
         private ContainerNode parent;
 
         private EditorCommentBuilder(Editor editor) {
             this.editor = editor;
-            this.commentBuilder = Comment.builder();
+            this.comment = new Comment("");
         }
 
         /**
@@ -1065,7 +1086,7 @@ public class Editor {
          * @return this builder for method chaining
          */
         public EditorCommentBuilder withContent(String content) {
-            commentBuilder.withContent(content);
+            comment.content(content != null ? content : "");
             return this;
         }
 
@@ -1080,7 +1101,14 @@ public class Editor {
                 throw new IllegalStateException("Parent node must be specified");
             }
 
-            return commentBuilder.buildAndAddTo(editor, parent);
+            // Use Editor's whitespace management
+            String indentation = editor.whitespaceManager().inferIndentation(parent);
+            if (!indentation.isEmpty()) {
+                comment.precedingWhitespace("\n" + indentation);
+            }
+
+            parent.addChild(comment);
+            return comment;
         }
     }
 
@@ -1093,12 +1121,12 @@ public class Editor {
      */
     public static class EditorTextBuilder {
         private final Editor editor;
-        private final Text.Builder textBuilder;
+        private final Text text;
         private ContainerNode parent;
 
         private EditorTextBuilder(Editor editor) {
             this.editor = editor;
-            this.textBuilder = Text.builder();
+            this.text = new Text("");
         }
 
         /**
@@ -1119,7 +1147,7 @@ public class Editor {
          * @return this builder for method chaining
          */
         public EditorTextBuilder withContent(String content) {
-            textBuilder.withContent(content);
+            text.content(content != null ? content : "");
             return this;
         }
 
@@ -1129,7 +1157,7 @@ public class Editor {
          * @return this builder for method chaining
          */
         public EditorTextBuilder asCData() {
-            textBuilder.asCData();
+            text.cdata(true);
             return this;
         }
 
@@ -1143,7 +1171,8 @@ public class Editor {
                 throw new IllegalStateException("Parent node must be specified");
             }
 
-            return textBuilder.buildAndAddTo(editor, parent);
+            parent.addChild(text);
+            return text;
         }
     }
 

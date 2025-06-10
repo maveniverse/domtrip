@@ -60,7 +60,7 @@ public class EntityPreservationTest {
         Element root = editor.documentElement().orElseThrow();
 
         // Add new attribute - should use default double quotes
-        root.setAttribute("newAttr", "newValue");
+        root.attribute("newAttr", "newValue");
 
         String result = editor.toXml();
 

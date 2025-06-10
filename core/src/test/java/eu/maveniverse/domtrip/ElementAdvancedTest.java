@@ -122,8 +122,8 @@ public class ElementAdvancedTest {
         editor.loadXml(xml);
         Element root = editor.documentElement().orElseThrow();
 
-        root.setAttribute("attr1", "value1", '\'');
-        root.setAttribute("attr2", "value2", '"');
+        root.attribute("attr1", "value1", '\'');
+        root.attribute("attr2", "value2", '"');
 
         String result = editor.toXml();
         assertTrue(result.contains("attr1='value1'"));
@@ -326,8 +326,8 @@ public class ElementAdvancedTest {
     @Test
     void testElementToString() {
         Element element = new Element("testElement");
-        element.setAttribute("attr1", "value1");
-        element.setAttribute("attr2", "value2");
+        element.attribute("attr1", "value1");
+        element.attribute("attr2", "value2");
         element.addChild(new Element("child1"));
         element.addChild(new Element("child2"));
 
@@ -380,7 +380,7 @@ public class ElementAdvancedTest {
         assertFalse(root.isModified());
 
         // Modify attribute
-        root.setAttribute("attr", "newValue");
+        root.attribute("attr", "newValue");
         assertTrue(root.isModified());
     }
 }

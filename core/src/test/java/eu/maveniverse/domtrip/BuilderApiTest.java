@@ -83,14 +83,15 @@ public class BuilderApiTest {
     }
 
     @Test
-    void testElementsBuilder() {
-        Element element = Element.builder("complex")
-                .withText("text content")
-                .withAttribute("attr1", "value1")
-                .withAttributes(Map.of("attr2", "value2", "attr3", "value3"))
-                .withChild(Element.text("child", "child content"))
-                .withComment("This is a comment")
-                .build();
+    void testElementsFluentApi() {
+        Element element = Element.of("complex")
+                .attribute("attr1", "value1")
+                .attribute("attr2", "value2")
+                .attribute("attr3", "value3");
+
+        element.addChild(new Text("text content"));
+        element.addChild(Element.text("child", "child content"));
+        element.addChild(new Comment("This is a comment"));
 
         assertEquals("complex", element.name());
         assertEquals("value1", element.attribute("attr1"));
@@ -115,7 +116,7 @@ public class BuilderApiTest {
         assertTrue(withDecl.xmlDeclaration().contains("encoding=\"UTF-8\""));
 
         // Test with root element
-        Document withRoot = Document.withRootElement("root");
+        Document withRoot = Document.of().root(new Element("root"));
         assertNotNull(withRoot.root());
         assertEquals("root", withRoot.root().name());
 
@@ -128,14 +129,13 @@ public class BuilderApiTest {
 
     @Test
     void testDocumentsBuilder() {
-        Document doc = Document.builder()
-                .withVersion("1.1")
-                .withEncoding("ISO-8859-1")
-                .withStandalone(true)
-                .withDoctype("<!DOCTYPE html>")
-                .withRootElement("html")
-                .withXmlDeclaration()
-                .build();
+        Document doc = Document.of()
+                .version("1.1")
+                .encoding("ISO-8859-1")
+                .standalone(true)
+                .doctype("<!DOCTYPE html>")
+                .root(new Element("html"))
+                .withXmlDeclaration();
 
         assertEquals("1.1", doc.version());
         assertEquals("ISO-8859-1", doc.encoding());
@@ -262,22 +262,19 @@ public class BuilderApiTest {
     @Test
     void testBuilderIntegrationWithSerialization() {
         // Create a complex document using builders
-        Document doc = Document.builder()
-                .withVersion("1.0")
-                .withEncoding("UTF-8")
-                .withRootElement("project")
-                .withXmlDeclaration()
-                .build();
+        Document doc = Document.of()
+                .version("1.0")
+                .encoding("UTF-8")
+                .root(new Element("project"))
+                .withXmlDeclaration();
 
         Element root = doc.root();
 
         // Add dependencies using element builder
-        Element dependencies = Element.builder("dependencies").build();
+        Element dependencies = Element.of("dependencies");
         root.addChild(dependencies);
 
-        Element dependency = Element.builder("dependency")
-                .withAttributes(Map.of("scope", "test", "optional", "true"))
-                .build();
+        Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
         dependencies.addChild(dependency);
 
         dependency.addChild(Element.text("groupId", "junit"));

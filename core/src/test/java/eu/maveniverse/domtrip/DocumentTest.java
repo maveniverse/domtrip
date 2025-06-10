@@ -37,14 +37,14 @@ public class DocumentTest {
 
     @Test
     void testSetXmlDeclaration() {
-        document.setXmlDeclaration("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        document.xmlDeclaration("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", document.xmlDeclaration());
         assertTrue(document.isModified());
     }
 
     @Test
     void testSetXmlDeclarationNull() {
-        document.setXmlDeclaration(null);
+        document.xmlDeclaration(null);
         assertEquals("", document.xmlDeclaration());
     }
 
@@ -52,21 +52,21 @@ public class DocumentTest {
     void testSetDoctype() {
         String doctype =
                 "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
-        document.setDoctype(doctype);
+        document.doctype(doctype);
         assertEquals(doctype, document.doctype());
         assertTrue(document.isModified());
     }
 
     @Test
     void testSetDoctypeNull() {
-        document.setDoctype(null);
+        document.doctype(null);
         assertEquals("", document.doctype());
     }
 
     @Test
     void testSetDocumentElement() {
         Element root = new Element("root");
-        document.setRoot(root);
+        document.root(root);
 
         assertEquals(root, document.root());
         assertEquals(document, root.parent());
@@ -76,41 +76,41 @@ public class DocumentTest {
     @Test
     void testSetDocumentElementNull() {
         Element root = new Element("root");
-        document.setRoot(root);
-        document.setRoot(null);
+        document.root(root);
+        document.root(null);
 
         assertNull(document.root());
     }
 
     @Test
     void testSetEncoding() {
-        document.setEncoding("ISO-8859-1");
+        document.encoding("ISO-8859-1");
         assertEquals("ISO-8859-1", document.encoding());
         assertTrue(document.isModified());
     }
 
     @Test
     void testSetEncodingNull() {
-        document.setEncoding(null);
+        document.encoding(null);
         assertEquals("UTF-8", document.encoding()); // Should default to UTF-8
     }
 
     @Test
     void testSetVersion() {
-        document.setVersion("1.1");
+        document.version("1.1");
         assertEquals("1.1", document.version());
         assertTrue(document.isModified());
     }
 
     @Test
     void testSetVersionNull() {
-        document.setVersion(null);
+        document.version(null);
         assertEquals("1.0", document.version()); // Should default to 1.0
     }
 
     @Test
     void testSetStandalone() {
-        document.setStandalone(true);
+        document.standalone(true);
         assertTrue(document.isStandalone());
         assertTrue(document.isModified());
     }
@@ -151,10 +151,10 @@ public class DocumentTest {
 
     @Test
     void testDocumentToXml() {
-        document.setXmlDeclaration("<?xml version=\"1.0\"?>");
+        document.xmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
         root.addChild(new Text("content"));
-        document.setRoot(root);
+        document.root(root);
 
         String xml = document.toXml();
 
@@ -164,9 +164,9 @@ public class DocumentTest {
 
     @Test
     void testDocumentToXmlStringBuilder() {
-        document.setXmlDeclaration("<?xml version=\"1.0\"?>");
+        document.xmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
-        document.setRoot(root);
+        document.root(root);
 
         StringBuilder sb = new StringBuilder();
         document.toXml(sb);
@@ -290,7 +290,7 @@ public class DocumentTest {
         assertFalse(doc.isModified());
 
         // Modify document
-        doc.setXmlDeclaration("<?xml version=\"1.0\"?>");
+        doc.xmlDeclaration("<?xml version=\"1.0\"?>");
         assertTrue(doc.isModified());
     }
 

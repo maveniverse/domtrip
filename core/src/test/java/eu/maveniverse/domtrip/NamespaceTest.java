@@ -192,11 +192,11 @@ public class NamespaceTest {
         Element element = new Element("test");
 
         // Test setting namespace declarations
-        element.setNamespaceDeclaration("ex", "http://example.com/ns");
+        element.namespaceDeclaration("ex", "http://example.com/ns");
         assertEquals("http://example.com/ns", element.attribute("xmlns:ex"));
         assertEquals("http://example.com/ns", element.namespaceDeclaration("ex"));
 
-        element.setNamespaceDeclaration(null, "http://example.com/default");
+        element.namespaceDeclaration(null, "http://example.com/default");
         assertEquals("http://example.com/default", element.attribute("xmlns"));
         assertEquals("http://example.com/default", element.namespaceDeclaration(null));
 
@@ -211,12 +211,11 @@ public class NamespaceTest {
     }
 
     @Test
-    void testElementsBuilderWithNamespaces() {
-        Element element = Element.builder("test")
-                .withNamespace("ex", "http://example.com/ns")
-                .withDefaultNamespace("http://example.com/default")
-                .withText("content")
-                .build();
+    void testElementsFluentApiWithNamespaces() {
+        Element element = Element.of("test")
+                .namespaceDeclaration("ex", "http://example.com/ns")
+                .namespaceDeclaration(null, "http://example.com/default");
+        element.addChild(new Text("content"));
 
         assertEquals("http://example.com/ns", element.attribute("xmlns:ex"));
         assertEquals("http://example.com/default", element.attribute("xmlns"));

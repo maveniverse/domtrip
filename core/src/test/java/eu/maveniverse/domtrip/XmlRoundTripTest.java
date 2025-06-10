@@ -105,7 +105,7 @@ public class XmlRoundTripTest {
 
         editor.loadXml(originalXml);
         Element element = editor.element("element").orElseThrow();
-        editor.setAttribute(element, "attr1", "modified");
+        element.attribute("attr1", "modified");
 
         String result = editor.toXml();
 

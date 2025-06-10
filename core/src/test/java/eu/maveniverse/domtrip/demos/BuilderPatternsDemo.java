@@ -1,12 +1,14 @@
 package eu.maveniverse.domtrip.demos;
 
 import eu.maveniverse.domtrip.Attribute;
+import eu.maveniverse.domtrip.Comment;
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.QName;
 import eu.maveniverse.domtrip.QuoteStyle;
+import eu.maveniverse.domtrip.Text;
 import java.util.Map;
 
 /**
@@ -65,15 +67,12 @@ public class BuilderPatternsDemo {
 
         Element namespaced = Element.element(QName.of("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"));
 
-        // Using element builder for complex structures
-        Element complex = Element.builder("article")
-                .withAttribute("id", "article-1")
-                .withAttribute("class", "blog-post")
-                .withText("Article content here")
-                .withChild(Element.text("author", "John Doe"))
-                .withChild(Element.text("date", "2024-01-15"))
-                .withComment(" Article metadata ")
-                .build();
+        // Using element fluent API for complex structures
+        Element complex = Element.of("article").attribute("id", "article-1").attribute("class", "blog-post");
+        complex.addChild(new Text("Article content here"));
+        complex.addChild(Element.text("author", "John Doe"));
+        complex.addChild(Element.text("date", "2024-01-15"));
+        complex.addChild(new Comment(" Article metadata "));
 
         System.out.println("Text element: " + textElement.toXml());
         System.out.println("Self-closing: " + selfClosing.toXml());
@@ -88,25 +87,24 @@ public class BuilderPatternsDemo {
         System.out.println("3. Document Builder Demo:");
 
         // Simple document
-        Document simple = Document.withRootElement("simple");
+        Document simple = Document.of().root(new Element("simple"));
 
         // Document with XML declaration
         Document withDeclaration = Document.withXmlDeclaration("1.0", "UTF-8");
 
         // Complex document using builder
-        Document complex = Document.builder()
-                .withVersion("1.1")
-                .withEncoding("ISO-8859-1")
-                .withStandalone(true)
-                .withDoctype("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" "
+        Document complex = Document.of()
+                .version("1.1")
+                .encoding("ISO-8859-1")
+                .standalone(true)
+                .doctype("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" "
                         + "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">")
-                .withRootElement("html")
-                .withXmlDeclaration()
-                .build();
+                .root(new Element("html"))
+                .withXmlDeclaration();
 
         // Add content to the complex document
         Element html = complex.root();
-        html.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+        html.attribute("xmlns", "http://www.w3.org/1999/xhtml");
 
         Element head = Element.text("head", "");
         html.addChild(head);

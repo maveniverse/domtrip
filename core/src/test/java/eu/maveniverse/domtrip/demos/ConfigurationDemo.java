@@ -175,8 +175,8 @@ public class ConfigurationDemo {
                 .quoteStyle(QuoteStyle.SINGLE)
                 .build();
 
-        root.setAttributeObject("new-double", doubleQuoted);
-        root.setAttributeObject("new-single", singleQuoted);
+        root.attributeObject("new-double", doubleQuoted);
+        root.attributeObject("new-single", singleQuoted);
 
         System.out.println("After adding new attributes: " + editor.toXml());
 

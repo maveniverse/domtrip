@@ -39,7 +39,7 @@ public abstract class ContainerNode extends Node {
             // If this is an Element and it was self-closing, make it not self-closing
             if (this instanceof Element element) {
                 if (element.selfClosing()) {
-                    element.setSelfClosingInternal(false);
+                    element.selfClosingInternal(false);
                 }
             }
             markModified();
@@ -67,7 +67,7 @@ public abstract class ContainerNode extends Node {
             // If this is an Element and it was self-closing, make it not self-closing
             if (this instanceof Element element) {
                 if (element.selfClosing()) {
-                    element.setSelfClosingInternal(false);
+                    element.selfClosingInternal(false);
                 }
             }
             markModified();

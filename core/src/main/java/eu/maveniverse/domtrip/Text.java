@@ -100,35 +100,39 @@ public class Text extends Node {
         return content;
     }
 
-    public void content(String content) {
+    public Text content(String content) {
         this.content = content != null ? content : "";
         this.rawContent = null; // Clear raw content when content is modified
         markModified();
+        return this;
     }
 
     public String rawContent() {
         return rawContent;
     }
 
-    public void rawContent(String rawContent) {
+    public Text rawContent(String rawContent) {
         this.rawContent = rawContent;
+        return this;
     }
 
     public boolean cdata() {
         return isCData;
     }
 
-    public void cdata(boolean cData) {
+    public Text cdata(boolean cData) {
         this.isCData = cData;
         markModified();
+        return this;
     }
 
     public boolean preserveWhitespace() {
         return preserveWhitespace;
     }
 
-    public void preserveWhitespace(boolean preserveWhitespace) {
+    public Text preserveWhitespace(boolean preserveWhitespace) {
         this.preserveWhitespace = preserveWhitespace;
+        return this;
     }
 
     /**
@@ -228,7 +232,7 @@ public class Text extends Node {
      * @see #leadingWhitespace()
      * @see #trailingWhitespace()
      */
-    public void contentPreservingWhitespace(String newContent) {
+    public Text contentPreservingWhitespace(String newContent) {
         if (newContent == null) {
             newContent = "";
         }
@@ -239,6 +243,7 @@ public class Text extends Node {
         this.content = leading + newContent + trailing;
         this.rawContent = null; // Clear raw content when content is modified
         markModified();
+        return this;
     }
 
     /**
@@ -444,5 +449,29 @@ public class Text extends Node {
      */
     public static Builder builder() {
         return new Builder();
+    }
+
+    /**
+     * Creates a text node with the specified content.
+     *
+     * <p>Factory method following modern Java naming conventions.</p>
+     *
+     * @param content the text content
+     * @return a new Text node
+     */
+    public static Text of(String content) {
+        return new Text(content);
+    }
+
+    /**
+     * Creates a CDATA text node with the specified content.
+     *
+     * <p>Factory method for creating CDATA sections.</p>
+     *
+     * @param content the CDATA content
+     * @return a new Text node with CDATA flag set
+     */
+    public static Text cdata(String content) {
+        return new Text(content, true);
     }
 }

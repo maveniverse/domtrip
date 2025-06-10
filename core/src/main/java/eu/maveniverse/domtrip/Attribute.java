@@ -101,43 +101,37 @@ public class Attribute {
         return value;
     }
 
-    public void value(String value) {
+    public Attribute value(String value) {
         this.value = value;
         this.rawValue = null; // Clear raw value when setting programmatically
+        return this;
     }
 
     public String rawValue() {
         return rawValue;
     }
 
-    public void rawValue(String rawValue) {
+    public Attribute rawValue(String rawValue) {
         this.rawValue = rawValue;
+        return this;
     }
 
     public QuoteStyle quoteStyle() {
         return quoteStyle;
     }
 
-    public void quoteStyle(QuoteStyle quoteStyle) {
+    public Attribute quoteStyle(QuoteStyle quoteStyle) {
         this.quoteStyle = quoteStyle != null ? quoteStyle : QuoteStyle.DOUBLE;
-    }
-
-    // Legacy method for backward compatibility
-    public char getQuoteChar() {
-        return quoteStyle.getCharacter();
-    }
-
-    // Legacy method for backward compatibility
-    public void setQuoteChar(char quoteChar) {
-        this.quoteStyle = QuoteStyle.fromChar(quoteChar);
+        return this;
     }
 
     public String precedingWhitespace() {
         return precedingWhitespace;
     }
 
-    public void precedingWhitespace(String precedingWhitespace) {
+    public Attribute precedingWhitespace(String precedingWhitespace) {
         this.precedingWhitespace = precedingWhitespace != null ? precedingWhitespace : " ";
+        return this;
     }
 
     /**
@@ -302,5 +296,32 @@ public class Attribute {
      */
     public static Builder builder() {
         return new Builder();
+    }
+
+    /**
+     * Creates an attribute with the specified name and value.
+     *
+     * <p>Factory method following modern Java naming conventions.</p>
+     *
+     * @param name the attribute name
+     * @param value the attribute value
+     * @return a new Attribute
+     */
+    public static Attribute of(String name, String value) {
+        return new Attribute(name, value);
+    }
+
+    /**
+     * Creates an attribute with the specified name, value, and quote style.
+     *
+     * <p>Factory method for creating attributes with specific formatting.</p>
+     *
+     * @param name the attribute name
+     * @param value the attribute value
+     * @param quoteStyle the quote style to use
+     * @return a new Attribute
+     */
+    public static Attribute of(String name, String value, QuoteStyle quoteStyle) {
+        return new Attribute(name, value, quoteStyle, " ");
     }
 }

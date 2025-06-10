@@ -132,7 +132,7 @@ public class ErrorHandlingTest {
 
         // Implementation may handle null name gracefully
         assertDoesNotThrow(() -> {
-            root.setAttribute(null, "value");
+            root.attribute(null, "value");
         });
     }
 
@@ -143,7 +143,7 @@ public class ErrorHandlingTest {
         Element root = editor.documentElement().orElseThrow();
 
         // Should handle null value gracefully
-        root.setAttribute("test", null);
+        root.attribute("test", null);
         assertNull(root.attribute("test"));
     }
 

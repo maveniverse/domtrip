@@ -85,7 +85,7 @@ public class EditorDemo {
         // Test 5: Add attribute
         System.out.println("\n6. Adding attribute...");
         Element project = editor.documentElement().orElseThrow();
-        editor.setAttribute(project, "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        project.attribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 
         System.out.println("Final result:");
         System.out.println(editor.toXml());

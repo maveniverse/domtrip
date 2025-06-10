@@ -5,8 +5,7 @@ name: DomTrip
 simple-name: DomTrip
 image: domtrip-logo.svg
 social-github: maveniverse/domtrip
-layout: page
-is-index-page: true
+layout: index
 ---
 
 <link rel="stylesheet" href="/domtrip/css/docusaurus-style.css">

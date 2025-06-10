@@ -18,28 +18,29 @@ package eu.maveniverse.domtrip;
  *   <li><strong>Standalone Flag</strong> - Preserves standalone document declarations</li>
  * </ul>
  *
- * <h3>Usage Example:</h3>
+ * <h3>Usage Examples:</h3>
  * <pre>{@code
- * // Create a new document
- * Document doc = new Document();
- * doc.setXmlDeclaration("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+ * // Create documents using factory methods
+ * Document doc = Document.of(); // Empty document
+ * Document parsed = Document.of(xmlString); // Parse XML
+ * Document withDecl = Document.withXmlDeclaration("1.0", "UTF-8");
+ * Document complete = Document.withRootElement("project");
  *
  * // Set the root element
- * Element root = new Element("root");
- * doc.setDocumentElement(root);
+ * Element root = Element.of("root");
+ * doc.root(root);
  *
  * // Access document properties
  * String encoding = doc.encoding(); // "UTF-8"
  * String version = doc.version();   // "1.0"
  *
- * // Use builder pattern for complex documents
- * Document complex = Document.builder()
- *     .withVersion("1.1")
- *     .withEncoding("UTF-8")
- *     .withStandalone(true)
- *     .withRootElement("project")
- *     .withXmlDeclaration()
- *     .build();
+ * // Complex documents using fluent API
+ * Document complex = Document.of()
+ *     .version("1.1")
+ *     .encoding("UTF-8")
+ *     .standalone(true)
+ *     .root(Element.of("project"))
+ *     .withXmlDeclaration();
  * }</pre>
  *
  * <h3>Document Structure:</h3>

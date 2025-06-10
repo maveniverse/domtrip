@@ -27,29 +27,28 @@ import java.util.stream.Stream;
  *
  * <h3>Usage Examples:</h3>
  * <pre>{@code
- * // Create a new element
- * Element root = new Element("root");
- * root.setAttribute("id", "main");
+ * // Create elements using factory methods
+ * Element root = Element.of("root").attribute("id", "main");
+ * Element textElement = Element.text("child", "Hello World");
+ * Element selfClosing = Element.selfClosing("br");
  *
  * // Add child elements
- * Element child = new Element("child");
- * child.setTextContent("Hello World");
- * root.addChild(child);
+ * root.addNode(textElement);
+ * root.addNode(Element.text("version", "1.0.0"));
  *
  * // Navigate children
  * Optional<Element> found = root.child("child");
  * Stream<Element> children = root.children("item");
  *
  * // Namespace handling
- * Element nsElement = new Element("soap:Envelope");
- * nsElement.setNamespaceURI("http://schemas.xmlsoap.org/soap/envelope/");
+ * QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
+ * Element nsElement = Element.of(soapEnvelope);
  *
- * // Use builder pattern for complex elements
- * Element complex = Element.builder("dependency")
- *     .withAttribute("scope", "test")
- *     .withChild(Element.builder("groupId").withText("junit").build())
- *     .withChild(Element.builder("artifactId").withText("junit").build())
- *     .build();
+ * // Complex elements with fluent API
+ * Element dependency = Element.of("dependency")
+ *     .attribute("scope", "test");
+ * dependency.addNode(Element.text("groupId", "junit"));
+ * dependency.addNode(Element.text("artifactId", "junit"));
  * }</pre>
  *
  * <h3>Attribute Handling:</h3>

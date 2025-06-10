@@ -32,13 +32,12 @@ jobs:
 
     - name: Build website with Javadocs
       shell: bash
-      env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
       run: |
         # Fetch GitHub Pages URL
-        FULL_URL=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.html_url' 2>/dev/null || echo '')
-        SITE_URL=$(echo "$FULL_URL" | sed -E 's|(https?://[^/]+).*|\1|')        # Extract base URL
-        SITE_PATH=$(echo "$FULL_URL" | sed -E 's|https?://[^/]+||')             # Extract path
+        OWNER=$(echo "$GITHUB_REPOSITORY" | cut -d '/' -f 1)
+        REPO=$(echo "$GITHUB_REPOSITORY" | cut -d '/' -f 2)
+        SITE_URL="https://${OWNER}.github.io"
+        SITE_PATH="/${REPO}/"
         SITE_DIR="./"
         echo "SITE_DIR=$SITE_DIR" >> $GITHUB_ENV
         echo "SITE_URL=$SITE_URL" >> $GITHUB_ENV

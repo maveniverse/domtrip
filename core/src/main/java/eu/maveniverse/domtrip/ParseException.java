@@ -40,8 +40,6 @@ package eu.maveniverse.domtrip;
  * }
  * }</pre>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Parser
  * @see DomTripException
  */
@@ -54,7 +52,6 @@ public class ParseException extends DomTripException {
      * Creates a ParseException with the specified message.
      *
      * @param message the error message
-     * @since 1.0
      */
     public ParseException(String message) {
         this(message, -1, null);
@@ -65,7 +62,6 @@ public class ParseException extends DomTripException {
      *
      * @param message the error message
      * @param position the character position where the error occurred
-     * @since 1.0
      */
     public ParseException(String message, int position) {
         this(message, position, null);
@@ -77,7 +73,6 @@ public class ParseException extends DomTripException {
      * @param message the error message
      * @param position the character position where the error occurred
      * @param xmlContent the XML content being parsed (for context)
-     * @since 1.0
      */
     public ParseException(String message, int position, String xmlContent) {
         super(message + (position >= 0 ? " at position " + position : ""));
@@ -90,7 +85,6 @@ public class ParseException extends DomTripException {
      *
      * @param message the error message
      * @param cause the underlying cause of the parsing failure
-     * @since 1.0
      */
     public ParseException(String message, Throwable cause) {
         super(message, cause);
@@ -102,7 +96,6 @@ public class ParseException extends DomTripException {
      * Gets the character position where the parsing error occurred.
      *
      * @return the character position, or -1 if position is not available
-     * @since 1.0
      */
     public int getPosition() {
         return position;
@@ -115,7 +108,6 @@ public class ParseException extends DomTripException {
      * for debugging purposes.</p>
      *
      * @return the XML content, or null if not available
-     * @since 1.0
      */
     public String getXmlContent() {
         return xmlContent;

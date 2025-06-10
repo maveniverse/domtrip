@@ -1,6 +1,9 @@
 package eu.maveniverse.domtrip;
 
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * High-level API for editing XML documents while preserving original formatting.
@@ -25,7 +28,7 @@ import java.util.Map;
  * Editor editor = new Editor(xmlString);
  *
  * // Make modifications
- * Element root = editor.getDocumentElement();
+ * Element root = editor.root();
  * editor.addElement(root, "newChild", "content");
  * editor.setAttribute(root, "version", "2.0");  // Intelligently preserves formatting
  *
@@ -67,7 +70,7 @@ import java.util.Map;
  * editor.createDocument("root");
  *
  * // Build document structure
- * Element root = editor.getDocumentElement();
+ * Element root = editor.root();
  * editor.addElement(root, "child", "value");
  * }</pre>
  *
@@ -88,8 +91,6 @@ import java.util.Map;
  * Editor editor = new Editor(doc);
  * }</pre>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Parser
  * @see Serializer
  * @see DomTripConfig
@@ -144,13 +145,12 @@ public class Editor {
      * Editor editor = new Editor(doc);
      *
      * // Continue editing
-     * Element root = editor.getDocumentElement();
+     * Element root = editor.root();
      * editor.addElement(root, "version", "1.0");
      * }</pre>
      *
      * @param document the existing Document to edit, must not be null
      * @throws IllegalArgumentException if document is null
-     * @since 1.0
      * @see #Editor(Document, DomTripConfig)
      * @see Document
      */
@@ -182,7 +182,6 @@ public class Editor {
      * @param document the existing Document to edit, must not be null
      * @param config the configuration to use, or null for default configuration
      * @throws IllegalArgumentException if document is null
-     * @since 1.0
      * @see #Editor(Document)
      * @see DomTripConfig
      */
@@ -203,7 +202,7 @@ public class Editor {
     /**
      * Gets the current XML document
      */
-    public Document getDocument() {
+    public Document document() {
         return document;
     }
 
@@ -242,16 +241,16 @@ public class Editor {
         // Try to preserve indentation using WhitespaceManager
         String indentation = whitespaceManager.inferIndentation(parent);
         if (!indentation.isEmpty()) {
-            newElement.setPrecedingWhitespace("\n" + indentation);
+            newElement.precedingWhitespace("\n" + indentation);
         }
 
         // Check if the last child is a text node with just whitespace (closing tag whitespace)
         // If so, insert the new element before it, and add proper closing whitespace after
-        int childCount = parent.getChildCount();
+        int childCount = parent.nodeCount();
         if (childCount > 0) {
             Node lastChild = parent.getChild(childCount - 1);
             if (lastChild instanceof Text lastText) {
-                String content = lastText.getContent();
+                String content = lastText.content();
                 // Use WhitespaceManager to check if it's whitespace only
                 if (whitespaceManager.isWhitespaceOnly(content) && content.contains("\n")) {
                     // Insert before the last text node
@@ -265,8 +264,8 @@ public class Editor {
         parent.addChild(newElement);
 
         // Add closing whitespace if parent has indentation
-        if (!indentation.isEmpty() && parent.getParent() != null) {
-            String parentIndent = whitespaceManager.inferIndentation(parent.getParent());
+        if (!indentation.isEmpty() && parent.parent() != null) {
+            String parentIndent = whitespaceManager.inferIndentation(parent.parent());
             Text closingWhitespace = new Text("\n" + parentIndent);
             parent.addChild(closingWhitespace);
         }
@@ -280,7 +279,69 @@ public class Editor {
     public Element addElement(Element parent, String elementName, String textContent) throws InvalidXmlException {
         Element element = addElement(parent, elementName);
         if (textContent != null && !textContent.isEmpty()) {
-            element.setTextContent(textContent);
+            element.textContent(textContent);
+        }
+        return element;
+    }
+
+    /**
+     * Adds a new element using a QName.
+     *
+     * @param parent the parent element
+     * @param qname the QName for the new element
+     * @return the newly created element
+     * @throws InvalidXmlException if the element cannot be added
+     */
+    public Element addElement(Element parent, QName qname) throws InvalidXmlException {
+        if (parent == null) {
+            throw new InvalidXmlException("Parent element cannot be null");
+        }
+        if (qname == null) {
+            throw new InvalidXmlException("QName cannot be null");
+        }
+
+        Element newElement = Element.of(qname);
+
+        // Add namespace declaration if needed and not already declared
+        if (qname.hasNamespace() && !isNamespaceDeclaredInHierarchy(parent, qname)) {
+            if (qname.hasPrefix()) {
+                newElement.setNamespaceDeclaration(qname.prefix(), qname.namespaceURI());
+            } else {
+                newElement.setNamespaceDeclaration(null, qname.namespaceURI());
+            }
+        }
+
+        // Try to preserve indentation using WhitespaceManager
+        String indentation = whitespaceManager.inferIndentation(parent);
+        if (!indentation.isEmpty()) {
+            newElement.precedingWhitespace("\n" + indentation);
+        }
+
+        parent.addChild(newElement);
+
+        // Add closing whitespace if parent has indentation
+        if (!indentation.isEmpty() && parent.parent() != null) {
+            String parentIndent = whitespaceManager.inferIndentation(parent.parent());
+            Text closingWhitespace = new Text("\n" + parentIndent);
+            parent.addChild(closingWhitespace);
+        }
+
+        return newElement;
+    }
+
+    /**
+     * Adds a new element using a QName with text content.
+     *
+     * @param parent the parent element
+     * @param qname the QName for the new element
+     * @param textContent the text content for the element
+     * @return the newly created element
+     * @throws InvalidXmlException if the element cannot be added
+     */
+    public Element addElement(Element parent, QName qname, String textContent) throws InvalidXmlException {
+        Element element = addElement(parent, qname);
+        if (textContent != null && !textContent.isEmpty()) {
+            element.textContent(textContent);
         }
         return element;
     }
@@ -289,11 +350,11 @@ public class Editor {
      * Removes an element from its parent
      */
     public boolean removeElement(Element element) {
-        if (element == null || element.getParent() == null) {
+        if (element == null || element.parent() == null) {
             return false;
         }
 
-        Node parent = element.getParent();
+        Node parent = element.parent();
         if (parent instanceof ContainerNode container) {
             return container.removeChild(element);
         }
@@ -330,7 +391,6 @@ public class Editor {
      * @param name the attribute name
      * @param value the attribute value
      * @throws InvalidXmlException if element is null or name is invalid
-     * @since 1.0
      * @see #setAttributes(Element, Map)
      */
     public void setAttribute(Element element, String name, String value) throws InvalidXmlException {
@@ -378,7 +438,7 @@ public class Editor {
             throw new InvalidXmlException("Element cannot be null");
         }
 
-        element.setTextContent(content);
+        element.textContent(content);
     }
 
     /**
@@ -394,7 +454,7 @@ public class Editor {
         // Try to preserve indentation using WhitespaceManager
         String indentation = whitespaceManager.inferIndentation(parent);
         if (!indentation.isEmpty()) {
-            comment.setPrecedingWhitespace("\n" + indentation);
+            comment.precedingWhitespace("\n" + indentation);
         }
 
         parent.addChild(comment);
@@ -402,20 +462,116 @@ public class Editor {
     }
 
     /**
-     * Finds the first element with the given name in the document
+     * Finds the first element with the given name in the document.
+     *
+     * @param name the element name to search for
+     * @return an Optional containing the first matching element, or empty if none found
      */
-    public Element findElement(String name) throws NodeNotFoundException {
+    public Optional<Element> element(String name) {
         if (name == null) {
-            throw new NodeNotFoundException("Element name cannot be null", name);
+            return Optional.empty();
         }
-        return document != null ? document.findElement(name) : null;
+        Element found = document != null ? document.findElement(name) : null;
+        return Optional.ofNullable(found);
     }
 
     /**
-     * Finds the first child element with the given name under the specified parent
+     * Finds the first element with the given QName in the document.
+     *
+     * @param qname the QName to search for
+     * @return an Optional containing the first matching element, or empty if none found
      */
-    public Element findChildElement(Element parent, String name) {
-        return parent != null ? parent.findChild(name).orElse(null) : null;
+    public Optional<Element> element(QName qname) {
+        if (qname == null || document == null) {
+            return Optional.empty();
+        }
+        return document.root() != null ? document.root().descendant(qname) : Optional.empty();
+    }
+
+    /**
+     * Finds all elements with the given name in the document.
+     *
+     * @param name the element name to search for
+     * @return a Stream of matching elements
+     */
+    public Stream<Element> elements(String name) {
+        if (name == null || document == null || document.root() == null) {
+            return Stream.empty();
+        }
+        return document.root().descendants(name);
+    }
+
+    /**
+     * Finds all elements with the given QName in the document.
+     *
+     * @param qname the QName to search for
+     * @return a Stream of matching elements
+     */
+    public Stream<Element> elements(QName qname) {
+        if (qname == null || document == null || document.root() == null) {
+            return Stream.empty();
+        }
+        return document.root().descendants(qname);
+    }
+
+    // Path-based navigation methods
+
+    /**
+     * Finds an element by following a path of element names from the document root.
+     *
+     * <p>Example: {@code path("project", "dependencies", "dependency")} will find
+     * the first dependency element under project/dependencies.</p>
+     *
+     * @param path the path of element names to follow
+     * @return an Optional containing the element at the end of the path, or empty if not found
+     */
+    public Optional<Element> path(String... path) {
+        if (path == null || path.length == 0) {
+            return documentElement();
+        }
+
+        return Arrays.stream(path)
+                .reduce(
+                        documentElement(),
+                        (current, elementName) -> current.flatMap(el -> el.child(elementName)),
+                        (a, b) -> b);
+    }
+
+    /**
+     * Finds an element by following a path of QNames from the document root.
+     *
+     * @param path the path of QNames to follow
+     * @return an Optional containing the element at the end of the path, or empty if not found
+     */
+    public Optional<Element> path(QName... path) {
+        if (path == null || path.length == 0) {
+            return documentElement();
+        }
+
+        return Arrays.stream(path)
+                .reduce(documentElement(), (current, qname) -> current.flatMap(el -> el.child(qname)), (a, b) -> b);
+    }
+
+    /**
+     * Finds the first child element with the given name under the specified parent.
+     *
+     * @param parent the parent element
+     * @param name the child element name
+     * @return an Optional containing the first matching child element, or empty if none found
+     */
+    public Optional<Element> childElement(Element parent, String name) {
+        return parent != null ? parent.child(name) : Optional.empty();
+    }
+
+    /**
+     * Finds the first child element with the given QName under the specified parent.
+     *
+     * @param parent the parent element
+     * @param qname the child element QName
+     * @return an Optional containing the first matching child element, or empty if none found
+     */
+    public Optional<Element> childElement(Element parent, QName qname) {
+        return parent != null ? parent.child(qname) : Optional.empty();
     }
 
     /**
@@ -430,15 +586,17 @@ public class Editor {
         // Add default XML declaration for new documents
         document.setXmlDeclaration("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         Element rootElement = new Element(rootElementName.trim());
-        document.setDocumentElement(rootElement);
+        document.setRoot(rootElement);
         document.addChild(rootElement);
     }
 
     /**
-     * Gets the root element of the document
+     * Gets the root element of the document.
+     *
+     * @return an Optional containing the root element, or empty if no document is loaded
      */
-    public Element getDocumentElement() {
-        return document != null ? document.getDocumentElement() : null;
+    public Optional<Element> documentElement() {
+        return Optional.ofNullable(document != null ? document.root() : null);
     }
 
     /**
@@ -450,7 +608,7 @@ public class Editor {
         }
 
         // Basic validation - check that we have a root element
-        Element root = document.getDocumentElement();
+        Element root = document.root();
         if (root == null) {
             return false;
         }
@@ -462,7 +620,7 @@ public class Editor {
     /**
      * Gets statistics about the document
      */
-    public String getDocumentStats() {
+    public String documentStats() {
         if (document == null) {
             return "No document loaded";
         }
@@ -476,7 +634,7 @@ public class Editor {
     }
 
     private void countNodes(Node node, int[] counts) {
-        switch (node.getNodeType()) {
+        switch (node.type()) {
             case ELEMENT:
                 counts[0]++;
                 break;
@@ -490,7 +648,7 @@ public class Editor {
         counts[3]++;
 
         if (node instanceof ContainerNode container) {
-            for (Node child : container.getChildren()) {
+            for (Node child : container.nodes) {
                 countNodes(child, counts);
             }
         }
@@ -500,34 +658,133 @@ public class Editor {
 
     /**
      * Finds or creates an element with the given name.
+     *
+     * @param name the element name
+     * @return the found or newly created element
+     * @throws InvalidXmlException if the element cannot be created
      */
-    public Element findOrCreateElement(String name) throws NodeNotFoundException, InvalidXmlException {
-        Element element = findElement(name);
-        if (element == null && getDocumentElement() != null) {
-            element = addElement(getDocumentElement(), name);
+    public Element findOrCreateElement(String name) throws InvalidXmlException {
+        return element(name).orElseGet(() -> {
+            Element root = documentElement()
+                    .orElseThrow(
+                            () -> new InvalidXmlException("No document root element available to add new element"));
+            try {
+                return addElement(root, name);
+            } catch (InvalidXmlException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    /**
+     * Finds or creates an element with the given QName.
+     *
+     * @param qname the element QName
+     * @return the found or newly created element
+     * @throws InvalidXmlException if the element cannot be created
+     */
+    public Element findOrCreateElement(QName qname) throws InvalidXmlException {
+        if (qname == null) {
+            throw new InvalidXmlException("QName cannot be null");
         }
-        return element;
+
+        return element(qname).orElseGet(() -> {
+            Element root = documentElement()
+                    .orElseThrow(
+                            () -> new InvalidXmlException("No document root element available to add new element"));
+            try {
+                return addElement(root, qname);
+            } catch (InvalidXmlException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     /**
      * Sets element text content by name (finds first matching element).
+     *
+     * @param elementName the element name
+     * @param text the text content to set
+     * @return true if the element was found and updated, false otherwise
+     * @throws InvalidXmlException if the text content cannot be set
      */
-    public void setElementText(String elementName, String text) throws NodeNotFoundException, InvalidXmlException {
-        Element element = findElement(elementName);
-        if (element != null) {
-            setTextContent(element, text);
-        }
+    public boolean setElementText(String elementName, String text) throws InvalidXmlException {
+        return element(elementName)
+                .map(el -> {
+                    try {
+                        setTextContent(el, text);
+                        return true;
+                    } catch (InvalidXmlException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .orElse(false);
+    }
+
+    /**
+     * Sets element text content by QName (finds first matching element).
+     *
+     * @param qname the element QName
+     * @param text the text content to set
+     * @return true if the element was found and updated, false otherwise
+     * @throws InvalidXmlException if the text content cannot be set
+     */
+    public boolean setElementText(QName qname, String text) throws InvalidXmlException {
+        return element(qname)
+                .map(el -> {
+                    try {
+                        setTextContent(el, text);
+                        return true;
+                    } catch (InvalidXmlException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .orElse(false);
     }
 
     /**
      * Sets element attribute by element name (finds first matching element).
+     *
+     * @param elementName the element name
+     * @param attrName the attribute name
+     * @param attrValue the attribute value
+     * @return true if the element was found and updated, false otherwise
+     * @throws InvalidXmlException if the attribute cannot be set
      */
-    public void setElementAttribute(String elementName, String attrName, String attrValue)
-            throws NodeNotFoundException, InvalidXmlException {
-        Element element = findElement(elementName);
-        if (element != null) {
-            setAttribute(element, attrName, attrValue);
-        }
+    public boolean setElementAttribute(String elementName, String attrName, String attrValue)
+            throws InvalidXmlException {
+        return element(elementName)
+                .map(el -> {
+                    try {
+                        setAttribute(el, attrName, attrValue);
+                        return true;
+                    } catch (InvalidXmlException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .orElse(false);
+    }
+
+    /**
+     * Sets element attribute by QName (finds first matching element).
+     *
+     * @param qname the element QName
+     * @param attrName the attribute name
+     * @param attrValue the attribute value
+     * @return true if the element was found and updated, false otherwise
+     * @throws InvalidXmlException if the attribute cannot be set
+     */
+    public boolean setElementAttribute(QName qname, String attrName, String attrValue) throws InvalidXmlException {
+        return element(qname)
+                .map(el -> {
+                    try {
+                        setAttribute(el, attrName, attrValue);
+                        return true;
+                    } catch (InvalidXmlException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .orElse(false);
     }
 
     /**
@@ -553,6 +810,25 @@ public class Editor {
     }
 
     /**
+     * Batch operation to add multiple child elements with text content using QNames.
+     *
+     * @param parent the parent element
+     * @param qnameValuePairs a map of QNames to text content
+     * @throws InvalidXmlException if any element cannot be added
+     */
+    public void addQNameElements(Element parent, Map<QName, String> qnameValuePairs) throws InvalidXmlException {
+        if (parent != null && qnameValuePairs != null) {
+            qnameValuePairs.forEach((qname, value) -> {
+                try {
+                    addElement(parent, qname, value);
+                } catch (InvalidXmlException e) {
+                    throw new RuntimeException("Failed to add element: " + qname, e);
+                }
+            });
+        }
+    }
+
+    /**
      * Serializes with custom configuration.
      */
     public String toXml(DomTripConfig config) {
@@ -566,7 +842,7 @@ public class Editor {
     /**
      * Gets the configuration used by this editor.
      */
-    public DomTripConfig getConfig() {
+    public DomTripConfig config() {
         return config;
     }
 
@@ -574,9 +850,8 @@ public class Editor {
      * Gets the whitespace manager used by this editor.
      *
      * @return the WhitespaceManager instance
-     * @since 1.0
      */
-    public WhitespaceManager getWhitespaceManager() {
+    public WhitespaceManager whitespaceManager() {
         return whitespaceManager;
     }
 
@@ -593,7 +868,6 @@ public class Editor {
      * <p>This builder provides a convenient way to add nodes to existing documents
      * while maintaining the Editor's whitespace management and configuration.</p>
      *
-     * @since 1.0
      */
     public static class NodeBuilder {
         private final Editor editor;
@@ -607,17 +881,25 @@ public class Editor {
          *
          * @param name the element name
          * @return a new EditorElementBuilder for fluent element construction
-         * @since 1.0
          */
         public EditorElementBuilder element(String name) {
             return new EditorElementBuilder(editor, name);
         }
 
         /**
+         * Creates an element builder using a QName that will be added to the document.
+         *
+         * @param qname the element QName
+         * @return a new EditorElementBuilder for fluent element construction
+         */
+        public EditorElementBuilder element(QName qname) {
+            return new EditorElementBuilder(editor, qname);
+        }
+
+        /**
          * Creates a comment builder that will be added to the document.
          *
          * @return a new EditorCommentBuilder for fluent comment construction
-         * @since 1.0
          */
         public EditorCommentBuilder comment() {
             return new EditorCommentBuilder(editor);
@@ -627,7 +909,6 @@ public class Editor {
          * Creates a text builder that will be added to the document.
          *
          * @return a new EditorTextBuilder for fluent text construction
-         * @since 1.0
          */
         public EditorTextBuilder text() {
             return new EditorTextBuilder(editor);
@@ -640,7 +921,6 @@ public class Editor {
      * <p>This builder integrates with the Editor's whitespace management and
      * automatically adds the created element to the specified parent.</p>
      *
-     * @since 1.0
      */
     public static class EditorElementBuilder {
         private final Editor editor;
@@ -652,12 +932,16 @@ public class Editor {
             this.elementBuilder = Element.builder(name);
         }
 
+        private EditorElementBuilder(Editor editor, QName qname) {
+            this.editor = editor;
+            this.elementBuilder = Element.builder(qname);
+        }
+
         /**
          * Sets the parent node for this element.
          *
          * @param parent the parent node
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorElementBuilder to(ContainerNode parent) {
             this.parent = parent;
@@ -669,7 +953,6 @@ public class Editor {
          *
          * @param content the text content
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorElementBuilder withText(String content) {
             elementBuilder.withText(content);
@@ -682,10 +965,21 @@ public class Editor {
          * @param name the attribute name
          * @param value the attribute value
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorElementBuilder withAttribute(String name, String value) {
             elementBuilder.withAttribute(name, value);
+            return this;
+        }
+
+        /**
+         * Adds an attribute to this element using a QName.
+         *
+         * @param qname the attribute QName
+         * @param value the attribute value
+         * @return this builder for method chaining
+         */
+        public EditorElementBuilder withAttribute(QName qname, String value) {
+            elementBuilder.withAttribute(qname, value);
             return this;
         }
 
@@ -694,7 +988,6 @@ public class Editor {
          *
          * @param attributes a map of attribute names to values
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorElementBuilder withAttributes(Map<String, String> attributes) {
             elementBuilder.withAttributes(attributes);
@@ -702,10 +995,20 @@ public class Editor {
         }
 
         /**
+         * Adds multiple attributes to this element using QNames.
+         *
+         * @param qnameAttributes a map of attribute QNames to values
+         * @return this builder for method chaining
+         */
+        public EditorElementBuilder withQNameAttributes(Map<QName, String> qnameAttributes) {
+            elementBuilder.withQNameAttributes(qnameAttributes);
+            return this;
+        }
+
+        /**
          * Makes this element self-closing.
          *
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorElementBuilder selfClosing() {
             elementBuilder.selfClosing();
@@ -717,7 +1020,6 @@ public class Editor {
          *
          * @return the created and added element
          * @throws InvalidXmlException if the element cannot be added
-         * @since 1.0
          */
         public Element build() throws InvalidXmlException {
             if (parent == null) {
@@ -734,7 +1036,6 @@ public class Editor {
      * <p>This builder integrates with the Editor's whitespace management and
      * automatically adds the created comment to the specified parent.</p>
      *
-     * @since 1.0
      */
     public static class EditorCommentBuilder {
         private final Editor editor;
@@ -751,7 +1052,6 @@ public class Editor {
          *
          * @param parent the parent node
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorCommentBuilder to(ContainerNode parent) {
             this.parent = parent;
@@ -763,7 +1063,6 @@ public class Editor {
          *
          * @param content the comment content
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorCommentBuilder withContent(String content) {
             commentBuilder.withContent(content);
@@ -775,7 +1074,6 @@ public class Editor {
          *
          * @return the created and added comment
          * @throws InvalidXmlException if the comment cannot be added
-         * @since 1.0
          */
         public Comment build() throws InvalidXmlException {
             if (parent == null) {
@@ -792,7 +1090,6 @@ public class Editor {
      * <p>This builder integrates with the Editor's configuration and
      * automatically adds the created text node to the specified parent.</p>
      *
-     * @since 1.0
      */
     public static class EditorTextBuilder {
         private final Editor editor;
@@ -809,7 +1106,6 @@ public class Editor {
          *
          * @param parent the parent node
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorTextBuilder to(ContainerNode parent) {
             this.parent = parent;
@@ -821,7 +1117,6 @@ public class Editor {
          *
          * @param content the text content
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorTextBuilder withContent(String content) {
             textBuilder.withContent(content);
@@ -832,7 +1127,6 @@ public class Editor {
          * Makes this text node a CDATA section.
          *
          * @return this builder for method chaining
-         * @since 1.0
          */
         public EditorTextBuilder asCData() {
             textBuilder.asCData();
@@ -843,7 +1137,6 @@ public class Editor {
          * Builds and adds the text node to the document.
          *
          * @return the created and added text node
-         * @since 1.0
          */
         public Text build() {
             if (parent == null) {
@@ -858,7 +1151,7 @@ public class Editor {
      * Infers appropriate formatting for new attributes based on existing attributes.
      */
     private AttributeFormatting inferAttributeFormatting(Element element) {
-        Map<String, Attribute> existingAttrs = element.getAttributeObjects();
+        Map<String, Attribute> existingAttrs = element.attributeObjects();
 
         if (existingAttrs.isEmpty()) {
             // No existing attributes - use defaults
@@ -882,9 +1175,9 @@ public class Editor {
         int singleQuoteCount = 0;
 
         for (Attribute attr : attributes) {
-            if (attr.getQuoteStyle() == QuoteStyle.DOUBLE) {
+            if (attr.quoteStyle() == QuoteStyle.DOUBLE) {
                 doubleQuoteCount++;
-            } else if (attr.getQuoteStyle() == QuoteStyle.SINGLE) {
+            } else if (attr.quoteStyle() == QuoteStyle.SINGLE) {
                 singleQuoteCount++;
             }
         }
@@ -902,7 +1195,7 @@ public class Editor {
 
         // Look for patterns in existing attributes
         for (Attribute attr : attributes) {
-            String whitespace = attr.getPrecedingWhitespace();
+            String whitespace = attr.precedingWhitespace();
             if (whitespace != null) {
                 // Prioritize multi-line patterns
                 if (whitespace.contains("\n")) {
@@ -959,5 +1252,33 @@ public class Editor {
             this.quoteStyle = quoteStyle;
             this.precedingWhitespace = precedingWhitespace;
         }
+    }
+
+    /**
+     * Checks if a namespace is already declared in the element hierarchy.
+     *
+     * @param element the element to check from
+     * @param qname the QName to check for namespace declaration
+     * @return true if the namespace is already declared
+     */
+    private boolean isNamespaceDeclaredInHierarchy(Element element, QName qname) {
+        if (!qname.hasNamespace()) {
+            return true; // No namespace needed
+        }
+
+        Element current = element;
+        while (current != null) {
+            // Check if this element declares the namespace
+            String declaredURI = NamespaceResolver.resolveNamespaceURI(current, qname.prefix());
+            if (qname.namespaceURI().equals(declaredURI)) {
+                return true;
+            }
+
+            // Move up to parent element
+            Node parent = current.parent();
+            current = (parent instanceof Element) ? (Element) parent : null;
+        }
+
+        return false; // Namespace not found in hierarchy
     }
 }

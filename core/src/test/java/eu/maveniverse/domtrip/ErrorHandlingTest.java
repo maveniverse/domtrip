@@ -2,11 +2,13 @@ package eu.maveniverse.domtrip;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -74,10 +76,10 @@ public class ErrorHandlingTest {
     void testAddElementWithNullName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         assertThrows(InvalidXmlException.class, () -> {
-            editor.addElement(root, null);
+            editor.addElement(root, (String) null);
         });
     }
 
@@ -85,7 +87,7 @@ public class ErrorHandlingTest {
     void testAddElementWithEmptyName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, "");
@@ -96,7 +98,7 @@ public class ErrorHandlingTest {
     void testAddElementWithWhitespaceOnlyName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         assertThrows(InvalidXmlException.class, () -> {
             editor.addElement(root, "   ");
@@ -114,19 +116,19 @@ public class ErrorHandlingTest {
     void testAddCommentWithNullContent() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Should not throw - null content should be handled gracefully
         Comment comment = editor.addComment(root, null);
         assertNotNull(comment);
-        assertEquals("", comment.getContent());
+        assertEquals("", comment.content());
     }
 
     @Test
     void testSetAttributeWithNullName() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Implementation may handle null name gracefully
         assertDoesNotThrow(() -> {
@@ -138,18 +140,18 @@ public class ErrorHandlingTest {
     void testSetAttributeWithNullValue() throws ParseException {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Should handle null value gracefully
         root.setAttribute("test", null);
-        assertNull(root.getAttribute("test"));
+        assertNull(root.attribute("test"));
     }
 
     @Test
     void testRemoveNonExistentElement() throws ParseException {
         String xml = "<root><child/></root>";
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Element child = (Element) root.getChild(0);
 
         // Remove the child
@@ -164,8 +166,8 @@ public class ErrorHandlingTest {
     @Test
     void testFindElementInEmptyDocument() {
         // Don't load any XML
-        Element result = editor.findElement("nonexistent");
-        assertNull(result);
+        Optional<Element> result = editor.element("nonexistent");
+        assertFalse(result.isPresent());
     }
 
     @Test
@@ -173,10 +175,9 @@ public class ErrorHandlingTest {
         String xml = "<root><child/></root>";
         editor.loadXml(xml);
 
-        // This should now throw NodeNotFoundException
-        assertThrows(NodeNotFoundException.class, () -> {
-            editor.findElement(null);
-        });
+        // This should return empty Optional for null name
+        Optional<Element> result = editor.element((String) null);
+        assertFalse(result.isPresent());
     }
 
     @Test
@@ -256,9 +257,9 @@ public class ErrorHandlingTest {
         xmlWithManyAttrs.append("/>");
 
         editor.loadXml(xmlWithManyAttrs.toString());
-        Element root = editor.getDocumentElement();
-        assertEquals("value0", root.getAttribute("attr0"));
-        assertEquals("value49", root.getAttribute("attr49"));
+        Element root = editor.documentElement().orElseThrow();
+        assertEquals("value0", root.attribute("attr0"));
+        assertEquals("value49", root.attribute("attr49"));
     }
 
     @Test
@@ -279,9 +280,9 @@ public class ErrorHandlingTest {
         String xml = "<root attr-dash=\"value1\" attr_underscore=\"value2\" attr.dot=\"value3\"/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
-        assertEquals("value1", root.getAttribute("attr-dash"));
-        assertEquals("value2", root.getAttribute("attr_underscore"));
-        assertEquals("value3", root.getAttribute("attr.dot"));
+        Element root = editor.documentElement().orElseThrow();
+        assertEquals("value1", root.attribute("attr-dash"));
+        assertEquals("value2", root.attribute("attr_underscore"));
+        assertEquals("value3", root.attribute("attr.dot"));
     }
 }

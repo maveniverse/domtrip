@@ -2,6 +2,7 @@ package eu.maveniverse.domtrip;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -13,8 +14,8 @@ class EditorConstructorTest {
     void testDefaultConstructor() {
         Editor editor = new Editor();
         assertNotNull(editor);
-        assertNull(editor.getDocument());
-        assertNotNull(editor.getConfig());
+        assertNull(editor.document());
+        assertNotNull(editor.config());
     }
 
     @Test
@@ -22,8 +23,8 @@ class EditorConstructorTest {
         DomTripConfig config = DomTripConfig.prettyPrint();
         Editor editor = new Editor(config);
         assertNotNull(editor);
-        assertNull(editor.getDocument());
-        assertEquals(config, editor.getConfig());
+        assertNull(editor.document());
+        assertEquals(config, editor.config());
     }
 
     @Test
@@ -31,8 +32,8 @@ class EditorConstructorTest {
         String xml = "<?xml version=\"1.0\"?><root><child>value</child></root>";
         Editor editor = new Editor(xml);
         assertNotNull(editor);
-        assertNotNull(editor.getDocument());
-        assertEquals("root", editor.getDocumentElement().getName());
+        assertNotNull(editor.document());
+        assertEquals("root", editor.documentElement().orElseThrow().name());
     }
 
     @Test
@@ -41,9 +42,9 @@ class EditorConstructorTest {
         DomTripConfig config = DomTripConfig.minimal();
         Editor editor = new Editor(xml, config);
         assertNotNull(editor);
-        assertNotNull(editor.getDocument());
-        assertEquals("root", editor.getDocumentElement().getName());
-        assertEquals(config, editor.getConfig());
+        assertNotNull(editor.document());
+        assertEquals("root", editor.documentElement().orElseThrow().name());
+        assertEquals(config, editor.config());
     }
 
     @Test
@@ -56,9 +57,9 @@ class EditorConstructorTest {
 
         Editor editor = new Editor(doc);
         assertNotNull(editor);
-        assertSame(doc, editor.getDocument());
-        assertEquals("project", editor.getDocumentElement().getName());
-        assertNotNull(editor.getConfig());
+        assertSame(doc, editor.document());
+        assertEquals("project", editor.documentElement().orElseThrow().name());
+        assertNotNull(editor.config());
     }
 
     @Test
@@ -74,9 +75,9 @@ class EditorConstructorTest {
 
         Editor editor = new Editor(doc, config);
         assertNotNull(editor);
-        assertSame(doc, editor.getDocument());
-        assertEquals("maven", editor.getDocumentElement().getName());
-        assertEquals(config, editor.getConfig());
+        assertSame(doc, editor.document());
+        assertEquals("maven", editor.documentElement().orElseThrow().name());
+        assertEquals(config, editor.config());
     }
 
     @Test
@@ -90,19 +91,19 @@ class EditorConstructorTest {
         Editor editor = new Editor(document);
 
         // Verify we can use the Editor API
-        Element root = editor.getDocumentElement();
-        assertEquals("config", root.getName());
+        Element root = editor.documentElement().orElseThrow();
+        assertEquals("config", root.name());
 
-        Element database = editor.findElement("database");
-        assertNotNull(database);
+        Optional<Element> database = editor.element("database");
+        assertTrue(database.isPresent());
 
         // Add a new element
-        editor.addElement(database, "port", "5432");
+        editor.addElement(database.orElseThrow(), "port", "5432");
 
         // Verify the change
-        Element port = editor.findElement("port");
-        assertNotNull(port);
-        assertEquals("5432", port.getTextContent());
+        Optional<Element> port = editor.element("port");
+        assertTrue(port.isPresent());
+        assertEquals("5432", port.orElseThrow().textContent());
 
         // Verify serialization works
         String result = editor.toXml();
@@ -124,15 +125,15 @@ class EditorConstructorTest {
         Editor editor = new Editor(doc, config);
 
         // Build document structure using Editor
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         editor.addElement(root, "groupId", "com.example");
         editor.addElement(root, "artifactId", "my-project");
         editor.addElement(root, "version", "1.0.0");
 
         // Verify structure
-        assertEquals("com.example", editor.findElement("groupId").getTextContent());
-        assertEquals("my-project", editor.findElement("artifactId").getTextContent());
-        assertEquals("1.0.0", editor.findElement("version").getTextContent());
+        assertEquals("com.example", editor.element("groupId").orElseThrow().textContent());
+        assertEquals("my-project", editor.element("artifactId").orElseThrow().textContent());
+        assertEquals("1.0.0", editor.element("version").orElseThrow().textContent());
 
         // Verify serialization with pretty printing
         String result = editor.toXml();

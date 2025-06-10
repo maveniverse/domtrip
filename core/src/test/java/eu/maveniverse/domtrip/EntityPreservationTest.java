@@ -57,7 +57,7 @@ public class EntityPreservationTest {
         String xml = "<root existing='value'/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Add new attribute - should use default double quotes
         root.setAttribute("newAttr", "newValue");
@@ -75,7 +75,7 @@ public class EntityPreservationTest {
         String xml = "<root/>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Add new element with entities
         editor.addElement(root, "content", "Text with <tags> & entities");
@@ -131,8 +131,8 @@ public class EntityPreservationTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Element modify = (Element) editor.getDocumentElement().getChild(3); // Find modify element
-        modify.setTextContent("new content");
+        Element modify = (Element) editor.documentElement().orElseThrow().getChild(3); // Find modify element
+        modify.textContent("new content");
 
         String result = editor.toXml();
 

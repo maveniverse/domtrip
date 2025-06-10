@@ -25,7 +25,7 @@ class DoctypePreservationTest {
         Document doc = parser.parse(xml);
 
         // Verify DOCTYPE was captured
-        assertEquals("<!DOCTYPE html>", doc.getDoctype());
+        assertEquals("<!DOCTYPE html>", doc.doctype());
 
         // Verify round-trip preservation
         String serialized = doc.toXml();
@@ -50,7 +50,7 @@ class DoctypePreservationTest {
         // Verify DOCTYPE was captured with PUBLIC ID
         String expectedDoctype =
                 "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
-        assertEquals(expectedDoctype, doc.getDoctype());
+        assertEquals(expectedDoctype, doc.doctype());
 
         // Verify round-trip preservation
         String serialized = doc.toXml();
@@ -74,7 +74,7 @@ class DoctypePreservationTest {
         Document doc = parser.parse(xml);
 
         // Verify DOCTYPE was captured
-        assertEquals("<!DOCTYPE note SYSTEM \"note.dtd\">", doc.getDoctype());
+        assertEquals("<!DOCTYPE note SYSTEM \"note.dtd\">", doc.doctype());
 
         // Verify round-trip preservation
         String serialized = doc.toXml();
@@ -104,7 +104,7 @@ class DoctypePreservationTest {
         Document doc = parser.parse(xml);
 
         // Verify DOCTYPE with internal subset was captured
-        String doctype = doc.getDoctype();
+        String doctype = doc.doctype();
         assertTrue(doctype.startsWith("<!DOCTYPE note ["));
         assertTrue(doctype.contains("<!ELEMENT note (to,from,heading,body)>"));
         assertTrue(doctype.contains("<!ELEMENT to (#PCDATA)>"));
@@ -135,7 +135,7 @@ class DoctypePreservationTest {
         Document doc = parser.parse(xml);
 
         // Verify complex DOCTYPE was captured
-        String doctype = doc.getDoctype();
+        String doctype = doc.doctype();
         assertTrue(doctype.contains("PUBLIC"));
         assertTrue(doctype.contains("-//W3C//DTD XHTML 1.0 Transitional//EN"));
         assertTrue(doctype.contains("http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"));
@@ -162,7 +162,7 @@ class DoctypePreservationTest {
         Document doc = parser.parse(xml);
 
         // Verify no DOCTYPE
-        assertTrue(doc.getDoctype().isEmpty());
+        assertTrue(doc.doctype().isEmpty());
 
         // Verify serialization doesn't add DOCTYPE
         String serialized = doc.toXml();
@@ -195,16 +195,16 @@ class DoctypePreservationTest {
         Document doc = parser.parse(originalXml);
 
         // Verify DOCTYPE preservation
-        String doctype = doc.getDoctype();
+        String doctype = doc.doctype();
         assertTrue(doctype.contains("<!DOCTYPE bookstore ["));
         assertTrue(doctype.contains("<!ELEMENT bookstore (book+)>"));
         assertTrue(doctype.contains("<!ATTLIST book id ID #REQUIRED>"));
 
         // Test that we can modify content without losing DOCTYPE
-        Element root = doc.getDocumentElement();
-        Element book = root.findChild("book").orElseThrow();
-        Element price = book.findChild("price").orElseThrow();
-        price.setTextContent("39.99");
+        Element root = doc.root();
+        Element book = root.child("book").orElseThrow();
+        Element price = book.child("price").orElseThrow();
+        price.textContent("39.99");
 
         // Verify DOCTYPE is still preserved after modification
         String modifiedXml = doc.toXml();

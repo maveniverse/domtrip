@@ -26,26 +26,26 @@ public class DocumentTest {
 
     @Test
     void testDocumentCreation() {
-        assertEquals(Node.NodeType.DOCUMENT, document.getNodeType());
-        assertEquals("", document.getXmlDeclaration());
-        assertEquals("", document.getDoctype());
-        assertEquals("UTF-8", document.getEncoding());
-        assertEquals("1.0", document.getVersion());
+        assertEquals(Node.NodeType.DOCUMENT, document.type());
+        assertEquals("", document.xmlDeclaration());
+        assertEquals("", document.doctype());
+        assertEquals("UTF-8", document.encoding());
+        assertEquals("1.0", document.version());
         assertFalse(document.isStandalone());
-        assertNull(document.getDocumentElement());
+        assertNull(document.root());
     }
 
     @Test
     void testSetXmlDeclaration() {
         document.setXmlDeclaration("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", document.getXmlDeclaration());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", document.xmlDeclaration());
         assertTrue(document.isModified());
     }
 
     @Test
     void testSetXmlDeclarationNull() {
         document.setXmlDeclaration(null);
-        assertEquals("", document.getXmlDeclaration());
+        assertEquals("", document.xmlDeclaration());
     }
 
     @Test
@@ -53,59 +53,59 @@ public class DocumentTest {
         String doctype =
                 "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">";
         document.setDoctype(doctype);
-        assertEquals(doctype, document.getDoctype());
+        assertEquals(doctype, document.doctype());
         assertTrue(document.isModified());
     }
 
     @Test
     void testSetDoctypeNull() {
         document.setDoctype(null);
-        assertEquals("", document.getDoctype());
+        assertEquals("", document.doctype());
     }
 
     @Test
     void testSetDocumentElement() {
         Element root = new Element("root");
-        document.setDocumentElement(root);
+        document.setRoot(root);
 
-        assertEquals(root, document.getDocumentElement());
-        assertEquals(document, root.getParent());
+        assertEquals(root, document.root());
+        assertEquals(document, root.parent());
         assertTrue(document.isModified());
     }
 
     @Test
     void testSetDocumentElementNull() {
         Element root = new Element("root");
-        document.setDocumentElement(root);
-        document.setDocumentElement(null);
+        document.setRoot(root);
+        document.setRoot(null);
 
-        assertNull(document.getDocumentElement());
+        assertNull(document.root());
     }
 
     @Test
     void testSetEncoding() {
         document.setEncoding("ISO-8859-1");
-        assertEquals("ISO-8859-1", document.getEncoding());
+        assertEquals("ISO-8859-1", document.encoding());
         assertTrue(document.isModified());
     }
 
     @Test
     void testSetEncodingNull() {
         document.setEncoding(null);
-        assertEquals("UTF-8", document.getEncoding()); // Should default to UTF-8
+        assertEquals("UTF-8", document.encoding()); // Should default to UTF-8
     }
 
     @Test
     void testSetVersion() {
         document.setVersion("1.1");
-        assertEquals("1.1", document.getVersion());
+        assertEquals("1.1", document.version());
         assertTrue(document.isModified());
     }
 
     @Test
     void testSetVersionNull() {
         document.setVersion(null);
-        assertEquals("1.0", document.getVersion()); // Should default to 1.0
+        assertEquals("1.0", document.version()); // Should default to 1.0
     }
 
     @Test
@@ -120,11 +120,11 @@ public class DocumentTest {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root/>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
-        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", doc.getXmlDeclaration());
-        assertNotNull(doc.getDocumentElement());
-        assertEquals("root", doc.getDocumentElement().getName());
+        assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", doc.xmlDeclaration());
+        assertNotNull(doc.root());
+        assertEquals("root", doc.root().name());
     }
 
     @Test
@@ -144,9 +144,9 @@ public class DocumentTest {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
-        assertTrue(doc.getXmlDeclaration().contains("standalone=\"yes\""));
+        assertTrue(doc.xmlDeclaration().contains("standalone=\"yes\""));
     }
 
     @Test
@@ -154,7 +154,7 @@ public class DocumentTest {
         document.setXmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
         root.addChild(new Text("content"));
-        document.setDocumentElement(root);
+        document.setRoot(root);
 
         String xml = document.toXml();
 
@@ -166,7 +166,7 @@ public class DocumentTest {
     void testDocumentToXmlStringBuilder() {
         document.setXmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
-        document.setDocumentElement(root);
+        document.setRoot(root);
 
         StringBuilder sb = new StringBuilder();
         document.toXml(sb);
@@ -213,12 +213,12 @@ public class DocumentTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
-        Element found = doc.findElement("grandchild");
+        Element found = doc.element("grandchild");
         assertNotNull(found);
-        assertEquals("grandchild", found.getName());
-        assertEquals("content", found.getTextContent());
+        assertEquals("grandchild", found.name());
+        assertEquals("content", found.textContent());
     }
 
     @Test
@@ -226,9 +226,9 @@ public class DocumentTest {
         String xml = "<root><child/></root>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
-        Element found = doc.findElement("nonexistent");
+        Element found = doc.element("nonexistent");
         assertNull(found);
     }
 
@@ -237,11 +237,11 @@ public class DocumentTest {
         String xml = "<root><child/></root>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
         // This throws NPE in current implementation
         assertThrows(NullPointerException.class, () -> {
-            doc.findElement(null);
+            doc.element(null);
         });
     }
 
@@ -255,7 +255,7 @@ public class DocumentTest {
                 + "</root>";
 
         editor.loadXml(xml);
-        String stats = editor.getDocumentStats();
+        String stats = editor.documentStats();
 
         assertNotNull(stats);
         assertTrue(stats.contains("elements"));
@@ -264,7 +264,7 @@ public class DocumentTest {
 
     @Test
     void testEmptyDocumentStats() {
-        String stats = editor.getDocumentStats();
+        String stats = editor.documentStats();
         assertNotNull(stats);
         assertTrue(stats.contains("No document loaded") || stats.contains("0"));
     }
@@ -284,7 +284,7 @@ public class DocumentTest {
     void testDocumentModificationTracking() {
         String xml = "<root/>";
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
         // Initially not modified (just loaded)
         assertFalse(doc.isModified());

@@ -35,8 +35,6 @@ package eu.maveniverse.domtrip;
  * between them is often a matter of style preference or necessity when the
  * attribute value contains one type of quote character.</p>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Attribute
  * @see Element#setAttribute(String, String, QuoteStyle)
  * @see DomTripConfig#withQuoteStyle(QuoteStyle)
@@ -62,7 +60,6 @@ public enum QuoteStyle {
      * Gets the quote character for this style.
      *
      * @return the quote character (either '"' or '\'')
-     * @since 1.0
      */
     public char getCharacter() {
         return character;
@@ -77,7 +74,6 @@ public enum QuoteStyle {
      * @param c the quote character to convert
      * @return the corresponding QuoteStyle
      * @throws IllegalArgumentException if the character is not a valid quote character
-     * @since 1.0
      */
     public static QuoteStyle fromChar(char c) {
         for (QuoteStyle style : values()) {
@@ -92,7 +88,6 @@ public enum QuoteStyle {
      * Returns the quote character as a string.
      *
      * @return the quote character as a single-character string
-     * @since 1.0
      */
     @Override
     public String toString() {

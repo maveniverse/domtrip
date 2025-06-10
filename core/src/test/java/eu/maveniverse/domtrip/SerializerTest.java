@@ -50,7 +50,7 @@ public class SerializerTest {
         doc.setXmlDeclaration("<?xml version=\"1.0\"?>");
         doc.setDoctype("<!DOCTYPE root SYSTEM \"root.dtd\">");
         Element root = new Element("root");
-        doc.setDocumentElement(root);
+        doc.setRoot(root);
 
         String result = serializer.serialize(doc);
         assertTrue(result.contains("<?xml version=\"1.0\"?>"));
@@ -182,12 +182,12 @@ public class SerializerTest {
         String xml = "<root><element attr=\"original\">original content</element></root>";
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
         Element element = (Element) root.getChild(0);
 
         // Modify the element
         element.setAttribute("attr", "modified");
-        element.setTextContent("modified content");
+        element.textContent("modified content");
 
         String result = editor.toXml();
         assertTrue(result.contains("attr=\"modified\""));
@@ -217,13 +217,13 @@ public class SerializerTest {
         Document doc = new Document();
         doc.setXmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
-        doc.setDocumentElement(root);
+        doc.setRoot(root);
 
         // Add many child elements
         for (int i = 0; i < 1000; i++) {
             Element child = new Element("element" + i);
             child.setAttribute("id", String.valueOf(i));
-            child.setTextContent("Content " + i);
+            child.textContent("Content " + i);
             root.addChild(child);
         }
 
@@ -243,7 +243,7 @@ public class SerializerTest {
         // Create deeply nested structure
         Document doc = new Document();
         Element root = new Element("root");
-        doc.setDocumentElement(root);
+        doc.setRoot(root);
 
         Element current = root;
         for (int i = 0; i < 100; i++) {
@@ -251,7 +251,7 @@ public class SerializerTest {
             current.addChild(child);
             current = child;
         }
-        current.setTextContent("deep content");
+        current.textContent("deep content");
 
         String result = serializer.serialize(doc);
 
@@ -280,7 +280,7 @@ public class SerializerTest {
         String xml = "<root><child>content</child></root>";
 
         editor.loadXml(xml);
-        Document doc = editor.getDocument();
+        Document doc = editor.document();
 
         StringBuilder sb = new StringBuilder();
         doc.toXml(sb);
@@ -322,13 +322,13 @@ public class SerializerTest {
         Document doc = new Document();
         doc.setXmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
-        doc.setDocumentElement(root);
+        doc.setRoot(root);
 
         for (int i = 0; i < 100; i++) {
             Element child = new Element("element");
             child.setAttribute("id", String.valueOf(i));
             child.setAttribute("name", "element" + i);
-            child.setTextContent("Content for element " + i);
+            child.textContent("Content for element " + i);
             root.addChild(child);
         }
 

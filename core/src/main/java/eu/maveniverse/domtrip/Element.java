@@ -35,8 +35,8 @@ import java.util.stream.Stream;
  * root.addChild(child);
  *
  * // Navigate children
- * Optional<Element> found = root.findChild("child");
- * Stream<Element> children = root.findChildren("item");
+ * Optional<Element> found = root.child("child");
+ * Stream<Element> children = root.children("item");
  *
  * // Namespace handling
  * Element nsElement = new Element("soap:Envelope");
@@ -61,14 +61,12 @@ import java.util.stream.Stream;
  *
  * // Updating existing attributes preserves original formatting
  * element.setAttribute("class", "updated");             // Preserves original quotes/whitespace
- * String value = element.getAttribute("class");         // Returns "updated"
+ * String value = element.attribute("class");         // Returns "updated"
  *
  * // For advanced formatting control, use attribute objects directly
- * element.getAttributeObject("class").setValue("manual");
+ * element.attributeObject("class").value("manual");
  * }</pre>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see ContainerNode
  * @see Attribute
  * @see NamespaceContext
@@ -92,7 +90,6 @@ public class Element extends ContainerNode {
      *
      * @param name the element name (tag name)
      * @throws IllegalArgumentException if name is null or empty
-     * @since 1.0
      */
     public Element(String name) {
         super();
@@ -112,10 +109,9 @@ public class Element extends ContainerNode {
      * Returns the node type for this element.
      *
      * @return {@link NodeType#ELEMENT}
-     * @since 1.0
      */
     @Override
-    public NodeType getNodeType() {
+    public NodeType type() {
         return NodeType.ELEMENT;
     }
 
@@ -123,27 +119,31 @@ public class Element extends ContainerNode {
      * Gets the name (tag name) of this element.
      *
      * <p>For namespaced elements, this returns the full qualified name
-     * including the prefix (e.g., "soap:Envelope"). Use {@link #getLocalName()}
+     * including the prefix (e.g., "soap:Envelope"). Use {@link #localName()}
      * to get just the local part.</p>
      *
      * @return the element name
-     * @since 1.0
-     * @see #getLocalName()
-     * @see #getPrefix()
+     * @see #localName()
+     * @see #prefix()
      */
-    public String getName() {
+    public String name() {
         return name;
     }
 
-    public void setName(String name) {
+    /**
+     * Sets the element name.
+     *
+     * @param name the new element name
+     */
+    public void name(String name) {
         this.name = name;
         markModified();
     }
 
     // Attribute management
-    public String getAttribute(String name) {
+    public String attribute(String name) {
         Attribute attr = attributes.get(name);
-        return attr != null ? attr.getValue() : null;
+        return attr != null ? attr.value() : null;
     }
 
     /**
@@ -165,7 +165,6 @@ public class Element extends ContainerNode {
      *
      * @param name the attribute name
      * @param value the attribute value
-     * @since 1.0
      * @see #setAttribute(String, String, char)
      * @see #getAttributeObject(String)
      */
@@ -173,7 +172,7 @@ public class Element extends ContainerNode {
         Attribute existingAttr = attributes.get(name);
         if (existingAttr != null) {
             // Preserve existing formatting by updating the existing attribute
-            existingAttr.setValue(value);
+            existingAttr.value(value);
         } else {
             // Create new attribute with default formatting
             attributes.put(name, new Attribute(name, value));
@@ -191,14 +190,13 @@ public class Element extends ContainerNode {
      * @param name the attribute name
      * @param value the attribute value
      * @param quoteChar the quote character to use (' or ")
-     * @since 1.0
      * @see #setAttribute(String, String)
      */
     public void setAttribute(String name, String value, char quoteChar) {
         Attribute existingAttr = attributes.get(name);
         if (existingAttr != null) {
             // Preserve existing whitespace but update quote style and value
-            existingAttr.setValue(value);
+            existingAttr.value(value);
             existingAttr.setQuoteChar(quoteChar);
         } else {
             // Create new attribute with specified quote character
@@ -221,10 +219,10 @@ public class Element extends ContainerNode {
         }
     }
 
-    public Map<String, String> getAttributes() {
+    public Map<String, String> attributes() {
         Map<String, String> result = new LinkedHashMap<>();
         for (Map.Entry<String, Attribute> entry : attributes.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getValue());
+            result.put(entry.getKey(), entry.getValue().value());
         }
         return result;
     }
@@ -233,9 +231,8 @@ public class Element extends ContainerNode {
      * Gets all attribute objects with their formatting information.
      *
      * @return a map of attribute names to Attribute objects
-     * @since 1.0
      */
-    public Map<String, Attribute> getAttributeObjects() {
+    public Map<String, Attribute> attributeObjects() {
         return new LinkedHashMap<>(attributes);
     }
 
@@ -243,7 +240,7 @@ public class Element extends ContainerNode {
         return attributes.containsKey(name);
     }
 
-    public Attribute getAttributeObject(String name) {
+    public Attribute attributeObject(String name) {
         return attributes.get(name);
     }
 
@@ -261,49 +258,49 @@ public class Element extends ContainerNode {
     public void setAttributeWhitespace(String attributeName, String whitespace) {
         Attribute attr = attributes.get(attributeName);
         if (attr != null) {
-            attr.setPrecedingWhitespace(whitespace);
+            attr.precedingWhitespace(whitespace);
         }
     }
 
-    public String getAttributeWhitespace(String attributeName) {
+    public String attributeWhitespace(String attributeName) {
         Attribute attr = attributes.get(attributeName);
-        return attr != null ? attr.getPrecedingWhitespace() : " ";
+        return attr != null ? attr.precedingWhitespace() : " ";
     }
 
-    public void setAttributeQuote(String attributeName, char quoteChar) {
+    public void attributeQuote(String attributeName, char quoteChar) {
         Attribute attr = attributes.get(attributeName);
         if (attr != null) {
             attr.setQuoteChar(quoteChar);
         }
     }
 
-    public char getAttributeQuote(String attributeName) {
+    public char attributeQuote(String attributeName) {
         Attribute attr = attributes.get(attributeName);
         return attr != null ? attr.getQuoteChar() : '"';
     }
 
     // Tag formatting
-    public String getOpenTagWhitespace() {
+    public String openTagWhitespace() {
         return openTagWhitespace;
     }
 
-    public void setOpenTagWhitespace(String whitespace) {
+    public void openTagWhitespace(String whitespace) {
         this.openTagWhitespace = whitespace != null ? whitespace : "";
     }
 
-    public String getCloseTagWhitespace() {
+    public String closeTagWhitespace() {
         return closeTagWhitespace;
     }
 
-    public void setCloseTagWhitespace(String whitespace) {
+    public void closeTagWhitespace(String whitespace) {
         this.closeTagWhitespace = whitespace != null ? whitespace : "";
     }
 
-    public boolean isSelfClosing() {
+    public boolean selfClosing() {
         return selfClosing;
     }
 
-    public void setSelfClosing(boolean selfClosing) {
+    public void selfClosing(boolean selfClosing) {
         this.selfClosing = selfClosing;
         markModified();
     }
@@ -316,19 +313,19 @@ public class Element extends ContainerNode {
     }
 
     // Original tag preservation
-    public String getOriginalOpenTag() {
+    public String originalOpenTag() {
         return originalOpenTag;
     }
 
-    public void setOriginalOpenTag(String originalOpenTag) {
+    public void originalOpenTag(String originalOpenTag) {
         this.originalOpenTag = originalOpenTag != null ? originalOpenTag : "";
     }
 
-    public String getOriginalCloseTag() {
+    public String originalCloseTag() {
         return originalCloseTag;
     }
 
-    public void setOriginalCloseTag(String originalCloseTag) {
+    public void originalCloseTag(String originalCloseTag) {
         this.originalCloseTag = originalCloseTag != null ? originalCloseTag : "";
     }
 
@@ -357,7 +354,7 @@ public class Element extends ContainerNode {
                 }
 
                 // Add children
-                for (Node child : children) {
+                for (Node child : nodes) {
                     child.toXml(sb);
                 }
 
@@ -384,7 +381,7 @@ public class Element extends ContainerNode {
             sb.append(openTagWhitespace).append(">");
 
             // Add children
-            for (Node child : children) {
+            for (Node child : nodes) {
                 child.toXml(sb);
             }
 
@@ -422,11 +419,11 @@ public class Element extends ContainerNode {
     /**
      * Gets the text content of this element (concatenates all text children)
      */
-    public String getTextContent() {
+    public String textContent() {
         StringBuilder sb = new StringBuilder();
-        for (Node child : children) {
+        for (Node child : nodes) {
             if (child instanceof Text) {
-                sb.append(((Text) child).getContent());
+                sb.append(((Text) child).content());
             }
         }
         return sb.toString();
@@ -437,15 +434,15 @@ public class Element extends ContainerNode {
      *
      * <p><strong>Note:</strong> This method replaces all text children and does not
      * preserve existing whitespace patterns. For whitespace-preserving updates,
-     * use {@link #setTextContentPreservingWhitespace(String)} instead.</p>
+     * use {@link #textPreservingWhitespace(String)} instead.</p>
      *
      * @param content the new text content
-     * @see #setTextContentPreservingWhitespace(String)
-     * @see #getTextContent()
+     * @see #textPreservingWhitespace(String)
+     * @see #textContent()
      */
-    public void setTextContent(String content) {
+    public void textContent(String content) {
         // Remove all existing text children
-        children.removeIf(child -> child instanceof Text);
+        nodes.removeIf(child -> child instanceof Text);
 
         // Add new text content if not empty
         if (content != null && !content.isEmpty()) {
@@ -467,21 +464,20 @@ public class Element extends ContainerNode {
      * <h3>Examples:</h3>
      * <pre>{@code
      * // Original: <item>   old value   </item>
-     * element.setTextContentPreservingWhitespace("new value");
+     * element.textPreservingWhitespace("new value");
      * // Result:   <item>   new value   </item>
      *
      * // Original: <item>old value</item>
-     * element.setTextContentPreservingWhitespace("new value");
+     * element.textPreservingWhitespace("new value");
      * // Result:   <item>new value</item>
      * }</pre>
      *
      * @param content the new text content
-     * @since 1.0
-     * @see #setTextContent(String)
-     * @see #getTextContent()
-     * @see #getTrimmedTextContent()
+     * @see #textContent(String)
+     * @see #textContent()
+     * @see #trimmedTextContent()
      */
-    public void setTextContentPreservingWhitespace(String content) {
+    public void textPreservingWhitespace(String content) {
         if (content == null) {
             content = "";
         }
@@ -491,10 +487,10 @@ public class Element extends ContainerNode {
 
         if (existingText != null) {
             // Use the Text node's whitespace-preserving method
-            existingText.setContentPreservingWhitespace(content);
+            existingText.contentPreservingWhitespace(content);
         } else {
             // No existing text, just set normally
-            setTextContent(content);
+            textContent(content);
         }
     }
 
@@ -506,12 +502,11 @@ public class Element extends ContainerNode {
      * for processing while preserving the original formatting.</p>
      *
      * @return the text content with leading and trailing whitespace removed
-     * @since 1.0
-     * @see #getTextContent()
-     * @see #setTextContentPreservingWhitespace(String)
+     * @see #textContent()
+     * @see #textPreservingWhitespace(String)
      */
-    public String getTrimmedTextContent() {
-        String content = getTextContent();
+    public String trimmedTextContent() {
+        String content = textContent();
         return content != null ? content.trim() : "";
     }
 
@@ -521,7 +516,7 @@ public class Element extends ContainerNode {
      * @return the first Text child, or null if none exists
      */
     private Text getFirstTextChild() {
-        for (Node child : children) {
+        for (Node child : nodes) {
             if (child instanceof Text) {
                 return (Text) child;
             }
@@ -534,7 +529,7 @@ public class Element extends ContainerNode {
     /**
      * Gets the local name part of this element (without namespace prefix).
      */
-    public String getLocalName() {
+    public String localName() {
         String[] parts = NamespaceResolver.splitQualifiedName(name);
         return parts[1];
     }
@@ -543,7 +538,7 @@ public class Element extends ContainerNode {
      * Gets the namespace prefix of this element.
      * Returns null if the element has no prefix.
      */
-    public String getPrefix() {
+    public String prefix() {
         String[] parts = NamespaceResolver.splitQualifiedName(name);
         return parts[0];
     }
@@ -551,7 +546,7 @@ public class Element extends ContainerNode {
     /**
      * Gets the qualified name of this element (prefix:localName or just localName).
      */
-    public String getQualifiedName() {
+    public String qualifiedName() {
         return name;
     }
 
@@ -559,16 +554,16 @@ public class Element extends ContainerNode {
      * Gets the namespace URI of this element.
      * Returns null if the element is not in any namespace.
      */
-    public String getNamespaceURI() {
-        String prefix = getPrefix();
+    public String namespaceURI() {
+        String prefix = prefix();
         return NamespaceResolver.resolveNamespaceURI(this, prefix);
     }
 
     /**
      * Checks if this element is in the specified namespace.
      */
-    public boolean isInNamespace(String namespaceURI) {
-        String elementNamespaceURI = getNamespaceURI();
+    public boolean inNamespace(String namespaceURI) {
+        String elementNamespaceURI = namespaceURI();
         return namespaceURI != null && namespaceURI.equals(elementNamespaceURI);
     }
 
@@ -576,43 +571,8 @@ public class Element extends ContainerNode {
      * Gets the namespace context for this element.
      * Includes all namespace declarations from this element and its ancestors.
      */
-    public NamespaceContext getNamespaceContext() {
+    public NamespaceContext namespaceContext() {
         return NamespaceResolver.buildNamespaceContext(this);
-    }
-
-    /**
-     * Finds the first child element with the given namespace URI and local name.
-     */
-    public Optional<Element> findChildByNamespace(String namespaceURI, String localName) {
-        return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child)
-                .filter(element -> localName.equals(element.getLocalName())
-                        && namespaceURI != null
-                        && namespaceURI.equals(element.getNamespaceURI()))
-                .findFirst();
-    }
-
-    /**
-     * Finds all child elements with the given namespace URI and local name.
-     */
-    public Stream<Element> findChildrenByNamespace(String namespaceURI, String localName) {
-        return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child)
-                .filter(element -> localName.equals(element.getLocalName())
-                        && namespaceURI != null
-                        && namespaceURI.equals(element.getNamespaceURI()));
-    }
-
-    /**
-     * Finds all descendant elements with the given namespace URI and local name.
-     */
-    public Stream<Element> descendantsByNamespace(String namespaceURI, String localName) {
-        return descendants()
-                .filter(element -> localName.equals(element.getLocalName())
-                        && namespaceURI != null
-                        && namespaceURI.equals(element.getNamespaceURI()));
     }
 
     /**
@@ -630,11 +590,11 @@ public class Element extends ContainerNode {
      * Gets a namespace declaration for the given prefix.
      * Returns null if no declaration is found on this element.
      */
-    public String getNamespaceDeclaration(String prefix) {
+    public String namespaceDeclaration(String prefix) {
         if (prefix == null || prefix.isEmpty()) {
-            return getAttribute("xmlns");
+            return attribute("xmlns");
         } else {
-            return getAttribute("xmlns:" + prefix);
+            return attribute("xmlns:" + prefix);
         }
     }
 
@@ -649,56 +609,187 @@ public class Element extends ContainerNode {
         }
     }
 
-    // Element-specific navigation methods
-
-    /**
-     * Finds the first child element with the given name.
-     */
-    public Optional<Element> findChild(String name) {
-        return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child)
-                .filter(element -> name.equals(element.getName()))
-                .findFirst();
-    }
-
-    /**
-     * Finds all child elements with the given name.
-     */
-    public Stream<Element> findChildren() {
-        return children.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
-    }
-
-    /**
-     * Finds all child elements with the given name.
-     */
-    public Stream<Element> findChildren(String name) {
-        return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child)
-                .filter(element -> name.equals(element.getName()));
-    }
-
-    /**
-     * Finds the first descendant element with the given name.
-     */
-    public Optional<Element> findDescendant(String name) {
-        return descendants().filter(element -> name.equals(element.getName())).findFirst();
-    }
-
     /**
      * Returns a stream of all descendant elements (depth-first traversal).
      */
     public Stream<Element> descendants() {
-        return children.stream()
+        return nodes.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
                 .flatMap(element -> Stream.concat(Stream.of(element), element.descendants()));
     }
 
+    // Enhanced navigation methods with QName support
+
+    /**
+     * Finds the first child element with the given QName.
+     *
+     * @param qname the QName to match
+     * @return an Optional containing the first matching child element, or empty if none found
+     */
+    public Optional<Element> child(QName qname) {
+        if (qname == null) {
+            return Optional.empty();
+        }
+        return nodes.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> qname.matches(element.namespaceURI(), element.localName()))
+                .findFirst();
+    }
+
+    /**
+     * Finds the first child element with the given name.
+     *
+     * @param name the element name to match
+     * @return an Optional containing the first matching child element, or empty if none found
+     */
+    public Optional<Element> child(String name) {
+        return nodes.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> name.equals(element.name()))
+                .findFirst();
+    }
+
+    /**
+     * Finds all child elements with the given QName.
+     *
+     * @param qname the QName to match
+     * @return a Stream of matching child elements
+     */
+    public Stream<Element> children(QName qname) {
+        if (qname == null) {
+            return Stream.empty();
+        }
+        return nodes.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> qname.matches(element.namespaceURI(), element.localName()));
+    }
+
+    /**
+     * Finds all child elements with the given name.
+     *
+     * @param name the element name to match
+     * @return a Stream of matching child elements
+     */
+    public Stream<Element> children(String name) {
+        return nodes.stream()
+                .filter(child -> child instanceof Element)
+                .map(child -> (Element) child)
+                .filter(element -> name.equals(element.name()));
+    }
+
+    /**
+     * Finds all child elements.
+     *
+     * @return a Stream of all child elements
+     */
+    public Stream<Element> children() {
+        return nodes.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
+    }
+
+    /**
+     * Finds the first descendant element with the given QName.
+     *
+     * @param qname the QName to match
+     * @return an Optional containing the first matching descendant element, or empty if none found
+     */
+    public Optional<Element> descendant(QName qname) {
+        if (qname == null) {
+            return Optional.empty();
+        }
+        return descendants()
+                .filter(element -> qname.matches(element.namespaceURI(), element.localName()))
+                .findFirst();
+    }
+
+    /**
+     * Finds the first descendant element with the given name.
+     *
+     * @param name the element name to match
+     * @return an Optional containing the first matching descendant element, or empty if none found
+     */
+    public Optional<Element> descendant(String name) {
+        return descendants().filter(element -> name.equals(element.name())).findFirst();
+    }
+
+    /**
+     * Finds all descendant elements with the given QName.
+     *
+     * @param qname the QName to match
+     * @return a Stream of matching descendant elements
+     */
+    public Stream<Element> descendants(QName qname) {
+        if (qname == null) {
+            return Stream.empty();
+        }
+        return descendants().filter(element -> qname.matches(element.namespaceURI(), element.localName()));
+    }
+
+    /**
+     * Finds all descendant elements with the given name (convenience method).
+     *
+     * @param name the element name to match
+     * @return a Stream of matching descendant elements
+     */
+    public Stream<Element> descendants(String name) {
+        return descendants().filter(element -> name.equals(element.name()));
+    }
+
+    /**
+     * Finds the first text child node.
+     *
+     * @return an Optional containing the first text child, or empty if none found
+     */
+    public Optional<Text> textChild() {
+        return nodes.stream()
+                .filter(child -> child instanceof Text)
+                .map(child -> (Text) child)
+                .findFirst();
+    }
+
+    /**
+     * Creates a fluent query builder for finding elements.
+     *
+     * @return a new ElementQuery for fluent element searching
+     */
+    public ElementQuery query() {
+        return new ElementQuery(this);
+    }
+
+    /**
+     * Checks if a namespace is already declared in the element hierarchy.
+     *
+     * @param element the element to check from
+     * @param qname the QName to check for namespace declaration
+     * @return true if the namespace is already declared
+     */
+    private static boolean isNamespaceDeclared(Element element, QName qname) {
+        if (!qname.hasNamespace()) {
+            return true; // No namespace needed
+        }
+
+        Element current = element;
+        while (current != null) {
+            // Check if this element declares the namespace
+            String declaredURI = NamespaceResolver.resolveNamespaceURI(current, qname.prefix());
+            if (qname.namespaceURI().equals(declaredURI)) {
+                return true;
+            }
+
+            // Move up to parent element
+            Node parent = current.parent();
+            current = (parent instanceof Element) ? (Element) parent : null;
+        }
+
+        return false; // Namespace not found in hierarchy
+    }
+
     @Override
     public String toString() {
-        return "Element{name='" + name + "', attributes=" + attributes.size() + ", children=" + children.size() + "}";
+        return "Element{name='" + name + "', attributes=" + attributes.size() + ", children=" + nodes.size() + "}";
     }
 
     /**
@@ -730,7 +821,6 @@ public class Element extends ContainerNode {
      *     .build();
      * }</pre>
      *
-     * @since 1.0
      */
     public static class Builder {
         private final Element element;
@@ -744,7 +834,6 @@ public class Element extends ContainerNode {
          *
          * @param content the text content to add
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withText(String content) {
             if (content != null && !content.isEmpty()) {
@@ -758,7 +847,6 @@ public class Element extends ContainerNode {
          *
          * @param content the CDATA content to add
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withCData(String content) {
             if (content != null) {
@@ -773,10 +861,23 @@ public class Element extends ContainerNode {
          * @param name the attribute name
          * @param value the attribute value
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withAttribute(String name, String value) {
             element.setAttribute(name, value);
+            return this;
+        }
+
+        /**
+         * Adds an attribute to the element using a QName.
+         *
+         * @param qname the attribute QName
+         * @param value the attribute value
+         * @return this builder for method chaining
+         */
+        public Builder withAttribute(QName qname, String value) {
+            if (qname != null) {
+                element.setAttribute(qname.qualifiedName(), value);
+            }
             return this;
         }
 
@@ -785,7 +886,6 @@ public class Element extends ContainerNode {
          *
          * @param attributes a map of attribute names to values
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withAttributes(Map<String, String> attributes) {
             if (attributes != null) {
@@ -797,14 +897,61 @@ public class Element extends ContainerNode {
         }
 
         /**
+         * Adds multiple attributes to the element using QNames.
+         *
+         * @param qnameAttributes a map of attribute QNames to values
+         * @return this builder for method chaining
+         */
+        public Builder withQNameAttributes(Map<QName, String> qnameAttributes) {
+            if (qnameAttributes != null) {
+                qnameAttributes.forEach((qname, value) -> {
+                    if (qname != null) {
+                        element.setAttribute(qname.qualifiedName(), value);
+                    }
+                });
+            }
+            return this;
+        }
+
+        /**
          * Adds a child element.
          *
          * @param child the child element to add
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withChild(Element child) {
             element.addChild(child);
+            return this;
+        }
+
+        /**
+         * Adds a child element with the specified name and text content.
+         *
+         * @param name the child element name
+         * @param textContent the text content for the child element
+         * @return this builder for method chaining
+         */
+        public Builder withChild(String name, String textContent) {
+            element.addChild(Element.text(name, textContent));
+            return this;
+        }
+
+        /**
+         * Adds a child element with the specified QName and text content.
+         *
+         * @param qname the child element QName
+         * @param textContent the text content for the child element
+         * @return this builder for method chaining
+         */
+        public Builder withChild(QName qname, String textContent) {
+            if (qname != null) {
+                Element child = Element.text(qname.qualifiedName(), textContent);
+                // Add namespace declaration if needed and not already declared
+                if (qname.hasNamespace() && !isNamespaceDeclared(element, qname)) {
+                    child.setNamespaceDeclaration(qname.prefix(), qname.namespaceURI());
+                }
+                element.addChild(child);
+            }
             return this;
         }
 
@@ -813,7 +960,6 @@ public class Element extends ContainerNode {
          *
          * @param children the child elements to add
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withChildren(java.util.List<Element> children) {
             if (children != null) {
@@ -829,7 +975,6 @@ public class Element extends ContainerNode {
          *
          * @param comment the comment text
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withComment(String comment) {
             element.addChild(new Comment(comment != null ? comment : ""));
@@ -840,10 +985,9 @@ public class Element extends ContainerNode {
          * Makes this element self-closing.
          *
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder selfClosing() {
-            element.setSelfClosing(true);
+            element.selfClosing(true);
             return this;
         }
 
@@ -853,7 +997,6 @@ public class Element extends ContainerNode {
          * @param prefix the namespace prefix (null for default namespace)
          * @param namespaceURI the namespace URI
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withNamespace(String prefix, String namespaceURI) {
             element.setNamespaceDeclaration(prefix, namespaceURI);
@@ -865,7 +1008,6 @@ public class Element extends ContainerNode {
          *
          * @param namespaceURI the default namespace URI
          * @return this builder for method chaining
-         * @since 1.0
          */
         public Builder withDefaultNamespace(String namespaceURI) {
             element.setNamespaceDeclaration(null, namespaceURI);
@@ -876,7 +1018,6 @@ public class Element extends ContainerNode {
          * Builds and returns the configured Element instance.
          *
          * @return the constructed Element
-         * @since 1.0
          */
         public Element build() {
             return element;
@@ -893,7 +1034,6 @@ public class Element extends ContainerNode {
          * @return the constructed and added Element
          * @throws IllegalArgumentException if editor or parent is null
          * @throws IllegalStateException if parent is not a container node
-         * @since 1.0
          */
         public Element buildAndAddTo(Editor editor, ContainerNode parent) {
             if (editor == null) {
@@ -906,9 +1046,9 @@ public class Element extends ContainerNode {
             Element builtElement = build();
 
             // Use Editor's whitespace management
-            String indentation = editor.getWhitespaceManager().inferIndentation(parent);
+            String indentation = editor.whitespaceManager().inferIndentation(parent);
             if (!indentation.isEmpty()) {
-                builtElement.setPrecedingWhitespace("\n" + indentation);
+                builtElement.precedingWhitespace("\n" + indentation);
             }
 
             parent.addChild(builtElement);
@@ -922,7 +1062,6 @@ public class Element extends ContainerNode {
      * @param name the element name
      * @return a new Element.Builder for fluent element construction
      * @throws IllegalArgumentException if name is null or empty
-     * @since 1.0
      */
     public static Builder builder(String name) {
         return new Builder(name);
@@ -931,31 +1070,38 @@ public class Element extends ContainerNode {
     // Factory methods for common element patterns
 
     /**
-     * Creates an element with text content.
+     * Creates a simple element.
      *
-     * <p>Creates an element with the specified name and adds a text node
-     * containing the provided content.</p>
+     * @param name the element name
+     * @return a new Element
+     */
+    public static Element of(String name) {
+        return new Element(name);
+    }
+
+    /**
+     * Creates an element from a QName.
+     *
+     * @param qname the QName for the element
+     * @return a new Element with namespace configuration
+     * @throws IllegalArgumentException if qname is null
+     */
+    public static Element of(QName qname) {
+        return element(qname);
+    }
+
+    /**
+     * Creates a simple text element.
+     *
+     * <p>Creates an element with the specified name and text content.
+     * This is a convenience method for creating elements that contain only text.</p>
      *
      * @param name the element name
      * @param content the text content to add
      * @return a new Element with text content
-     * @since 1.0
      */
-    public static Element textElement(String name, String content) {
+    public static Element text(String name, String content) {
         return Element.builder(name).withText(content).build();
-    }
-
-    /**
-     * Creates an empty element.
-     *
-     * <p>Creates an element with the specified name and no content or attributes.</p>
-     *
-     * @param name the element name
-     * @return a new empty Element
-     * @since 1.0
-     */
-    public static Element emptyElement(String name) {
-        return new Element(name);
     }
 
     /**
@@ -966,9 +1112,8 @@ public class Element extends ContainerNode {
      *
      * @param name the element name
      * @return a new self-closing Element
-     * @since 1.0
      */
-    public static Element selfClosingElement(String name) {
+    public static Element selfClosing(String name) {
         return Element.builder(name).selfClosing().build();
     }
 
@@ -981,9 +1126,8 @@ public class Element extends ContainerNode {
      * @param name the element name
      * @param attributes a map of attribute names to values
      * @return a new Element with attributes
-     * @since 1.0
      */
-    public static Element elementWithAttributes(String name, Map<String, String> attributes) {
+    public static Element withAttributes(String name, Map<String, String> attributes) {
         return Element.builder(name).withAttributes(attributes).build();
     }
 
@@ -997,7 +1141,6 @@ public class Element extends ContainerNode {
      * @param content the text content to add
      * @param attributes a map of attribute names to values
      * @return a new Element with text content and attributes
-     * @since 1.0
      */
     public static Element elementWithTextAndAttributes(String name, String content, Map<String, String> attributes) {
         return Element.builder(name)
@@ -1016,134 +1159,72 @@ public class Element extends ContainerNode {
      * @param name the element name
      * @param content the CDATA content to add
      * @return a new Element with CDATA content
-     * @since 1.0
      */
-    public static Element cdataElement(String name, String content) {
+    public static Element cdata(String name, String content) {
         return Element.builder(name).withCData(content).build();
+    }
+
+    // QName factory methods
+
+    /**
+     * Creates a builder for an element with the specified QName.
+     *
+     * <p>Note: Namespace declarations should be added separately when the element
+     * is added to a document context where they can be checked for existing declarations.</p>
+     *
+     * @param qname the QName for the element
+     * @return a new Element.Builder configured with the QName
+     * @throws IllegalArgumentException if qname is null
+     */
+    public static Builder builder(QName qname) {
+        if (qname == null) {
+            throw new IllegalArgumentException("QName cannot be null");
+        }
+
+        return Element.builder(qname.qualifiedName());
     }
 
     // Namespace factory methods
 
     /**
-     * Creates an element with a namespace prefix.
+     * Creates an element from a QName.
      *
-     * <p>Creates an element with a qualified name using the specified prefix
-     * and local name (e.g., "soap:Envelope").</p>
+     * <p>Creates an element using the QName and automatically adds appropriate
+     * namespace declarations.</p>
      *
-     * @param prefix the namespace prefix
-     * @param localName the local element name
-     * @return a new Element with namespace prefix
-     * @since 1.0
+     * @param qname the QName for the element
+     * @return a new Element with namespace configuration
+     * @throws IllegalArgumentException if qname is null
      */
-    public static Element namespacedElement(String prefix, String localName) {
-        return new Element(prefix + ":" + localName);
-    }
+    public static Element element(QName qname) {
+        if (qname == null) {
+            throw new IllegalArgumentException("QName cannot be null");
+        }
 
-    /**
-     * Creates an element with a namespace prefix and URI attribute.
-     *
-     * <p>Creates an element with a qualified name and automatically adds
-     * the appropriate namespace declaration attribute.</p>
-     *
-     * @param prefix the namespace prefix
-     * @param localName the local element name
-     * @param namespaceUri the namespace URI
-     * @return a new Element with namespace prefix and declaration
-     * @since 1.0
-     */
-    public static Element namespacedElement(String prefix, String localName, String namespaceUri) {
-        Element element = namespacedElement(prefix, localName);
-        element.setAttribute("xmlns:" + prefix, namespaceUri);
+        Element element = new Element(qname.qualifiedName());
+
+        // Add namespace declaration if needed
+        if (qname.hasNamespace()) {
+            if (qname.hasPrefix()) {
+                element.setNamespaceDeclaration(qname.prefix(), qname.namespaceURI());
+            } else {
+                element.setNamespaceDeclaration(null, qname.namespaceURI());
+            }
+        }
+
         return element;
     }
 
     /**
-     * Creates an element in the specified namespace with no prefix (default namespace).
+     * Creates an element from a QName with text content.
      *
-     * <p>Creates an element in the specified namespace using the default namespace
-     * declaration (xmlns attribute).</p>
-     *
-     * @param namespaceURI the namespace URI
-     * @param localName the local element name
-     * @return a new Element in the default namespace
-     * @since 1.0
-     */
-    public static Element elementInNamespace(String namespaceURI, String localName) {
-        Element element = new Element(localName);
-        if (namespaceURI != null && !namespaceURI.isEmpty()) {
-            element.setAttribute("xmlns", namespaceURI);
-        }
-        return element;
-    }
-
-    /**
-     * Creates an element with the specified namespace URI and preferred prefix.
-     *
-     * <p>If the prefix is null or empty, creates an element with default namespace.
-     * Otherwise, creates an element with the specified prefix and namespace declaration.</p>
-     *
-     * @param namespaceURI the namespace URI
-     * @param localName the local element name
-     * @param preferredPrefix the preferred namespace prefix, or null for default namespace
-     * @return a new Element with appropriate namespace handling
-     * @since 1.0
-     */
-    public static Element elementWithNamespace(String namespaceURI, String localName, String preferredPrefix) {
-        if (preferredPrefix == null || preferredPrefix.isEmpty()) {
-            return elementInNamespace(namespaceURI, localName);
-        } else {
-            return namespacedElement(preferredPrefix, localName, namespaceURI);
-        }
-    }
-
-    /**
-     * Creates an element with default namespace declaration.
-     *
-     * <p>This is an alias for {@link #elementInNamespace(String, String)} for clarity.</p>
-     *
-     * @param namespaceURI the namespace URI
-     * @param localName the local element name
-     * @return a new Element with default namespace
-     * @since 1.0
-     */
-    public static Element elementWithDefaultNamespace(String namespaceURI, String localName) {
-        return elementInNamespace(namespaceURI, localName);
-    }
-
-    /**
-     * Creates an element with namespace and text content.
-     *
-     * <p>Creates a namespaced element with the specified prefix, namespace URI,
-     * and text content.</p>
-     *
-     * @param prefix the namespace prefix
-     * @param localName the local element name
-     * @param namespaceURI the namespace URI
+     * @param qname the QName for the element
      * @param content the text content to add
-     * @return a new Element with namespace and text content
-     * @since 1.0
+     * @return a new Element with namespace configuration and text content
+     * @throws IllegalArgumentException if qname is null
      */
-    public static Element namespacedTextElement(String prefix, String localName, String namespaceURI, String content) {
-        Element element = namespacedElement(prefix, localName, namespaceURI);
-        if (content != null && !content.isEmpty()) {
-            element.addChild(new Text(content));
-        }
-        return element;
-    }
-
-    /**
-     * Creates an element in default namespace with text content.
-     *
-     * <p>Creates an element in the specified default namespace with text content.</p>
-     *
-     * @param namespaceURI the namespace URI
-     * @param localName the local element name
-     * @param content the text content to add
-     * @return a new Element in default namespace with text content
-     * @since 1.0
-     */
-    public static Element textElementInNamespace(String namespaceURI, String localName, String content) {
-        Element element = elementInNamespace(namespaceURI, localName);
+    public static Element text(QName qname, String content) {
+        Element element = element(qname);
         if (content != null && !content.isEmpty()) {
             element.addChild(new Text(content));
         }
@@ -1160,7 +1241,6 @@ public class Element extends ContainerNode {
      *
      * @param content the comment content
      * @return a new Comment node
-     * @since 1.0
      * @see Comment#builder()
      */
     public static Comment comment(String content) {
@@ -1176,7 +1256,6 @@ public class Element extends ContainerNode {
      * @param target the processing instruction target
      * @param data the processing instruction data
      * @return a new ProcessingInstruction node
-     * @since 1.0
      * @see ProcessingInstruction#builder()
      */
     public static ProcessingInstruction processingInstruction(String target, String data) {

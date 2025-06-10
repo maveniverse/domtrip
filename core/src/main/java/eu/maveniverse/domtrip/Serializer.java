@@ -50,8 +50,6 @@ package eu.maveniverse.domtrip;
  *   <li>Provides both string and StringBuilder output methods</li>
  * </ul>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Parser
  * @see DomTripConfig
  * @see Document
@@ -77,7 +75,7 @@ public class Serializer {
     public Serializer(DomTripConfig config) {
         this.preserveFormatting = config.isPreserveWhitespace();
         this.prettyPrint = config.isPrettyPrint();
-        this.indentString = config.getIndentString();
+        this.indentString = config.indentString();
     }
 
     public boolean isPreserveFormatting() {
@@ -133,13 +131,13 @@ public class Serializer {
         StringBuilder sb = new StringBuilder();
 
         // Add XML declaration only if it was present in original
-        if (!document.getXmlDeclaration().isEmpty()) {
-            sb.append(document.getXmlDeclaration());
+        if (!document.xmlDeclaration().isEmpty()) {
+            sb.append(document.xmlDeclaration());
         }
 
         // Add DOCTYPE if present
-        if (!document.getDoctype().isEmpty()) {
-            sb.append("\n").append(document.getDoctype());
+        if (!document.doctype().isEmpty()) {
+            sb.append("\n").append(document.doctype());
         }
 
         // Add document element and other children
@@ -182,7 +180,7 @@ public class Serializer {
             return;
         }
 
-        switch (node.getNodeType()) {
+        switch (node.type()) {
             case DOCUMENT:
                 serializeDocument((Document) node, sb);
                 break;
@@ -208,7 +206,7 @@ public class Serializer {
             return;
         }
 
-        switch (node.getNodeType()) {
+        switch (node.type()) {
             case DOCUMENT:
                 serializeDocumentPretty((Document) node, sb, depth);
                 break;
@@ -228,56 +226,56 @@ public class Serializer {
     }
 
     private void serializeDocument(Document document, StringBuilder sb) {
-        for (Node child : document.getChildren()) {
+        for (Node child : document.nodes) {
             serializeNode(child, sb);
         }
 
-        if (document.getDocumentElement() != null && !document.getChildren().contains(document.getDocumentElement())) {
-            serializeNode(document.getDocumentElement(), sb);
+        if (document.root() != null && !document.nodes.contains(document.root())) {
+            serializeNode(document.root(), sb);
         }
     }
 
     private void serializeDocumentPretty(Document document, StringBuilder sb, int depth) {
-        for (Node child : document.getChildren()) {
+        for (Node child : document.nodes) {
             serializeNodePretty(child, sb, depth);
         }
 
-        if (document.getDocumentElement() != null && !document.getChildren().contains(document.getDocumentElement())) {
-            serializeNodePretty(document.getDocumentElement(), sb, depth);
+        if (document.root() != null && !document.nodes.contains(document.root())) {
+            serializeNodePretty(document.root(), sb, depth);
         }
     }
 
     private void serializeElement(Element element, StringBuilder sb) {
         // Add preceding whitespace
-        sb.append(element.getPrecedingWhitespace());
+        sb.append(element.precedingWhitespace());
 
         // Opening tag
-        sb.append("<").append(element.getName());
+        sb.append("<").append(element.name());
 
         // Attributes - use Attribute objects to preserve formatting
-        for (String attrName : element.getAttributes().keySet()) {
-            Attribute attr = element.getAttributeObject(attrName);
+        for (String attrName : element.attributes().keySet()) {
+            Attribute attr = element.attributeObject(attrName);
             if (attr != null) {
                 attr.toXml(sb, preserveFormatting && !element.isModified());
             }
         }
 
-        if (element.isSelfClosing()) {
+        if (element.selfClosing()) {
             sb.append("/>");
         } else {
             sb.append(">");
 
             // Children
-            for (Node child : element.getChildren()) {
+            for (Node child : element.nodes) {
                 serializeNode(child, sb);
             }
 
             // Closing tag
-            sb.append("</").append(element.getName()).append(">");
+            sb.append("</").append(element.name()).append(">");
         }
 
         // Add following whitespace
-        sb.append(element.getFollowingWhitespace());
+        sb.append(element.followingWhitespace());
     }
 
     private void serializeElementPretty(Element element, StringBuilder sb, int depth) {
@@ -290,25 +288,25 @@ public class Serializer {
         }
 
         // Opening tag
-        sb.append("<").append(element.getName());
+        sb.append("<").append(element.name());
 
         // Attributes - use Attribute objects to preserve formatting
-        for (String attrName : element.getAttributes().keySet()) {
-            Attribute attr = element.getAttributeObject(attrName);
+        for (String attrName : element.attributes().keySet()) {
+            Attribute attr = element.attributeObject(attrName);
             if (attr != null) {
                 attr.toXml(sb, preserveFormatting && !element.isModified());
             }
         }
 
-        if (element.isSelfClosing()) {
+        if (element.selfClosing()) {
             sb.append("/>");
         } else {
             sb.append(">");
 
-            boolean hasElementChildren = element.getChildren().stream().anyMatch(child -> child instanceof Element);
+            boolean hasElementChildren = element.nodes.stream().anyMatch(child -> child instanceof Element);
 
             // Children
-            for (Node child : element.getChildren()) {
+            for (Node child : element.nodes) {
                 if (hasElementChildren && child instanceof Element) {
                     serializeNodePretty(child, sb, depth + 1);
                 } else {
@@ -323,15 +321,15 @@ public class Serializer {
                     sb.append(indentString);
                 }
             }
-            sb.append("</").append(element.getName()).append(">");
+            sb.append("</").append(element.name()).append(">");
         }
     }
 
     private void serializeText(Text text, StringBuilder sb) {
-        if (text.isCData()) {
-            sb.append("<![CDATA[").append(text.getContent()).append("]]>");
+        if (text.cdata()) {
+            sb.append("<![CDATA[").append(text.content()).append("]]>");
         } else {
-            sb.append(escapeTextContent(text.getContent()));
+            sb.append(escapeTextContent(text.content()));
         }
     }
 
@@ -344,7 +342,7 @@ public class Serializer {
     }
 
     private void serializeComment(Comment comment, StringBuilder sb) {
-        sb.append("<!--").append(comment.getContent()).append("-->");
+        sb.append("<!--").append(comment.content()).append("-->");
     }
 
     private void serializeCommentPretty(Comment comment, StringBuilder sb, int depth) {
@@ -358,13 +356,13 @@ public class Serializer {
     }
 
     private void serializeProcessingInstruction(ProcessingInstruction pi, StringBuilder sb) {
-        sb.append(pi.getPrecedingWhitespace());
-        sb.append("<?").append(pi.getTarget());
-        if (!pi.getData().isEmpty()) {
-            sb.append(" ").append(pi.getData());
+        sb.append(pi.precedingWhitespace());
+        sb.append("<?").append(pi.target());
+        if (!pi.data().isEmpty()) {
+            sb.append(" ").append(pi.data());
         }
         sb.append("?>");
-        sb.append(pi.getFollowingWhitespace());
+        sb.append(pi.followingWhitespace());
     }
 
     private void serializeProcessingInstructionPretty(ProcessingInstruction pi, StringBuilder sb, int depth) {
@@ -374,9 +372,9 @@ public class Serializer {
                 sb.append(indentString);
             }
         }
-        sb.append("<?").append(pi.getTarget());
-        if (!pi.getData().isEmpty()) {
-            sb.append(" ").append(pi.getData());
+        sb.append("<?").append(pi.target());
+        if (!pi.data().isEmpty()) {
+            sb.append(" ").append(pi.data());
         }
         sb.append("?>");
     }

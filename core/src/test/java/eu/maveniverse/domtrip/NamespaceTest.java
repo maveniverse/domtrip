@@ -25,17 +25,17 @@ public class NamespaceTest {
 
     @Test
     void testBasicNamespaceCreation() {
-        Element defaultNs = Element.elementInNamespace("http://example.com/default", "root");
-        assertEquals("root", defaultNs.getName());
-        assertEquals("root", defaultNs.getLocalName());
-        assertNull(defaultNs.getPrefix());
-        assertEquals("http://example.com/default", defaultNs.getAttribute("xmlns"));
+        Element defaultNs = Element.element(QName.of("http://example.com/default", "root"));
+        assertEquals("root", defaultNs.name());
+        assertEquals("root", defaultNs.localName());
+        assertNull(defaultNs.prefix());
+        assertEquals("http://example.com/default", defaultNs.attribute("xmlns"));
 
-        Element prefixed = Element.namespacedElement("ex", "element", "http://example.com/ns");
-        assertEquals("ex:element", prefixed.getName());
-        assertEquals("element", prefixed.getLocalName());
-        assertEquals("ex", prefixed.getPrefix());
-        assertEquals("http://example.com/ns", prefixed.getAttribute("xmlns:ex"));
+        Element prefixed = Element.element(QName.of("http://example.com/ns", "element", "ex"));
+        assertEquals("ex:element", prefixed.name());
+        assertEquals("element", prefixed.localName());
+        assertEquals("ex", prefixed.prefix());
+        assertEquals("http://example.com/ns", prefixed.attribute("xmlns:ex"));
     }
 
     @Test
@@ -49,25 +49,25 @@ public class NamespaceTest {
             """;
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
-        assertEquals("root", root.getLocalName());
-        assertNull(root.getPrefix());
-        assertEquals("http://example.com/default", root.getNamespaceURI());
-        assertTrue(root.isInNamespace("http://example.com/default"));
+        assertEquals("root", root.localName());
+        assertNull(root.prefix());
+        assertEquals("http://example.com/default", root.namespaceURI());
+        assertTrue(root.inNamespace("http://example.com/default"));
 
-        Element child = root.findChild("child").orElse(null);
+        Element child = root.child("child").orElse(null);
         assertNotNull(child);
-        assertEquals("child", child.getLocalName());
-        assertNull(child.getPrefix());
-        assertEquals("http://example.com/default", child.getNamespaceURI());
+        assertEquals("child", child.localName());
+        assertNull(child.prefix());
+        assertEquals("http://example.com/default", child.namespaceURI());
 
-        Element nsElement = root.findChild("ns:element").orElse(null);
+        Element nsElement = root.child("ns:element").orElse(null);
         assertNotNull(nsElement);
-        assertEquals("element", nsElement.getLocalName());
-        assertEquals("ns", nsElement.getPrefix());
-        assertEquals("http://example.com/ns", nsElement.getNamespaceURI());
-        assertTrue(nsElement.isInNamespace("http://example.com/ns"));
+        assertEquals("element", nsElement.localName());
+        assertEquals("ns", nsElement.prefix());
+        assertEquals("http://example.com/ns", nsElement.namespaceURI());
+        assertTrue(nsElement.inNamespace("http://example.com/ns"));
     }
 
     @Test
@@ -85,27 +85,27 @@ public class NamespaceTest {
             """;
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
-        // Find by namespace and local name
-        List<Element> defaultTitles = root.descendantsByNamespace("http://example.com/default", "title")
+        // Find by namespace and local name using QName
+        List<Element> defaultTitles = root.descendants(QName.of("http://example.com/default", "title"))
                 .collect(Collectors.toList());
         assertEquals(2, defaultTitles.size());
-        assertEquals("Default Title", defaultTitles.get(0).getTextContent());
-        assertEquals("Nested Title", defaultTitles.get(1).getTextContent());
+        assertEquals("Default Title", defaultTitles.get(0).textContent());
+        assertEquals("Nested Title", defaultTitles.get(1).textContent());
 
         List<Element> metaTitles =
-                root.descendantsByNamespace("http://example.com/meta", "title").collect(Collectors.toList());
+                root.descendants(QName.of("http://example.com/meta", "title")).collect(Collectors.toList());
         assertEquals(2, metaTitles.size());
-        assertEquals("Meta Title", metaTitles.get(0).getTextContent());
-        assertEquals("Nested Meta Title", metaTitles.get(1).getTextContent());
+        assertEquals("Meta Title", metaTitles.get(0).textContent());
+        assertEquals("Nested Meta Title", metaTitles.get(1).textContent());
 
-        // Find direct children by namespace
-        root.findChildByNamespace("http://example.com/default", "title")
-                .ifPresent(title -> assertEquals("Default Title", title.getTextContent()));
+        // Find direct children by namespace using QName
+        root.child(QName.of("http://example.com/default", "title"))
+                .ifPresent(title -> assertEquals("Default Title", title.textContent()));
 
-        root.findChildByNamespace("http://example.com/meta", "title")
-                .ifPresent(title -> assertEquals("Meta Title", title.getTextContent()));
+        root.child(QName.of("http://example.com/meta", "title"))
+                .ifPresent(title -> assertEquals("Meta Title", title.textContent()));
     }
 
     @Test
@@ -122,31 +122,31 @@ public class NamespaceTest {
             """;
 
         editor.loadXml(xml);
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
-        NamespaceContext rootContext = root.getNamespaceContext();
-        assertEquals("http://example.com/default", rootContext.getDefaultNamespaceURI());
-        assertEquals("http://example.com/a", rootContext.getNamespaceURI("a"));
-        assertNull(rootContext.getNamespaceURI("b"));
+        NamespaceContext rootContext = root.namespaceContext();
+        assertEquals("http://example.com/default", rootContext.defaultNamespaceURI());
+        assertEquals("http://example.com/a", rootContext.namespaceURI("a"));
+        assertNull(rootContext.namespaceURI("b"));
         assertTrue(rootContext.isPrefixDeclared("a"));
         assertFalse(rootContext.isPrefixDeclared("b"));
 
-        Element child = root.findChild("child").orElse(null);
+        Element child = root.child("child").orElse(null);
         assertNotNull(child);
-        NamespaceContext childContext = child.getNamespaceContext();
-        assertEquals("http://example.com/default", childContext.getDefaultNamespaceURI());
-        assertEquals("http://example.com/a", childContext.getNamespaceURI("a"));
-        assertEquals("http://example.com/b", childContext.getNamespaceURI("b"));
+        NamespaceContext childContext = child.namespaceContext();
+        assertEquals("http://example.com/default", childContext.defaultNamespaceURI());
+        assertEquals("http://example.com/a", childContext.namespaceURI("a"));
+        assertEquals("http://example.com/b", childContext.namespaceURI("b"));
 
         Element dataElement = child.descendants()
-                .filter(el -> "data".equals(el.getLocalName()))
+                .filter(el -> "data".equals(el.localName()))
                 .findFirst()
                 .orElse(null);
         assertNotNull(dataElement);
-        NamespaceContext dataContext = dataElement.getNamespaceContext();
-        assertEquals("http://example.com/a", dataContext.getNamespaceURI("a"));
-        assertEquals("http://example.com/b", dataContext.getNamespaceURI("b"));
-        assertEquals("http://example.com/c", dataContext.getNamespaceURI("c"));
+        NamespaceContext dataContext = dataElement.namespaceContext();
+        assertEquals("http://example.com/a", dataContext.namespaceURI("a"));
+        assertEquals("http://example.com/b", dataContext.namespaceURI("b"));
+        assertEquals("http://example.com/c", dataContext.namespaceURI("c"));
     }
 
     @Test
@@ -181,10 +181,10 @@ public class NamespaceTest {
         assertEquals("http://www.w3.org/2000/xmlns/", NamespaceResolver.resolveNamespaceURI(element, "xmlns"));
 
         NamespaceContext context = new NamespaceContext();
-        assertEquals("http://www.w3.org/XML/1998/namespace", context.getNamespaceURI("xml"));
-        assertEquals("http://www.w3.org/2000/xmlns/", context.getNamespaceURI("xmlns"));
-        assertEquals("xml", context.getPrefix("http://www.w3.org/XML/1998/namespace"));
-        assertEquals("xmlns", context.getPrefix("http://www.w3.org/2000/xmlns/"));
+        assertEquals("http://www.w3.org/XML/1998/namespace", context.namespaceURI("xml"));
+        assertEquals("http://www.w3.org/2000/xmlns/", context.namespaceURI("xmlns"));
+        assertEquals("xml", context.prefix("http://www.w3.org/XML/1998/namespace"));
+        assertEquals("xmlns", context.prefix("http://www.w3.org/2000/xmlns/"));
     }
 
     @Test
@@ -193,21 +193,21 @@ public class NamespaceTest {
 
         // Test setting namespace declarations
         element.setNamespaceDeclaration("ex", "http://example.com/ns");
-        assertEquals("http://example.com/ns", element.getAttribute("xmlns:ex"));
-        assertEquals("http://example.com/ns", element.getNamespaceDeclaration("ex"));
+        assertEquals("http://example.com/ns", element.attribute("xmlns:ex"));
+        assertEquals("http://example.com/ns", element.namespaceDeclaration("ex"));
 
         element.setNamespaceDeclaration(null, "http://example.com/default");
-        assertEquals("http://example.com/default", element.getAttribute("xmlns"));
-        assertEquals("http://example.com/default", element.getNamespaceDeclaration(null));
+        assertEquals("http://example.com/default", element.attribute("xmlns"));
+        assertEquals("http://example.com/default", element.namespaceDeclaration(null));
 
         // Test removing namespace declarations
         element.removeNamespaceDeclaration("ex");
-        assertNull(element.getAttribute("xmlns:ex"));
-        assertNull(element.getNamespaceDeclaration("ex"));
+        assertNull(element.attribute("xmlns:ex"));
+        assertNull(element.namespaceDeclaration("ex"));
 
         element.removeNamespaceDeclaration(null);
-        assertNull(element.getAttribute("xmlns"));
-        assertNull(element.getNamespaceDeclaration(null));
+        assertNull(element.attribute("xmlns"));
+        assertNull(element.namespaceDeclaration(null));
     }
 
     @Test
@@ -218,29 +218,29 @@ public class NamespaceTest {
                 .withText("content")
                 .build();
 
-        assertEquals("http://example.com/ns", element.getAttribute("xmlns:ex"));
-        assertEquals("http://example.com/default", element.getAttribute("xmlns"));
-        assertEquals("content", element.getTextContent());
+        assertEquals("http://example.com/ns", element.attribute("xmlns:ex"));
+        assertEquals("http://example.com/default", element.attribute("xmlns"));
+        assertEquals("content", element.textContent());
     }
 
     @Test
     void testNamespaceFactoryMethods() {
-        Element textInNs = Element.textElementInNamespace("http://example.com/ns", "title", "My Title");
-        assertEquals("title", textInNs.getName());
-        assertEquals("http://example.com/ns", textInNs.getAttribute("xmlns"));
-        assertEquals("My Title", textInNs.getTextContent());
+        Element textInNs = Element.text(QName.of("http://example.com/ns", "title"), "My Title");
+        assertEquals("title", textInNs.name());
+        assertEquals("http://example.com/ns", textInNs.attribute("xmlns"));
+        assertEquals("My Title", textInNs.textContent());
 
-        Element namespacedText = Element.namespacedTextElement("ex", "title", "http://example.com/ns", "My Title");
-        assertEquals("ex:title", namespacedText.getName());
-        assertEquals("http://example.com/ns", namespacedText.getAttribute("xmlns:ex"));
-        assertEquals("My Title", namespacedText.getTextContent());
+        Element namespacedText = Element.text(QName.of("http://example.com/ns", "title", "ex"), "My Title");
+        assertEquals("ex:title", namespacedText.name());
+        assertEquals("http://example.com/ns", namespacedText.attribute("xmlns:ex"));
+        assertEquals("My Title", namespacedText.textContent());
 
-        Element withPreferred = Element.elementWithNamespace("http://example.com/api", "data", "api");
-        assertEquals("api:data", withPreferred.getName());
-        assertEquals("http://example.com/api", withPreferred.getAttribute("xmlns:api"));
+        Element withPreferred = Element.element(QName.of("http://example.com/api", "data", "api"));
+        assertEquals("api:data", withPreferred.name());
+        assertEquals("http://example.com/api", withPreferred.attribute("xmlns:api"));
 
-        Element withoutPrefix = Element.elementWithNamespace("http://example.com/api", "data", null);
-        assertEquals("data", withoutPrefix.getName());
-        assertEquals("http://example.com/api", withoutPrefix.getAttribute("xmlns"));
+        Element withoutPrefix = Element.element(QName.of("http://example.com/api", "data"));
+        assertEquals("data", withoutPrefix.name());
+        assertEquals("http://example.com/api", withoutPrefix.attribute("xmlns"));
     }
 }

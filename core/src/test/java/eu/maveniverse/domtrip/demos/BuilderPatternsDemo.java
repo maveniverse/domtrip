@@ -5,6 +5,7 @@ import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
+import eu.maveniverse.domtrip.QName;
 import eu.maveniverse.domtrip.QuoteStyle;
 import java.util.Map;
 
@@ -53,24 +54,24 @@ public class BuilderPatternsDemo {
         System.out.println("2. Element Factory Demo:");
 
         // Various element creation patterns
-        Element textElement = Element.textElement("title", "My Document");
-        Element emptyElement = Element.emptyElement("placeholder");
-        Element selfClosing = Element.selfClosingElement("br");
+        Element textElement = Element.text("title", "My Document");
+        Element emptyElement = Element.of("placeholder");
+        Element selfClosing = Element.selfClosing("br");
 
-        Element withAttributes = Element.elementWithAttributes(
-                "div", Map.of("class", "container", "id", "main", "data-role", "content"));
+        Element withAttributes =
+                Element.withAttributes("div", Map.of("class", "container", "id", "main", "data-role", "content"));
 
-        Element cdataElement = Element.cdataElement("script", "function test() { return x < y && z > 0; }");
+        Element cdataElement = Element.cdata("script", "function test() { return x < y && z > 0; }");
 
-        Element namespaced = Element.namespacedElement("xsi", "type", "http://www.w3.org/2001/XMLSchema-instance");
+        Element namespaced = Element.element(QName.of("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"));
 
         // Using element builder for complex structures
         Element complex = Element.builder("article")
                 .withAttribute("id", "article-1")
                 .withAttribute("class", "blog-post")
                 .withText("Article content here")
-                .withChild(Element.textElement("author", "John Doe"))
-                .withChild(Element.textElement("date", "2024-01-15"))
+                .withChild(Element.text("author", "John Doe"))
+                .withChild(Element.text("date", "2024-01-15"))
                 .withComment(" Article metadata ")
                 .build();
 
@@ -104,17 +105,17 @@ public class BuilderPatternsDemo {
                 .build();
 
         // Add content to the complex document
-        Element html = complex.getDocumentElement();
+        Element html = complex.root();
         html.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
 
-        Element head = Element.textElement("head", "");
+        Element head = Element.text("head", "");
         html.addChild(head);
-        head.addChild(Element.textElement("title", "Demo Page"));
+        head.addChild(Element.text("title", "Demo Page"));
 
-        Element body = Element.textElement("body", "");
+        Element body = Element.text("body", "");
         html.addChild(body);
-        body.addChild(Element.elementWithAttributes("h1", Map.of("id", "title")));
-        body.findChild("h1").ifPresent(h1 -> h1.setTextContent("Welcome"));
+        body.addChild(Element.withAttributes("h1", Map.of("id", "title")));
+        body.child("h1").ifPresent(h1 -> h1.textContent("Welcome"));
 
         System.out.println("Simple document:");
         System.out.println(simple.toXml());
@@ -134,7 +135,7 @@ public class BuilderPatternsDemo {
                 .withPrettyPrint(true));
 
         editor.createDocument("project");
-        Element root = editor.getDocumentElement();
+        Element root = editor.documentElement().orElseThrow();
 
         // Build complex structure using fluent API
         editor.add().element("modelVersion").to(root).withText("4.0.0").build();
@@ -194,7 +195,7 @@ public class BuilderPatternsDemo {
 
         editor.add().element("configuration").to(plugin).build();
 
-        Element configuration = plugin.findChild("configuration").orElseThrow();
+        Element configuration = plugin.child("configuration").orElseThrow();
 
         editor.add()
                 .text()

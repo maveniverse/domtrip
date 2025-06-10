@@ -34,8 +34,6 @@ package eu.maveniverse.domtrip;
  *   <li>Logging sufficient detail for debugging</li>
  * </ul>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see ParseException
  * @see InvalidXmlException
  * @see NodeNotFoundException
@@ -46,7 +44,6 @@ public class DomTripException extends RuntimeException {
      * Creates a new DomTripException with the specified message.
      *
      * @param message the detail message explaining the error
-     * @since 1.0
      */
     public DomTripException(String message) {
         super(message);
@@ -57,7 +54,6 @@ public class DomTripException extends RuntimeException {
      *
      * @param message the detail message explaining the error
      * @param cause the underlying cause of this exception
-     * @since 1.0
      */
     public DomTripException(String message, Throwable cause) {
         super(message, cause);
@@ -67,7 +63,6 @@ public class DomTripException extends RuntimeException {
      * Creates a new DomTripException with the specified cause.
      *
      * @param cause the underlying cause of this exception
-     * @since 1.0
      */
     public DomTripException(Throwable cause) {
         super(cause);

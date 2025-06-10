@@ -53,8 +53,6 @@ package eu.maveniverse.domtrip;
  *   <li>{@code '} → {@code &apos;} (when using single quotes)</li>
  * </ul>
  *
- * @author DomTrip Development Team
- * @since 1.0
  * @see Element
  * @see QuoteStyle
  */
@@ -95,32 +93,32 @@ public class Attribute {
         this(name, value, QuoteStyle.fromChar(quoteChar), precedingWhitespace, rawValue);
     }
 
-    public String getName() {
+    public String name() {
         return name;
     }
 
-    public String getValue() {
+    public String value() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void value(String value) {
         this.value = value;
         this.rawValue = null; // Clear raw value when setting programmatically
     }
 
-    public String getRawValue() {
+    public String rawValue() {
         return rawValue;
     }
 
-    public void setRawValue(String rawValue) {
+    public void rawValue(String rawValue) {
         this.rawValue = rawValue;
     }
 
-    public QuoteStyle getQuoteStyle() {
+    public QuoteStyle quoteStyle() {
         return quoteStyle;
     }
 
-    public void setQuoteStyle(QuoteStyle quoteStyle) {
+    public void quoteStyle(QuoteStyle quoteStyle) {
         this.quoteStyle = quoteStyle != null ? quoteStyle : QuoteStyle.DOUBLE;
     }
 
@@ -134,11 +132,11 @@ public class Attribute {
         this.quoteStyle = QuoteStyle.fromChar(quoteChar);
     }
 
-    public String getPrecedingWhitespace() {
+    public String precedingWhitespace() {
         return precedingWhitespace;
     }
 
-    public void setPrecedingWhitespace(String precedingWhitespace) {
+    public void precedingWhitespace(String precedingWhitespace) {
         this.precedingWhitespace = precedingWhitespace != null ? precedingWhitespace : " ";
     }
 

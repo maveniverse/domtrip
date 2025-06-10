@@ -871,18 +871,6 @@ public class Element extends ContainerNode {
     }
 
     /**
-     * Creates a simple element.
-     *
-     * <p>Alias for {@link #of(String)} for consistency.</p>
-     *
-     * @param name the element name
-     * @return a new Element
-     */
-    public static Element element(String name) {
-        return new Element(name);
-    }
-
-    /**
      * Creates an element from a QName.
      *
      * @param qname the QName for the element
@@ -890,7 +878,22 @@ public class Element extends ContainerNode {
      * @throws IllegalArgumentException if qname is null
      */
     public static Element of(QName qname) {
-        return element(qname);
+        if (qname == null) {
+            throw new IllegalArgumentException("QName cannot be null");
+        }
+
+        Element element = new Element(qname.qualifiedName());
+
+        // Add namespace declaration if needed
+        if (qname.hasNamespace()) {
+            if (qname.hasPrefix()) {
+                element.namespaceDeclaration(qname.prefix(), qname.namespaceURI());
+            } else {
+                element.namespaceDeclaration(null, qname.namespaceURI());
+            }
+        }
+
+        return element;
     }
 
     /**
@@ -990,35 +993,6 @@ public class Element extends ContainerNode {
     // Namespace factory methods
 
     /**
-     * Creates an element from a QName.
-     *
-     * <p>Creates an element using the QName and automatically adds appropriate
-     * namespace declarations.</p>
-     *
-     * @param qname the QName for the element
-     * @return a new Element with namespace configuration
-     * @throws IllegalArgumentException if qname is null
-     */
-    public static Element element(QName qname) {
-        if (qname == null) {
-            throw new IllegalArgumentException("QName cannot be null");
-        }
-
-        Element element = new Element(qname.qualifiedName());
-
-        // Add namespace declaration if needed
-        if (qname.hasNamespace()) {
-            if (qname.hasPrefix()) {
-                element.namespaceDeclaration(qname.prefix(), qname.namespaceURI());
-            } else {
-                element.namespaceDeclaration(null, qname.namespaceURI());
-            }
-        }
-
-        return element;
-    }
-
-    /**
      * Creates an element from a QName with text content.
      *
      * @param qname the QName for the element
@@ -1027,7 +1001,7 @@ public class Element extends ContainerNode {
      * @throws IllegalArgumentException if qname is null
      */
     public static Element text(QName qname, String content) {
-        Element element = element(qname);
+        Element element = of(qname);
         if (content != null && !content.isEmpty()) {
             element.addNode(new Text(content));
         }

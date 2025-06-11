@@ -29,7 +29,7 @@ public class ErrorHandlingTest {
     @Test
     void testParseNullXml() {
         assertThrows(DomTripException.class, () -> {
-            parser.parse(null);
+            parser.parse((String) null);
         });
     }
 

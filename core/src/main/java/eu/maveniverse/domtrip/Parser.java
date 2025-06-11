@@ -81,7 +81,7 @@ public class Parser {
 
     // Pattern for parsing XML declaration attributes
     private static final Pattern XML_DECLARATION_PATTERN = Pattern.compile(
-        "\\s*<\\?xml\\s+version\\s*=\\s*[\"']([^\"']+)[\"'](?:\\s+encoding\\s*=\\s*[\"']([^\"']+)[\"'])?(?:\\s+standalone\\s*=\\s*[\"']([^\"']+)[\"'])?\\s*\\?>");
+            "\\s*<\\?xml\\s+version\\s*=\\s*[\"']([^\"']+)[\"'](?:\\s+encoding\\s*=\\s*[\"']([^\"']+)[\"'])?(?:\\s+standalone\\s*=\\s*[\"']([^\"']+)[\"'])?\\s*\\?>");
 
     /**
      * Creates a new Parser instance with default settings.

@@ -283,7 +283,8 @@ public class Serializer {
         } catch (IOException e) {
             throw new DomTripException("Failed to serialize document to OutputStream: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new DomTripException("Failed to serialize document with charset '" + charset.name() + "': " + e.getMessage(), e);
+            throw new DomTripException(
+                    "Failed to serialize document with charset '" + charset.name() + "': " + e.getMessage(), e);
         }
     }
 
@@ -349,7 +350,8 @@ public class Serializer {
         } catch (IOException e) {
             throw new DomTripException("Failed to serialize node to OutputStream: " + e.getMessage(), e);
         } catch (Exception e) {
-            throw new DomTripException("Failed to serialize node with charset '" + charset.name() + "': " + e.getMessage(), e);
+            throw new DomTripException(
+                    "Failed to serialize node with charset '" + charset.name() + "': " + e.getMessage(), e);
         }
     }
 

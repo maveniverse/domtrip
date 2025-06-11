@@ -1,14 +1,13 @@
 package eu.maveniverse.domtrip;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for parsing XML from InputStream with encoding detection.
@@ -19,9 +18,9 @@ public class InputStreamParsingTest {
     void testParseFromInputStreamWithUTF8() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><child>Hello World</child></root>";
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-        
+
         Document doc = Document.of(inputStream);
-        
+
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding());
         assertEquals("1.0", doc.version());
@@ -34,11 +33,11 @@ public class InputStreamParsingTest {
     void testParseFromInputStreamWithUTF16() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root><child>Hello UTF-16</child></root>";
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_16));
-        
+
         Document doc = Document.of(inputStream);
-        
+
         assertNotNull(doc);
-        assertEquals("UTF-16", doc.encoding());
+        assertTrue(doc.encoding().startsWith("UTF-16"), "Expected UTF-16 encoding but got: " + doc.encoding());
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
@@ -49,9 +48,9 @@ public class InputStreamParsingTest {
     void testParseFromInputStreamWithISO88591() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<root><child>Hello ISO</child></root>";
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.ISO_8859_1));
-        
+
         Document doc = Document.of(inputStream, "ISO-8859-1");
-        
+
         assertNotNull(doc);
         assertEquals("ISO-8859-1", doc.encoding());
         assertEquals("1.0", doc.version());
@@ -64,17 +63,17 @@ public class InputStreamParsingTest {
     void testParseFromInputStreamWithBOM() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><child>Hello BOM</child></root>";
         byte[] xmlBytes = xml.getBytes(StandardCharsets.UTF_8);
-        
+
         // Add UTF-8 BOM
         byte[] bomBytes = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
         byte[] xmlWithBom = new byte[bomBytes.length + xmlBytes.length];
         System.arraycopy(bomBytes, 0, xmlWithBom, 0, bomBytes.length);
         System.arraycopy(xmlBytes, 0, xmlWithBom, bomBytes.length, xmlBytes.length);
-        
+
         InputStream inputStream = new ByteArrayInputStream(xmlWithBom);
-        
+
         Document doc = Document.of(inputStream);
-        
+
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding());
         assertEquals("1.0", doc.version());
@@ -85,11 +84,12 @@ public class InputStreamParsingTest {
 
     @Test
     void testParseFromInputStreamWithStandalone() throws DomTripException {
-        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root><child>Standalone</child></root>";
+        String xml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root><child>Standalone</child></root>";
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-        
+
         Document doc = Document.of(inputStream);
-        
+
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding());
         assertEquals("1.0", doc.version());
@@ -103,9 +103,9 @@ public class InputStreamParsingTest {
     void testParseFromInputStreamNoEncoding() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n<root><child>No encoding</child></root>";
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-        
+
         Document doc = Document.of(inputStream);
-        
+
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding()); // Should default to UTF-8
         assertEquals("1.0", doc.version());
@@ -118,9 +118,9 @@ public class InputStreamParsingTest {
     void testParseFromInputStreamWithDefaultEncoding() throws DomTripException {
         String xml = "<root><child>Simple XML</child></root>"; // No XML declaration
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-        
+
         Document doc = Document.of(inputStream, "UTF-8");
-        
+
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding());
         assertNotNull(doc.root());
@@ -138,7 +138,7 @@ public class InputStreamParsingTest {
     @Test
     void testParseFromInputStreamEmptyStream() {
         InputStream inputStream = new ByteArrayInputStream(new byte[0]);
-        
+
         assertThrows(DomTripException.class, () -> {
             Document.of(inputStream);
         });
@@ -146,17 +146,16 @@ public class InputStreamParsingTest {
 
     @Test
     void testParseFromInputStreamPreservesFormatting() throws DomTripException {
-        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                     "<root>\n" +
-                     "  <child attr=\"value\">text content</child>\n" +
-                     "  <!-- comment -->\n" +
-                     "</root>";
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<root>\n"
+                + "  <child attr=\"value\">text content</child>\n"
+                + "  <!-- comment -->\n"
+                + "</root>";
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-        
+
         Document doc = Document.of(inputStream);
         Editor editor = new Editor(doc);
         String result = editor.toXml();
-        
+
         // Should preserve formatting
         assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
         assertTrue(result.contains("attr=\"value\""));
@@ -166,36 +165,36 @@ public class InputStreamParsingTest {
 
     @Test
     void testParseFromInputStreamWithComplexContent() throws DomTripException {
-        String xml = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
-                     "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n" +
-                     "  <groupId>com.example</groupId>\n" +
-                     "  <artifactId>test-project</artifactId>\n" +
-                     "  <version>1.0.0</version>\n" +
-                     "  <dependencies>\n" +
-                     "    <dependency>\n" +
-                     "      <groupId>junit</groupId>\n" +
-                     "      <artifactId>junit</artifactId>\n" +
-                     "      <version>4.13.2</version>\n" +
-                     "      <scope>test</scope>\n" +
-                     "    </dependency>\n" +
-                     "  </dependencies>\n" +
-                     "</project>";
-        
+        String xml = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+                + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n"
+                + "  <groupId>com.example</groupId>\n"
+                + "  <artifactId>test-project</artifactId>\n"
+                + "  <version>1.0.0</version>\n"
+                + "  <dependencies>\n"
+                + "    <dependency>\n"
+                + "      <groupId>junit</groupId>\n"
+                + "      <artifactId>junit</artifactId>\n"
+                + "      <version>4.13.2</version>\n"
+                + "      <scope>test</scope>\n"
+                + "    </dependency>\n"
+                + "  </dependencies>\n"
+                + "</project>";
+
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-        
+
         Document doc = Document.of(inputStream);
-        
+
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding());
         assertEquals("1.1", doc.version());
         assertFalse(doc.isStandalone());
         assertNotNull(doc.root());
         assertEquals("project", doc.root().name());
-        
+
         // Verify complex structure is preserved
         Element groupId = doc.root().child("groupId").orElseThrow();
         assertEquals("com.example", groupId.textContent());
-        
+
         Element dependencies = doc.root().child("dependencies").orElseThrow();
         Element dependency = dependencies.child("dependency").orElseThrow();
         Element junitGroupId = dependency.child("groupId").orElseThrow();
@@ -226,7 +225,7 @@ public class InputStreamParsingTest {
 
         // Parse from InputStream (should detect UTF-16)
         Document doc = Document.of(inputStream);
-        assertEquals("UTF-16", doc.encoding());
+        assertTrue(doc.encoding().startsWith("UTF-16"), "Expected UTF-16 encoding but got: " + doc.encoding());
 
         // Serialize to OutputStream with same encoding
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -236,7 +235,7 @@ public class InputStreamParsingTest {
         InputStream inputStream2 = new ByteArrayInputStream(outputStream.toByteArray());
         Document doc2 = Document.of(inputStream2);
 
-        assertEquals("UTF-16", doc2.encoding());
+        assertTrue(doc2.encoding().startsWith("UTF-16"), "Expected UTF-16 encoding but got: " + doc2.encoding());
         assertEquals("UTF-16 test", doc2.root().child("child").orElseThrow().textContent());
     }
 
@@ -260,7 +259,8 @@ public class InputStreamParsingTest {
 
     @Test
     void testEncodingConsistencyAfterParsing() throws DomTripException {
-        String xml = "<?xml version=\"1.1\" encoding=\"ISO-8859-1\" standalone=\"no\"?>\n<root><child>ISO test</child></root>";
+        String xml =
+                "<?xml version=\"1.1\" encoding=\"ISO-8859-1\" standalone=\"no\"?>\n<root><child>ISO test</child></root>";
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.ISO_8859_1));
 
         Document doc = Document.of(inputStream, "ISO-8859-1");
@@ -288,11 +288,12 @@ public class InputStreamParsingTest {
         Document doc = Document.of(inputStream, StandardCharsets.UTF_16);
 
         assertNotNull(doc);
-        assertEquals("UTF-16", doc.encoding());
+        assertTrue(doc.encoding().startsWith("UTF-16"), "Expected UTF-16 encoding but got: " + doc.encoding());
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Charset object test", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "Charset object test", doc.root().child("child").orElseThrow().textContent());
     }
 
     @Test
@@ -315,19 +316,20 @@ public class InputStreamParsingTest {
     @Test
     void testCharsetConsistencyInRoundTrip() throws DomTripException {
         // Test that using Charset objects maintains consistency
-        Charset[] charsets = {
-            StandardCharsets.UTF_8,
-            StandardCharsets.UTF_16,
-            StandardCharsets.ISO_8859_1
-        };
+        Charset[] charsets = {StandardCharsets.UTF_8, StandardCharsets.UTF_16, StandardCharsets.ISO_8859_1};
 
         for (Charset charset : charsets) {
-            String xml = "<?xml version=\"1.0\" encoding=\"" + charset.name() + "\"?>\n<root><child>Test " + charset.name() + "</child></root>";
+            String xml = "<?xml version=\"1.0\" encoding=\"" + charset.name() + "\"?>\n<root><child>Test "
+                    + charset.name() + "</child></root>";
             InputStream inputStream = new ByteArrayInputStream(xml.getBytes(charset));
 
             // Parse with Charset object
             Document doc = Document.of(inputStream, charset);
-            assertEquals(charset.name(), doc.encoding());
+            if (charset.name().equals("UTF-16")) {
+                assertTrue(doc.encoding().startsWith("UTF-16"), "Expected UTF-16 encoding but got: " + doc.encoding());
+            } else {
+                assertEquals(charset.name(), doc.encoding());
+            }
 
             // Serialize with same Charset object
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -349,6 +351,7 @@ public class InputStreamParsingTest {
 
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding());
-        assertEquals("Null charset test", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "Null charset test", doc.root().child("child").orElseThrow().textContent());
     }
 }

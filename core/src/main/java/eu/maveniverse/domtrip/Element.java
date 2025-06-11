@@ -339,14 +339,14 @@ public class Element extends ContainerNode {
     }
 
     /**
-     * Gets the quote character for the specified attribute.
+     * Gets the quote style for the specified attribute.
      *
      * @param attributeName the name of the attribute
-     * @return the quote character, or double quote if not set
+     * @return the quote style, or DOUBLE if not set
      */
-    public char attributeQuote(String attributeName) {
+    public QuoteStyle attributeQuote(String attributeName) {
         Attribute attr = attributes.get(attributeName);
-        return attr != null ? attr.quoteStyle().getCharacter() : '"';
+        return attr != null ? attr.quoteStyle() : QuoteStyle.DOUBLE;
     }
 
     // Tag formatting

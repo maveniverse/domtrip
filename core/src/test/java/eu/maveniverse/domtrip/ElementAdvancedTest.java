@@ -116,9 +116,9 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        assertEquals('\'', root.attributeQuote("attr1"));
-        assertEquals('"', root.attributeQuote("attr2"));
-        assertEquals('"', root.attributeQuote("nonexistent")); // Default
+        assertEquals(QuoteStyle.SINGLE, root.attributeQuote("attr1"));
+        assertEquals(QuoteStyle.DOUBLE, root.attributeQuote("attr2"));
+        assertEquals(QuoteStyle.DOUBLE, root.attributeQuote("nonexistent")); // Default
     }
 
     @Test

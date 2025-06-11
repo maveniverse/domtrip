@@ -183,8 +183,8 @@ public class AttributeFormattingPreservationTest {
 
         assertEquals("value1", element.attribute("attr1"));
         assertEquals("value2", element.attribute("attr2"));
-        assertEquals('"', element.attributeQuote("attr1"));
-        assertEquals('\'', element.attributeQuote("attr2"));
+        assertEquals(QuoteStyle.DOUBLE, element.attributeQuote("attr1"));
+        assertEquals(QuoteStyle.SINGLE, element.attributeQuote("attr2"));
     }
 
     @Test
@@ -198,12 +198,12 @@ public class AttributeFormattingPreservationTest {
         // Test null value
         root.attribute("attr", null);
         assertNull(root.attribute("attr"));
-        assertEquals('\'', root.attributeQuote("attr")); // Quote style preserved
+        assertEquals(QuoteStyle.SINGLE, root.attributeQuote("attr")); // Quote style preserved
 
         // Test empty value
         root.attribute("attr", "");
         assertEquals("", root.attribute("attr"));
-        assertEquals('\'', root.attributeQuote("attr")); // Quote style preserved
+        assertEquals(QuoteStyle.SINGLE, root.attributeQuote("attr")); // Quote style preserved
     }
 
     @Test
@@ -218,7 +218,7 @@ public class AttributeFormattingPreservationTest {
         // Add new attribute via Editor - should infer single quotes (majority)
         editor.setAttribute(root, "attr4", "value4");
 
-        assertEquals('\'', root.attributeQuote("attr4"));
+        assertEquals(QuoteStyle.SINGLE, root.attributeQuote("attr4"));
         assertEquals("value4", root.attribute("attr4"));
     }
 
@@ -234,7 +234,7 @@ public class AttributeFormattingPreservationTest {
         // Add new attribute via Editor - should infer double quotes (majority)
         root.attribute("attr4", "value4");
 
-        assertEquals('"', root.attributeQuote("attr4"));
+        assertEquals(QuoteStyle.DOUBLE, root.attributeQuote("attr4"));
         assertEquals("value4", root.attribute("attr4"));
     }
 
@@ -362,7 +362,7 @@ public class AttributeFormattingPreservationTest {
         root.attribute("newAttr", "newValue");
 
         // Should use defaults
-        assertEquals('"', root.attributeQuote("newAttr"));
+        assertEquals(QuoteStyle.DOUBLE, root.attributeQuote("newAttr"));
         assertEquals(" ", root.attributeObject("newAttr").precedingWhitespace());
         assertEquals("newValue", root.attribute("newAttr"));
     }
@@ -378,7 +378,7 @@ public class AttributeFormattingPreservationTest {
         // Update existing attribute via Editor - should preserve formatting
         root.attribute("attr1", "updated");
 
-        assertEquals('\'', root.attributeQuote("attr1"));
+        assertEquals(QuoteStyle.SINGLE, root.attributeQuote("attr1"));
         assertEquals("updated", root.attribute("attr1"));
     }
 

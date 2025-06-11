@@ -1,8 +1,11 @@
 package eu.maveniverse.domtrip;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * Represents the root of an XML document, containing the document element
@@ -28,6 +31,7 @@ import java.nio.charset.Charset;
  * Document doc = Document.of(); // Empty document
  * Document parsed = Document.of(xmlString); // Parse XML from String
  * Document fromStream = Document.of(inputStream); // Parse XML from InputStream
+ * Document fromFile = Document.of(Path.of("config.xml")); // Parse XML from file
  * Document withDecl = Document.withXmlDeclaration("1.0", "UTF-8");
  * Document complete = Document.withRootElement("project");
  *
@@ -540,6 +544,61 @@ public class Document extends ContainerNode {
      */
     public static Document of(InputStream inputStream, String defaultEncoding) throws DomTripException {
         return new Parser().parse(inputStream, defaultEncoding);
+    }
+
+    /**
+     * Creates a document by parsing XML from a file path with automatic encoding detection.
+     *
+     * <p>This is a convenience method that combines file reading and XML parsing in a single call.
+     * It leverages the InputStream-based parsing with automatic encoding detection to properly
+     * handle various character encodings.</p>
+     *
+     * <p>The method automatically detects the character encoding by:</p>
+     * <ol>
+     *   <li>Checking for a Byte Order Mark (BOM)</li>
+     *   <li>Reading the XML declaration to extract the encoding attribute</li>
+     *   <li>Falling back to UTF-8 if no encoding is specified</li>
+     * </ol>
+     *
+     * <p>This method provides the most robust way to parse XML files as it properly handles
+     * character encoding detection and avoids potential encoding issues.</p>
+     *
+     * <h3>Usage Examples:</h3>
+     * <pre>{@code
+     * // Parse XML file with automatic encoding detection
+     * Document doc = Document.of(Path.of("config.xml"));
+     *
+     * // Works with various encodings
+     * Document utf8Doc = Document.of(Path.of("utf8-file.xml"));
+     * Document utf16Doc = Document.of(Path.of("utf16-file.xml"));
+     * Document isoDoc = Document.of(Path.of("iso-8859-1-file.xml"));
+     *
+     * // Use with try-with-resources for proper resource management
+     * try {
+     *     Document doc = Document.of(configPath);
+     *     Editor editor = new Editor(doc);
+     *     // ... edit document
+     * } catch (DomTripException e) {
+     *     System.err.println("Failed to parse XML: " + e.getMessage());
+     * }
+     * }</pre>
+     *
+     * @param path the path to the XML file to parse
+     * @return a new Document containing the parsed XML with preserved formatting
+     * @throws DomTripException if the file cannot be read, the XML is malformed, or cannot be parsed
+     * @see #of(InputStream) for InputStream-based parsing
+     * @see java.nio.file.Files#newInputStream(Path, java.nio.file.OpenOption...) for the underlying file reading
+     */
+    public static Document of(Path path) throws DomTripException {
+        if (path == null) {
+            throw new DomTripException("Path cannot be null");
+        }
+
+        try (InputStream inputStream = Files.newInputStream(path)) {
+            return of(inputStream);
+        } catch (IOException e) {
+            throw new DomTripException("Failed to read file: " + path, e);
+        }
     }
 
     /**

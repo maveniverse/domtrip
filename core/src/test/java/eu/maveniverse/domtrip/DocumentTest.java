@@ -7,8 +7,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * Test cases for Document class functionality.
@@ -316,5 +321,140 @@ public class DocumentTest {
         String result = editor.toXml();
 
         assertEquals(xml, result);
+    }
+
+    // Tests for Document.of(Path) method
+
+    @Test
+    void testDocumentOfPathWithUTF8(@TempDir Path tempDir) throws IOException, DomTripException {
+        // Create a test XML file with UTF-8 encoding
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><child>Hello World</child></root>";
+        Path xmlFile = tempDir.resolve("test-utf8.xml");
+        Files.writeString(xmlFile, xml);
+
+        // Parse using Document.of(Path)
+        Document doc = Document.of(xmlFile);
+
+        assertNotNull(doc);
+        assertEquals("UTF-8", doc.encoding());
+        assertEquals("1.0", doc.version());
+        assertNotNull(doc.root());
+        assertEquals("root", doc.root().name());
+        assertEquals("Hello World", doc.root().child("child").orElseThrow().textContent());
+    }
+
+    @Test
+    void testDocumentOfPathWithComplexXml(@TempDir Path tempDir) throws IOException, DomTripException {
+        // Create a complex XML file with comments and processing instructions
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                + "<!-- Configuration file -->\n"
+                + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n"
+                + "<config>\n"
+                + "    <database>\n"
+                + "        <host>localhost</host>\n"
+                + "        <port>5432</port>\n"
+                + "    </database>\n"
+                + "    <!-- End of database config -->\n"
+                + "</config>";
+
+        Path xmlFile = tempDir.resolve("complex.xml");
+        Files.writeString(xmlFile, xml);
+
+        // Parse using Document.of(Path)
+        Document doc = Document.of(xmlFile);
+        Editor editor = new Editor(doc);
+
+        assertNotNull(doc);
+        assertEquals("UTF-8", doc.encoding());
+        assertEquals("1.0", doc.version());
+        assertNotNull(doc.root());
+        assertEquals("config", doc.root().name());
+
+        // Verify structure
+        Element database = doc.root().child("database").orElseThrow();
+        assertEquals("localhost", database.child("host").orElseThrow().textContent());
+        assertEquals("5432", database.child("port").orElseThrow().textContent());
+
+        // Verify round-trip preserves formatting (note: XML declaration may not be preserved exactly)
+        String result = editor.toXml();
+        assertTrue(result.contains("<config>"));
+        assertTrue(result.contains("<!-- Configuration file -->"));
+        assertTrue(result.contains("<?xml-stylesheet"));
+        assertTrue(result.contains("<database>"));
+        assertTrue(result.contains("<host>localhost</host>"));
+    }
+
+    @Test
+    void testDocumentOfPathWithDifferentEncodings(@TempDir Path tempDir) throws IOException, DomTripException {
+        // Test with ISO-8859-1 encoding
+        String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<root><child>Test Content</child></root>";
+        Path xmlFile = tempDir.resolve("test-iso.xml");
+        Files.write(xmlFile, xml.getBytes(StandardCharsets.ISO_8859_1));
+
+        // Parse using Document.of(Path)
+        Document doc = Document.of(xmlFile);
+
+        assertNotNull(doc);
+        assertEquals("ISO-8859-1", doc.encoding());
+        assertEquals("1.0", doc.version());
+        assertNotNull(doc.root());
+        assertEquals("root", doc.root().name());
+        assertEquals("Test Content", doc.root().child("child").orElseThrow().textContent());
+    }
+
+    @Test
+    void testDocumentOfPathNullPath() {
+        assertThrows(DomTripException.class, () -> {
+            Document.of((Path) null);
+        });
+    }
+
+    @Test
+    void testDocumentOfPathNonExistentFile(@TempDir Path tempDir) {
+        Path nonExistentFile = tempDir.resolve("does-not-exist.xml");
+
+        assertThrows(DomTripException.class, () -> {
+            Document.of(nonExistentFile);
+        });
+    }
+
+    @Test
+    void testDocumentOfPathEmptyFile(@TempDir Path tempDir) throws IOException {
+        Path emptyFile = tempDir.resolve("empty.xml");
+        Files.createFile(emptyFile);
+
+        assertThrows(DomTripException.class, () -> {
+            Document.of(emptyFile);
+        });
+    }
+
+    @Test
+    void testDocumentOfPathMalformedXml(@TempDir Path tempDir) throws IOException, DomTripException {
+        // Based on ErrorHandlingTest, the parser handles malformed XML gracefully
+        String malformedXml = "<root><unclosed>";
+        Path xmlFile = tempDir.resolve("malformed.xml");
+        Files.writeString(xmlFile, malformedXml);
+
+        // Should not throw - parser handles this gracefully
+        Document doc = Document.of(xmlFile);
+        assertNotNull(doc);
+        assertNotNull(doc.root());
+        assertEquals("root", doc.root().name());
+    }
+
+    @Test
+    void testDocumentOfPathWithoutXmlDeclaration(@TempDir Path tempDir) throws IOException, DomTripException {
+        // XML without declaration should default to UTF-8
+        String xml = "<root><child>No declaration</child></root>";
+        Path xmlFile = tempDir.resolve("no-decl.xml");
+        Files.writeString(xmlFile, xml);
+
+        Document doc = Document.of(xmlFile);
+
+        assertNotNull(doc);
+        assertEquals("UTF-8", doc.encoding()); // Should default to UTF-8
+        assertNotNull(doc.root());
+        assertEquals("root", doc.root().name());
+        assertEquals("No declaration", doc.root().child("child").orElseThrow().textContent());
     }
 }

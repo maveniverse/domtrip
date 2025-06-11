@@ -337,8 +337,8 @@ Start using DomTrip for all new XML processing code:
 ```java
 // New features use DomTrip
 public void addDependency(String pomPath, Dependency dep) {
-    String xml = Files.readString(Paths.get(pomPath));
-    Editor editor = new Editor(xml);
+    Document doc = Document.of(Path.of(pomPath));
+    Editor editor = new Editor(doc);
     // ... DomTrip operations
 }
 ```
@@ -351,7 +351,8 @@ Migrate code that requires formatting preservation:
 // Configuration file editing (formatting critical)
 public void updateConfig(String configPath, Map<String, String> updates) {
     // Migrate to DomTrip for lossless editing
-    Editor editor = new Editor(Files.readString(Paths.get(configPath)));
+    Document doc = Document.of(Path.of(configPath));
+    Editor editor = new Editor(doc);
     // ...
 }
 ```

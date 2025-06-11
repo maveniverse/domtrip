@@ -129,8 +129,8 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        root.attribute("attr1", "value1", '\'');
-        root.attribute("attr2", "value2", '"');
+        root.attribute("attr1", "value1", QuoteStyle.SINGLE);
+        root.attribute("attr2", "value2", QuoteStyle.DOUBLE);
 
         String result = editor.toXml();
         assertTrue(result.contains("attr1='value1'"));

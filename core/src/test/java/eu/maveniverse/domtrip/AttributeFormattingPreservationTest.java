@@ -68,9 +68,9 @@ public class AttributeFormattingPreservationTest {
         String originalWhitespace1 = root.attributeObject("attr1").precedingWhitespace();
         String originalWhitespace2 = root.attributeObject("attr2").precedingWhitespace();
 
-        // Update with specific quote characters
-        root.attribute("attr1", "updated1", '"'); // Change to double quotes
-        root.attribute("attr2", "updated2", '\''); // Change to single quotes
+        // Update with specific quote styles
+        root.attribute("attr1", "updated1", QuoteStyle.DOUBLE); // Change to double quotes
+        root.attribute("attr2", "updated2", QuoteStyle.SINGLE); // Change to single quotes
 
         // Verify whitespace is preserved but quotes are changed
         assertEquals(originalWhitespace1, root.attributeObject("attr1").precedingWhitespace());
@@ -89,7 +89,7 @@ public class AttributeFormattingPreservationTest {
 
         // Add new attributes
         root.attribute("new1", "value1");
-        root.attribute("new2", "value2", '\'');
+        root.attribute("new2", "value2", QuoteStyle.SINGLE);
 
         // Verify new attributes use defaults
         Attribute new1 = root.attributeObject("new1");
@@ -179,7 +179,7 @@ public class AttributeFormattingPreservationTest {
 
         // Setting new attributes should work as before
         element.attribute("attr1", "value1");
-        element.attribute("attr2", "value2", '\'');
+        element.attribute("attr2", "value2", QuoteStyle.SINGLE);
 
         assertEquals("value1", element.attribute("attr1"));
         assertEquals("value2", element.attribute("attr2"));

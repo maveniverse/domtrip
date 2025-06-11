@@ -98,6 +98,7 @@ public class Editor {
     private final WhitespaceManager whitespaceManager;
     private final DomTripConfig config;
     private Document document;
+    private final String lineEnding;
 
     public Editor() {
         this((Document) null, DomTripConfig.defaults());
@@ -173,6 +174,7 @@ public class Editor {
         this.serializer = new Serializer();
         this.whitespaceManager = new WhitespaceManager(this.config);
         this.document = document; // Can be null for empty editors
+        this.lineEnding = detectLineEnding(); // Detect from document or use config default
     }
 
     /**
@@ -219,7 +221,7 @@ public class Editor {
         // Try to preserve indentation using WhitespaceManager
         String indentation = whitespaceManager.inferIndentation(parent);
         if (!indentation.isEmpty()) {
-            newElement.precedingWhitespace("\n" + indentation);
+            newElement.precedingWhitespace(lineEnding + indentation);
         }
 
         // Check if the last child is a text node with just whitespace (closing tag whitespace)
@@ -230,7 +232,7 @@ public class Editor {
             if (lastChild instanceof Text lastText) {
                 String content = lastText.content();
                 // Use WhitespaceManager to check if it's whitespace only
-                if (whitespaceManager.isWhitespaceOnly(content) && content.contains("\n")) {
+                if (whitespaceManager.isWhitespaceOnly(content) && content.contains(lineEnding)) {
                     // Insert before the last text node
                     parent.insertNode(childCount - 1, newElement);
                     return newElement;
@@ -244,7 +246,7 @@ public class Editor {
         // Add closing whitespace if parent has indentation
         if (!indentation.isEmpty() && parent.parent() != null) {
             String parentIndent = whitespaceManager.inferIndentation(parent.parent());
-            Text closingWhitespace = new Text("\n" + parentIndent);
+            Text closingWhitespace = new Text(lineEnding + parentIndent);
             parent.addNode(closingWhitespace);
         }
 
@@ -278,7 +280,8 @@ public class Editor {
             throw new DomTripException("QName cannot be null");
         }
 
-        Element newElement = Element.of(qname);
+        // Create element without automatic namespace declaration
+        Element newElement = new Element(qname.qualifiedName());
 
         // Add namespace declaration if needed and not already declared
         if (qname.hasNamespace() && !isNamespaceDeclaredInHierarchy(parent, qname)) {
@@ -292,7 +295,7 @@ public class Editor {
         // Try to preserve indentation using WhitespaceManager
         String indentation = whitespaceManager.inferIndentation(parent);
         if (!indentation.isEmpty()) {
-            newElement.precedingWhitespace("\n" + indentation);
+            newElement.precedingWhitespace(lineEnding + indentation);
         }
 
         parent.addNode(newElement);
@@ -300,7 +303,7 @@ public class Editor {
         // Add closing whitespace if parent has indentation
         if (!indentation.isEmpty() && parent.parent() != null) {
             String parentIndent = whitespaceManager.inferIndentation(parent.parent());
-            Text closingWhitespace = new Text("\n" + parentIndent);
+            Text closingWhitespace = new Text(lineEnding + parentIndent);
             parent.addNode(closingWhitespace);
         }
 
@@ -325,7 +328,195 @@ public class Editor {
     }
 
     /**
-     * Removes an element from its parent
+     * Adds a new element with enhanced whitespace control.
+     *
+     * <p>This method provides fine-grained control over whitespace insertion,
+     * allowing you to force blank lines before and/or after the new element
+     * regardless of existing formatting patterns.</p>
+     *
+     * @param parent the parent element
+     * @param elementName the name of the new element
+     * @param forceBlankLineBefore if true, ensures a blank line before the element
+     * @param forceBlankLineAfter if true, ensures a blank line after the element
+     * @return the newly created element
+     * @throws DomTripException if the element cannot be added
+     */
+    public Element addElement(
+            Element parent, String elementName, boolean forceBlankLineBefore, boolean forceBlankLineAfter)
+            throws DomTripException {
+        if (parent == null) {
+            throw new DomTripException("Parent element cannot be null");
+        }
+        if (elementName == null || elementName.trim().isEmpty()) {
+            throw new DomTripException("Element name cannot be null or empty");
+        }
+
+        Element newElement = new Element(elementName.trim());
+        addElementWithWhitespaceControl(parent, newElement, forceBlankLineBefore, forceBlankLineAfter);
+        return newElement;
+    }
+
+    /**
+     * Adds a new element with text content and enhanced whitespace control.
+     *
+     * @param parent the parent element
+     * @param elementName the name of the new element
+     * @param textContent the text content for the element
+     * @param forceBlankLineBefore if true, ensures a blank line before the element
+     * @param forceBlankLineAfter if true, ensures a blank line after the element
+     * @return the newly created element
+     * @throws DomTripException if the element cannot be added
+     */
+    public Element addElement(
+            Element parent,
+            String elementName,
+            String textContent,
+            boolean forceBlankLineBefore,
+            boolean forceBlankLineAfter)
+            throws DomTripException {
+        Element element = addElement(parent, elementName, forceBlankLineBefore, forceBlankLineAfter);
+        if (textContent != null && !textContent.isEmpty()) {
+            element.textContent(textContent);
+        }
+        return element;
+    }
+
+    /**
+     * Adds a new element using a QName with enhanced whitespace control.
+     *
+     * @param parent the parent element
+     * @param qname the QName for the new element
+     * @param forceBlankLineBefore if true, ensures a blank line before the element
+     * @param forceBlankLineAfter if true, ensures a blank line after the element
+     * @return the newly created element
+     * @throws DomTripException if the element cannot be added
+     */
+    public Element addElement(Element parent, QName qname, boolean forceBlankLineBefore, boolean forceBlankLineAfter)
+            throws DomTripException {
+        if (parent == null) {
+            throw new DomTripException("Parent element cannot be null");
+        }
+        if (qname == null) {
+            throw new DomTripException("QName cannot be null");
+        }
+
+        // Create element without automatic namespace declaration
+        Element newElement = new Element(qname.qualifiedName());
+
+        // Add namespace declaration if needed and not already declared
+        if (qname.hasNamespace() && !isNamespaceDeclaredInHierarchy(parent, qname)) {
+            if (qname.hasPrefix()) {
+                newElement.namespaceDeclaration(qname.prefix(), qname.namespaceURI());
+            } else {
+                newElement.namespaceDeclaration(null, qname.namespaceURI());
+            }
+        }
+
+        addElementWithWhitespaceControl(parent, newElement, forceBlankLineBefore, forceBlankLineAfter);
+        return newElement;
+    }
+
+    /**
+     * Adds a new element using a QName with text content and enhanced whitespace control.
+     *
+     * @param parent the parent element
+     * @param qname the QName for the new element
+     * @param textContent the text content for the element
+     * @param forceBlankLineBefore if true, ensures a blank line before the element
+     * @param forceBlankLineAfter if true, ensures a blank line after the element
+     * @return the newly created element
+     * @throws DomTripException if the element cannot be added
+     */
+    public Element addElement(
+            Element parent, QName qname, String textContent, boolean forceBlankLineBefore, boolean forceBlankLineAfter)
+            throws DomTripException {
+        Element element = addElement(parent, qname, forceBlankLineBefore, forceBlankLineAfter);
+        if (textContent != null && !textContent.isEmpty()) {
+            element.textContent(textContent);
+        }
+        return element;
+    }
+
+    /**
+     * Helper method to add an element with enhanced whitespace control.
+     */
+    private void addElementWithWhitespaceControl(
+            Element parent, Element newElement, boolean forceBlankLineBefore, boolean forceBlankLineAfter) {
+        // Infer indentation for children of the parent
+        String elementIndentation = whitespaceManager.inferIndentation(parent);
+
+        // Check if the last child is a text node with just whitespace (closing tag whitespace)
+        // If so, insert the new element before it
+        int childCount = parent.nodeCount();
+        boolean insertedBeforeClosing = false;
+        if (childCount > 0) {
+            Node lastChild = parent.getNode(childCount - 1);
+            if (lastChild instanceof Text lastText) {
+                String content = lastText.content();
+                // Use WhitespaceManager to check if it's whitespace only
+                if (whitespaceManager.isWhitespaceOnly(content) && content.contains(lineEnding)) {
+                    // Determine preceding whitespace
+                    String precedingWhitespace;
+                    if (forceBlankLineBefore) {
+                        precedingWhitespace = lineEnding + lineEnding + elementIndentation;
+                    } else {
+                        precedingWhitespace = lineEnding + elementIndentation;
+                    }
+                    newElement.precedingWhitespace(precedingWhitespace);
+
+                    // Insert before the last text node
+                    parent.insertNode(childCount - 1, newElement);
+                    insertedBeforeClosing = true;
+
+                    // Add following whitespace if needed
+                    if (forceBlankLineAfter) {
+                        Text blankLine = new Text(lineEnding);
+                        parent.insertNode(childCount, blankLine);
+                    }
+                }
+            }
+        }
+
+        if (!insertedBeforeClosing) {
+            // Determine preceding whitespace
+            String precedingWhitespace;
+            if (forceBlankLineBefore) {
+                precedingWhitespace = lineEnding + lineEnding + elementIndentation;
+            } else {
+                precedingWhitespace = lineEnding + elementIndentation;
+            }
+
+            newElement.precedingWhitespace(precedingWhitespace);
+            parent.addNode(newElement);
+
+            // Add following whitespace if needed
+            String parentIndentation = whitespaceManager.inferIndentation(parent.parent());
+            if (forceBlankLineAfter || (!parentIndentation.isEmpty() && parent.parent() != null)) {
+                String followingWhitespace;
+                if (forceBlankLineAfter) {
+                    followingWhitespace = lineEnding + lineEnding + parentIndentation;
+                } else {
+                    followingWhitespace = lineEnding + parentIndentation;
+                }
+                Text closingWhitespace = new Text(followingWhitespace);
+                parent.addNode(closingWhitespace);
+            }
+        }
+    }
+
+    /**
+     * Removes an element from its parent with intelligent whitespace handling.
+     *
+     * <p>This method removes an element while preserving proper formatting by
+     * intelligently handling surrounding whitespace text nodes:</p>
+     * <ul>
+     *   <li>If removing the first element and there's no line before, removes following blank lines</li>
+     *   <li>If removing the last element and there's no line after, removes blank lines before</li>
+     *   <li>If removing a middle element, removes any following blank lines</li>
+     * </ul>
+     *
+     * @param element the element to remove
+     * @return true if the element was successfully removed, false otherwise
      */
     public boolean removeElement(Element element) {
         if (element == null || element.parent() == null) {
@@ -333,10 +524,167 @@ public class Editor {
         }
 
         Node parent = element.parent();
-        if (parent instanceof ContainerNode container) {
-            return container.removeNode(element);
+        if (!(parent instanceof ContainerNode container)) {
+            return false;
         }
-        return false;
+
+        // Find the index of the element to remove
+        int elementIndex = -1;
+        for (int i = 0; i < container.nodes.size(); i++) {
+            if (container.nodes.get(i) == element) {
+                elementIndex = i;
+                break;
+            }
+        }
+
+        if (elementIndex == -1) {
+            return false;
+        }
+
+        // Analyze surrounding whitespace and remove appropriately
+        removeElementWithWhitespaceHandling(container, elementIndex);
+        return true;
+    }
+
+    /**
+     * Helper method to remove an element with intelligent whitespace handling.
+     */
+    private void removeElementWithWhitespaceHandling(ContainerNode container, int elementIndex) {
+        Element element = (Element) container.nodes.get(elementIndex);
+
+        // Determine position context
+        boolean isFirst = isFirstNonWhitespaceElement(container, elementIndex);
+        boolean isLast = isLastNonWhitespaceElement(container, elementIndex);
+
+        if (isFirst && !isLast) {
+            // First element: remove following whitespace
+            removeElementAndFollowingWhitespace(container, elementIndex);
+        } else if (isLast && !isFirst) {
+            // Last element: remove preceding whitespace
+            removeElementAndPrecedingWhitespace(container, elementIndex);
+        } else if (!isFirst && !isLast) {
+            // Middle element: remove following whitespace
+            removeElementAndFollowingWhitespace(container, elementIndex);
+        } else {
+            // Only element or both first and last: remove element and clean up whitespace
+            removeOnlyElementWithWhitespaceCleanup(container, elementIndex);
+        }
+    }
+
+    /**
+     * Checks if the element at the given index is the first non-whitespace element.
+     */
+    private boolean isFirstNonWhitespaceElement(ContainerNode container, int elementIndex) {
+        for (int i = 0; i < elementIndex; i++) {
+            Node node = container.nodes.get(i);
+            if (node instanceof Element) {
+                return false;
+            }
+            if (node instanceof Text text && !whitespaceManager.isWhitespaceOnly(text.content())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if the element at the given index is the last non-whitespace element.
+     */
+    private boolean isLastNonWhitespaceElement(ContainerNode container, int elementIndex) {
+        for (int i = elementIndex + 1; i < container.nodes.size(); i++) {
+            Node node = container.nodes.get(i);
+            if (node instanceof Element) {
+                return false;
+            }
+            if (node instanceof Text text && !whitespaceManager.isWhitespaceOnly(text.content())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Removes an element and any following whitespace-only text nodes.
+     */
+    private void removeElementAndFollowingWhitespace(ContainerNode container, int elementIndex) {
+        Element element = (Element) container.nodes.get(elementIndex);
+        container.removeNode(element);
+
+        // Remove following whitespace-only text nodes
+        while (elementIndex < container.nodes.size()) {
+            Node nextNode = container.nodes.get(elementIndex);
+            if (nextNode instanceof Text text && whitespaceManager.isWhitespaceOnly(text.content())) {
+                container.removeNode(text);
+                // Don't increment elementIndex since we removed a node
+            } else {
+                break;
+            }
+        }
+    }
+
+    /**
+     * Removes an element and any preceding whitespace-only text nodes.
+     */
+    private void removeElementAndPrecedingWhitespace(ContainerNode container, int elementIndex) {
+        Element element = (Element) container.nodes.get(elementIndex);
+
+        // Remove preceding whitespace-only text nodes
+        int removeFromIndex = elementIndex - 1;
+        while (removeFromIndex >= 0) {
+            Node prevNode = container.nodes.get(removeFromIndex);
+            if (prevNode instanceof Text text && whitespaceManager.isWhitespaceOnly(text.content())) {
+                removeFromIndex--;
+            } else {
+                break;
+            }
+        }
+
+        // Remove nodes from removeFromIndex+1 to elementIndex (inclusive)
+        for (int i = elementIndex; i > removeFromIndex; i--) {
+            Node nodeToRemove = container.nodes.get(i);
+            container.removeNode(nodeToRemove);
+        }
+    }
+
+    /**
+     * Removes the only element and cleans up surrounding whitespace appropriately.
+     */
+    private void removeOnlyElementWithWhitespaceCleanup(ContainerNode container, int elementIndex) {
+        Element element = (Element) container.nodes.get(elementIndex);
+
+        // Find the range of nodes to remove (element + its indentation whitespace)
+        int startRemoveIndex = elementIndex;
+        int endRemoveIndex = elementIndex;
+
+        // Look for preceding whitespace that represents indentation for this element
+        if (elementIndex > 0) {
+            Node prevNode = container.nodes.get(elementIndex - 1);
+            if (prevNode instanceof Text text && whitespaceManager.isWhitespaceOnly(text.content())) {
+                String content = text.content();
+                // Only remove if it's indentation whitespace (contains newline + spaces/tabs)
+                if (content.contains(lineEnding) && content.trim().isEmpty()) {
+                    startRemoveIndex = elementIndex - 1;
+                }
+            }
+        }
+
+        // Look for following whitespace that might be part of the element's formatting
+        if (elementIndex + 1 < container.nodes.size()) {
+            Node nextNode = container.nodes.get(elementIndex + 1);
+            if (nextNode instanceof Text text && whitespaceManager.isWhitespaceOnly(text.content())) {
+                String content = text.content();
+                // Only remove if it's just spaces/tabs (not structural newlines)
+                if (!content.contains(lineEnding) && content.trim().isEmpty()) {
+                    endRemoveIndex = elementIndex + 1;
+                }
+            }
+        }
+
+        // Remove the identified range
+        for (int i = endRemoveIndex; i >= startRemoveIndex; i--) {
+            Node nodeToRemove = container.nodes.get(i);
+            container.removeNode(nodeToRemove);
+        }
     }
 
     /**
@@ -432,7 +780,7 @@ public class Editor {
         // Try to preserve indentation using WhitespaceManager
         String indentation = whitespaceManager.inferIndentation(parent);
         if (!indentation.isEmpty()) {
-            comment.precedingWhitespace("\n" + indentation);
+            comment.precedingWhitespace(lineEnding + indentation);
         }
 
         parent.addNode(comment);
@@ -825,7 +1173,7 @@ public class Editor {
             // Use Editor's whitespace management
             String indentation = editor.whitespaceManager().inferIndentation(parent);
             if (!indentation.isEmpty()) {
-                element.precedingWhitespace("\n" + indentation);
+                element.precedingWhitespace(editor.lineEnding + indentation);
             }
 
             parent.addNode(element);
@@ -886,7 +1234,7 @@ public class Editor {
             // Use Editor's whitespace management
             String indentation = editor.whitespaceManager().inferIndentation(parent);
             if (!indentation.isEmpty()) {
-                comment.precedingWhitespace("\n" + indentation);
+                comment.precedingWhitespace(editor.lineEnding + indentation);
             }
 
             parent.addNode(comment);
@@ -1012,7 +1360,7 @@ public class Editor {
             String whitespace = attr.precedingWhitespace();
             if (whitespace != null) {
                 // Prioritize multi-line patterns
-                if (whitespace.contains("\n")) {
+                if (whitespace.contains(lineEnding)) {
                     bestMultiLinePattern = whitespace;
                     // Don't break - look for the best multi-line pattern
                 } else if (!whitespace.equals(" ")) {
@@ -1040,19 +1388,103 @@ public class Editor {
      * Infers alignment whitespace for multi-line attribute formatting.
      */
     private String inferAlignmentWhitespace(String existingWhitespace) {
-        if (existingWhitespace == null || !existingWhitespace.contains("\n")) {
+        if (existingWhitespace == null || !existingWhitespace.contains(lineEnding)) {
             return " ";
         }
 
         // Extract the pattern after the last newline (including the newline)
-        int lastNewline = existingWhitespace.lastIndexOf('\n');
+        int lastNewline = existingWhitespace.lastIndexOf(lineEnding.charAt(lineEnding.length() - 1));
         if (lastNewline >= 0) {
             // Return from the newline onwards (including the newline)
             return existingWhitespace.substring(lastNewline);
         }
 
         // Fallback to newline + some spaces for alignment
-        return "\n         "; // Reasonable default for attribute alignment
+        return lineEnding + "         "; // Reasonable default for attribute alignment
+    }
+
+    /**
+     * Detects the line ending style used in the document.
+     *
+     * @return the detected line ending (\r\n, \n, or \r), or the config default if none detected
+     */
+    private String detectLineEnding() {
+        if (document == null) {
+            return config.lineEnding();
+        }
+
+        // Check various places in the document for line endings
+        String detected = detectLineEndingInNode(document);
+        return detected != null ? detected : config.lineEnding();
+    }
+
+    /**
+     * Recursively searches for line endings in a node and its children.
+     */
+    private String detectLineEndingInNode(Node node) {
+        // Check preceding whitespace
+        String precedingWs = node.precedingWhitespace();
+        if (precedingWs != null) {
+            String detected = extractLineEnding(precedingWs);
+            if (detected != null) {
+                return detected;
+            }
+        }
+
+        // Check following whitespace
+        String followingWs = node.followingWhitespace();
+        if (followingWs != null) {
+            String detected = extractLineEnding(followingWs);
+            if (detected != null) {
+                return detected;
+            }
+        }
+
+        // Check text content
+        if (node instanceof Text text) {
+            String detected = extractLineEnding(text.content());
+            if (detected != null) {
+                return detected;
+            }
+        }
+
+        // Check children recursively
+        if (node instanceof ContainerNode container) {
+            for (Node child : container.nodes) {
+                String detected = detectLineEndingInNode(child);
+                if (detected != null) {
+                    return detected;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Extracts the line ending from a string.
+     */
+    private String extractLineEnding(String text) {
+        if (text == null) {
+            return null;
+        }
+
+        // Check for Windows line ending first (\r\n)
+        if (text.contains("\r\n")) {
+            return "\r\n";
+        }
+
+        // Check for Unix line ending (\n)
+        if (text.contains("\n")) {
+            return "\n";
+        }
+
+        // Check for old Mac line ending (\r)
+        if (text.contains("\r")) {
+            return "\r";
+        }
+
+        return null;
     }
 
     /**
@@ -1080,6 +1512,7 @@ public class Editor {
             return true; // No namespace needed
         }
 
+        // Start from the element itself and walk up the hierarchy
         Element current = element;
         while (current != null) {
             // Check if this element declares the namespace

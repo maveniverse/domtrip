@@ -965,8 +965,8 @@ public class Editor {
         Map<String, Attribute> existingAttrs = element.attributeObjects();
 
         if (existingAttrs.isEmpty()) {
-            // No existing attributes - use defaults
-            return new AttributeFormatting(QuoteStyle.DOUBLE, " ");
+            // No existing attributes - use config defaults
+            return new AttributeFormatting(config.defaultQuoteStyle(), " ");
         }
 
         // Analyze quote style preferences
@@ -993,7 +993,10 @@ public class Editor {
             }
         }
 
-        // Return the most common style, defaulting to double quotes
+        // Return the most common style, defaulting to config default
+        if (singleQuoteCount == doubleQuoteCount) {
+            return config.defaultQuoteStyle();
+        }
         return singleQuoteCount > doubleQuoteCount ? QuoteStyle.SINGLE : QuoteStyle.DOUBLE;
     }
 

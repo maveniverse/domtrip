@@ -14,15 +14,15 @@ DomTrip's behavior can be customized through the `DomTripConfig` class. This pag
 
 ```java
 // Use preset configurations
-DomTripConfig strict = DomTripConfig.strict();
-DomTripConfig lenient = DomTripConfig.lenient();
+DomTripConfig defaults = DomTripConfig.defaults();
 DomTripConfig pretty = DomTripConfig.prettyPrint();
+DomTripConfig minimal = DomTripConfig.minimal();
 
 // Create custom configuration
 DomTripConfig custom = DomTripConfig.defaults()
-    .withIndentation("  ")
-    .withPreserveWhitespace(true)
-    .withQuoteStyle(QuoteStyle.DOUBLE);
+    .withIndentString("  ")
+    .withWhitespacePreservation(true)
+    .withDefaultQuoteStyle(QuoteStyle.DOUBLE);
 
 // Use with Editor
 Editor editor = new Editor(xml, custom);
@@ -30,30 +30,17 @@ Editor editor = new Editor(xml, custom);
 
 ## Preset Configurations
 
-### Strict Configuration
+### Default Configuration
 
 Maximum preservation of original formatting:
 
 ```java
-DomTripConfig strict = DomTripConfig.strict();
+DomTripConfig defaults = DomTripConfig.defaults();
 // - Preserves all whitespace
 // - Preserves all comments
-// - Preserves original quote styles
-// - Preserves entity encoding
-// - Minimal reformatting
-```
-
-### Lenient Configuration
-
-Balanced approach between preservation and flexibility:
-
-```java
-DomTripConfig lenient = DomTripConfig.lenient();
-// - Preserves significant whitespace
-// - Preserves comments
-// - Normalizes quote styles
-// - Flexible entity handling
-// - Smart reformatting
+// - Preserves processing instructions
+// - Uses double quotes by default
+// - No pretty printing
 ```
 
 ### Pretty Print Configuration
@@ -63,10 +50,22 @@ Clean, readable output:
 ```java
 DomTripConfig pretty = DomTripConfig.prettyPrint();
 // - Consistent indentation
-// - Clean whitespace
-// - Uniform quote styles
-// - Readable formatting
-// - Full reformatting
+// - Clean whitespace formatting
+// - Preserves comments and processing instructions
+// - Readable structure
+```
+
+### Minimal Configuration
+
+Compact output for size optimization:
+
+```java
+DomTripConfig minimal = DomTripConfig.minimal();
+// - No whitespace preservation
+// - No comments
+// - No processing instructions
+// - Omits XML declaration
+// - Compact output
 ```
 
 ## Whitespace Configuration
@@ -75,11 +74,9 @@ Control how whitespace is handled:
 
 ```java
 DomTripConfig config = DomTripConfig.defaults()
-    .withPreserveWhitespace(true)           // Keep original whitespace
-    .withIndentation("    ")                // 4 spaces for new content
-    .withNewlineAfterElements(true)         // Add newlines after elements
-    .withTrimTextContent(false)             // Don't trim text content
-    .withCollapseWhitespace(false);         // Don't collapse multiple spaces
+    .withWhitespacePreservation(true)       // Keep original whitespace
+    .withIndentString("    ")               // 4 spaces for new content
+    .withPrettyPrint(false);                // Disable pretty printing
 ```
 
 ### Indentation Options
@@ -87,152 +84,119 @@ DomTripConfig config = DomTripConfig.defaults()
 ```java
 // Different indentation styles
 DomTripConfig spaces = DomTripConfig.defaults()
-    .withIndentation("  ");                 // 2 spaces
+    .withIndentString("  ");                // 2 spaces
 
 DomTripConfig tabs = DomTripConfig.defaults()
-    .withIndentation("\t");                 // Tab characters
+    .withIndentString("\t");                // Tab characters
 
 DomTripConfig mixed = DomTripConfig.defaults()
-    .withIndentation("    ");               // 4 spaces
+    .withIndentString("    ");              // 4 spaces
 ```
 
 ## Quote Style Configuration
 
-Control attribute quote styles:
+Control default attribute quote styles for new attributes:
 
 ```java
-// Force double quotes
+// Use double quotes for new attributes
 DomTripConfig doubleQuotes = DomTripConfig.defaults()
-    .withQuoteStyle(QuoteStyle.DOUBLE);
+    .withDefaultQuoteStyle(QuoteStyle.DOUBLE);
 
-// Force single quotes  
+// Use single quotes for new attributes
 DomTripConfig singleQuotes = DomTripConfig.defaults()
-    .withQuoteStyle(QuoteStyle.SINGLE);
-
-// Preserve original quotes
-DomTripConfig preserveQuotes = DomTripConfig.defaults()
-    .withQuoteStyle(QuoteStyle.PRESERVE);
+    .withDefaultQuoteStyle(QuoteStyle.SINGLE);
 ```
 
-## Comment Handling
+Note: Existing attributes preserve their original quote styles. The default quote style only applies to newly created attributes.
 
-Configure comment preservation:
+## Comment and Processing Instruction Handling
+
+Configure comment and processing instruction preservation:
 
 ```java
 DomTripConfig config = DomTripConfig.defaults()
-    .withPreserveComments(true)             // Keep all comments
-    .withPreserveDocumentComments(true)     // Keep document-level comments
-    .withPreserveInlineComments(true)       // Keep inline comments
-    .withCommentIndentation("  ");          // Indent comments
+    .withCommentPreservation(true)                      // Keep all comments
+    .withProcessingInstructionPreservation(true);       // Keep processing instructions
+
+// For minimal output, exclude comments and PIs
+DomTripConfig minimal = DomTripConfig.defaults()
+    .withCommentPreservation(false)
+    .withProcessingInstructionPreservation(false);
 ```
 
-## Entity Handling
+## Line Ending Configuration
 
-Control entity encoding and decoding:
+Control line endings in output:
+
+```java
+// Use Unix line endings
+DomTripConfig unix = DomTripConfig.defaults()
+    .withLineEnding("\n");
+
+// Use Windows line endings
+DomTripConfig windows = DomTripConfig.defaults()
+    .withLineEnding("\r\n");
+
+// Use Mac line endings
+DomTripConfig mac = DomTripConfig.defaults()
+    .withLineEnding("\r");
+```
+
+## XML Declaration Handling
+
+Control whether to include XML declarations:
+
+```java
+// Include XML declaration (default)
+DomTripConfig withDeclaration = DomTripConfig.defaults()
+    .withXmlDeclaration(true);
+
+// Omit XML declaration for minimal output
+DomTripConfig withoutDeclaration = DomTripConfig.defaults()
+    .withXmlDeclaration(false);
+```
+
+## Complete Configuration Example
+
+Build a comprehensive configuration:
 
 ```java
 DomTripConfig config = DomTripConfig.defaults()
-    .withPreserveEntities(true)             // Keep original entities
-    .withEncodeEntities(true)               // Encode special characters
-    .withEntityReferences(Map.of(           // Custom entity references
-        "copy", "©",
-        "reg", "®"
-    ));
-```
-
-## Namespace Configuration
-
-Configure namespace handling:
-
-```java
-DomTripConfig config = DomTripConfig.defaults()
-    .withPreserveNamespaceDeclarations(true)    // Keep all declarations
-    .withValidateNamespaces(true)               // Validate namespace usage
-    .withRequireNamespaceDeclarations(false)    // Allow undeclared prefixes
-    .withDefaultNamespacePrefix("ns")           // Prefix for default namespace
-    .withNamespaceAware(true);                  // Enable namespace processing
-```
-
-## Validation Configuration
-
-Configure validation behavior:
-
-```java
-DomTripConfig config = DomTripConfig.defaults()
-    .withValidateStructure(true)            // Validate XML structure
-    .withValidateNamespaces(true)           // Validate namespaces
-    .withValidateAttributes(true)           // Validate attribute names
-    .withStrictMode(false)                  // Allow some flexibility
-    .withFailOnError(true);                 // Fail on validation errors
-```
-
-## Performance Configuration
-
-Optimize for different use cases:
-
-```java
-// Memory-optimized configuration
-DomTripConfig memoryOptimized = DomTripConfig.defaults()
-    .withLazyLoading(true)                  // Load content on demand
-    .withCompactStorage(true)               // Use compact storage
-    .withPooledObjects(true);               // Reuse objects
-
-// Speed-optimized configuration
-DomTripConfig speedOptimized = DomTripConfig.defaults()
-    .withPrecomputeHashes(true)             // Cache hash codes
-    .withFastParsing(true)                  // Skip some validations
-    .withBufferedIO(true);                  // Use buffered I/O
-```
-
-## Custom Configuration Builder
-
-Build complex configurations step by step:
-
-```java
-DomTripConfig config = DomTripConfig.builder()
     // Whitespace settings
-    .withIndentation("  ")
-    .withPreserveWhitespace(true)
-    .withNewlineAfterElements(true)
-    
-    // Quote and entity settings
-    .withQuoteStyle(QuoteStyle.DOUBLE)
-    .withPreserveEntities(true)
-    
-    // Comment settings
-    .withPreserveComments(true)
-    .withCommentIndentation("  ")
-    
-    // Namespace settings
-    .withNamespaceAware(true)
-    .withValidateNamespaces(true)
-    
-    // Performance settings
-    .withLazyLoading(false)
-    .withBufferedIO(true)
-    
-    .build();
+    .withIndentString("  ")                         // 2-space indentation
+    .withWhitespacePreservation(true)               // Keep original whitespace
+    .withPrettyPrint(false)                         // No reformatting
+
+    // Content preservation
+    .withCommentPreservation(true)                  // Keep comments
+    .withProcessingInstructionPreservation(true)    // Keep PIs
+
+    // Quote and declaration settings
+    .withDefaultQuoteStyle(QuoteStyle.DOUBLE)       // Double quotes for new attrs
+    .withXmlDeclaration(true)                       // Include XML declaration
+
+    // Line ending settings
+    .withLineEnding("\n");                          // Unix line endings
 ```
 
-## Configuration Inheritance
+## Configuration Patterns
 
-Configurations can be based on existing ones:
+Common configuration patterns for different use cases:
 
 ```java
-// Start with strict configuration
-DomTripConfig base = DomTripConfig.strict();
+// Development configuration - readable output
+DomTripConfig development = DomTripConfig.prettyPrint()
+    .withIndentString("  ")
+    .withCommentPreservation(true);
 
-// Customize specific aspects
-DomTripConfig custom = base.toBuilder()
-    .withIndentation("    ")                // Change indentation
-    .withQuoteStyle(QuoteStyle.DOUBLE)      // Force double quotes
-    .build();
+// Production configuration - preserve everything
+DomTripConfig production = DomTripConfig.defaults()
+    .withWhitespacePreservation(true)
+    .withCommentPreservation(true);
 
-// Create variant for different use case
-DomTripConfig variant = custom.toBuilder()
-    .withPreserveComments(false)            // Remove comments
-    .withPrettyPrint(true)                  // Enable pretty printing
-    .build();
+// API response configuration - minimal output
+DomTripConfig api = DomTripConfig.minimal()
+    .withXmlDeclaration(false);
 ```
 
 ## Environment-Specific Configurations
@@ -241,23 +205,23 @@ Different configurations for different environments:
 
 ```java
 public class ConfigurationFactory {
-    
+
     public static DomTripConfig forDevelopment() {
         return DomTripConfig.prettyPrint()
-            .withValidateStructure(true)
-            .withFailOnError(true);
+            .withIndentString("  ")
+            .withCommentPreservation(true);
     }
-    
+
     public static DomTripConfig forProduction() {
-        return DomTripConfig.strict()
-            .withPreserveWhitespace(true)
-            .withPreserveComments(true);
+        return DomTripConfig.defaults()
+            .withWhitespacePreservation(true)
+            .withCommentPreservation(true);
     }
-    
+
     public static DomTripConfig forTesting() {
-        return DomTripConfig.lenient()
-            .withNormalizeWhitespace(true)
-            .withIgnoreComments(true);
+        return DomTripConfig.minimal()
+            .withCommentPreservation(false)
+            .withXmlDeclaration(false);
     }
 }
 
@@ -272,34 +236,51 @@ Editor editor = new Editor(xml, config);
 
 ```java
 // ✅ Good - start with appropriate preset
-DomTripConfig config = DomTripConfig.strict()  // For config files
-    .withIndentation("  ");                    // Customize as needed
+DomTripConfig config = DomTripConfig.defaults()    // For config files
+    .withIndentString("  ");                       // Customize as needed
 
-// ❌ Avoid - building from scratch unnecessarily
-DomTripConfig config = DomTripConfig.builder()
-    .withPreserveWhitespace(true)
-    .withPreserveComments(true)
-    // ... many more settings
-    .build();
+// ✅ Good - use minimal for APIs
+DomTripConfig apiConfig = DomTripConfig.minimal(); // Compact output
 ```
 
 ### 2. Document Configuration Choices
 
 ```java
 // ✅ Good - document why you chose specific settings
-DomTripConfig config = DomTripConfig.strict()
-    .withIndentation("  ")                     // Match project style
-    .withQuoteStyle(QuoteStyle.DOUBLE)         // Consistent with JSON
-    .withPreserveComments(true);               // Keep documentation
+DomTripConfig config = DomTripConfig.defaults()
+    .withIndentString("  ")                        // Match project style
+    .withDefaultQuoteStyle(QuoteStyle.DOUBLE)      // Consistent with JSON
+    .withCommentPreservation(true);                // Keep documentation
 ```
 
 ### 3. Use Environment-Specific Configurations
 
 ```java
 // ✅ Good - different configs for different needs
-DomTripConfig config = isProduction() 
-    ? DomTripConfig.strict()                   // Preserve everything
-    : DomTripConfig.prettyPrint();             // Readable for debugging
+DomTripConfig config = isProduction()
+    ? DomTripConfig.defaults()                     // Preserve everything
+    : DomTripConfig.prettyPrint();                 // Readable for debugging
+```
+
+## Available Configuration Methods
+
+Here's a complete list of available configuration methods:
+
+```java
+DomTripConfig config = DomTripConfig.defaults()
+    // Whitespace control
+    .withWhitespacePreservation(boolean)           // Preserve original whitespace
+    .withPrettyPrint(boolean)                      // Enable pretty printing
+    .withIndentString(String)                      // Set indentation string
+    .withLineEnding(String)                        // Set line ending style
+
+    // Content preservation
+    .withCommentPreservation(boolean)              // Preserve comments
+    .withProcessingInstructionPreservation(boolean) // Preserve PIs
+    .withXmlDeclaration(boolean)                   // Include XML declaration
+
+    // Attribute formatting
+    .withDefaultQuoteStyle(QuoteStyle);            // Default quote style for new attributes
 ```
 
 ## Next Steps

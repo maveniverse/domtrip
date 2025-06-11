@@ -34,13 +34,14 @@ class EditorInsertRemoveTest {
         editor.removeElement(first);
         String result = editor.toXml();
 
-        // Should remove first element and following whitespace
-        assertFalse(result.contains("<first>"));
-        assertTrue(result.contains("<second>"));
-        assertTrue(result.contains("<third>"));
+        String expected =
+                """
+            <root>
+                <second>content2</second>
+                <third>content3</third>
+            </root>""";
 
-        // Should maintain proper formatting for remaining elements
-        assertTrue(result.contains("    <second>"));
+        assertEquals(expected, result);
     }
 
     @Test
@@ -86,14 +87,14 @@ class EditorInsertRemoveTest {
         editor.removeElement(second);
         String result = editor.toXml();
 
-        // Should remove middle element and following whitespace
-        assertFalse(result.contains("<second>"));
-        assertTrue(result.contains("<first>"));
-        assertTrue(result.contains("<third>"));
+        String expected =
+                """
+            <root>
+                <first>content1</first>
+                <third>content3</third>
+            </root>""";
 
-        // Should maintain proper formatting
-        assertTrue(result.contains("    <first>"));
-        assertTrue(result.contains("    <third>"));
+        assertEquals(expected, result);
     }
 
     @Test
@@ -110,10 +111,11 @@ class EditorInsertRemoveTest {
         editor.removeElement(only);
         String result = editor.toXml();
 
-        // Should remove the only element
-        assertFalse(result.contains("<only>"));
-        assertTrue(result.contains("<root>"));
-        assertTrue(result.contains("</root>"));
+        String expected = """
+            <root>
+            </root>""";
+
+        assertEquals(expected, result);
     }
 
     @Test
@@ -135,10 +137,15 @@ class EditorInsertRemoveTest {
         editor.removeElement(second);
         String result = editor.toXml();
 
-        // Should remove middle element and its whitespace
-        assertFalse(result.contains("<second>"));
-        assertTrue(result.contains("<first>"));
-        assertTrue(result.contains("<third>"));
+        String expected =
+                """
+            <root>
+                <first>content1</first>
+
+                <third>content3</third>
+            </root>""";
+
+        assertEquals(expected, result);
     }
 
     @Test
@@ -155,13 +162,15 @@ class EditorInsertRemoveTest {
         editor.addElement(root, "newElement", "newContent", true, false);
         String result = editor.toXml();
 
-        // Should add element with blank line before
-        assertTrue(result.contains("<existing>"));
-        assertTrue(result.contains("<newElement>"));
-        assertTrue(result.contains("newContent"));
+        String expected =
+                """
+            <root>
+                <existing>content</existing>
 
-        // Should have blank line before new element
-        assertTrue(result.contains("</existing>\n\n"));
+                <newElement>newContent</newElement>
+            </root>""";
+
+        assertEquals(expected, result);
     }
 
     @Test
@@ -178,13 +187,15 @@ class EditorInsertRemoveTest {
         editor.addElement(root, "newElement", "newContent", false, true);
         String result = editor.toXml();
 
-        // Should add element with blank line after
-        assertTrue(result.contains("<existing>"));
-        assertTrue(result.contains("<newElement>"));
-        assertTrue(result.contains("newContent"));
+        String expected =
+                """
+            <root>
+                <existing>content</existing>
+                <newElement>newContent</newElement>
 
-        // Should have blank line after new element
-        assertTrue(result.contains("</newElement>\n\n"));
+            </root>""";
+
+        assertEquals(expected, result);
     }
 
     @Test
@@ -201,14 +212,16 @@ class EditorInsertRemoveTest {
         editor.addElement(root, "newElement", "newContent", true, true);
         String result = editor.toXml();
 
-        // Should add element with blank lines before and after
-        assertTrue(result.contains("<existing>"));
-        assertTrue(result.contains("<newElement>"));
-        assertTrue(result.contains("newContent"));
+        String expected =
+                """
+            <root>
+                <existing>content</existing>
 
-        // Should have blank lines before and after new element
-        assertTrue(result.contains("</existing>\n\n"));
-        assertTrue(result.contains("</newElement>\n\n"));
+                <newElement>newContent</newElement>
+
+            </root>""";
+
+        assertEquals(expected, result);
     }
 
     @Test
@@ -227,13 +240,15 @@ class EditorInsertRemoveTest {
         editor.addElement(root, qname, "newContent", true, false);
         String result = editor.toXml();
 
-        // Should add namespaced element with blank line before
-        assertTrue(result.contains("<existing>"));
-        assertTrue(result.contains("ns:newElement"));
-        assertTrue(result.contains("newContent"));
+        String expected =
+                """
+            <root xmlns:ns="http://example.com">
+                <existing>content</existing>
 
-        // Should have blank line before new element
-        assertTrue(result.contains("</existing>\n\n"));
+                <ns:newElement>newContent</ns:newElement>
+            </root>""";
+
+        assertEquals(expected, result);
     }
 
     @Test
@@ -293,10 +308,22 @@ class EditorInsertRemoveTest {
         editor.removeElement(firstDep);
         String result = editor.toXml();
 
-        // Should remove first dependency and maintain formatting
-        assertFalse(result.contains("<groupId>junit</groupId>"));
-        assertTrue(result.contains("<groupId>mockito</groupId>"));
-        assertTrue(result.contains("<dependencies>"));
-        assertTrue(result.contains("</dependencies>"));
+        String expected =
+                """
+            <project>
+                <groupId>com.example</groupId>
+                <artifactId>test</artifactId>
+                <version>1.0.0</version>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>mockito</groupId>
+                        <artifactId>mockito-core</artifactId>
+                        <version>4.6.1</version>
+                    </dependency>
+                </dependencies>
+            </project>""";
+
+        assertEquals(expected, result);
     }
 }

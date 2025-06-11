@@ -84,9 +84,51 @@ Document doc = Document.withXmlDeclaration("1.0", "UTF-8")
 // Complete document with root element
 Document doc = Document.withRootElement("project");
 
-// Parse existing XML
+// Parse existing XML from string
 Document doc = Document.of(xmlString);
+
+// Parse XML from file (recommended)
+Document doc = Document.of(Path.of("config.xml"));
+
+// Parse XML from InputStream
+try (InputStream inputStream = Files.newInputStream(path)) {
+    Document doc = Document.of(inputStream);
+}
 ```
+
+### File-Based Document Loading
+
+The `Document.of(Path)` method is the recommended way to load XML files as it handles encoding detection automatically:
+
+```java
+// Basic file loading with automatic encoding detection
+Document doc = Document.of(Path.of("config.xml"));
+
+// Works with various encodings
+Document utf8Doc = Document.of(Path.of("utf8-file.xml"));
+Document utf16Doc = Document.of(Path.of("utf16-file.xml"));
+Document isoDoc = Document.of(Path.of("iso-8859-1-file.xml"));
+
+// Handles BOM (Byte Order Mark) detection
+Document bomDoc = Document.of(Path.of("file-with-bom.xml"));
+
+// Error handling
+try {
+    Document doc = Document.of(Path.of("config.xml"));
+    Editor editor = new Editor(doc);
+    // ... process document
+} catch (DomTripException e) {
+    System.err.println("Failed to parse XML: " + e.getMessage());
+}
+```
+
+**Benefits of `Document.of(Path)`:**
+
+- **Automatic encoding detection**: Properly handles UTF-8, UTF-16, ISO-8859-1, and other encodings
+- **BOM handling**: Correctly processes Byte Order Marks
+- **Memory efficient**: Streams the file content rather than loading entire string into memory first
+- **Error handling**: Provides better error messages for encoding and parsing issues
+- **Convenience**: Single method call for file-based XML parsing
 
 ### Advanced Document Creation
 

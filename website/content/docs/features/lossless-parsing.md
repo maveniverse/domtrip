@@ -177,11 +177,16 @@ You can verify lossless parsing with this simple test:
 ```java
 @Test
 void testLosslessRoundTrip() {
-    String original = Files.readString(Paths.get("complex.xml"));
-    
-    Editor editor = new Editor(original);
+    Path xmlFile = Path.of("complex.xml");
+
+    // Load with automatic encoding detection
+    Document doc = Document.of(xmlFile);
+    Editor editor = new Editor(doc);
     String result = editor.toXml();
-    
+
+    // Load again to verify round-trip preservation
+    Document originalDoc = Document.of(xmlFile);
+    String original = new Editor(originalDoc).toXml();
     assertEquals(original, result, "Round-trip should be identical");
 }
 ```

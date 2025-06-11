@@ -71,18 +71,18 @@ Notice how:
 // From string
 Editor editor = new Editor(Document.of(xmlString));
 
-// From file (String-based)
-String xml = Files.readString(Paths.get("config.xml"));
-Editor editor = new Editor(Document.of(xml));
+// From file (recommended - handles encoding automatically)
+Document doc = Document.of(Path.of("config.xml"));
+Editor editor = new Editor(doc);
 
 // From InputStream with automatic encoding detection
-try (InputStream inputStream = Files.newInputStream(Paths.get("config.xml"))) {
+try (InputStream inputStream = Files.newInputStream(Path.of("config.xml"))) {
     Document doc = Document.of(inputStream);
     Editor editor = new Editor(doc);
 }
 
 // With custom configuration
-Editor editor = new Editor(Document.of(xml), DomTripConfig.prettyPrint());
+Editor editor = new Editor(Document.of(Path.of("config.xml")), DomTripConfig.prettyPrint());
 ```
 
 ### 2. Finding Elements
@@ -195,32 +195,32 @@ Here's a practical example of editing a Maven POM file:
 
 ```java
 public class MavenPomEditor {
-    public static void addDependency(String pomPath, 
-                                   String groupId, 
-                                   String artifactId, 
+    public static void addDependency(String pomPath,
+                                   String groupId,
+                                   String artifactId,
                                    String version) throws Exception {
-        // Load POM
-        String xml = Files.readString(Paths.get(pomPath));
-        Editor editor = new Editor(Document.of(xml));
-        
+        // Load POM with automatic encoding detection
+        Document doc = Document.of(Path.of(pomPath));
+        Editor editor = new Editor(doc);
+
         // Find or create dependencies section
         Element project = editor.getDocumentElement();
         Element dependencies = editor.findElement("dependencies");
         if (dependencies == null) {
             dependencies = editor.addElement(project, "dependencies");
         }
-        
+
         // Add new dependency
         Element dependency = editor.addElement(dependencies, "dependency");
         editor.addElement(dependency, "groupId", groupId);
         editor.addElement(dependency, "artifactId", artifactId);
         editor.addElement(dependency, "version", version);
-        
+
         // Save back to file (String-based)
-        Files.writeString(Paths.get(pomPath), editor.toXml());
+        Files.writeString(Path.of(pomPath), editor.toXml());
 
         // Or save to OutputStream with proper encoding
-        try (OutputStream outputStream = Files.newOutputStream(Paths.get(pomPath))) {
+        try (OutputStream outputStream = Files.newOutputStream(Path.of(pomPath))) {
             editor.document().toXml(outputStream);
         }
 

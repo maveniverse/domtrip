@@ -329,18 +329,23 @@ try (InputStream inputStream = Files.newInputStream(largePath);
 - **BOM Detection**: Fast and occurs first to minimize encoding attempts
 - **Large Files**: Consider memory implications when processing very large XML files
 
-## Migration from String-Based APIs
+## Modern File-Based APIs
 
-### Before (String-based)
+### Path-based Loading (Recommended)
 
 ```java
-String xml = Files.readString(path);
-Document doc = Document.of(xml);
+// Load with automatic encoding detection
+Document doc = Document.of(path);
 String result = doc.toXml();
 Files.writeString(outputPath, result);
+
+// Or save with proper encoding
+try (OutputStream outputStream = Files.newOutputStream(outputPath)) {
+    doc.toXml(outputStream);
+}
 ```
 
-### After (Stream-based)
+### Stream-based Processing
 
 ```java
 try (InputStream inputStream = Files.newInputStream(path);

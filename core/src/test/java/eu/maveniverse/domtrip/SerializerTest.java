@@ -92,8 +92,8 @@ public class SerializerTest {
     @Test
     void testSerializeElementWithMixedQuotes() {
         Element element = new Element("test");
-        element.attribute("single", "value", '\'');
-        element.attribute("double", "value", '"');
+        element.attribute("single", "value", QuoteStyle.SINGLE);
+        element.attribute("double", "value", QuoteStyle.DOUBLE);
 
         String result = element.toXml();
         assertTrue(result.contains("single='value'"));

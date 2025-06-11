@@ -176,7 +176,7 @@ public class Element extends ContainerNode {
      * @param name the attribute name
      * @param value the attribute value
      * @return this element for method chaining
-     * @see #attribute(String, String, char)
+     * @see #attribute(String, String, QuoteStyle)
      * @see #attributeObject(String)
      */
     public Element attribute(String name, String value) {
@@ -193,27 +193,27 @@ public class Element extends ContainerNode {
     }
 
     /**
-     * Sets an attribute value with a specific quote character.
+     * Sets an attribute value with a specific quote style.
      *
      * <p>When setting an attribute that already exists, this method preserves the original
-     * preceding whitespace but uses the specified quote character. For new attributes, it uses
-     * the specified quote character with default whitespace (single space).</p>
+     * preceding whitespace but uses the specified quote style. For new attributes, it uses
+     * the specified quote style with default whitespace (single space).</p>
      *
      * @param name the attribute name
      * @param value the attribute value
-     * @param quoteChar the quote character to use (' or ")
+     * @param quoteStyle the quote style to use (SINGLE or DOUBLE)
      * @return this element for method chaining
      * @see #attribute(String, String)
      */
-    public Element attribute(String name, String value, char quoteChar) {
+    public Element attribute(String name, String value, QuoteStyle quoteStyle) {
         Attribute existingAttr = attributes.get(name);
         if (existingAttr != null) {
             // Preserve existing whitespace but update quote style and value
             existingAttr.value(value);
-            existingAttr.quoteStyle(QuoteStyle.fromChar(quoteChar));
+            existingAttr.quoteStyle(quoteStyle);
         } else {
-            // Create new attribute with specified quote character
-            attributes.put(name, new Attribute(name, value, quoteChar, " "));
+            // Create new attribute with specified quote style
+            attributes.put(name, new Attribute(name, value, quoteStyle, " "));
         }
         markModified();
         return this;
@@ -327,26 +327,26 @@ public class Element extends ContainerNode {
      * Sets the quote character for the specified attribute.
      *
      * @param attributeName the name of the attribute
-     * @param quoteChar the quote character to use (single or double quote)
+     * @param quoteStyle the quote style to use (SINGLE or DOUBLE)
      * @return this element for method chaining
      */
-    public Element attributeQuote(String attributeName, char quoteChar) {
+    public Element attributeQuote(String attributeName, QuoteStyle quoteStyle) {
         Attribute attr = attributes.get(attributeName);
         if (attr != null) {
-            attr.quoteStyle(QuoteStyle.fromChar(quoteChar));
+            attr.quoteStyle(quoteStyle);
         }
         return this;
     }
 
     /**
-     * Gets the quote character for the specified attribute.
+     * Gets the quote style for the specified attribute.
      *
      * @param attributeName the name of the attribute
-     * @return the quote character, or double quote if not set
+     * @return the quote style, or DOUBLE if not set
      */
-    public char attributeQuote(String attributeName) {
+    public QuoteStyle attributeQuote(String attributeName) {
         Attribute attr = attributes.get(attributeName);
-        return attr != null ? attr.quoteStyle().getCharacter() : '"';
+        return attr != null ? attr.quoteStyle() : QuoteStyle.DOUBLE;
     }
 
     // Tag formatting

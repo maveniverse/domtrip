@@ -66,10 +66,10 @@ public class XmlConformanceTest {
         assertEquals("no-space", root.attribute("attr4"));
 
         // Quote styles should be preserved
-        assertEquals('\'', root.attributeQuote("attr1"));
-        assertEquals('"', root.attributeQuote("attr2"));
-        assertEquals('\'', root.attributeQuote("attr3"));
-        assertEquals('"', root.attributeQuote("attr4"));
+        assertEquals(QuoteStyle.SINGLE, root.attributeQuote("attr1"));
+        assertEquals(QuoteStyle.DOUBLE, root.attributeQuote("attr2"));
+        assertEquals(QuoteStyle.SINGLE, root.attributeQuote("attr3"));
+        assertEquals(QuoteStyle.DOUBLE, root.attributeQuote("attr4"));
     }
 
     @Test

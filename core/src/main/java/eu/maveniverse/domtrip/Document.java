@@ -105,7 +105,7 @@ public class Document extends ContainerNode {
      * information, formatted as: {@code <?xml version="1.0" encoding="UTF-8"?>}</p>
      *
      * @return the XML declaration string, or empty string if none is set
-     * @see #setXmlDeclaration(String)
+     * @see #xmlDeclaration(String)
      */
     public String xmlDeclaration() {
         return xmlDeclaration;
@@ -137,7 +137,7 @@ public class Document extends ContainerNode {
      * references to external DTD files or inline DTD definitions.</p>
      *
      * @return the DOCTYPE declaration string, or empty string if none is set
-     * @see #setDoctype(String)
+     * @see #doctype(String)
      */
     public String doctype() {
         return doctype;
@@ -171,7 +171,7 @@ public class Document extends ContainerNode {
      * one document element.</p>
      *
      * @return the root element, or null if none is set
-     * @see #setRoot(Element)
+     * @see #root(Element)
      */
     public Element root() {
         return root;
@@ -221,7 +221,7 @@ public class Document extends ContainerNode {
      * Common values include "UTF-8", "UTF-16", "ISO-8859-1", etc.</p>
      *
      * @return the document encoding, defaults to "UTF-8"
-     * @see #setEncoding(String)
+     * @see #encoding(String)
      */
     public String encoding() {
         return encoding;
@@ -251,7 +251,7 @@ public class Document extends ContainerNode {
      * this document conforms to. Common values are "1.0" and "1.1".</p>
      *
      * @return the XML version, defaults to "1.0"
-     * @see #setVersion(String)
+     * @see #version(String)
      */
     public String version() {
         return version;
@@ -281,7 +281,7 @@ public class Document extends ContainerNode {
      * declares that it has no external dependencies.</p>
      *
      * @return true if the document is standalone, false otherwise
-     * @see #setStandalone(boolean)
+     * @see #standalone(boolean)
      */
     public boolean isStandalone() {
         return standalone;
@@ -420,8 +420,8 @@ public class Document extends ContainerNode {
      * <p>The standalone attribute is only included if the standalone flag is true.</p>
      *
      * @return a properly formatted XML declaration string
-     * @see #getVersion()
-     * @see #getEncoding()
+     * @see #version()
+     * @see #encoding()
      * @see #isStandalone()
      */
     public String generateXmlDeclaration() {
@@ -453,8 +453,6 @@ public class Document extends ContainerNode {
 
     /**
      * Creates an empty document with default settings.
-     *
-     * <p>Alias for {@link #empty()} following modern Java naming conventions.</p>
      *
      * @return a new empty Document
      */

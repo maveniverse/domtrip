@@ -15,10 +15,10 @@ package eu.maveniverse.domtrip;
  * <h3>Usage Examples:</h3>
  * <pre>{@code
  * // Set attribute with specific quote style
- * element.setAttribute("class", "important", QuoteStyle.SINGLE);
+ * element.attribute("class", "important", QuoteStyle.SINGLE);
  * // Results in: class='important'
  *
- * element.setAttribute("id", "main", QuoteStyle.DOUBLE);
+ * element.attribute("id", "main", QuoteStyle.DOUBLE);
  * // Results in: id="main"
  *
  * // Get quote style from character
@@ -36,8 +36,8 @@ package eu.maveniverse.domtrip;
  * attribute value contains one type of quote character.</p>
  *
  * @see Attribute
- * @see Element#setAttribute(String, String, QuoteStyle)
- * @see DomTripConfig#withQuoteStyle(QuoteStyle)
+ * @see Element#attribute(String, String, QuoteStyle)
+ * @see DomTripConfig#withDefaultQuoteStyle(QuoteStyle)
  */
 public enum QuoteStyle {
     /** Double quote character (") for attribute values */

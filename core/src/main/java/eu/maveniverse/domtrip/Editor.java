@@ -221,6 +221,23 @@ public class Editor {
         // Try to preserve indentation using WhitespaceManager
         String indentation = whitespaceManager.inferIndentation(parent);
         if (!indentation.isEmpty()) {
+            // Check if parent already has child elements with proper indentation
+            boolean hasChildrenWithIndentation = false;
+            for (int i = 0; i < parent.nodeCount(); i++) {
+                Node child = parent.getNode(i);
+                if (child instanceof Element && !child.precedingWhitespace().isEmpty()) {
+                    hasChildrenWithIndentation = true;
+                    break;
+                }
+            }
+
+            if (!hasChildrenWithIndentation) {
+                // Parent has no children with indentation, add one more level
+                // Detect the indentation unit (tab vs spaces) and use the same pattern
+                String indentUnit = detectIndentationUnit(indentation);
+                indentation = indentation + indentUnit;
+            }
+
             newElement.precedingWhitespace(lineEnding + indentation);
         }
 
@@ -785,6 +802,603 @@ public class Editor {
 
         parent.addNode(comment);
         return comment;
+    }
+
+    // ========== ELEMENT COMMENTING METHODS ==========
+
+    /**
+     * Comments out an element by wrapping it in an XML comment.
+     *
+     * <p>This method replaces the element with a comment containing the element's XML representation.
+     * The original element is preserved within the comment and can be restored using
+     * {@link #uncommentElement(Comment)}.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // Before: <dependency><groupId>junit</groupId></dependency>
+     * editor.commentOutElement(dependencyElement);
+     * // After: <!-- <dependency><groupId>junit</groupId></dependency> -->
+     * }</pre>
+     *
+     * @param element the element to comment out
+     * @return the comment that replaced the element
+     * @throws DomTripException if the element cannot be commented out
+     */
+    public Comment commentOutElement(Element element) throws DomTripException {
+        if (element == null) {
+            throw new DomTripException("Element cannot be null");
+        }
+
+        ContainerNode parent = element.parent();
+        if (parent == null || parent instanceof Document) {
+            throw new DomTripException("Cannot comment out root element");
+        }
+
+        // Serialize the element to XML
+        String elementXml = element.toXml();
+
+        // Create comment with the element's XML
+        Comment comment = new Comment(" " + elementXml + " ");
+
+        // Preserve the element's whitespace
+        comment.precedingWhitespace(element.precedingWhitespace());
+        comment.followingWhitespace(element.followingWhitespace());
+
+        // Find the element's position and replace it
+        int index = findElementIndex(parent, element);
+        if (index >= 0) {
+            parent.removeNode(element);
+            parent.insertNode(index, comment);
+        } else {
+            throw new DomTripException("Element not found in parent");
+        }
+
+        return comment;
+    }
+
+    /**
+     * Comments out multiple elements as a single block comment.
+     *
+     * <p>This method wraps multiple elements in a single XML comment block.
+     * All elements must have the same parent. The elements are replaced with
+     * a single comment containing all their XML representations.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // Before: <dep1/><dep2/><dep3/>
+     * editor.commentOutElements(dep1, dep2, dep3);
+     * // After: <!-- <dep1/><dep2/><dep3/> -->
+     * }</pre>
+     *
+     * @param elements the elements to comment out as a block
+     * @return the comment that replaced the elements
+     * @throws DomTripException if the elements cannot be commented out
+     */
+    public Comment commentOutElements(Element... elements) throws DomTripException {
+        if (elements == null || elements.length == 0) {
+            throw new DomTripException("At least one element must be provided");
+        }
+
+        // Validate all elements have the same parent
+        ContainerNode parent = elements[0].parent();
+        if (parent == null || parent instanceof Document) {
+            throw new DomTripException("Cannot comment out root elements");
+        }
+
+        for (Element element : elements) {
+            if (element.parent() != parent) {
+                throw new DomTripException("All elements must have the same parent");
+            }
+        }
+
+        // Build the comment content
+        StringBuilder commentContent = new StringBuilder();
+        commentContent.append(" ");
+
+        // Find the range of elements to replace
+        int firstIndex = Integer.MAX_VALUE;
+        int lastIndex = -1;
+
+        for (Element element : elements) {
+            int index = findElementIndex(parent, element);
+            if (index < 0) {
+                throw new DomTripException("Element not found in parent");
+            }
+            firstIndex = Math.min(firstIndex, index);
+            lastIndex = Math.max(lastIndex, index);
+            commentContent.append(element.toXml());
+        }
+
+        commentContent.append(" ");
+
+        // Create the comment
+        Comment comment = new Comment(commentContent.toString());
+
+        // Preserve whitespace from the first element
+        comment.precedingWhitespace(elements[0].precedingWhitespace());
+        comment.followingWhitespace(elements[elements.length - 1].followingWhitespace());
+
+        // Remove all elements in reverse order to maintain indices
+        for (int i = lastIndex; i >= firstIndex; i--) {
+            Node node = parent.getNode(i);
+            if (node instanceof Element && java.util.Arrays.asList(elements).contains(node)) {
+                parent.removeNode(node);
+            }
+        }
+
+        // Insert the comment at the first position
+        parent.insertNode(firstIndex, comment);
+
+        return comment;
+    }
+
+    /**
+     * Uncomments a previously commented element by parsing the comment content back to XML.
+     *
+     * <p>This method attempts to parse the content of a comment as XML and replace the comment
+     * with the parsed elements. This is the reverse operation of {@link #commentOutElement(Element)}
+     * and {@link #commentOutElements(Element...)}.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // Before: <!-- <dependency><groupId>junit</groupId></dependency> -->
+     * Element restored = editor.uncommentElement(comment);
+     * // After: <dependency><groupId>junit</groupId></dependency>
+     * }</pre>
+     *
+     * @param comment the comment containing XML to uncomment
+     * @return the first element that was restored, or null if no elements were found
+     * @throws DomTripException if the comment content cannot be parsed as XML
+     */
+    public Element uncommentElement(Comment comment) throws DomTripException {
+        if (comment == null) {
+            throw new DomTripException("Comment cannot be null");
+        }
+
+        ContainerNode parent = comment.parent();
+        if (parent == null) {
+            throw new DomTripException("Comment has no parent");
+        }
+
+        String content = comment.content().trim();
+        if (content.isEmpty()) {
+            throw new DomTripException("Comment is empty");
+        }
+
+        try {
+            // Parse the comment content as XML
+            Document tempDoc = Document.of("<root>" + content + "</root>");
+            Element tempRoot = tempDoc.root();
+
+            if (tempRoot.nodeCount() == 0) {
+                throw new DomTripException("No elements found in comment");
+            }
+
+            // Find the comment's position
+            int index = findCommentIndex(parent, comment);
+            if (index < 0) {
+                throw new DomTripException("Comment not found in parent");
+            }
+
+            // Remove the comment
+            parent.removeNode(comment);
+
+            // Insert the parsed elements
+            Element firstElement = null;
+            int insertIndex = index;
+
+            for (Node node : tempRoot.nodes().toList()) {
+                if (node instanceof Element element) {
+                    // Preserve the comment's whitespace on the first element
+                    if (firstElement == null) {
+                        element.precedingWhitespace(comment.precedingWhitespace());
+                        element.followingWhitespace(comment.followingWhitespace());
+                        firstElement = element;
+                    }
+
+                    // Clone the element to avoid parent conflicts
+                    Element clonedElement = cloneElement(element);
+                    parent.insertNode(insertIndex++, clonedElement);
+                }
+            }
+
+            return firstElement;
+
+        } catch (Exception e) {
+            throw new DomTripException("Failed to parse comment content as XML: " + e.getMessage(), e);
+        }
+    }
+
+    // ========== ELEMENT POSITIONING METHODS ==========
+
+    /**
+     * Inserts a new element at the specified position within the parent.
+     *
+     * <p>This method provides precise control over element positioning by allowing
+     * insertion at a specific index. The index is 0-based, where 0 inserts at the
+     * beginning and parent.nodeCount() appends at the end.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // Insert at position 1 (second position)
+     * Element newElement = editor.insertElementAt(parent, 1, "newChild");
+     * }</pre>
+     *
+     * @param parent the parent element to insert into
+     * @param index the position to insert at (0-based)
+     * @param elementName the name of the new element
+     * @return the newly created element
+     * @throws DomTripException if the insertion fails
+     */
+    public Element insertElementAt(Element parent, int index, String elementName) throws DomTripException {
+        if (parent == null) {
+            throw new DomTripException("Parent element cannot be null");
+        }
+        if (elementName == null || elementName.trim().isEmpty()) {
+            throw new DomTripException("Element name cannot be null or empty");
+        }
+        if (index < 0 || index > parent.nodeCount()) {
+            throw new DomTripException("Index out of bounds: " + index);
+        }
+
+        Element newElement = new Element(elementName.trim());
+
+        // Handle whitespace based on context
+        String indentation = whitespaceManager.inferIndentation(parent);
+        if (!indentation.isEmpty()) {
+            // Check if there's already a text node before the insertion point
+            boolean hasTextNodeBefore = index > 0 && parent.getNode(index - 1) instanceof Text;
+
+            if (hasTextNodeBefore && index == parent.nodeCount()) {
+                // Special case: inserting at the end with a text node before
+                // Modify the existing text node to include proper indentation
+                Text textNode = (Text) parent.getNode(index - 1);
+                String textContent = textNode.content();
+                if (textContent.endsWith(lineEnding)) {
+                    // Replace the final newline with newline + indentation
+                    textNode.content(textContent + indentation);
+                } else {
+                    // Add newline + indentation
+                    textNode.content(textContent + lineEnding + indentation);
+                }
+                // The new element doesn't need preceding whitespace
+                newElement.precedingWhitespace("");
+                // But it needs following whitespace to close the parent properly
+                newElement.followingWhitespace(lineEnding);
+            } else if (!hasTextNodeBefore) {
+                // No text node before, add proper preceding whitespace
+                newElement.precedingWhitespace(lineEnding + indentation);
+                // If inserting at the end, ensure proper following whitespace
+                if (index == parent.nodeCount()) {
+                    newElement.followingWhitespace(lineEnding);
+                }
+            }
+            // If hasTextNodeBefore && not at end, don't add any whitespace (handled by existing text node)
+        }
+
+        parent.insertNode(index, newElement);
+        return newElement;
+    }
+
+    /**
+     * Inserts a new element with text content at the specified position.
+     *
+     * @param parent the parent element to insert into
+     * @param index the position to insert at (0-based)
+     * @param elementName the name of the new element
+     * @param textContent the text content for the element
+     * @return the newly created element
+     * @throws DomTripException if the insertion fails
+     */
+    public Element insertElementAt(Element parent, int index, String elementName, String textContent)
+            throws DomTripException {
+        Element element = insertElementAt(parent, index, elementName);
+        if (textContent != null && !textContent.isEmpty()) {
+            element.textContent(textContent);
+        }
+        return element;
+    }
+
+    /**
+     * Inserts a new element before the specified reference element.
+     *
+     * <p>This method creates a new element and inserts it immediately before
+     * the reference element in the parent's child list. Both elements will
+     * have the same parent after insertion.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // Insert before existing element
+     * Element newElement = editor.insertElementBefore(existingElement, "newChild");
+     * }</pre>
+     *
+     * @param referenceElement the element to insert before
+     * @param elementName the name of the new element
+     * @return the newly created element
+     * @throws DomTripException if the insertion fails
+     */
+    public Element insertElementBefore(Element referenceElement, String elementName) throws DomTripException {
+        if (referenceElement == null) {
+            throw new DomTripException("Reference element cannot be null");
+        }
+        if (elementName == null || elementName.trim().isEmpty()) {
+            throw new DomTripException("Element name cannot be null or empty");
+        }
+
+        ContainerNode parent = referenceElement.parent();
+        if (parent == null) {
+            throw new DomTripException("Reference element has no parent");
+        }
+
+        int index = findElementIndex(parent, referenceElement);
+        if (index < 0) {
+            throw new DomTripException("Reference element not found in parent");
+        }
+
+        Element newElement = new Element(elementName.trim());
+
+        // Handle whitespace for insertBefore operation
+        String indentation = whitespaceManager.inferIndentation(parent);
+        String referenceWhitespace = referenceElement.precedingWhitespace();
+
+        // Check if there's already a text node before the insertion point
+        boolean hasTextNodeBefore = index > 0 && parent.getNode(index - 1) instanceof Text;
+
+        if (!referenceWhitespace.isEmpty()) {
+            // Transfer the reference element's whitespace to the new element
+            newElement.precedingWhitespace(referenceWhitespace);
+            // Give the reference element appropriate whitespace for its new position
+            if (!indentation.isEmpty()) {
+                referenceElement.precedingWhitespace(lineEnding + indentation);
+            } else {
+                referenceElement.precedingWhitespace("");
+            }
+        } else {
+            // If reference element has no whitespace, handle based on context
+            if (!indentation.isEmpty()) {
+                if (hasTextNodeBefore) {
+                    // Transfer the text node's content to the new element's preceding whitespace
+                    Text textNode = (Text) parent.getNode(index - 1);
+                    String textContent = textNode.content();
+                    newElement.precedingWhitespace(textContent);
+                    // Remove the text node since its content is now part of the new element
+                    parent.removeNode(textNode);
+                    // Adjust the index since we removed a node before the insertion point
+                    index--;
+                } else {
+                    // Add proper indentation if no text node before
+                    newElement.precedingWhitespace(lineEnding + indentation);
+                }
+                // The reference element needs whitespace for its new position if it doesn't have any
+                if (referenceElement.precedingWhitespace().isEmpty()) {
+                    referenceElement.precedingWhitespace(lineEnding + indentation);
+                }
+            }
+        }
+
+        // Normalize reference element to use explicit closing tags for consistency
+        if (referenceElement.selfClosing() && referenceElement.nodeCount() == 0) {
+            referenceElement.selfClosing(false);
+            // Ensure proper following whitespace when converting from self-closing
+            if (referenceElement.followingWhitespace().isEmpty()) {
+                referenceElement.followingWhitespace(lineEnding);
+            }
+        }
+
+        parent.insertNode(index, newElement);
+        return newElement;
+    }
+
+    /**
+     * Inserts a new element with text content before the specified reference element.
+     *
+     * @param referenceElement the element to insert before
+     * @param elementName the name of the new element
+     * @param textContent the text content for the element
+     * @return the newly created element
+     * @throws DomTripException if the insertion fails
+     */
+    public Element insertElementBefore(Element referenceElement, String elementName, String textContent)
+            throws DomTripException {
+        Element element = insertElementBefore(referenceElement, elementName);
+        if (textContent != null && !textContent.isEmpty()) {
+            element.textContent(textContent);
+        }
+        return element;
+    }
+
+    /**
+     * Inserts a new element after the specified reference element.
+     *
+     * <p>This method creates a new element and inserts it immediately after
+     * the reference element in the parent's child list. Both elements will
+     * have the same parent after insertion.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // Insert after existing element
+     * Element newElement = editor.insertElementAfter(existingElement, "newChild");
+     * }</pre>
+     *
+     * @param referenceElement the element to insert after
+     * @param elementName the name of the new element
+     * @return the newly created element
+     * @throws DomTripException if the insertion fails
+     */
+    public Element insertElementAfter(Element referenceElement, String elementName) throws DomTripException {
+        if (referenceElement == null) {
+            throw new DomTripException("Reference element cannot be null");
+        }
+        if (elementName == null || elementName.trim().isEmpty()) {
+            throw new DomTripException("Element name cannot be null or empty");
+        }
+
+        ContainerNode parent = referenceElement.parent();
+        if (parent == null) {
+            throw new DomTripException("Reference element has no parent");
+        }
+
+        int index = findElementIndex(parent, referenceElement);
+        if (index < 0) {
+            throw new DomTripException("Reference element not found in parent");
+        }
+
+        Element newElement = new Element(elementName.trim());
+
+        // Handle whitespace for insertAfter operation
+        String indentation = whitespaceManager.inferIndentation(parent);
+
+        // Check if there's a text node after the insertion point
+        boolean hasTextNodeAfter = (index + 1) < parent.nodeCount() && parent.getNode(index + 1) instanceof Text;
+
+        if (!indentation.isEmpty()) {
+            newElement.precedingWhitespace(lineEnding + indentation);
+
+            // Only add following whitespace if there's no text node after
+            if (!hasTextNodeAfter) {
+                newElement.followingWhitespace(lineEnding);
+            }
+        }
+
+        // Ensure reference element has proper whitespace if it doesn't have any
+        // But only if there's no text node before it
+        if (!indentation.isEmpty() && referenceElement.precedingWhitespace().isEmpty()) {
+            int refIndex = findElementIndex(parent, referenceElement);
+            boolean hasTextNodeBeforeRef = refIndex > 0 && parent.getNode(refIndex - 1) instanceof Text;
+            if (!hasTextNodeBeforeRef) {
+                referenceElement.precedingWhitespace(lineEnding + indentation);
+            }
+        }
+
+        // Normalize reference element to use explicit closing tags for consistency
+        if (referenceElement.selfClosing() && referenceElement.nodeCount() == 0) {
+            referenceElement.selfClosing(false);
+        }
+
+        parent.insertNode(index + 1, newElement);
+        return newElement;
+    }
+
+    /**
+     * Inserts a new element with text content after the specified reference element.
+     *
+     * @param referenceElement the element to insert after
+     * @param elementName the name of the new element
+     * @param textContent the text content for the element
+     * @return the newly created element
+     * @throws DomTripException if the insertion fails
+     */
+    public Element insertElementAfter(Element referenceElement, String elementName, String textContent)
+            throws DomTripException {
+        Element element = insertElementAfter(referenceElement, elementName);
+        if (textContent != null && !textContent.isEmpty()) {
+            element.textContent(textContent);
+        }
+        return element;
+    }
+
+    // ========== HELPER METHODS ==========
+
+    /**
+     * Finds the index of an element within its parent's child list.
+     *
+     * @param parent the parent container
+     * @param element the element to find
+     * @return the index of the element, or -1 if not found
+     */
+    private int findElementIndex(ContainerNode parent, Element element) {
+        for (int i = 0; i < parent.nodeCount(); i++) {
+            if (parent.getNode(i) == element) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Finds the index of a comment within its parent's child list.
+     *
+     * @param parent the parent container
+     * @param comment the comment to find
+     * @return the index of the comment, or -1 if not found
+     */
+    private int findCommentIndex(ContainerNode parent, Comment comment) {
+        for (int i = 0; i < parent.nodeCount(); i++) {
+            if (parent.getNode(i) == comment) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Detects the indentation unit (tab vs spaces) from existing indentation.
+     *
+     * @param indentation the existing indentation string
+     * @return the detected indentation unit to use for one more level
+     */
+    private String detectIndentationUnit(String indentation) {
+        if (indentation == null || indentation.isEmpty()) {
+            return config.indentString();
+        }
+
+        // If the indentation contains tabs, use tabs
+        if (indentation.contains("\t")) {
+            return "\t";
+        }
+
+        // If it's all spaces, try to detect the unit size
+        if (indentation.matches("^ +$")) {
+            // Common indentation sizes: 2, 4, 8 spaces
+            int length = indentation.length();
+            if (length % 4 == 0) {
+                return "    "; // 4 spaces
+            } else if (length % 2 == 0) {
+                return "  "; // 2 spaces
+            } else if (length % 8 == 0) {
+                return "        "; // 8 spaces
+            } else {
+                // Use the whole indentation as the unit
+                return indentation;
+            }
+        }
+
+        // Fallback to config default
+        return config.indentString();
+    }
+
+    /**
+     * Creates a deep clone of an element with all its attributes and children.
+     *
+     * @param element the element to clone
+     * @return a new element that is a copy of the original
+     */
+    private Element cloneElement(Element element) {
+        Element clone = new Element(element.name());
+
+        // Copy attributes
+        for (String attrName : element.attributes().keySet()) {
+            clone.attribute(attrName, element.attribute(attrName));
+        }
+
+        // Copy children recursively
+        for (Node child : element.nodes().toList()) {
+            if (child instanceof Element childElement) {
+                clone.addNode(cloneElement(childElement));
+            } else if (child instanceof Text textNode) {
+                clone.addNode(new Text(textNode.content()));
+            } else if (child instanceof Comment commentNode) {
+                clone.addNode(new Comment(commentNode.content()));
+            }
+            // Add other node types as needed
+        }
+
+        // Copy whitespace and other properties
+        clone.precedingWhitespace(element.precedingWhitespace());
+        clone.followingWhitespace(element.followingWhitespace());
+        clone.selfClosing(element.selfClosing());
+
+        return clone;
     }
 
     /**

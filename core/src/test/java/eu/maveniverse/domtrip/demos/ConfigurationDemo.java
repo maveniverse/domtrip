@@ -66,32 +66,31 @@ public class ConfigurationDemo {
         System.out.println("Default configuration preserves everything:");
         System.out.println("- Preserves whitespace: " + defaultEditor.config().isPreserveWhitespace());
         System.out.println("- Preserves comments: " + defaultEditor.config().isPreserveComments());
-        System.out.println("- Preserves entities: " + defaultEditor.config().isPreserveEntities());
+        System.out.println(
+                "- Preserves processing instructions: " + defaultEditor.config().isPreserveProcessingInstructions());
         System.out.println("- Default quote style: " + defaultEditor.config().defaultQuoteStyle());
 
-        // Strict configuration
+        // Strict configuration (now same as default)
         Editor strictEditor = new Editor(Document.of(xml), DomTripConfig.strict());
-        System.out.println("\nStrict configuration enables validation:");
-        System.out.println("- Strict parsing: " + strictEditor.config().isStrictParsing());
-        System.out.println("- Validate XML names: " + strictEditor.config().isValidateXmlNames());
+        System.out.println("\nStrict configuration (same as default):");
+        System.out.println("- Preserves whitespace: " + strictEditor.config().isPreserveWhitespace());
+        System.out.println("- Preserves comments: " + strictEditor.config().isPreserveComments());
 
-        // Lenient configuration
+        // Lenient configuration (now same as default)
         Editor lenientEditor = new Editor(Document.of(xml), DomTripConfig.lenient());
-        System.out.println("\nLenient configuration disables validation:");
-        System.out.println("- Strict parsing: " + lenientEditor.config().isStrictParsing());
-        System.out.println("- Validate XML names: " + lenientEditor.config().isValidateXmlNames());
+        System.out.println("\nLenient configuration (same as default):");
+        System.out.println("- Preserves whitespace: " + lenientEditor.config().isPreserveWhitespace());
+        System.out.println("- Preserves comments: " + lenientEditor.config().isPreserveComments());
 
         // Custom configuration
         DomTripConfig customConfig = DomTripConfig.defaults()
                 .withDefaultQuoteStyle(QuoteStyle.SINGLE)
-                .withDefaultEncoding("ISO-8859-1")
                 .withIndentString("\t")
                 .withPrettyPrint(true);
 
         Editor customEditor = new Editor(Document.of(xml), customConfig);
         System.out.println("\nCustom configuration:");
         System.out.println("- Default quote style: " + customEditor.config().defaultQuoteStyle());
-        System.out.println("- Default encoding: " + customEditor.config().defaultEncoding());
         System.out.println(
                 "- Indent string: '" + customEditor.config().indentString().replace("\t", "\\t") + "'");
         System.out.println("- Pretty print: " + customEditor.config().isPrettyPrint());

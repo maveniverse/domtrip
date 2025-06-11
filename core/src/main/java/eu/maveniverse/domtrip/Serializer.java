@@ -60,6 +60,10 @@ public class Serializer {
     private boolean preserveFormatting;
     private String indentString;
     private boolean prettyPrint;
+    private boolean preserveComments;
+    private boolean preserveProcessingInstructions;
+    private boolean omitXmlDeclaration;
+    private String lineEnding;
 
     /**
      * Creates a new Serializer with default settings.
@@ -71,6 +75,10 @@ public class Serializer {
         this.preserveFormatting = true;
         this.indentString = "  "; // Two spaces
         this.prettyPrint = false;
+        this.preserveComments = true;
+        this.preserveProcessingInstructions = true;
+        this.omitXmlDeclaration = false;
+        this.lineEnding = "\n";
     }
 
     /**
@@ -92,6 +100,10 @@ public class Serializer {
         this.preserveFormatting = config.isPreserveWhitespace();
         this.prettyPrint = config.isPrettyPrint();
         this.indentString = config.indentString();
+        this.preserveComments = config.isPreserveComments();
+        this.preserveProcessingInstructions = config.isPreserveProcessingInstructions();
+        this.omitXmlDeclaration = config.isOmitXmlDeclaration();
+        this.lineEnding = config.lineEnding();
     }
 
     /**
@@ -191,19 +203,19 @@ public class Serializer {
 
         StringBuilder sb = new StringBuilder();
 
-        // Add XML declaration only if it was present in original
-        if (!document.xmlDeclaration().isEmpty()) {
+        // Add XML declaration only if it was present in original and not omitted by config
+        if (!document.xmlDeclaration().isEmpty() && !omitXmlDeclaration) {
             sb.append(document.xmlDeclaration());
         }
 
         // Add DOCTYPE if present
         if (!document.doctype().isEmpty()) {
-            sb.append("\n").append(document.doctype());
+            sb.append(lineEnding).append(document.doctype());
         }
 
         // Add document element and other children
         if (prettyPrint) {
-            sb.append("\n");
+            sb.append(lineEnding);
             serializeNodePretty(document, sb, 0);
         } else {
             serializeNode(document, sb);
@@ -259,10 +271,14 @@ public class Serializer {
                 serializeText((Text) node, sb);
                 break;
             case COMMENT:
-                serializeComment((Comment) node, sb);
+                if (preserveComments) {
+                    serializeComment((Comment) node, sb);
+                }
                 break;
             case PROCESSING_INSTRUCTION:
-                serializeProcessingInstruction((ProcessingInstruction) node, sb);
+                if (preserveProcessingInstructions) {
+                    serializeProcessingInstruction((ProcessingInstruction) node, sb);
+                }
                 break;
         }
     }
@@ -285,10 +301,14 @@ public class Serializer {
                 serializeTextPretty((Text) node, sb, depth);
                 break;
             case COMMENT:
-                serializeCommentPretty((Comment) node, sb, depth);
+                if (preserveComments) {
+                    serializeCommentPretty((Comment) node, sb, depth);
+                }
                 break;
             case PROCESSING_INSTRUCTION:
-                serializeProcessingInstructionPretty((ProcessingInstruction) node, sb, depth);
+                if (preserveProcessingInstructions) {
+                    serializeProcessingInstructionPretty((ProcessingInstruction) node, sb, depth);
+                }
                 break;
         }
     }
@@ -349,7 +369,7 @@ public class Serializer {
     private void serializeElementPretty(Element element, StringBuilder sb, int depth) {
         // Indentation
         if (depth > 0) {
-            sb.append("\n");
+            sb.append(lineEnding);
             for (int i = 0; i < depth; i++) {
                 sb.append(indentString);
             }
@@ -384,7 +404,7 @@ public class Serializer {
 
             // Closing tag
             if (hasElementChildren) {
-                sb.append("\n");
+                sb.append(lineEnding);
                 for (int i = 0; i < depth; i++) {
                     sb.append(indentString);
                 }
@@ -415,7 +435,7 @@ public class Serializer {
 
     private void serializeCommentPretty(Comment comment, StringBuilder sb, int depth) {
         if (depth > 0) {
-            sb.append("\n");
+            sb.append(lineEnding);
             for (int i = 0; i < depth; i++) {
                 sb.append(indentString);
             }
@@ -435,7 +455,7 @@ public class Serializer {
 
     private void serializeProcessingInstructionPretty(ProcessingInstruction pi, StringBuilder sb, int depth) {
         if (depth > 0) {
-            sb.append("\n");
+            sb.append(lineEnding);
             for (int i = 0; i < depth; i++) {
                 sb.append(indentString);
             }

@@ -23,30 +23,29 @@ package eu.maveniverse.domtrip;
  *
  * // Pretty printing for readable output
  * DomTripConfig pretty = DomTripConfig.prettyPrint()
- *     .withIndentation("  ")
- *     .withQuoteStyle(QuoteStyle.DOUBLE);
+ *     .withIndentString("  ")
+ *     .withDefaultQuoteStyle(QuoteStyle.DOUBLE);
  *
  * // Minimal output for size optimization
  * DomTripConfig minimal = DomTripConfig.minimal()
- *     .withPreserveComments(false)
- *     .withPreserveWhitespace(false);
+ *     .withCommentPreservation(false)
+ *     .withWhitespacePreservation(false);
  *
  * // Custom configuration
  * DomTripConfig custom = DomTripConfig.defaults()
- *     .withPreserveWhitespace(true)
- *     .withValidateXmlNames(true)
- *     .withDefaultEncoding("UTF-16");
+ *     .withWhitespacePreservation(true)
+ *     .withDefaultQuoteStyle(QuoteStyle.SINGLE);
  * }</pre>
  *
  * <h3>Builder Pattern:</h3>
  * <p>DomTripConfig uses a fluent builder pattern for easy configuration:</p>
  * <pre>{@code
  * DomTripConfig config = DomTripConfig.defaults()
- *     .withPreserveWhitespace(true)
- *     .withPreserveComments(true)
+ *     .withWhitespacePreservation(true)
+ *     .withCommentPreservation(true)
  *     .withPrettyPrint(false)
- *     .withIndentation("    ")
- *     .withQuoteStyle(QuoteStyle.SINGLE);
+ *     .withIndentString("    ")
+ *     .withDefaultQuoteStyle(QuoteStyle.SINGLE);
  * }</pre>
  *
  * @see Editor
@@ -57,13 +56,8 @@ package eu.maveniverse.domtrip;
 public class DomTripConfig {
     private boolean preserveWhitespace = true;
     private boolean preserveComments = true;
-    private boolean preserveEntities = true;
     private boolean preserveProcessingInstructions = true;
-    private boolean preserveCData = true;
-    private String defaultEncoding = "UTF-8";
     private QuoteStyle defaultQuoteStyle = QuoteStyle.DOUBLE;
-    private boolean validateXmlNames = true;
-    private boolean strictParsing = false;
     private boolean prettyPrint = false;
     private String indentString = "    ";
     private String lineEnding = "\n";
@@ -79,23 +73,19 @@ public class DomTripConfig {
     }
 
     /**
-     * Creates a strict configuration with validation enabled.
+     * Creates a strict configuration with all preservation features enabled.
+     * This is an alias for defaults() for backward compatibility.
      */
     public static DomTripConfig strict() {
-        DomTripConfig config = new DomTripConfig();
-        config.strictParsing = true;
-        config.validateXmlNames = true;
-        return config;
+        return new DomTripConfig();
     }
 
     /**
-     * Creates a lenient configuration with minimal validation.
+     * Creates a lenient configuration with all preservation features enabled.
+     * This is an alias for defaults() for backward compatibility.
      */
     public static DomTripConfig lenient() {
-        DomTripConfig config = new DomTripConfig();
-        config.strictParsing = false;
-        config.validateXmlNames = false;
-        return config;
+        return new DomTripConfig();
     }
 
     /**
@@ -131,38 +121,13 @@ public class DomTripConfig {
         return this;
     }
 
-    public DomTripConfig withEntityPreservation(boolean preserve) {
-        this.preserveEntities = preserve;
-        return this;
-    }
-
     public DomTripConfig withProcessingInstructionPreservation(boolean preserve) {
         this.preserveProcessingInstructions = preserve;
         return this;
     }
 
-    public DomTripConfig withCDataPreservation(boolean preserve) {
-        this.preserveCData = preserve;
-        return this;
-    }
-
-    public DomTripConfig withDefaultEncoding(String encoding) {
-        this.defaultEncoding = encoding;
-        return this;
-    }
-
     public DomTripConfig withDefaultQuoteStyle(QuoteStyle quoteStyle) {
         this.defaultQuoteStyle = quoteStyle;
-        return this;
-    }
-
-    public DomTripConfig withXmlNameValidation(boolean validate) {
-        this.validateXmlNames = validate;
-        return this;
-    }
-
-    public DomTripConfig withStrictParsing(boolean strict) {
-        this.strictParsing = strict;
         return this;
     }
 
@@ -195,32 +160,12 @@ public class DomTripConfig {
         return preserveComments;
     }
 
-    public boolean isPreserveEntities() {
-        return preserveEntities;
-    }
-
     public boolean isPreserveProcessingInstructions() {
         return preserveProcessingInstructions;
     }
 
-    public boolean isPreserveCData() {
-        return preserveCData;
-    }
-
-    public String defaultEncoding() {
-        return defaultEncoding;
-    }
-
     public QuoteStyle defaultQuoteStyle() {
         return defaultQuoteStyle;
-    }
-
-    public boolean isValidateXmlNames() {
-        return validateXmlNames;
-    }
-
-    public boolean isStrictParsing() {
-        return strictParsing;
     }
 
     public boolean isPrettyPrint() {

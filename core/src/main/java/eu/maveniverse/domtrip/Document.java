@@ -1,5 +1,8 @@
 package eu.maveniverse.domtrip;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+
 /**
  * Represents the root of an XML document, containing the document element
  * and preserving document-level formatting like XML declarations and DTDs.
@@ -22,7 +25,8 @@ package eu.maveniverse.domtrip;
  * <pre>{@code
  * // Create documents using factory methods
  * Document doc = Document.of(); // Empty document
- * Document parsed = Document.of(xmlString); // Parse XML
+ * Document parsed = Document.of(xmlString); // Parse XML from String
+ * Document fromStream = Document.of(inputStream); // Parse XML from InputStream
  * Document withDecl = Document.withXmlDeclaration("1.0", "UTF-8");
  * Document complete = Document.withRootElement("project");
  *
@@ -361,6 +365,36 @@ public class Document extends ContainerNode {
     }
 
     /**
+     * Serializes this document to an OutputStream using the document's encoding.
+     *
+     * <p>This method uses the document's encoding property to determine the character
+     * encoding for the output stream. If the document has no encoding specified,
+     * UTF-8 is used as the default.</p>
+     *
+     * @param outputStream the OutputStream to write to
+     * @throws DomTripException if serialization fails or I/O errors occur
+     */
+    public void toXml(OutputStream outputStream) throws DomTripException {
+        Serializer serializer = new Serializer();
+        serializer.serialize(this, outputStream);
+    }
+
+    /**
+     * Serializes this document to an OutputStream using the specified encoding.
+     *
+     * <p>This method allows explicit control over the character encoding used
+     * for serialization, regardless of the document's encoding property.</p>
+     *
+     * @param outputStream the OutputStream to write to
+     * @param encoding the character encoding to use
+     * @throws DomTripException if serialization fails or I/O errors occur
+     */
+    public void toXml(OutputStream outputStream, String encoding) throws DomTripException {
+        Serializer serializer = new Serializer();
+        serializer.serialize(this, outputStream, encoding);
+    }
+
+    /**
      * Creates a minimal XML declaration based on current document settings.
      *
      * <p>Generates an XML declaration using the current version, encoding, and
@@ -427,6 +461,49 @@ public class Document extends ContainerNode {
             throw new DomTripException("XML string cannot be null or empty");
         }
         return new Parser().parse(xml);
+    }
+
+    /**
+     * Creates a document by parsing XML from an InputStream with automatic encoding detection.
+     *
+     * <p>This method automatically detects the character encoding by:</p>
+     * <ol>
+     *   <li>Checking for a Byte Order Mark (BOM)</li>
+     *   <li>Reading the XML declaration to extract the encoding attribute</li>
+     *   <li>Falling back to UTF-8 if no encoding is specified</li>
+     * </ol>
+     *
+     * <p>The resulting Document will have its encoding property set to the detected
+     * or declared encoding.</p>
+     *
+     * @param inputStream the InputStream containing XML data
+     * @return a new Document containing the parsed XML with preserved formatting
+     * @throws DomTripException if the XML is malformed, cannot be parsed, or I/O errors occur
+     */
+    public static Document of(InputStream inputStream) throws DomTripException {
+        return new Parser().parse(inputStream);
+    }
+
+    /**
+     * Creates a document by parsing XML from an InputStream with encoding detection and fallback.
+     *
+     * <p>This method attempts to detect the character encoding by:</p>
+     * <ol>
+     *   <li>Checking for a Byte Order Mark (BOM)</li>
+     *   <li>Reading the XML declaration to extract the encoding attribute</li>
+     *   <li>Using the provided default encoding if detection fails</li>
+     * </ol>
+     *
+     * <p>The resulting Document will have its encoding property set to the detected,
+     * declared, or default encoding.</p>
+     *
+     * @param inputStream the InputStream containing XML data
+     * @param defaultEncoding the encoding to use if detection fails
+     * @return a new Document containing the parsed XML with preserved formatting
+     * @throws DomTripException if the XML is malformed, cannot be parsed, or I/O errors occur
+     */
+    public static Document of(InputStream inputStream, String defaultEncoding) throws DomTripException {
+        return new Parser().parse(inputStream, defaultEncoding);
     }
 
     /**

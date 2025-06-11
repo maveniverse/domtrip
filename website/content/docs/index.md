@@ -22,6 +22,7 @@ Discover what makes DomTrip special:
 
 - **[Lossless Parsing](/docs/features/lossless-parsing/)** - Perfect round-trip preservation of all formatting
 - **[Formatting Preservation](/docs/features/formatting-preservation/)** - Maintaining original whitespace and style
+- **[Stream Support](/docs/features/stream-support/)** - InputStream/OutputStream processing with encoding detection
 - **[Namespace Support](/docs/features/namespace-support/)** - Comprehensive XML namespace handling
 
 ## 🏗️ Advanced Topics

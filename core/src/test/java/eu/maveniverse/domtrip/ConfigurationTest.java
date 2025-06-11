@@ -73,8 +73,7 @@ public class ConfigurationTest {
 
     @Test
     void testEditorWithConfiguration() throws DomTripException {
-        DomTripConfig config =
-                DomTripConfig.strict().withDefaultEncoding("ISO-8859-1").withDefaultQuoteStyle(QuoteStyle.SINGLE);
+        DomTripConfig config = DomTripConfig.strict().withDefaultQuoteStyle(QuoteStyle.SINGLE);
 
         Editor editor = new Editor(config);
         assertEquals(config, editor.config());

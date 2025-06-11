@@ -66,7 +66,8 @@ public class ConfigurationDemo {
         System.out.println("Default configuration preserves everything:");
         System.out.println("- Preserves whitespace: " + defaultEditor.config().isPreserveWhitespace());
         System.out.println("- Preserves comments: " + defaultEditor.config().isPreserveComments());
-        System.out.println("- Preserves processing instructions: " + defaultEditor.config().isPreserveProcessingInstructions());
+        System.out.println(
+                "- Preserves processing instructions: " + defaultEditor.config().isPreserveProcessingInstructions());
         System.out.println("- Default quote style: " + defaultEditor.config().defaultQuoteStyle());
 
         // Strict configuration (now same as default)

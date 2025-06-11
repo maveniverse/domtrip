@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -235,19 +236,106 @@ public class EncodingSerializationTest {
                      "  <child attr=\"value\">text content</child>\n" +
                      "  <!-- comment -->\n" +
                      "</root>";
-        
+
         Document doc = Document.of(xml);
-        
+
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         doc.toXml(outputStream);
-        
+
         String result = outputStream.toString(StandardCharsets.UTF_8);
-        
+
         // Should preserve formatting
         assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
         assertTrue(result.contains("attr=\"value\""));
         assertTrue(result.contains("<!-- comment -->"));
         assertTrue(result.contains("text content"));
         assertEquals(xml, result);
+    }
+
+    @Test
+    void testSerializeWithCharsetObject() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><child>Charset test</child></root>";
+        Document doc = Document.of(xml);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Serializer serializer = new Serializer();
+
+        // Use Charset object instead of String
+        serializer.serialize(doc, outputStream, StandardCharsets.UTF_16);
+
+        String result = outputStream.toString(StandardCharsets.UTF_16);
+        assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+        assertTrue(result.contains("<root><child>Charset test</child></root>"));
+    }
+
+    @Test
+    void testDocumentToXmlWithCharsetObject() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><child>Document Charset</child></root>";
+        Document doc = Document.of(xml);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        // Use Charset object
+        doc.toXml(outputStream, StandardCharsets.ISO_8859_1);
+
+        String result = outputStream.toString(StandardCharsets.ISO_8859_1);
+        assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+        assertTrue(result.contains("<root><child>Document Charset</child></root>"));
+    }
+
+    @Test
+    void testParseWithCharsetObject() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root><child>Charset parsing</child></root>";
+        InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_16));
+
+        // Use Charset object for parsing
+        Document doc = Document.of(inputStream, StandardCharsets.UTF_16);
+
+        assertEquals("UTF-16", doc.encoding());
+        assertEquals("1.0", doc.version());
+        assertNotNull(doc.root());
+        assertEquals("root", doc.root().name());
+        assertEquals("Charset parsing", doc.root().child("child").orElseThrow().textContent());
+    }
+
+    @Test
+    void testSerializeNodeWithCharsetObject() throws DomTripException {
+        Element element = new Element("test");
+        element.attribute("attr", "charset value");
+        element.textContent("Charset node content");
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Serializer serializer = new Serializer();
+
+        // Use Charset object for node serialization
+        serializer.serialize(element, outputStream, StandardCharsets.UTF_8);
+
+        String result = outputStream.toString(StandardCharsets.UTF_8);
+        assertTrue(result.contains("<test attr=\"charset value\">Charset node content</test>"));
+    }
+
+    @Test
+    void testInvalidCharsetHandling() {
+        Document doc = Document.of("<root/>");
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Serializer serializer = new Serializer();
+
+        // Test invalid encoding string falls back gracefully
+        assertThrows(DomTripException.class, () -> {
+            serializer.serialize(doc, outputStream, "INVALID-CHARSET");
+        });
+    }
+
+    @Test
+    void testNullCharsetHandling() throws DomTripException {
+        Document doc = Document.of("<root/>");
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Serializer serializer = new Serializer();
+
+        // Null charset should default to UTF-8
+        serializer.serialize(doc, outputStream, (Charset) null);
+
+        String result = outputStream.toString(StandardCharsets.UTF_8);
+        assertTrue(result.contains("<root"));
     }
 }

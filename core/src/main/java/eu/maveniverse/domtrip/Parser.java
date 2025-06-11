@@ -106,7 +106,7 @@ public class Parser {
      * @throws DomTripException if the XML is malformed, cannot be parsed, or I/O errors occur
      */
     public Document parse(InputStream inputStream) throws DomTripException {
-        return parse(inputStream, "UTF-8");
+        return parse(inputStream, StandardCharsets.UTF_8);
     }
 
     /**
@@ -123,16 +123,46 @@ public class Parser {
      * declared, or default encoding.</p>
      *
      * @param inputStream the InputStream containing XML data
-     * @param defaultEncoding the encoding to use if detection fails
+     * @param defaultEncoding the encoding name to use if detection fails
      * @return a Document containing the parsed XML with preserved formatting
      * @throws DomTripException if the XML is malformed, cannot be parsed, or I/O errors occur
      */
     public Document parse(InputStream inputStream, String defaultEncoding) throws DomTripException {
+        if (defaultEncoding == null || defaultEncoding.trim().isEmpty()) {
+            return parse(inputStream, StandardCharsets.UTF_8);
+        }
+        try {
+            Charset charset = Charset.forName(defaultEncoding);
+            return parse(inputStream, charset);
+        } catch (Exception e) {
+            throw new DomTripException("Invalid encoding name: " + defaultEncoding, e);
+        }
+    }
+
+    /**
+     * Parses XML from an InputStream with encoding detection and fallback.
+     *
+     * <p>This method attempts to detect the character encoding by:</p>
+     * <ol>
+     *   <li>Checking for a Byte Order Mark (BOM)</li>
+     *   <li>Reading the XML declaration to extract the encoding attribute</li>
+     *   <li>Using the provided default charset if detection fails</li>
+     * </ol>
+     *
+     * <p>The resulting Document will have its encoding property set to the detected,
+     * declared, or default encoding.</p>
+     *
+     * @param inputStream the InputStream containing XML data
+     * @param defaultCharset the charset to use if detection fails
+     * @return a Document containing the parsed XML with preserved formatting
+     * @throws DomTripException if the XML is malformed, cannot be parsed, or I/O errors occur
+     */
+    public Document parse(InputStream inputStream, Charset defaultCharset) throws DomTripException {
         if (inputStream == null) {
             throw new DomTripException("InputStream cannot be null");
         }
-        if (defaultEncoding == null || defaultEncoding.trim().isEmpty()) {
-            defaultEncoding = "UTF-8";
+        if (defaultCharset == null) {
+            defaultCharset = StandardCharsets.UTF_8;
         }
 
         try {
@@ -143,16 +173,16 @@ public class Parser {
             }
 
             // Detect encoding
-            String detectedEncoding = detectEncoding(xmlBytes, defaultEncoding);
+            Charset detectedCharset = detectEncoding(xmlBytes, defaultCharset);
 
             // Convert bytes to string using detected encoding
-            String xmlString = new String(xmlBytes, Charset.forName(detectedEncoding));
+            String xmlString = new String(xmlBytes, detectedCharset);
 
             // Parse the XML string
             Document document = parse(xmlString);
 
             // Update document encoding based on detection
-            document.encoding(detectedEncoding);
+            document.encoding(detectedCharset.name());
 
             // Parse XML declaration attributes and update document properties
             updateDocumentFromXmlDeclaration(document, xmlString);
@@ -516,75 +546,83 @@ public class Parser {
      * Detects the character encoding of XML content from byte array.
      *
      * @param xmlBytes the XML content as bytes
-     * @param defaultEncoding fallback encoding if detection fails
-     * @return the detected or default encoding name
+     * @param defaultCharset fallback charset if detection fails
+     * @return the detected or default charset
      */
-    private String detectEncoding(byte[] xmlBytes, String defaultEncoding) {
+    private Charset detectEncoding(byte[] xmlBytes, Charset defaultCharset) {
         // Check for BOM first
-        String bomEncoding = detectBOM(xmlBytes);
-        if (bomEncoding != null) {
-            return bomEncoding;
+        Charset bomCharset = detectBOM(xmlBytes);
+        if (bomCharset != null) {
+            return bomCharset;
         }
 
         // Try to read XML declaration with different encodings
-        String[] encodingsToTry = {"UTF-8", "UTF-16", "UTF-16BE", "UTF-16LE", "ISO-8859-1", defaultEncoding};
+        Charset[] charsetsToTry = {
+            StandardCharsets.UTF_8,
+            StandardCharsets.UTF_16,
+            StandardCharsets.UTF_16BE,
+            StandardCharsets.UTF_16LE,
+            StandardCharsets.ISO_8859_1,
+            defaultCharset
+        };
 
-        for (String encoding : encodingsToTry) {
+        for (Charset charset : charsetsToTry) {
+            if (charset == null) continue;
             try {
-                String xmlString = new String(xmlBytes, Charset.forName(encoding));
+                String xmlString = new String(xmlBytes, charset);
                 String declaredEncoding = extractEncodingFromXmlDeclaration(xmlString);
                 if (declaredEncoding != null) {
                     // Verify the declared encoding is valid
                     try {
-                        Charset.forName(declaredEncoding);
-                        return declaredEncoding;
+                        Charset declaredCharset = Charset.forName(declaredEncoding);
+                        return declaredCharset;
                     } catch (Exception e) {
                         // Invalid encoding name, continue with detection
                     }
                 }
                 // If we can read the XML declaration but no encoding is specified,
                 // and we're trying UTF-8, use it
-                if ("UTF-8".equals(encoding) && xmlString.trim().startsWith("<?xml")) {
-                    return encoding;
+                if (StandardCharsets.UTF_8.equals(charset) && xmlString.trim().startsWith("<?xml")) {
+                    return charset;
                 }
             } catch (Exception e) {
                 // Try next encoding
             }
         }
 
-        return defaultEncoding;
+        return defaultCharset;
     }
 
     /**
-     * Detects Byte Order Mark (BOM) and returns corresponding encoding.
+     * Detects Byte Order Mark (BOM) and returns corresponding charset.
      */
-    private String detectBOM(byte[] bytes) {
+    private Charset detectBOM(byte[] bytes) {
         if (bytes.length >= 3) {
             // UTF-8 BOM: EF BB BF
             if (bytes[0] == (byte) 0xEF && bytes[1] == (byte) 0xBB && bytes[2] == (byte) 0xBF) {
-                return "UTF-8";
+                return StandardCharsets.UTF_8;
             }
         }
 
         if (bytes.length >= 2) {
             // UTF-16 BE BOM: FE FF
             if (bytes[0] == (byte) 0xFE && bytes[1] == (byte) 0xFF) {
-                return "UTF-16BE";
+                return StandardCharsets.UTF_16BE;
             }
             // UTF-16 LE BOM: FF FE
             if (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFE) {
-                return "UTF-16LE";
+                return StandardCharsets.UTF_16LE;
             }
         }
 
         if (bytes.length >= 4) {
             // UTF-32 BE BOM: 00 00 FE FF
             if (bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == (byte) 0xFE && bytes[3] == (byte) 0xFF) {
-                return "UTF-32BE";
+                return Charset.forName("UTF-32BE");
             }
             // UTF-32 LE BOM: FF FE 00 00
             if (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFE && bytes[2] == 0x00 && bytes[3] == 0x00) {
-                return "UTF-32LE";
+                return Charset.forName("UTF-32LE");
             }
         }
 

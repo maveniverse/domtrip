@@ -52,9 +52,12 @@ boolean standalone = doc.isStandalone();
 ### InputStream Parsing with Fallback Encoding
 
 ```java
-// Parse with custom fallback encoding
+// Parse with custom fallback encoding (String)
 InputStream inputStream = new FileInputStream("document.xml");
 Document doc = Document.of(inputStream, "ISO-8859-1");
+
+// Parse with custom fallback encoding (Charset - preferred)
+Document doc2 = Document.of(inputStream, StandardCharsets.ISO_8859_1);
 ```
 
 ### Using Parser Directly
@@ -65,8 +68,11 @@ Parser parser = new Parser();
 // Parse with automatic encoding detection
 Document doc1 = parser.parse(inputStream);
 
-// Parse with fallback encoding
+// Parse with fallback encoding (String)
 Document doc2 = parser.parse(inputStream, "UTF-8");
+
+// Parse with fallback encoding (Charset - preferred)
+Document doc3 = parser.parse(inputStream, StandardCharsets.UTF_8);
 ```
 
 ## Encoding Detection Process

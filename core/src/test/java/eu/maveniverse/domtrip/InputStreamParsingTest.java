@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -276,5 +277,78 @@ public class InputStreamParsingTest {
         String result = outputStream.toString(StandardCharsets.ISO_8859_1);
         assertTrue(result.contains("encoding=\"ISO-8859-1\""));
         assertTrue(result.contains("standalone=\"no\""));
+    }
+
+    @Test
+    void testParseFromInputStreamWithCharsetObject() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root><child>Charset object test</child></root>";
+        InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_16));
+
+        // Use Charset object instead of String
+        Document doc = Document.of(inputStream, StandardCharsets.UTF_16);
+
+        assertNotNull(doc);
+        assertEquals("UTF-16", doc.encoding());
+        assertEquals("1.0", doc.version());
+        assertNotNull(doc.root());
+        assertEquals("root", doc.root().name());
+        assertEquals("Charset object test", doc.root().child("child").orElseThrow().textContent());
+    }
+
+    @Test
+    void testRoundTripWithCharsetObjects() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><child>Charset round trip</child></root>";
+        InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
+
+        // Parse with Charset object
+        Document doc = Document.of(inputStream, StandardCharsets.UTF_8);
+
+        // Serialize with Charset object
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        doc.toXml(outputStream, StandardCharsets.UTF_8);
+
+        // Verify round trip
+        String result = outputStream.toString(StandardCharsets.UTF_8);
+        assertEquals(xml, result);
+    }
+
+    @Test
+    void testCharsetConsistencyInRoundTrip() throws DomTripException {
+        // Test that using Charset objects maintains consistency
+        Charset[] charsets = {
+            StandardCharsets.UTF_8,
+            StandardCharsets.UTF_16,
+            StandardCharsets.ISO_8859_1
+        };
+
+        for (Charset charset : charsets) {
+            String xml = "<?xml version=\"1.0\" encoding=\"" + charset.name() + "\"?>\n<root><child>Test " + charset.name() + "</child></root>";
+            InputStream inputStream = new ByteArrayInputStream(xml.getBytes(charset));
+
+            // Parse with Charset object
+            Document doc = Document.of(inputStream, charset);
+            assertEquals(charset.name(), doc.encoding());
+
+            // Serialize with same Charset object
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            doc.toXml(outputStream, charset);
+
+            // Verify content is preserved
+            String result = outputStream.toString(charset);
+            assertTrue(result.contains("Test " + charset.name()));
+        }
+    }
+
+    @Test
+    void testNullCharsetHandling() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root><child>Null charset test</child></root>";
+        InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
+
+        // Null charset should default to UTF-8
+        Document doc = Document.of(inputStream, (Charset) null);
+
+        assertNotNull(doc);
+        assertEquals("UTF-8", doc.encoding());
+        assertEquals("Null charset test", doc.root().child("child").orElseThrow().textContent());
     }
 }

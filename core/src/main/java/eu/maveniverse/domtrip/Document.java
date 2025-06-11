@@ -2,6 +2,7 @@ package eu.maveniverse.domtrip;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 /**
  * Represents the root of an XML document, containing the document element
@@ -380,13 +381,28 @@ public class Document extends ContainerNode {
     }
 
     /**
+     * Serializes this document to an OutputStream using the specified charset.
+     *
+     * <p>This method allows explicit control over the character encoding used
+     * for serialization, regardless of the document's encoding property.</p>
+     *
+     * @param outputStream the OutputStream to write to
+     * @param charset the character encoding to use
+     * @throws DomTripException if serialization fails or I/O errors occur
+     */
+    public void toXml(OutputStream outputStream, Charset charset) throws DomTripException {
+        Serializer serializer = new Serializer();
+        serializer.serialize(this, outputStream, charset);
+    }
+
+    /**
      * Serializes this document to an OutputStream using the specified encoding.
      *
      * <p>This method allows explicit control over the character encoding used
      * for serialization, regardless of the document's encoding property.</p>
      *
      * @param outputStream the OutputStream to write to
-     * @param encoding the character encoding to use
+     * @param encoding the character encoding name to use
      * @throws DomTripException if serialization fails or I/O errors occur
      */
     public void toXml(OutputStream outputStream, String encoding) throws DomTripException {
@@ -491,6 +507,28 @@ public class Document extends ContainerNode {
      * <ol>
      *   <li>Checking for a Byte Order Mark (BOM)</li>
      *   <li>Reading the XML declaration to extract the encoding attribute</li>
+     *   <li>Using the provided default charset if detection fails</li>
+     * </ol>
+     *
+     * <p>The resulting Document will have its encoding property set to the detected,
+     * declared, or default encoding.</p>
+     *
+     * @param inputStream the InputStream containing XML data
+     * @param defaultCharset the charset to use if detection fails
+     * @return a new Document containing the parsed XML with preserved formatting
+     * @throws DomTripException if the XML is malformed, cannot be parsed, or I/O errors occur
+     */
+    public static Document of(InputStream inputStream, Charset defaultCharset) throws DomTripException {
+        return new Parser().parse(inputStream, defaultCharset);
+    }
+
+    /**
+     * Creates a document by parsing XML from an InputStream with encoding detection and fallback.
+     *
+     * <p>This method attempts to detect the character encoding by:</p>
+     * <ol>
+     *   <li>Checking for a Byte Order Mark (BOM)</li>
+     *   <li>Reading the XML declaration to extract the encoding attribute</li>
      *   <li>Using the provided default encoding if detection fails</li>
      * </ol>
      *
@@ -498,7 +536,7 @@ public class Document extends ContainerNode {
      * declared, or default encoding.</p>
      *
      * @param inputStream the InputStream containing XML data
-     * @param defaultEncoding the encoding to use if detection fails
+     * @param defaultEncoding the encoding name to use if detection fails
      * @return a new Document containing the parsed XML with preserved formatting
      * @throws DomTripException if the XML is malformed, cannot be parsed, or I/O errors occur
      */

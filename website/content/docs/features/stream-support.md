@@ -32,9 +32,12 @@ The parser follows this detection process:
 3. **Fallback**: Uses UTF-8 if no encoding is detected
 
 ```java
-// With fallback encoding
+// With fallback encoding (String)
 InputStream inputStream = new FileInputStream("document.xml");
 Document doc = Document.of(inputStream, "ISO-8859-1");
+
+// With fallback encoding (Charset - preferred)
+Document doc2 = Document.of(inputStream, StandardCharsets.ISO_8859_1);
 ```
 
 ### Supported Encodings
@@ -76,8 +79,11 @@ Document doc = Document.of(xmlString);
 OutputStream outputStream = new FileOutputStream("output.xml");
 doc.toXml(outputStream);
 
-// Specify encoding explicitly
+// Specify encoding explicitly (String)
 doc.toXml(outputStream, "UTF-16");
+
+// Specify encoding explicitly (Charset - preferred)
+doc.toXml(outputStream, StandardCharsets.UTF_16);
 ```
 
 ### Serializer with Encoding
@@ -90,8 +96,11 @@ Serializer serializer = new Serializer();
 // Use document's encoding
 serializer.serialize(doc, outputStream);
 
-// Specify encoding
+// Specify encoding (String)
 serializer.serialize(doc, outputStream, "ISO-8859-1");
+
+// Specify encoding (Charset - preferred)
+serializer.serialize(doc, outputStream, StandardCharsets.ISO_8859_1);
 ```
 
 ### Node Serialization
@@ -104,8 +113,11 @@ Element element = doc.root();
 // Serialize node with UTF-8
 serializer.serialize(element, outputStream);
 
-// Serialize node with specific encoding
+// Serialize node with specific encoding (String)
 serializer.serialize(element, outputStream, "UTF-16");
+
+// Serialize node with specific encoding (Charset - preferred)
+serializer.serialize(element, outputStream, StandardCharsets.UTF_16);
 ```
 
 ## Round-Trip Processing
@@ -153,8 +165,11 @@ You can override the encoding during serialization:
 // Parse with one encoding
 Document doc = Document.of(inputStream); // UTF-8 detected
 
-// Serialize with different encoding
+// Serialize with different encoding (String)
 doc.toXml(outputStream, "UTF-16");
+
+// Serialize with different encoding (Charset - preferred)
+doc.toXml(outputStream, StandardCharsets.UTF_16);
 ```
 
 ## Special Characters and BOMs
@@ -224,6 +239,29 @@ try {
 }
 ```
 
+## Charset vs String Encoding
+
+### Preferred: Charset Objects
+
+DomTrip supports both String-based encoding names and Charset objects, but Charset objects are preferred:
+
+```java
+// ✅ Preferred - Type-safe, no invalid encoding names
+Document doc = Document.of(inputStream, StandardCharsets.UTF_8);
+doc.toXml(outputStream, StandardCharsets.UTF_16);
+
+// ❌ Acceptable but less safe - String can be invalid
+Document doc2 = Document.of(inputStream, "UTF-8");
+doc2.toXml(outputStream, "UTF-16");
+```
+
+### Benefits of Charset Objects
+
+- **Type Safety**: Compile-time validation of encoding names
+- **Performance**: No string parsing overhead
+- **Clarity**: Clear intent and better IDE support
+- **Error Prevention**: Eliminates typos in encoding names
+
 ## Best Practices
 
 ### 1. Use Try-With-Resources
@@ -238,17 +276,29 @@ try (InputStream inputStream = new FileInputStream("input.xml");
 }
 ```
 
-### 2. Let DomTrip Detect Encoding
+### 2. Prefer Charset Objects
+
+```java
+// ✅ Type-safe Charset objects
+Document doc = Document.of(inputStream, StandardCharsets.UTF_8);
+doc.toXml(outputStream, StandardCharsets.UTF_16);
+
+// ❌ String encoding names (error-prone)
+Document doc2 = Document.of(inputStream, "UTF-8");
+doc2.toXml(outputStream, "UTF-16");
+```
+
+### 3. Let DomTrip Detect Encoding
 
 ```java
 // ✅ Automatic detection
 Document doc = Document.of(inputStream);
 
 // ❌ Unnecessary manual specification
-Document doc = Document.of(inputStream, "UTF-8"); // Only if needed
+Document doc = Document.of(inputStream, StandardCharsets.UTF_8); // Only if needed
 ```
 
-### 3. Preserve Original Encoding
+### 4. Preserve Original Encoding
 
 ```java
 // ✅ Maintain consistency
@@ -256,10 +306,10 @@ Document doc = Document.of(inputStream);
 doc.toXml(outputStream); // Uses detected encoding
 
 // ❌ Unnecessary encoding changes
-doc.toXml(outputStream, "UTF-16"); // Only if intentional
+doc.toXml(outputStream, StandardCharsets.UTF_16); // Only if intentional
 ```
 
-### 4. Handle Large Files Efficiently
+### 5. Handle Large Files Efficiently
 
 ```java
 // ✅ Stream processing for large files

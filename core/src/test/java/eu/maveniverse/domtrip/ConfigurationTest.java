@@ -19,13 +19,8 @@ public class ConfigurationTest {
 
         assertTrue(config.isPreserveWhitespace());
         assertTrue(config.isPreserveComments());
-        assertTrue(config.isPreserveEntities());
         assertTrue(config.isPreserveProcessingInstructions());
-        assertTrue(config.isPreserveCData());
-        assertEquals("UTF-8", config.defaultEncoding());
         assertEquals(QuoteStyle.DOUBLE, config.defaultQuoteStyle());
-        assertTrue(config.isValidateXmlNames());
-        assertFalse(config.isStrictParsing());
         assertFalse(config.isPrettyPrint());
         assertEquals("    ", config.indentString());
     }
@@ -34,9 +29,7 @@ public class ConfigurationTest {
     void testDomTripConfigStrict() {
         DomTripConfig config = DomTripConfig.strict();
 
-        assertTrue(config.isStrictParsing());
-        assertTrue(config.isValidateXmlNames());
-        // Other defaults should remain
+        // Strict is now an alias for defaults
         assertTrue(config.isPreserveWhitespace());
         assertTrue(config.isPreserveComments());
     }
@@ -45,9 +38,7 @@ public class ConfigurationTest {
     void testDomTripConfigLenient() {
         DomTripConfig config = DomTripConfig.lenient();
 
-        assertFalse(config.isStrictParsing());
-        assertFalse(config.isValidateXmlNames());
-        // Other defaults should remain
+        // Lenient is now an alias for defaults
         assertTrue(config.isPreserveWhitespace());
         assertTrue(config.isPreserveComments());
     }
@@ -60,7 +51,6 @@ public class ConfigurationTest {
         assertFalse(config.isPreserveWhitespace());
         // Other defaults should remain
         assertTrue(config.isPreserveComments());
-        assertTrue(config.isPreserveEntities());
     }
 
     @Test
@@ -68,25 +58,15 @@ public class ConfigurationTest {
         DomTripConfig config = DomTripConfig.defaults()
                 .withWhitespacePreservation(false)
                 .withCommentPreservation(false)
-                .withEntityPreservation(false)
                 .withProcessingInstructionPreservation(false)
-                .withCDataPreservation(false)
-                .withDefaultEncoding("ISO-8859-1")
                 .withDefaultQuoteStyle(QuoteStyle.SINGLE)
-                .withXmlNameValidation(false)
-                .withStrictParsing(true)
                 .withPrettyPrint(true)
                 .withIndentString("\t");
 
         assertFalse(config.isPreserveWhitespace());
         assertFalse(config.isPreserveComments());
-        assertFalse(config.isPreserveEntities());
         assertFalse(config.isPreserveProcessingInstructions());
-        assertFalse(config.isPreserveCData());
-        assertEquals("ISO-8859-1", config.defaultEncoding());
         assertEquals(QuoteStyle.SINGLE, config.defaultQuoteStyle());
-        assertFalse(config.isValidateXmlNames());
-        assertTrue(config.isStrictParsing());
         assertTrue(config.isPrettyPrint());
         assertEquals("\t", config.indentString());
     }

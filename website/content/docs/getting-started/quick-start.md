@@ -71,9 +71,15 @@ Notice how:
 // From string
 Editor editor = new Editor(Document.of(xmlString));
 
-// From file
+// From file (String-based)
 String xml = Files.readString(Paths.get("config.xml"));
 Editor editor = new Editor(Document.of(xml));
+
+// From InputStream with automatic encoding detection
+try (InputStream inputStream = Files.newInputStream(Paths.get("config.xml"))) {
+    Document doc = Document.of(inputStream);
+    Editor editor = new Editor(doc);
+}
 
 // With custom configuration
 Editor editor = new Editor(Document.of(xml), DomTripConfig.prettyPrint());
@@ -210,8 +216,14 @@ public class MavenPomEditor {
         editor.addElement(dependency, "artifactId", artifactId);
         editor.addElement(dependency, "version", version);
         
-        // Save back to file
+        // Save back to file (String-based)
         Files.writeString(Paths.get(pomPath), editor.toXml());
+
+        // Or save to OutputStream with proper encoding
+        try (OutputStream outputStream = Files.newOutputStream(Paths.get(pomPath))) {
+            editor.document().toXml(outputStream);
+        }
+
         System.out.println("✅ Added dependency: " + groupId + ":" + artifactId);
     }
 }

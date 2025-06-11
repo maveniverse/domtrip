@@ -1,5 +1,12 @@
 package eu.maveniverse.domtrip;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 /**
  * Serializes XML node trees back to XML string format with configurable
  * formatting options and lossless preservation for unmodified content.
@@ -30,6 +37,10 @@ package eu.maveniverse.domtrip;
  * // Basic serialization with preservation
  * Serializer serializer = new Serializer();
  * String xml = serializer.serialize(document);
+ *
+ * // Serialize to OutputStream with encoding
+ * OutputStream outputStream = new FileOutputStream("output.xml");
+ * serializer.serialize(document, outputStream);
  *
  * // Pretty printing
  * Serializer prettySerializer = new Serializer(DomTripConfig.prettyPrint());
@@ -222,6 +233,160 @@ public class Serializer {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * Serializes an XML document to an OutputStream using the document's encoding.
+     *
+     * <p>This method uses the document's encoding property to determine the character
+     * encoding for the output stream. If the document has no encoding specified,
+     * UTF-8 is used as the default.</p>
+     *
+     * @param document the document to serialize
+     * @param outputStream the OutputStream to write to
+     * @throws DomTripException if serialization fails or I/O errors occur
+     */
+    public void serialize(Document document, OutputStream outputStream) throws DomTripException {
+        if (document == null) {
+            return;
+        }
+
+        String encodingName = document.encoding();
+        Charset charset;
+        if (encodingName == null || encodingName.trim().isEmpty()) {
+            charset = StandardCharsets.UTF_8;
+        } else {
+            try {
+                charset = Charset.forName(encodingName);
+            } catch (Exception e) {
+                charset = StandardCharsets.UTF_8;
+            }
+        }
+
+        serialize(document, outputStream, charset);
+    }
+
+    /**
+     * Serializes an XML document to an OutputStream using the specified charset.
+     *
+     * <p>This method allows explicit control over the character encoding used
+     * for serialization, regardless of the document's encoding property.</p>
+     *
+     * @param document the document to serialize
+     * @param outputStream the OutputStream to write to
+     * @param charset the character encoding to use
+     * @throws DomTripException if serialization fails or I/O errors occur
+     */
+    public void serialize(Document document, OutputStream outputStream, Charset charset) throws DomTripException {
+        if (document == null || outputStream == null) {
+            return;
+        }
+
+        if (charset == null) {
+            charset = StandardCharsets.UTF_8;
+        }
+
+        try {
+            try (Writer writer = new OutputStreamWriter(outputStream, charset)) {
+                String xmlContent = serialize(document);
+                writer.write(xmlContent);
+                writer.flush();
+            }
+        } catch (IOException e) {
+            throw new DomTripException("Failed to serialize document to OutputStream: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new DomTripException(
+                    "Failed to serialize document with charset '" + charset.name() + "': " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Serializes an XML document to an OutputStream using the specified encoding.
+     *
+     * <p>This method allows explicit control over the character encoding used
+     * for serialization, regardless of the document's encoding property.</p>
+     *
+     * @param document the document to serialize
+     * @param outputStream the OutputStream to write to
+     * @param encoding the character encoding name to use
+     * @throws DomTripException if serialization fails or I/O errors occur
+     */
+    public void serialize(Document document, OutputStream outputStream, String encoding) throws DomTripException {
+        if (encoding == null || encoding.trim().isEmpty()) {
+            serialize(document, outputStream, StandardCharsets.UTF_8);
+            return;
+        }
+
+        try {
+            Charset charset = Charset.forName(encoding);
+            serialize(document, outputStream, charset);
+        } catch (Exception e) {
+            throw new DomTripException("Invalid encoding name: " + encoding, e);
+        }
+    }
+
+    /**
+     * Serializes a single node to an OutputStream using UTF-8 encoding.
+     *
+     * @param node the node to serialize
+     * @param outputStream the OutputStream to write to
+     * @throws DomTripException if serialization fails or I/O errors occur
+     */
+    public void serialize(Node node, OutputStream outputStream) throws DomTripException {
+        serialize(node, outputStream, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Serializes a single node to an OutputStream using the specified charset.
+     *
+     * @param node the node to serialize
+     * @param outputStream the OutputStream to write to
+     * @param charset the character encoding to use
+     * @throws DomTripException if serialization fails or I/O errors occur
+     */
+    public void serialize(Node node, OutputStream outputStream, Charset charset) throws DomTripException {
+        if (node == null || outputStream == null) {
+            return;
+        }
+
+        if (charset == null) {
+            charset = StandardCharsets.UTF_8;
+        }
+
+        try {
+            try (Writer writer = new OutputStreamWriter(outputStream, charset)) {
+                String xmlContent = serialize(node);
+                writer.write(xmlContent);
+                writer.flush();
+            }
+        } catch (IOException e) {
+            throw new DomTripException("Failed to serialize node to OutputStream: " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new DomTripException(
+                    "Failed to serialize node with charset '" + charset.name() + "': " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Serializes a single node to an OutputStream using the specified encoding.
+     *
+     * @param node the node to serialize
+     * @param outputStream the OutputStream to write to
+     * @param encoding the character encoding name to use
+     * @throws DomTripException if serialization fails or I/O errors occur
+     */
+    public void serialize(Node node, OutputStream outputStream, String encoding) throws DomTripException {
+        if (encoding == null || encoding.trim().isEmpty()) {
+            serialize(node, outputStream, StandardCharsets.UTF_8);
+            return;
+        }
+
+        try {
+            Charset charset = Charset.forName(encoding);
+            serialize(node, outputStream, charset);
+        } catch (Exception e) {
+            throw new DomTripException("Invalid encoding name: " + encoding, e);
+        }
     }
 
     /**

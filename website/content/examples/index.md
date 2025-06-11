@@ -261,6 +261,6 @@ String result = editor.toXml(); // Maintains original indentation and style
 
 ## Next Steps
 
-- [API Reference](/docs/api/) - Complete API documentation
-- [Advanced Features](/docs/advanced/) - Builder patterns and advanced usage
-- [Migration Guide](/docs/migration/) - Moving from other XML libraries
+- [API Reference](../docs/api/) - Complete API documentation
+- [Features](../docs/features/) - Builder patterns and advanced usage
+- [Advanced Features](../docs/advanced/) - Builder patterns and advanced usage

@@ -134,9 +134,9 @@ repositories {
 
 Now that DomTrip is installed, let's explore the basics:
 
-- 📚 [Quick Start Guide](/docs/quick-start/) - Your first DomTrip program
-- 🧠 [Basic Concepts](/docs/concepts/) - Understanding DomTrip's approach
-- 🚀 [API Reference](/docs/api/) - Detailed API documentation
+- 📚 [Quick Start Guide](getting-started/quick-start/) - Your first DomTrip program
+- 🧠 [Basic Concepts](getting-started/basic-concepts/) - Understanding DomTrip's approach
+- 🚀 [API Reference](api/editor/) - Detailed API documentation
 
 ## Troubleshooting
 

@@ -288,10 +288,10 @@ try {
 
 Now that you've mastered the basics, explore more advanced features:
 
-- 🏗️ [Builder Patterns](/docs/advanced/builder-patterns/) - Fluent APIs for complex XML
-- 🌐 [Namespace Support](/docs/features/namespace-support/) - Working with XML namespaces
-- ⚙️ [Configuration](/docs/api/configuration/) - Customizing DomTrip's behavior
-- 📖 [Examples](/docs/examples/) - Real-world use cases
+- 🏗️ [Builder Patterns](../../docs/advanced/factory-methods/) - Fluent APIs for complex XML
+- 🌐 [Namespace Support](../../docs/features/namespace-support/) - Working with XML namespaces
+- ⚙️ [Configuration](../../docs/api/configuration/) - Customizing DomTrip's behavior
+- 📖 [Examples](../../examples/) - Real-world use cases
 
 ## Tips for Success
 

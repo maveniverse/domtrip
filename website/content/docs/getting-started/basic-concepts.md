@@ -242,7 +242,7 @@ try {
 
 Now that you understand the core concepts, explore specific features:
 
-- 🔄 [Lossless Parsing](/docs/features/lossless-parsing/) - Deep dive into preservation
-- 📝 [Formatting Preservation](/docs/features/formatting-preservation/) - How formatting is maintained
-- 🌐 [Namespace Support](/docs/features/namespace-support/) - Working with XML namespaces
-- 🏗️ [Builder Patterns](/docs/advanced/builder-patterns/) - Creating complex XML structures
+- 🔄 [Lossless Parsing](../../docs/features/lossless-parsing/) - Deep dive into preservation
+- 📝 [Formatting Preservation](../../docs/features/formatting-preservation/) - How formatting is maintained
+- 🌐 [Namespace Support](../../docs/features/namespace-support/) - Working with XML namespaces
+- 🏗️ [Builder Patterns](../../docs/advanced/factory-methods/) - Creating complex XML structures

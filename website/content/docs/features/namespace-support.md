@@ -283,6 +283,6 @@ DomTripConfig config = DomTripConfig.defaults()
 
 ## Next Steps
 
-- 🔄 [Lossless Parsing](/docs/features/lossless-parsing/) - Understanding preservation
-- 📝 [Formatting Preservation](/docs/features/formatting-preservation/) - Maintaining formatting
-- 🏗️ [Builder Patterns](/docs/advanced/builder-patterns/) - Creating complex structures
+- 🔄 [Lossless Parsing](../../docs/features/lossless-parsing/) - Understanding preservation
+- 📝 [Formatting Preservation](../../docs/features/formatting-preservation/) - Maintaining formatting
+- 🏗️ [Builder Patterns](../../docs/advanced/factory-methods/) - Creating complex structures

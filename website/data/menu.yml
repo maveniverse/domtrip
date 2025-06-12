@@ -1,8 +1,6 @@
 items:
   - title: "Introduction"
     path: "/docs/introduction/"
-  - title: "Installation"
-    path: "/docs/installation/"
   - title: "Getting Started"
     path: "/docs/getting-started/"
     items:
@@ -42,6 +40,10 @@ items:
         path: "/docs/advanced/factory-methods/"
       - title: "Builder Patterns"
         path: "/docs/advanced/builder-patterns/"
+      - title: "Library Comparison"
+        path: "/docs/advanced/comparison/"
+      - title: "Migration Guide"
+        path: "/docs/advanced/migration/"
   - title: "API Reference"
     path: "/docs/api/"
     items:
@@ -51,10 +53,6 @@ items:
         path: "/docs/api/document/"
       - title: "Configuration"
         path: "/docs/api/configuration/"
-  - title: "Comparison"
-    path: "/docs/comparison/"
-  - title: "Migration"
-    path: "/docs/migration/"
   - title: "Examples"
     path: "/examples/"
     icon: "fa-solid fa-code"

@@ -1,5 +1,6 @@
 package eu.maveniverse.domtrip.website;
 
+import io.quarkus.qute.RawString;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -48,19 +49,20 @@ public class SnippetTemplateExtension {
 
     /**
      * Gets a code snippet by name for use in templates.
+     * Returns a RawString to prevent HTML escaping of code content.
      *
      * @param snippetName the name of the snippet to retrieve
-     * @return the code snippet content, or a placeholder message if not found
+     * @return the code snippet content as RawString, or a placeholder message if not found
      */
-    public String snippet(String snippetName) {
+    public RawString snippet(String snippetName) {
         String snippet = snippetProcessor.getSnippet(snippetName);
         if (snippet != null) {
-            return snippet;
+            return new RawString(snippet);
         } else {
             System.err.println("⚠️  Warning: Snippet '" + snippetName + "' not found. Available snippets: "
                     + String.join(", ", snippetProcessor.getAvailableSnippets()));
-            return "// ❌ Snippet '" + snippetName + "' not found\n// Available snippets: "
-                    + String.join(", ", snippetProcessor.getAvailableSnippets());
+            return new RawString("// ❌ Snippet '" + snippetName + "' not found\n// Available snippets: "
+                    + String.join(", ", snippetProcessor.getAvailableSnippets()));
         }
     }
 

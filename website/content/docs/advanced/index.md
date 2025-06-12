@@ -26,6 +26,24 @@ Explore the factory method patterns used throughout DomTrip for object creation.
 - **Attribute builders** and factories
 - **Configuration objects** and builders
 
+## Migration and Comparison
+
+### [Library Comparison](comparison/)
+Comprehensive comparison of DomTrip with other popular XML libraries.
+
+- **Feature comparison** matrix with DOM4J, JDOM, Java DOM, and Jackson XML
+- **Performance benchmarks** and memory usage analysis
+- **Use case recommendations** for choosing the right library
+- **Detailed advantages** and trade-offs for each library
+
+### [Migration Guide](migration/)
+Step-by-step guide for migrating from other XML libraries to DomTrip.
+
+- **Migration patterns** from DOM4J, JDOM, Java DOM, and Jackson XML
+- **Side-by-side examples** showing equivalent operations
+- **Common migration challenges** and solutions
+- **Gradual migration strategies** for large codebases
+
 ## Performance and Optimization
 
 ### Memory Management
@@ -98,17 +116,9 @@ Advanced error handling and recovery strategies.
 - **Validation strategies**
 - **Debugging techniques**
 
-## Migration and Compatibility
+## Version Compatibility
 
-### Migration Strategies
-Guidelines for migrating from other XML libraries to DomTrip.
-
-- **From DOM4J** migration patterns
-- **From JDOM** transition strategies
-- **Legacy code** adaptation
-- **Performance comparisons**
-
-### Version Compatibility
+### Version Management
 Managing DomTrip versions and compatibility considerations.
 
 - **API evolution** understanding

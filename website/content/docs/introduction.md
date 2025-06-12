@@ -117,4 +117,4 @@ DomTrip is perfect for scenarios where you need to:
 
 ## Getting Started
 
-Ready to try DomTrip? Head over to the [Installation Guide](../docs/installation/) to get started in minutes!
+Ready to try DomTrip? Head over to the [Installation Guide](../docs/getting-started/installation/) to get started in minutes!

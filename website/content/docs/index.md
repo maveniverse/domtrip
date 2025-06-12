@@ -29,7 +29,10 @@ Discover what makes DomTrip special:
 
 For power users and complex scenarios:
 
-- **[Builder Patterns](../docs/advanced/factory-methods/)** - Fluent APIs for creating complex XML structures
+- **[Factory Methods](../docs/advanced/factory-methods/)** - Object creation patterns and document factories
+- **[Builder Patterns](../docs/advanced/builder-patterns/)** - Fluent APIs for creating complex XML structures
+- **[Library Comparison](../docs/advanced/comparison/)** - How DomTrip compares to DOM4J, JDOM, and others
+- **[Migration Guide](../docs/advanced/migration/)** - Step-by-step migration from other XML libraries
 
 ## 📚 API Reference
 
@@ -44,27 +47,22 @@ Real-world examples and patterns:
 
 - **[Examples](../examples/)** - Common XML editing scenarios with code samples
 
-## 🔄 Migration & Comparison
 
-Moving from other libraries:
-
-- **[Library Comparison](../docs/comparison/)** - How DomTrip compares to DOM4J, JDOM, and others
-- **[Migration Guide](../docs/migration/)** - Step-by-step migration from other XML libraries
 
 ## 🎯 Quick Navigation
 
 ### By Use Case
 
 - **Configuration File Editing** → [Quick Start](../docs/getting-started/quick-start/) + [Examples](../examples/)
-- **Maven POM Manipulation** → [Examples](../examples/) + [Builder Patterns](../docs/advanced/factory-methods/)
+- **Maven POM Manipulation** → [Examples](../examples/) + [Factory Methods](../docs/advanced/factory-methods/)
 - **SOAP Message Processing** → [Namespace Support](../docs/features/namespace-support/)
 - **XML Transformation Tools** → [Lossless Parsing](../docs/features/lossless-parsing/)
 
 ### By Experience Level
 
 - **New to DomTrip** → [Installation](../docs/getting-started/installation/) → [Quick Start](../docs/getting-started/quick-start/)
-- **Migrating from other libraries** → [Comparison](../docs/comparison/) → [Migration Guide](../docs/migration/)
-- **Advanced usage** → [Builder Patterns](../docs/advanced/factory-methods/) → [Configuration](../docs/api/configuration/)
+- **Migrating from other libraries** → [Library Comparison](../docs/advanced/comparison/) → [Migration Guide](../docs/advanced/migration/)
+- **Advanced usage** → [Factory Methods](../docs/advanced/factory-methods/) → [Configuration](../docs/api/configuration/)
 
 ## 💡 Key Benefits
 

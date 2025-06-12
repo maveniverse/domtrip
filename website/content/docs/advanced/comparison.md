@@ -120,7 +120,7 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 
 ## Migration Guide
 
-Migrating from other libraries to DomTrip is straightforward. Check out our [Migration Guide](../docs/migration/) for specific examples and patterns for each library.
+Migrating from other libraries to DomTrip is straightforward. Check out our [Migration Guide](migration/) for specific examples and patterns for each library.
 
 ## Performance Comparison
 
@@ -147,6 +147,6 @@ Migrating from other libraries to DomTrip is straightforward. Check out our [Mig
 
 ## Next Steps
 
-- 📚 [Migration Guide](../docs/migration/) - Moving from other XML libraries
-- 🚀 [Quick Start](../docs/getting-started/quick-start/) - Get started with DomTrip
-- 📖 [Examples](../examples/) - Real-world usage examples
+- 📚 [Migration Guide](migration/) - Moving from other XML libraries
+- 🚀 [Quick Start](../../docs/getting-started/quick-start/) - Get started with DomTrip
+- 📖 [Examples](../../examples/) - Real-world usage examples

@@ -24,29 +24,7 @@ The commenting features allow you to:
 Use `commentOutElement()` to comment out an individual element:
 
 ```java
-Document doc = Document.of("""
-    <project>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-        </dependency>
-        <other>content</other>
-    </project>
-    """);
-
-Editor editor = new Editor(doc);
-Element dependency = doc.root().child("dependency").orElseThrow();
-
-// Comment out the dependency
-Comment comment = editor.commentOutElement(dependency);
-
-String result = editor.toXml();
-// Result:
-// <project>
-//     <!-- <dependency><groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version></dependency> -->
-//     <other>content</other>
-// </project>
+{cdi:snippets.snippet('comment-out-single-element')}
 ```
 
 ### Comment Out Multiple Elements
@@ -54,29 +32,7 @@ String result = editor.toXml();
 Use `commentOutElements()` to comment out multiple elements as a single block:
 
 ```java
-Document doc = Document.of("""
-    <project>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-        </dependency>
-        <other>keep this</other>
-    </project>
-    """);
-
-Editor editor = new Editor(doc);
-Element junit = doc.root().children("dependency").findFirst().orElseThrow();
-Element mockito = doc.root().children("dependency").skip(1).findFirst().orElseThrow();
-
-// Comment out both dependencies as a block
-Comment comment = editor.commentOutElements(junit, mockito);
-
-String result = editor.toXml();
-// Result contains: <!-- <dependency>...</dependency><dependency>...</dependency> -->
+{cdi:snippets.snippet('comment-out-multiple-elements')}
 ```
 
 ### Uncomment Elements
@@ -84,34 +40,7 @@ String result = editor.toXml();
 Use `uncommentElement()` to restore previously commented elements:
 
 ```java
-Document doc = Document.of("""
-    <project>
-        <!-- <dependency><groupId>junit</groupId><artifactId>junit</artifactId></dependency> -->
-        <other>content</other>
-    </project>
-    """);
-
-Editor editor = new Editor(doc);
-
-// Find the comment containing the dependency
-Comment comment = doc.root().nodes()
-    .filter(node -> node instanceof Comment)
-    .map(node -> (Comment) node)
-    .findFirst()
-    .orElseThrow();
-
-// Restore the commented element
-Element restored = editor.uncommentElement(comment);
-
-String result = editor.toXml();
-// Result:
-// <project>
-//     <dependency>
-//         <groupId>junit</groupId>
-//         <artifactId>junit</artifactId>
-//     </dependency>
-//     <other>content</other>
-// </project>
+{cdi:snippets.snippet('uncomment-element')}
 ```
 
 ## Advanced Features
@@ -121,14 +50,7 @@ String result = editor.toXml();
 The commenting features preserve the original whitespace and indentation:
 
 ```java
-// Original element with specific indentation
-Element element = ...; // Has specific preceding whitespace
-
-// Comment out - preserves the element's whitespace
-Comment comment = editor.commentOutElement(element);
-
-// The comment will have the same indentation as the original element
-assertEquals(element.precedingWhitespace(), comment.precedingWhitespace());
+{cdi:snippets.snippet('whitespace-preservation')}
 ```
 
 ### Round-trip Operations
@@ -136,17 +58,7 @@ assertEquals(element.precedingWhitespace(), comment.precedingWhitespace());
 You can comment and uncomment elements multiple times:
 
 ```java
-Element original = doc.root().child("dependency").orElseThrow();
-String originalGroupId = original.child("groupId").orElseThrow().textContent();
-
-// Comment out
-Comment comment = editor.commentOutElement(original);
-
-// Uncomment
-Element restored = editor.uncommentElement(comment);
-
-// Verify restoration
-assertEquals(originalGroupId, restored.child("groupId").orElseThrow().textContent());
+{cdi:snippets.snippet('round-trip-operations')}
 ```
 
 ## Method Reference
@@ -195,28 +107,7 @@ Restores elements from a comment by parsing the comment content as XML.
 The commenting methods include comprehensive error handling:
 
 ```java
-// Cannot comment out null element
-assertThrows(DomTripException.class, () -> {
-    editor.commentOutElement(null);
-});
-
-// Cannot comment out root element
-assertThrows(DomTripException.class, () -> {
-    editor.commentOutElement(doc.root());
-});
-
-// Elements must have same parent for block commenting
-Element child1 = parent1.child("child").orElseThrow();
-Element child2 = parent2.child("child").orElseThrow();
-assertThrows(DomTripException.class, () -> {
-    editor.commentOutElements(child1, child2);
-});
-
-// Comment must contain valid XML for uncommenting
-Comment invalidComment = new Comment("not valid xml");
-assertThrows(DomTripException.class, () -> {
-    editor.uncommentElement(invalidComment);
-});
+{cdi:snippets.snippet('commenting-error-handling')}
 ```
 
 ## Best Practices
@@ -232,12 +123,5 @@ assertThrows(DomTripException.class, () -> {
 Commenting works seamlessly with other Editor features:
 
 ```java
-// Comment out, modify other parts, then uncomment
-Comment comment = editor.commentOutElement(dependency);
-editor.addElement(root, "newElement", "content");
-Element restored = editor.uncommentElement(comment);
-
-// Use with positioning features
-Element newDep = editor.insertElementAfter(restored, "dependency");
-editor.addElement(newDep, "groupId", "new-group");
+{cdi:snippets.snippet('commenting-integration')}
 ```

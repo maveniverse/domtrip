@@ -47,19 +47,7 @@ Optional<Element> schemaLocation = editor.getDocumentElement()
 ### Working with Default Namespaces
 
 ```java
-// XML with default namespace
-String xml = """
-    <project xmlns="http://maven.apache.org/POM/4.0.0">
-        <groupId>com.example</groupId>
-        <artifactId>my-app</artifactId>
-    </project>
-    """;
-
-Editor editor = new Editor(xml);
-
-// These elements are in the default namespace
-Element groupId = editor.findElementByNamespace(
-    "http://maven.apache.org/POM/4.0.0", "groupId");
+{cdi:snippets.snippet('basic-namespace-handling')}
 ```
 
 ## Namespace Declaration Management
@@ -69,19 +57,7 @@ DomTrip preserves all namespace declarations and allows you to manage them:
 ### Reading Namespace Information
 
 ```java
-Element element = editor.findElement("project");
-
-// Get namespace URI
-String namespaceURI = element.getNamespaceURI();
-
-// Get prefix (null for default namespace)
-String prefix = element.getPrefix();
-
-// Get local name (without prefix)
-String localName = element.getLocalName();
-
-// Get qualified name (with prefix if present)
-String qualifiedName = element.getQualifiedName();
+{cdi:snippets.snippet('prefixed-namespaces')}
 ```
 
 ### Managing Namespace Declarations

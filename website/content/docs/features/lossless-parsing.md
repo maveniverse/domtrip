@@ -48,50 +48,19 @@ Editor editor = new Editor(xml);
 ### 3. Entity Encoding
 
 ```java
-String xml = """
-    <message>
-        <text>This &amp; that &lt; other &gt; thing</text>
-        <html>&lt;b&gt;Bold&lt;/b&gt; text</html>
-    </message>
-    """;
-
-Editor editor = new Editor(xml);
-// Entities remain as &amp;, &lt;, &gt; - not converted to &, <, >
+{cdi:snippets.snippet('entity-preservation')}
 ```
 
 ### 4. Attribute Quote Styles
 
 ```java
-String xml = """
-    <element 
-        single='quoted' 
-        double="quoted"
-        mixed='single "inside" double'>
-        Content
-    </element>
-    """;
-
-Editor editor = new Editor(xml);
-// Quote styles (single vs double) are preserved exactly
+{cdi:snippets.snippet('attribute-quote-preservation')}
 ```
 
 ### 5. CDATA Sections
 
 ```java
-String xml = """
-    <script>
-        <![CDATA[
-            function example() {
-                if (x < y && y > z) {
-                    return "complex content";
-                }
-            }
-        ]]>
-    </script>
-    """;
-
-Editor editor = new Editor(xml);
-// CDATA sections are preserved with their exact content
+{cdi:snippets.snippet('cdata-preservation')}
 ```
 
 ### 6. Processing Instructions

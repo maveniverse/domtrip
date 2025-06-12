@@ -15,12 +15,7 @@ DomTrip provides comprehensive support for parsing XML from InputStreams and ser
 DomTrip can automatically detect the character encoding of XML documents from InputStreams:
 
 ```java
-// Parse with automatic encoding detection
-InputStream inputStream = new FileInputStream("document.xml");
-Document doc = Document.of(inputStream);
-
-// Encoding is automatically detected and set
-String detectedEncoding = doc.encoding(); // e.g., "UTF-8"
+{cdi:snippets.snippet('automatic-encoding-detection')}
 ```
 
 ### Encoding Detection Process
@@ -32,12 +27,7 @@ The parser follows this detection process:
 3. **Fallback**: Uses UTF-8 if no encoding is detected
 
 ```java
-// With fallback encoding (String)
-InputStream inputStream = new FileInputStream("document.xml");
-Document doc = Document.of(inputStream, "ISO-8859-1");
-
-// With fallback encoding (Charset - preferred)
-Document doc2 = Document.of(inputStream, StandardCharsets.ISO_8859_1);
+{cdi:snippets.snippet('encoding-detection-fallback')}
 ```
 
 ### Supported Encodings
@@ -55,15 +45,7 @@ DomTrip supports all Java-supported character encodings:
 The parser extracts and applies XML declaration attributes:
 
 ```java
-String xml = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?><root/>";
-InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
-
-Document doc = Document.of(inputStream);
-
-// All attributes are parsed and applied
-assert doc.version().equals("1.1");
-assert doc.encoding().equals("UTF-8");
-assert doc.isStandalone() == true;
+{cdi:snippets.snippet('xml-declaration-parsing')}
 ```
 
 ## OutputStream Serialization

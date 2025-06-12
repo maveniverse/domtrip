@@ -13,19 +13,7 @@ DomTrip's behavior can be customized through the `DomTripConfig` class. This pag
 `DomTripConfig` controls how DomTrip parses, processes, and serializes XML:
 
 ```java
-// Use preset configurations
-DomTripConfig defaults = DomTripConfig.defaults();
-DomTripConfig pretty = DomTripConfig.prettyPrint();
-DomTripConfig minimal = DomTripConfig.minimal();
-
-// Create custom configuration
-DomTripConfig custom = DomTripConfig.defaults()
-    .withIndentString("  ")
-    .withWhitespacePreservation(true)
-    .withDefaultQuoteStyle(QuoteStyle.DOUBLE);
-
-// Use with Editor
-Editor editor = new Editor(xml, custom);
+{cdi:snippets.snippet('basic-configuration')}
 ```
 
 ## Preset Configurations
@@ -35,12 +23,7 @@ Editor editor = new Editor(xml, custom);
 Maximum preservation of original formatting:
 
 ```java
-DomTripConfig defaults = DomTripConfig.defaults();
-// - Preserves all whitespace
-// - Preserves all comments
-// - Preserves processing instructions
-// - Uses double quotes by default
-// - No pretty printing
+{cdi:snippets.snippet('preset-configurations')}
 ```
 
 ### Pretty Print Configuration
@@ -73,24 +56,13 @@ DomTripConfig minimal = DomTripConfig.minimal();
 Control how whitespace is handled:
 
 ```java
-DomTripConfig config = DomTripConfig.defaults()
-    .withWhitespacePreservation(true)       // Keep original whitespace
-    .withIndentString("    ")               // 4 spaces for new content
-    .withPrettyPrint(false);                // Disable pretty printing
+{cdi:snippets.snippet('whitespace-configuration')}
 ```
 
 ### Indentation Options
 
 ```java
-// Different indentation styles
-DomTripConfig spaces = DomTripConfig.defaults()
-    .withIndentString("  ");                // 2 spaces
-
-DomTripConfig tabs = DomTripConfig.defaults()
-    .withIndentString("\t");                // Tab characters
-
-DomTripConfig mixed = DomTripConfig.defaults()
-    .withIndentString("    ");              // 4 spaces
+{cdi:snippets.snippet('indentation-options')}
 ```
 
 ## Quote Style Configuration
@@ -98,13 +70,7 @@ DomTripConfig mixed = DomTripConfig.defaults()
 Control default attribute quote styles for new attributes:
 
 ```java
-// Use double quotes for new attributes
-DomTripConfig doubleQuotes = DomTripConfig.defaults()
-    .withDefaultQuoteStyle(QuoteStyle.DOUBLE);
-
-// Use single quotes for new attributes
-DomTripConfig singleQuotes = DomTripConfig.defaults()
-    .withDefaultQuoteStyle(QuoteStyle.SINGLE);
+{cdi:snippets.snippet('quote-style-configuration')}
 ```
 
 Note: Existing attributes preserve their original quote styles. The default quote style only applies to newly created attributes.
@@ -114,14 +80,7 @@ Note: Existing attributes preserve their original quote styles. The default quot
 Configure comment and processing instruction preservation:
 
 ```java
-DomTripConfig config = DomTripConfig.defaults()
-    .withCommentPreservation(true)                      // Keep all comments
-    .withProcessingInstructionPreservation(true);       // Keep processing instructions
-
-// For minimal output, exclude comments and PIs
-DomTripConfig minimal = DomTripConfig.defaults()
-    .withCommentPreservation(false)
-    .withProcessingInstructionPreservation(false);
+{cdi:snippets.snippet('comment-pi-handling')}
 ```
 
 ## Line Ending Configuration

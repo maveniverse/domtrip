@@ -13,22 +13,7 @@ One of DomTrip's core strengths is its ability to preserve the original formatti
 DomTrip preserves formatting by storing whitespace and formatting information alongside the parsed content:
 
 ```java
-// Original XML with specific formatting
-String xml = """
-    <project>
-        <groupId>com.example</groupId>
-        <artifactId>my-app</artifactId>
-        <version>1.0.0</version>
-    </project>
-    """;
-
-Editor editor = new Editor(xml);
-// Make a targeted change
-Element version = editor.findElement("version");
-editor.setTextContent(version, "2.0.0");
-
-String result = editor.toXml();
-// Only the version element is reformatted, everything else stays the same
+{cdi:snippets.snippet('basic-format-preservation')}
 ```
 
 ## Whitespace Tracking
@@ -39,20 +24,14 @@ DomTrip tracks whitespace at multiple levels to ensure perfect preservation:
 Every node stores the whitespace that appears before and after it:
 
 ```java
-// For this XML: "  <element>content</element>\n"
-Element element = editor.findElement("element");
-String before = element.getPrecedingWhitespace(); // "  "
-String after = element.getFollowingWhitespace();  // "\n"
+{cdi:snippets.snippet('whitespace-tracking')}
 ```
 
 ### Element-Level Whitespace
 Elements also track whitespace within their tags:
 
 ```java
-// For this XML: "<element >content</ element>"
-Element element = editor.findElement("element");
-String openTag = element.getOpenTagWhitespace();   // " "
-String closeTag = element.getCloseTagWhitespace(); // " "
+{cdi:snippets.snippet('element-whitespace')}
 ```
 
 ### Attribute Formatting

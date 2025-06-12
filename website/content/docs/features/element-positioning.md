@@ -24,28 +24,7 @@ The positioning features allow you to:
 Use `insertElementAt()` to insert an element at a specific index:
 
 ```java
-Document doc = Document.of("""
-    <dependencies>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-        </dependency>
-    </dependencies>
-    """);
-
-Editor editor = new Editor(doc);
-Element dependencies = doc.root();
-
-// Insert at position 1 (between existing dependencies)
-Element mockito = editor.insertElementAt(dependencies, 1, "dependency");
-editor.addElement(mockito, "groupId", "org.mockito");
-editor.addElement(mockito, "artifactId", "mockito-core");
-
-// Result order: junit, mockito, hamcrest
+{cdi:snippets.snippet('insert-element-at')}
 ```
 
 ### Insert Before Element
@@ -53,29 +32,7 @@ editor.addElement(mockito, "artifactId", "mockito-core");
 Use `insertElementBefore()` to insert an element before an existing element:
 
 ```java
-Document doc = Document.of("""
-    <project>
-        <dependencies>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-            </dependency>
-        </dependencies>
-        <build>
-            <plugins/>
-        </build>
-    </project>
-    """);
-
-Editor editor = new Editor(doc);
-Element build = doc.root().child("build").orElseThrow();
-
-// Insert properties before build section
-Element properties = editor.insertElementBefore(build, "properties");
-editor.addElement(properties, "maven.compiler.source", "17");
-editor.addElement(properties, "maven.compiler.target", "17");
-
-// Result order: dependencies, properties, build
+{cdi:snippets.snippet('insert-element-before')}
 ```
 
 ### Insert After Element
@@ -83,21 +40,7 @@ editor.addElement(properties, "maven.compiler.target", "17");
 Use `insertElementAfter()` to insert an element after an existing element:
 
 ```java
-Document doc = Document.of("""
-    <project>
-        <groupId>com.example</groupId>
-        <artifactId>my-project</artifactId>
-        <version>1.0.0</version>
-    </project>
-    """);
-
-Editor editor = new Editor(doc);
-Element version = doc.root().child("version").orElseThrow();
-
-// Insert packaging after version
-Element packaging = editor.insertElementAfter(version, "packaging", "jar");
-
-// Result order: groupId, artifactId, version, packaging
+{cdi:snippets.snippet('insert-element-after')}
 ```
 
 ## Advanced Usage

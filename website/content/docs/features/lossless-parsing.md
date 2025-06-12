@@ -13,36 +13,13 @@ DomTrip's core strength is its ability to parse XML documents while preserving *
 ### 1. Comments (Including Multi-line)
 
 ```java
-String xml = """
-    <?xml version="1.0"?>
-    <!-- This is a single-line comment -->
-    <root>
-        <!--
-            This is a multi-line comment
-            with multiple lines of text
-        -->
-        <element>value</element>
-    </root>
-    """;
-
-Editor editor = new Editor(xml);
-String result = editor.toXml();
-// Comments are preserved exactly as written
+{cdi:snippets.snippet('comments-preservation')}
 ```
 
 ### 2. Whitespace and Indentation
 
 ```java
-String xml = """
-    <root>
-        <child1>    value with spaces    </child1>
-            <child2>differently indented</child2>
-    	<child3>tab indented</child3>
-    </root>
-    """;
-
-Editor editor = new Editor(xml);
-// All whitespace, including tabs and spaces, is preserved
+{cdi:snippets.snippet('whitespace-preservation')}
 ```
 
 ### 3. Entity Encoding
@@ -66,17 +43,7 @@ Editor editor = new Editor(xml);
 ### 6. Processing Instructions
 
 ```java
-String xml = """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <?xml-stylesheet type="text/xsl" href="style.xsl"?>
-    <document>
-        <?custom-instruction data="value"?>
-        <content>text</content>
-    </document>
-    """;
-
-Editor editor = new Editor(xml);
-// All processing instructions are preserved
+{cdi:snippets.snippet('processing-instructions-with-data')}
 ```
 
 ## How It Works
@@ -144,20 +111,7 @@ return buildFromScratch(node);
 You can verify lossless parsing with this simple test:
 
 ```java
-@Test
-void testLosslessRoundTrip() {
-    Path xmlFile = Path.of("complex.xml");
-
-    // Load with automatic encoding detection
-    Document doc = Document.of(xmlFile);
-    Editor editor = new Editor(doc);
-    String result = editor.toXml();
-
-    // Load again to verify round-trip preservation
-    Document originalDoc = Document.of(xmlFile);
-    String original = new Editor(originalDoc).toXml();
-    assertEquals(original, result, "Round-trip should be identical");
-}
+{cdi:snippets.snippet('round-trip-verification')}
 ```
 
 ## Performance Considerations
@@ -193,10 +147,7 @@ While DomTrip preserves almost everything, there are a few edge cases:
 ### 1. Use for Editing Scenarios
 
 ```java
-// ✅ Perfect for editing existing files
-Editor editor = new Editor(existingConfigFile);
-editor.addElement(root, "newSetting", "value");
-Files.writeString(configPath, editor.toXml());
+{cdi:snippets.snippet('best-practices-editing')}
 ```
 
 ### 2. Verify Round-Trip in Tests
@@ -221,11 +172,7 @@ void testConfigurationEditing() {
 ### 3. Handle Large Files Carefully
 
 ```java
-// ✅ For large files, consider streaming or chunking
-if (fileSize > 10_000_000) { // 10MB
-    // Consider alternative approaches for very large files
-    logger.warn("Large file detected, consider streaming approach");
-}
+{cdi:snippets.snippet('large-file-handling')}
 ```
 
 ## Comparison with Other Libraries

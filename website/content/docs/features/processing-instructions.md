@@ -28,32 +28,13 @@ Processing instructions are special XML constructs that provide instructions to 
 ### Creating Processing Instructions
 
 ```java
-// Create a new processing instruction
-ProcessingInstruction pi = new ProcessingInstruction("<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>");
-
-// Access components
-String target = pi.target();  // "xml-stylesheet"
-String data = pi.data();      // "type=\"text/xsl\" href=\"style.xsl\""
+{cdi:snippets.snippet('creating-processing-instructions')}
 ```
 
 ### Parsing Documents with Processing Instructions
 
 ```java
-String xml = """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <?xml-stylesheet type="text/xsl" href="transform.xsl"?>
-    <?sort-order alpha-ascending?>
-    <root>
-        <data>content</data>
-    </root>
-    """;
-
-Document doc = Document.of(xml);
-Editor editor = new Editor(doc);
-
-// Processing instructions are preserved exactly
-String result = editor.toXml();
-// Result maintains all PIs in their original positions
+{cdi:snippets.snippet('parsing-documents-with-pis')}
 ```
 
 ## Working with Processing Instructions
@@ -61,36 +42,13 @@ String result = editor.toXml();
 ### Finding Processing Instructions
 
 ```java
-Document doc = Document.of(xmlWithPIs);
-
-// Find all processing instructions in document
-List<ProcessingInstruction> pis = doc.nodes()
-    .filter(node -> node instanceof ProcessingInstruction)
-    .map(node -> (ProcessingInstruction) node)
-    .collect(Collectors.toList());
-
-// Find specific PI by target
-Optional<ProcessingInstruction> stylesheet = doc.nodes()
-    .filter(node -> node instanceof ProcessingInstruction)
-    .map(node -> (ProcessingInstruction) node)
-    .filter(pi -> "xml-stylesheet".equals(pi.target()))
-    .findFirst();
+{cdi:snippets.snippet('finding-processing-instructions')}
 ```
 
 ### Modifying Processing Instructions
 
 ```java
-ProcessingInstruction pi = new ProcessingInstruction("<?target old-data?>");
-
-// Modify target and data
-pi.target("new-target");
-pi.data("new-data with parameters");
-
-// Check if modified
-boolean isModified = pi.isModified(); // true
-
-// Get updated content
-String content = pi.originalContent(); // "<?new-target new-data with parameters?>"
+{cdi:snippets.snippet('modifying-processing-instructions')}
 ```
 
 ## Advanced Features
@@ -98,36 +56,13 @@ String content = pi.originalContent(); // "<?new-target new-data with parameters
 ### Processing Instructions with Special Characters
 
 ```java
-String xml = """
-    <?target data with <special> &amp; characters?>
-    <root/>
-    """;
-
-Document doc = Document.of(xml);
-Editor editor = new Editor(doc);
-
-// Special characters are preserved exactly
-String result = editor.toXml();
-assertEquals(xml, result);
+{cdi:snippets.snippet('special-characters')}
 ```
 
 ### Position and Whitespace Preservation
 
 ```java
-String xml = """
-    <?xml version="1.0"?>
-    
-    <?xml-stylesheet href="style.css"?>
-    
-    <root/>
-    """;
-
-Document doc = Document.of(xml);
-
-// Whitespace around PIs is preserved
-ProcessingInstruction stylesheet = /* find stylesheet PI */;
-String precedingWhitespace = stylesheet.precedingWhitespace(); // "\n\n"
-String followingWhitespace = stylesheet.followingWhitespace(); // "\n\n"
+{cdi:snippets.snippet('position-whitespace-preservation')}
 ```
 
 ## Common Use Cases
@@ -135,49 +70,19 @@ String followingWhitespace = stylesheet.followingWhitespace(); // "\n\n"
 ### XML Stylesheet Declaration
 
 ```java
-// Add stylesheet PI to document
-Editor editor = new Editor();
-editor.createDocument("html");
-
-ProcessingInstruction stylesheet = new ProcessingInstruction(
-    "<?xml-stylesheet type=\"text/xsl\" href=\"transform.xsl\"?>"
-);
-
-// Insert PI before root element
-Document doc = editor.document();
-doc.insertBefore(doc.root(), stylesheet);
+{cdi:snippets.snippet('xml-stylesheet-declaration')}
 ```
 
 ### PHP Processing Instructions
 
 ```java
-String phpXml = """
-    <?xml version="1.0"?>
-    <?php
-        $title = "Dynamic Title";
-        echo "<title>$title</title>";
-    ?>
-    <html>
-        <head></head>
-        <body>Content</body>
-    </html>
-    """;
-
-Document doc = Document.of(phpXml);
-// PHP PI content is preserved exactly, including newlines and formatting
+{cdi:snippets.snippet('php-processing-instructions')}
 ```
 
 ### Application-Specific Instructions
 
 ```java
-// Custom processing instructions for application logic
-ProcessingInstruction sortOrder = new ProcessingInstruction("<?sort-order alpha-ascending?>");
-ProcessingInstruction cacheHint = new ProcessingInstruction("<?cache-duration 3600?>");
-
-// Add to document
-Element root = editor.root();
-root.insertBefore(root.firstChild(), sortOrder);
-root.insertBefore(root.firstChild(), cacheHint);
+{cdi:snippets.snippet('application-specific-instructions')}
 ```
 
 ## Best Practices
@@ -199,13 +104,7 @@ root.insertBefore(root.firstChild(), cacheHint);
 Processing instructions work seamlessly with DomTrip's Editor API:
 
 ```java
-Editor editor = new Editor(Document.of(xmlWithPIs));
-
-// PIs are automatically preserved during editing
-editor.addElement(editor.root(), "newElement", "content");
-
-// Original PIs remain in their positions with exact formatting
-String result = editor.toXml();
+{cdi:snippets.snippet('editor-integration')}
 ```
 
 ## Performance Considerations

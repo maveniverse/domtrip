@@ -246,6 +246,140 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     // Helper method for the reusable factory methods example
+    @Test
+    public void demonstrateSimpleDocumentCreation() {
+        // START: simple-document-creation
+        // Basic document
+        Document doc = Document.withRootElement("project");
+
+        // Document with XML declaration
+        Document docWithDecl = Document.withXmlDeclaration("1.0", "UTF-8");
+        docWithDecl.root(Element.of("project"));
+
+        // Parse existing XML from string
+        String xmlString = "<root><child>value</child></root>";
+        Document parsedDoc = Document.of(xmlString);
+        // END: simple-document-creation
+
+        Assertions.assertEquals("project", doc.root().name());
+        Assertions.assertEquals("project", docWithDecl.root().name());
+        Assertions.assertEquals("root", parsedDoc.root().name());
+    }
+
+    @Test
+    public void demonstrateFileBasedDocumentLoading() throws Exception {
+        // START: file-based-document-loading
+        // Basic file loading with automatic encoding detection
+        // Document doc = Document.of(Path.of("config.xml"));
+
+        // Error handling
+        try {
+            String xmlContent = createConfigXml();
+            Document doc = Document.of(xmlContent);
+            Editor editor = new Editor(doc);
+            // ... process document
+            String result = editor.toXml();
+            Assertions.assertNotNull(result);
+        } catch (Exception e) {
+            System.err.println("Failed to parse XML: " + e.getMessage());
+        }
+        // END: file-based-document-loading
+    }
+
+    @Test
+    public void demonstrateAdvancedDocumentCreation() {
+        // START: advanced-document-creation
+        // Document with processing instructions
+        Document doc = Document.withXmlDeclaration("1.0", "UTF-8");
+        doc.addNode(ProcessingInstruction.of("xml-stylesheet", "type=\"text/xsl\" href=\"style.xsl\""));
+        doc.root(Element.of("project"));
+        // END: advanced-document-creation
+
+        Assertions.assertEquals("project", doc.root().name());
+    }
+
+    @Test
+    public void demonstrateTextNodeCreation() {
+        // START: text-node-creation
+        // Simple text
+        Text text = Text.of("Hello World");
+
+        // CDATA text
+        Text cdata = Text.cdata("<script>alert('test');</script>");
+
+        // Text with explicit CDATA flag
+        Text explicitCdata = Text.of("content", true);
+        // END: text-node-creation
+
+        Assertions.assertEquals("Hello World", text.content());
+        Assertions.assertTrue(cdata.cdata());
+        Assertions.assertTrue(explicitCdata.cdata());
+    }
+
+    @Test
+    public void demonstrateCommentCreation() {
+        // START: comment-creation
+        // Simple comment
+        Comment comment = Comment.of("This is a comment");
+
+        // Modify comment content
+        Comment modified = Comment.of("Initial content");
+        modified.content("Updated content");
+        // END: comment-creation
+
+        Assertions.assertEquals("This is a comment", comment.content());
+        Assertions.assertEquals("Updated content", modified.content());
+    }
+
+    @Test
+    public void demonstrateProcessingInstructionCreation() {
+        // START: processing-instruction-creation
+        // Processing instruction with target and data
+        ProcessingInstruction pi = ProcessingInstruction.of("xml-stylesheet", "type=\"text/css\" href=\"style.css\"");
+
+        // Processing instruction with target only
+        ProcessingInstruction simple = ProcessingInstruction.of("target");
+
+        // Modify processing instruction
+        ProcessingInstruction modified = ProcessingInstruction.of("target", "data");
+        modified.target("new-target");
+        modified.data("new data");
+        // END: processing-instruction-creation
+
+        Assertions.assertEquals("xml-stylesheet", pi.target());
+        Assertions.assertEquals("target", simple.target());
+        Assertions.assertEquals("new-target", modified.target());
+        Assertions.assertEquals("new data", modified.data());
+    }
+
+    @Test
+    public void demonstrateFluentChaining() {
+        // START: fluent-chaining
+        // ✅ Good - readable fluent chain
+        Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
+
+        dependency.addNode(Element.text("groupId", "junit"));
+        dependency.addNode(Element.text("artifactId", "junit"));
+        // END: fluent-chaining
+
+        Assertions.assertEquals("test", dependency.attribute("scope"));
+        Assertions.assertEquals("true", dependency.attribute("optional"));
+    }
+
+    @Test
+    public void demonstratePerformanceOptimizations() {
+        // START: performance-optimizations
+        // Efficient - direct object creation and modification
+        Element element = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
+
+        // All operations modify the same object instance
+        // No intermediate objects or copying involved
+        // END: performance-optimizations
+
+        Assertions.assertEquals("dependency", element.name());
+        Assertions.assertEquals("test", element.attribute("scope"));
+    }
+
     private Element createDependency(String groupId, String artifactId, String version) {
         Element dependency = Element.of("dependency");
         dependency.addNode(Element.text("groupId", groupId));

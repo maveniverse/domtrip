@@ -56,28 +56,7 @@ libraryDependencies += "eu.maveniverse" % "domtrip-core" % "0.1-SNAPSHOT"
 Create a simple test to verify DomTrip is working:
 
 ```java
-import eu.maveniverse.domtrip.Editor;
-
-public class DomTripTest {
-    public static void main(String[] args) {
-        try {
-            String xml = """
-                <?xml version="1.0" encoding="UTF-8"?>
-                <root>
-                    <message>Hello DomTrip!</message>
-                </root>
-                """;
-            
-            Editor editor = new Editor(xml);
-            String result = editor.toXml();
-            
-            System.out.println("✅ DomTrip is working!");
-            System.out.println("Round-trip successful: " + xml.equals(result));
-        } catch (Exception e) {
-            System.err.println("❌ Error: " + e.getMessage());
-        }
-    }
-}
+{cdi:snippets.snippet('installation-test')}
 ```
 
 If you see "✅ DomTrip is working!" and "Round-trip successful: true", you're all set!

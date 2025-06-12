@@ -324,4 +324,99 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
         Assertions.assertTrue(result.contains("<artifactId   >my-app</artifactId>"));
         // END: complex-structure-preservation
     }
+
+    @Test
+    public void demonstrateProcessingInstructionsWithData() {
+        // START: processing-instructions-with-data
+        String xml =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <?xml-stylesheet type="text/xsl" href="style.xsl"?>
+            <document>
+                <?custom-instruction data="value"?>
+                <content>text</content>
+            </document>
+            """;
+
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+
+        // Processing instructions with data are preserved exactly
+        String result = editor.toXml();
+
+        Assertions.assertTrue(result.contains("<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>"));
+        Assertions.assertTrue(result.contains("<?custom-instruction data=\"value\"?>"));
+        // END: processing-instructions-with-data
+    }
+
+    @Test
+    public void demonstrateRoundTripVerification() throws Exception {
+        // START: round-trip-verification
+        // Create a temporary file for testing
+        String complexXml =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!-- Configuration file -->
+            <config>
+                <database>
+                    <host>localhost</host>
+                    <port>5432</port>
+                </database>
+            </config>
+            """;
+
+        // Load with automatic encoding detection
+        Document doc = Document.of(complexXml);
+        Editor editor = new Editor(doc);
+        String result = editor.toXml();
+
+        // Load again to verify round-trip preservation
+        Document doc2 = Document.of(result);
+        Editor editor2 = new Editor(doc2);
+        String result2 = editor2.toXml();
+
+        // Should be identical
+        Assertions.assertEquals(result, result2);
+        // END: round-trip-verification
+    }
+
+    @Test
+    public void demonstrateBestPracticesForEditing() {
+        // START: best-practices-editing
+        // ✅ Perfect for editing existing files
+        String existingConfigXml = createConfigXml();
+        Document doc = Document.of(existingConfigXml);
+        Editor editor = new Editor(doc);
+
+        Element root = editor.root();
+        editor.addElement(root, "newSetting", "value");
+
+        String result = editor.toXml();
+        // Result preserves all original formatting
+        // END: best-practices-editing
+
+        Assertions.assertTrue(result.contains("<newSetting>value</newSetting>"));
+        Assertions.assertTrue(result.contains("<!-- Configuration file -->") || result.contains("<config>"));
+    }
+
+    @Test
+    public void demonstrateLargeFileHandling() {
+        // START: large-file-handling
+        // ✅ For large files, consider streaming or chunking
+        String xmlContent = createConfigXml();
+        long fileSize = xmlContent.length();
+
+        if (fileSize > 10_000_000) { // 10MB
+            // Consider alternative approaches for very large files
+            System.out.println("Large file detected, consider streaming approach");
+        }
+
+        // For normal-sized files, DomTrip works efficiently
+        Document doc = Document.of(xmlContent);
+        Editor editor = new Editor(doc);
+        String result = editor.toXml();
+        // END: large-file-handling
+
+        Assertions.assertNotNull(result);
+    }
 }

@@ -13,16 +13,7 @@ Understanding DomTrip's core concepts will help you use the library effectively.
 Traditional XML libraries focus on **data extraction** - they parse XML to get the information you need, often discarding formatting details in the process. DomTrip takes a different approach: **preservation first**.
 
 ```java
-// Traditional approach (data-focused)
-Document doc = parser.parse(xml);
-String value = doc.selectSingleNode("//version").getText();
-// Formatting is lost when you serialize back
-
-// DomTrip approach (preservation-focused)  
-Editor editor = new Editor(xml);
-Element version = editor.findElement("version");
-String value = version.getTextContent();
-String result = editor.toXml(); // Identical to original if unchanged
+{cdi:snippets.snippet('lossless-philosophy')}
 ```
 
 ## Node Hierarchy
@@ -47,13 +38,7 @@ Node (abstract base)
 3. **Clear API**: Child management methods only exist where they make sense
 
 ```java
-// ✅ This works - Element can have children
-Element parent = new Element("parent");
-parent.addChild(new Text("content"));
-
-// ❌ This won't compile - Text cannot have children
-Text text = new Text("content");
-text.addChild(new Element("child")); // Compilation error
+{cdi:snippets.snippet('node-hierarchy')}
 ```
 
 ## Modification Tracking
@@ -61,19 +46,7 @@ text.addChild(new Element("child")); // Compilation error
 Every node tracks whether it has been modified since parsing. This enables **minimal-change serialization**:
 
 ```java
-Editor editor = new Editor(originalXml);
-
-// Unmodified nodes use original formatting
-Element unchanged = editor.findElement("unchanged");
-unchanged.isModified(); // false
-
-// Modified nodes are rebuilt with inferred formatting
-Element changed = editor.findElement("version");
-editor.setTextContent(changed, "2.0.0");
-changed.isModified(); // true
-
-// Only modified sections are reformatted in output
-String result = editor.toXml();
+{cdi:snippets.snippet('modification-tracking')}
 ```
 
 ## Dual Content Storage
@@ -84,14 +57,7 @@ Text nodes store content in two forms:
 2. **Raw Content**: For preservation during serialization
 
 ```java
-// Original XML: <message>Hello &amp; goodbye</message>
-Text textNode = element.getTextNode();
-
-// For your code
-String decoded = textNode.getTextContent(); // "Hello & goodbye"
-
-// For serialization  
-String raw = textNode.getRawContent(); // "Hello &amp; goodbye"
+{cdi:snippets.snippet('dual-content-storage')}
 ```
 
 This allows you to work with normal strings while preserving entity encoding.
@@ -101,20 +67,7 @@ This allows you to work with normal strings while preserving entity encoding.
 Attributes are first-class objects that preserve formatting details:
 
 ```java
-public class Attribute {
-    private String value;           // "test-value"
-    private QuoteStyle quoteStyle;  // SINGLE or DOUBLE  
-    private String whitespace;      // " " (space before attribute)
-    private String rawValue;        // "test-value" (with entities preserved)
-}
-
-// Usage
-Element element = editor.findElement("dependency");
-Attribute scope = element.getAttributeObject("scope");
-
-scope.getValue();      // "test"
-scope.getQuoteStyle(); // QuoteStyle.SINGLE
-scope.getWhitespace(); // " "
+{cdi:snippets.snippet('attribute-handling')}
 ```
 
 ## Whitespace Management
@@ -144,15 +97,7 @@ public class Element extends ContainerNode {
 For new content, DomTrip infers formatting from surrounding context:
 
 ```java
-// Existing structure:
-//   <dependencies>
-//       <dependency>...</dependency>
-//   </dependencies>
-
-// Adding new dependency automatically infers indentation
-Element dependencies = editor.findElement("dependencies");
-Element newDep = editor.addElement(dependencies, "dependency");
-// Result uses same indentation as existing dependencies
+{cdi:snippets.snippet('whitespace-inference')}
 ```
 
 ## Configuration System
@@ -160,17 +105,7 @@ Element newDep = editor.addElement(dependencies, "dependency");
 DomTrip behavior is controlled through `DomTripConfig`:
 
 ```java
-// Preset configurations
-DomTripConfig strict = DomTripConfig.strict();        // Maximum preservation
-DomTripConfig lenient = DomTripConfig.lenient();      // Flexible formatting
-DomTripConfig pretty = DomTripConfig.prettyPrint();   // Clean output
-
-// Custom configuration
-DomTripConfig custom = DomTripConfig.defaults()
-    .withIndentation("  ")                    // 2 spaces
-    .withPreserveWhitespace(true)            // Keep original whitespace
-    .withPreserveComments(true)              // Keep comments
-    .withQuoteStyle(QuoteStyle.DOUBLE);      // Prefer double quotes
+{cdi:snippets.snippet('configuration-system')}
 ```
 
 ## Navigation Patterns
@@ -188,34 +123,19 @@ List<Element> children = root.getChildren("item");
 ### 2. Optional-Based Navigation
 
 ```java
-Optional<Element> child = root.findChild("child-name");
-child.ifPresent(element -> {
-    // Safe navigation - no null checks needed
-    String value = element.getTextContent();
-});
+{cdi:snippets.snippet('optional-based-navigation')}
 ```
 
 ### 3. Stream-Based Navigation
 
 ```java
-// Find all active dependencies
-root.findChildren("dependency")
-    .filter(dep -> "active".equals(dep.getAttribute("status")))
-    .map(dep -> dep.findChild("artifactId").orElse(null))
-    .filter(Objects::nonNull)
-    .map(Element::getTextContent)
-    .forEach(System.out::println);
+{cdi:snippets.snippet('stream-based-navigation')}
 ```
 
 ### 4. Namespace-Aware Navigation
 
 ```java
-// Find elements by namespace URI and local name
-Optional<Element> soapBody = root.findChildByNamespace(
-    "http://schemas.xmlsoap.org/soap/envelope/", "Body");
-
-Stream<Element> allItems = root.descendantsByNamespace(
-    "http://example.com/items", "item");
+{cdi:snippets.snippet('namespace-aware-navigation')}
 ```
 
 ## Error Handling
@@ -223,19 +143,7 @@ Stream<Element> allItems = root.descendantsByNamespace(
 DomTrip uses specific exception types for better error handling:
 
 ```java
-try {
-    Editor editor = new Editor(xmlString);
-    // ... editing operations
-} catch (ParseException e) {
-    // XML parsing failed
-    logger.error("Invalid XML: {}", e.getMessage());
-} catch (InvalidXmlException e) {
-    // Invalid editing operation
-    logger.error("Invalid operation: {}", e.getMessage());
-} catch (DomTripException e) {
-    // General DomTrip error
-    logger.error("DomTrip error: {}", e.getMessage());
-}
+{cdi:snippets.snippet('error-handling')}
 ```
 
 ## Next Steps

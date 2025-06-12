@@ -224,4 +224,109 @@ public class ExamplesSnippets extends BaseSnippetTest {
 
         Assertions.assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
     }
+
+    @Test
+    public void demonstrateSpringConfiguration() {
+        // START: spring-configuration
+        String springConfig =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <beans xmlns="http://www.springframework.org/schema/beans">
+                <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+                    <property name="driverClassName" value="org.postgresql.Driver"/>
+                    <property name="url" value="jdbc:postgresql://localhost:5432/mydb"/>
+                </bean>
+            </beans>
+            """;
+
+        Document doc = Document.of(springConfig);
+        Editor editor = new Editor(doc);
+
+        // Find the dataSource bean
+        Element dataSource = editor.root()
+                .descendants()
+                .filter(e -> "bean".equals(e.name()) && "dataSource".equals(e.attribute("id")))
+                .findFirst()
+                .orElseThrow();
+
+        // Update the URL property
+        Element urlProperty = dataSource
+                .children()
+                .filter(e -> "property".equals(e.name()) && "url".equals(e.attribute("name")))
+                .findFirst()
+                .orElseThrow();
+
+        editor.setAttribute(urlProperty, "value", "jdbc:postgresql://prod-db:5432/mydb");
+
+        // Add new property
+        Element newProperty = editor.addElement(dataSource, "property");
+        editor.setAttribute(newProperty, "name", "maxActive");
+        editor.setAttribute(newProperty, "value", "100");
+        // END: spring-configuration
+
+        String result = editor.toXml();
+        Assertions.assertTrue(result.contains("prod-db:5432"));
+        Assertions.assertTrue(result.contains("maxActive"));
+        Assertions.assertTrue(result.contains("100"));
+    }
+
+    @Test
+    public void demonstrateWorkingWithNamespaces() {
+        // START: working-with-namespaces
+        String xmlWithNamespaces =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <modelVersion>4.0.0</modelVersion>
+            </project>
+            """;
+
+        Document doc = Document.of(xmlWithNamespaces);
+        Editor editor = new Editor(doc);
+
+        // Add element with namespace
+        Element project = editor.root();
+        Element build = editor.addElement(project, "build");
+        Element plugins = editor.addElement(build, "plugins");
+
+        // Elements inherit the default namespace automatically
+        Element plugin = editor.addElement(plugins, "plugin");
+        editor.addElement(plugin, "groupId", "org.apache.maven.plugins");
+        editor.addElement(plugin, "artifactId", "maven-compiler-plugin");
+        // END: working-with-namespaces
+
+        String result = editor.toXml();
+        Assertions.assertTrue(result.contains("maven-compiler-plugin"));
+        Assertions.assertTrue(result.contains("<build>"));
+        Assertions.assertTrue(result.contains("<plugins>"));
+    }
+
+    @Test
+    public void demonstrateBuilderPatterns() {
+        // START: using-builder-patterns
+        // Create elements using factory methods (simplified builder pattern)
+        Element dependency = Element.of("dependency");
+        dependency.addNode(Element.text("groupId", "org.junit.jupiter"));
+        dependency.addNode(Element.text("artifactId", "junit-jupiter"));
+        dependency.addNode(Element.text("version", "5.9.2"));
+        dependency.addNode(Element.text("scope", "test"));
+
+        // Add to existing document
+        String pomXml = createMavenPomXml();
+        Document doc = Document.of(pomXml);
+        Editor editor = new Editor(doc);
+
+        Element dependencies = editor.root().descendant("dependencies").orElse(null);
+        if (dependencies == null) {
+            dependencies = editor.addElement(editor.root(), "dependencies");
+        }
+        dependencies.addNode(dependency);
+        // END: using-builder-patterns
+
+        String result = editor.toXml();
+        Assertions.assertTrue(result.contains("junit-jupiter"));
+        Assertions.assertTrue(result.contains("5.9.2"));
+        Assertions.assertTrue(result.contains("test"));
+    }
 }

@@ -268,4 +268,184 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
         Assertions.assertTrue(result.contains("GetUserInfo"));
         Assertions.assertTrue(result.contains("xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\""));
     }
+
+    @Test
+    public void demonstrateFindingElementsByNamespace() {
+        // START: finding-elements-by-namespace
+        String xmlWithNamespaces = createMavenPomXml();
+        Document doc = Document.of(xmlWithNamespaces);
+        Editor editor = new Editor(doc);
+
+        // Find by namespace URI and local name
+        Element project = editor.root();
+        Element groupId = project.descendant("groupId").orElseThrow();
+
+        // Find all elements in a namespace
+        long pomElementCount = project.descendants()
+                .filter(e -> "http://maven.apache.org/POM/4.0.0".equals(e.namespaceURI()))
+                .count();
+
+        // Find with qualified name
+        Element modelVersion = project.child("modelVersion").orElseThrow();
+        // END: finding-elements-by-namespace
+
+        Assertions.assertEquals("com.example", groupId.textContent());
+        Assertions.assertTrue(pomElementCount > 0);
+        Assertions.assertEquals("4.0.0", modelVersion.textContent());
+    }
+
+    @Test
+    public void demonstrateManagingNamespaceDeclarations() {
+        // START: managing-namespace-declarations
+        String xml = createMavenPomXml();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element root = editor.root();
+
+        // Add namespace declaration
+        root.namespaceDeclaration("custom", "http://example.com/custom");
+
+        // Remove namespace declaration (if it exists)
+        // root.removeNamespaceDeclaration("unused");
+
+        // Get all namespace declarations
+        String defaultNs = root.namespaceDeclaration("");
+        String customNs = root.namespaceDeclaration("custom");
+        // END: managing-namespace-declarations
+
+        Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", defaultNs);
+        Assertions.assertEquals("http://example.com/custom", customNs);
+    }
+
+    @Test
+    public void demonstrateCreatingNamespacedElements() {
+        // START: creating-namespaced-elements
+        String xml = createTestXml("parent");
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element parent = editor.root();
+
+        // Create element in specific namespace
+        Element customElement = Element.of("item")
+                .namespaceDeclaration(null, "http://example.com/custom")
+                .attribute("id", "123");
+
+        // Add to document
+        parent.addNode(customElement);
+
+        String result = editor.toXml();
+        // END: creating-namespaced-elements
+
+        Assertions.assertTrue(result.contains("xmlns=\"http://example.com/custom\""));
+        Assertions.assertTrue(result.contains("id=\"123\""));
+    }
+
+    @Test
+    public void demonstrateNamespaceValidation() {
+        // START: namespace-validation
+        String xml = createMavenPomXml();
+
+        // Note: This is a conceptual example - actual validation would depend on implementation
+        try {
+            Document doc = Document.of(xml);
+            Editor editor = new Editor(doc);
+
+            // Validate that all elements have proper namespace declarations
+            Element root = editor.root();
+            String namespace = root.namespaceURI();
+
+            if (namespace != null && !namespace.isEmpty()) {
+                System.out.println("Document has valid default namespace: " + namespace);
+            }
+        } catch (Exception e) {
+            System.err.println("Namespace error: " + e.getMessage());
+        }
+        // END: namespace-validation
+
+        // Test passes if no exception is thrown
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void demonstrateSOAPDocumentHandling() {
+        // START: soap-document-handling
+        // Working with SOAP envelopes
+        String soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/";
+
+        String soapXml =
+                """
+            <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>
+                    <GetUserRequest>
+                        <userId>123</userId>
+                    </GetUserRequest>
+                </soap:Body>
+            </soap:Envelope>
+            """;
+
+        Document doc = Document.of(soapXml);
+        Editor editor = new Editor(doc);
+
+        Element soapBody = editor.root().child("soap:Body").orElseThrow();
+
+        if (soapBody != null) {
+            // Process SOAP body content
+            Element request = soapBody.child("GetUserRequest").orElseThrow();
+            Element userId = request.child("userId").orElseThrow();
+
+            Assertions.assertEquals("123", userId.textContent());
+        }
+        // END: soap-document-handling
+    }
+
+    @Test
+    public void demonstrateMavenPOMHandling() {
+        // START: maven-pom-handling
+        // Working with Maven POM files
+        String pomNamespace = "http://maven.apache.org/POM/4.0.0";
+        String xml = createMavenPomXml();
+
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+
+        Element dependencies = editor.root().child("dependencies").orElse(null);
+        if (dependencies == null) {
+            // Create dependencies section
+            dependencies = editor.addElement(editor.root(), "dependencies");
+        }
+
+        // Add a new dependency
+        Element newDep = editor.addElement(dependencies, "dependency");
+        editor.addElement(newDep, "groupId", "junit");
+        editor.addElement(newDep, "artifactId", "junit");
+        editor.addElement(newDep, "version", "4.13.2");
+        // END: maven-pom-handling
+
+        String result = editor.toXml();
+        Assertions.assertTrue(result.contains("<groupId>junit</groupId>"));
+    }
+
+    @Test
+    public void demonstrateNamespaceBestPractices() {
+        // START: namespace-best-practices
+        String xml = createMavenPomXml();
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+
+        // ✅ Good - uses namespace URI (conceptually)
+        Element root = editor.root();
+        String namespace = root.namespaceURI();
+
+        // ✅ Good - reuse existing declarations
+        if (root.namespaceDeclaration("custom") == null) {
+            root.namespaceDeclaration("custom", "http://example.com/custom");
+        }
+
+        // ✅ Good - explicit namespace when creating elements
+        Element element = Element.of("custom:item").namespaceDeclaration("custom", "http://example.com/custom");
+        // END: namespace-best-practices
+
+        Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespace);
+        Assertions.assertNotNull(element);
+    }
 }

@@ -17,31 +17,19 @@ DomTrip is a Java library designed to solve a fundamental problem with XML proce
 ### 🎯 **Perfect Round-Trip Preservation**
 
 ```java
-Editor editor = new Editor(originalXml);
-String result = editor.toXml();
-// result is IDENTICAL to originalXml if no modifications were made
+{cdi:snippets.snippet('round-trip-preservation')}
 ```
 
 ### 🔧 **Intelligent Editing**
 
 ```java
-// Add new elements while preserving original formatting
-Element parent = editor.findElement("dependencies");
-Element newDep = editor.addElement(parent, "dependency");
-editor.addElement(newDep, "groupId", "org.example");
+{cdi:snippets.snippet('intelligent-editing')}
 ```
 
 ### 🚀 **Modern Java API**
 
 ```java
-// Fluent builders and Stream-based navigation
-Element element = Element.builder("dependency")
-    .withAttribute("scope", "test")
-    .withChild(Element.textElement("groupId", "junit"))
-    .build();
-
-Optional<Element> child = root.findChild("dependency");
-Stream<Element> descendants = root.descendants();
+{cdi:snippets.snippet('modern-java-api')}
 ```
 
 ## Key Features
@@ -56,30 +44,7 @@ Stream<Element> descendants = root.descendants();
 ## Quick Example
 
 ```java
-// Parse XML while preserving all formatting
-Editor editor = new Editor("""
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!-- Project configuration -->
-    <project xmlns="http://maven.apache.org/POM/4.0.0">
-        <groupId>com.example</groupId>
-        <version>1.0.0</version>
-    </project>
-    """);
-
-// Make targeted changes
-Element version = editor.findElement("version");
-editor.setTextContent(version, "1.0.1");
-
-// Add new dependency with automatic formatting
-Element project = editor.getDocumentElement();
-Element dependencies = editor.addElement(project, "dependencies");
-Element dependency = editor.addElement(dependencies, "dependency");
-editor.addElement(dependency, "groupId", "junit");
-editor.addElement(dependency, "artifactId", "junit");
-editor.addElement(dependency, "version", "4.13.2");
-
-// Result preserves original formatting and comments
-String result = editor.toXml();
+{cdi:snippets.snippet('quick-example')}
 ```
 
 **Output:**

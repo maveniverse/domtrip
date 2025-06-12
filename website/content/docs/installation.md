@@ -20,7 +20,7 @@ Add DomTrip to your `pom.xml`:
 ```xml
 <dependency>
     <groupId>eu.maveniverse</groupId>
-    <artifactId>domtrip</artifactId>
+    <artifactId>domtrip-core</artifactId>
     <version>0.1-SNAPSHOT</version>
 </dependency>
 ```
@@ -31,7 +31,7 @@ Add DomTrip to your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'eu.maveniverse:domtrip:0.1-SNAPSHOT'
+    implementation 'eu.maveniverse:domtrip-core:0.1-SNAPSHOT'
 }
 ```
 
@@ -39,7 +39,7 @@ Or for Kotlin DSL (`build.gradle.kts`):
 
 ```kotlin
 dependencies {
-    implementation("eu.maveniverse:domtrip:0.1-SNAPSHOT")
+    implementation("eu.maveniverse:domtrip-core:0.1-SNAPSHOT")
 }
 ```
 
@@ -48,7 +48,7 @@ dependencies {
 Add DomTrip to your `build.sbt`:
 
 ```scala
-libraryDependencies += "eu.maveniverse" % "domtrip" % "0.1-SNAPSHOT"
+libraryDependencies += "eu.maveniverse" % "domtrip-core" % "0.1-SNAPSHOT"
 ```
 
 ## Verify Installation

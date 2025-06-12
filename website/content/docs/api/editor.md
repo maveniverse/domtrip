@@ -32,14 +32,7 @@ Editor editor = new Editor(config);
 Creates a new editor with an existing Document object.
 
 ```java
-String xml = """
-    <?xml version="1.0"?>
-    <root>
-        <child>value</child>
-    </root>
-    """;
-Document doc = Document.of(xml);
-Editor editor = new Editor(doc);
+{cdi:snippets.snippet('loading-xml-string')}
 ```
 
 ### `Editor(Document document, DomTripConfig config)`
@@ -118,8 +111,7 @@ String xml = editor.toXml();
 Serializes with custom configuration.
 
 ```java
-String prettyXml = editor.toXml(DomTripConfig.prettyPrint());
-String minimalXml = editor.toXml(DomTripConfig.minimal());
+{cdi:snippets.snippet('serialization-options')}
 ```
 
 ### Pretty Printing
@@ -166,7 +158,7 @@ Element child = editor.addElement(parent, "newChild");
 Adds a new child element with text content.
 
 ```java
-Element version = editor.addElement(parent, "version", "1.0.0");
+{cdi:snippets.snippet('element-addition')}
 ```
 
 ### `addElements(Element parent, Map<String, String> nameValuePairs)`
@@ -174,12 +166,7 @@ Element version = editor.addElement(parent, "version", "1.0.0");
 Batch operation to add multiple child elements.
 
 ```java
-Map<String, String> properties = Map.of(
-    "groupId", "com.example",
-    "artifactId", "my-app",
-    "version", "1.0.0"
-);
-editor.addElements(parent, properties);
+{cdi:snippets.snippet('batch-element-creation')}
 ```
 
 ### `removeElement(Element element)`
@@ -198,8 +185,7 @@ editor.removeElement(toRemove);
 Sets the text content of an element.
 
 ```java
-Element version = editor.findElement("version");
-editor.setTextContent(version, "2.0.0");
+{cdi:snippets.snippet('text-content-operations')}
 ```
 
 ### `getTextContent(Element element)`
@@ -236,7 +222,7 @@ editor.setAttribute(element, "attr3", "value3");   // Maintains alignment
 Gets an attribute value.
 
 ```java
-String scope = editor.getAttribute(element, "scope");
+{cdi:snippets.snippet('attribute-operations')}
 ```
 
 ### `removeAttribute(Element element, String name)`
@@ -288,7 +274,7 @@ element.setAttributeObject("newAttr", customAttr);
 Adds a comment as a child of the parent element.
 
 ```java
-editor.addComment(parent, " This is a comment ");
+{cdi:snippets.snippet('comment-operations')}
 ```
 
 ### `addCommentBefore(Element element, String content)`
@@ -314,18 +300,7 @@ editor.addCommentAfter(element, " End of configuration ");
 Creates a fluent builder for adding nodes.
 
 ```java
-editor.add()
-    .element("dependency")
-    .to(parent)
-    .withAttribute("scope", "test")
-    .withText("content")
-    .build();
-
-editor.add()
-    .comment()
-    .to(parent)
-    .withContent(" This is a comment ")
-    .build();
+{cdi:snippets.snippet('fluent-builder-api')}
 ```
 
 ## Configuration
@@ -335,7 +310,7 @@ editor.add()
 Gets the configuration used by this editor.
 
 ```java
-DomTripConfig config = editor.config();
+{cdi:snippets.snippet('configuration-access')}
 ```
 
 ## Exception Handling
@@ -347,14 +322,7 @@ The Editor class throws specific exceptions for different error conditions:
 - **`DomTripException`**: Base exception for other DomTrip errors
 
 ```java
-try {
-    Editor editor = new Editor(malformedXml);
-    // ... editing operations
-} catch (ParseException e) {
-    logger.error("XML parsing failed: {}", e.getMessage());
-} catch (InvalidXmlException e) {
-    logger.error("Invalid operation: {}", e.getMessage());
-}
+{cdi:snippets.snippet('exception-handling')}
 ```
 
 ## Best Practices
@@ -362,30 +330,13 @@ try {
 ### 1. Check for Null Returns
 
 ```java
-// ✅ Safe navigation
-Element element = editor.findElement("optional");
-if (element != null) {
-    editor.setTextContent(element, "value");
-}
-
-// ✅ Or use Optional-based navigation on Element
-Optional<Element> optional = root.findChild("optional");
-optional.ifPresent(el -> editor.setTextContent(el, "value"));
+{cdi:snippets.snippet('safe-navigation')}
 ```
 
 ### 2. Use Batch Operations
 
 ```java
-// ✅ Efficient batch operation
-Map<String, String> properties = Map.of(
-    "groupId", "com.example",
-    "artifactId", "my-app"
-);
-editor.addElements(parent, properties);
-
-// ❌ Less efficient individual operations
-editor.addElement(parent, "groupId", "com.example");
-editor.addElement(parent, "artifactId", "my-app");
+{cdi:snippets.snippet('best-practices')}
 ```
 
 ### 3. Handle Exceptions Appropriately
@@ -405,12 +356,5 @@ try {
 The `Editor` class is **not thread-safe**. If you need to use an editor instance across multiple threads, you must provide external synchronization.
 
 ```java
-// ✅ Thread-safe usage
-synchronized (editor) {
-    editor.addElement(parent, "child", "value");
-    String result = editor.toXml();
-}
-
-// ✅ Or use separate editor instances per thread
-Editor editorForThread = new Editor(xml);
+{cdi:snippets.snippet('thread-safety-pattern')}
 ```

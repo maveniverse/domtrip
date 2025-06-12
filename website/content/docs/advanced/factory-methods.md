@@ -15,56 +15,19 @@ DomTrip provides convenient factory methods for creating elements:
 ### Basic Element Creation
 
 ```java
-// Simple elements
-Element version = Element.of("version");
-Element textElement = Element.text("version", "1.0.0");
-Element selfClosing = Element.selfClosing("br");
-
-// Element with attributes using fluent API
-Element dependency = Element.of("dependency")
-    .attribute("scope", "test")
-    .attribute("optional", "true");
-
-// Element with multiple attributes at once
-Element div = Element.withAttributes("div", Map.of(
-    "class", "container",
-    "id", "main",
-    "data-role", "content"
-));
+{cdi:snippets.snippet('basic-element-creation')}
 ```
 
 ### Advanced Element Creation
 
 ```java
-// Element with complex structure using fluent API
-Element project = Element.of("project")
-    .attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
-
-project.addNode(Element.text("modelVersion", "4.0.0"));
-project.addNode(Element.text("groupId", "com.example"));
-project.addNode(Element.text("artifactId", "my-project"));
-project.addNode(Element.text("version", "1.0.0"));
-
-// Element with CDATA content
-Element script = Element.of("script")
-    .attribute("type", "text/javascript");
-script.addNode(Text.cdata("function test() { return x < y && z > 0; }"));
-
-// Combined text and attributes
-Element withTextAndAttrs = Element.withTextAndAttributes("dependency", 
-    "junit", Map.of("scope", "test"));
+{cdi:snippets.snippet('advanced-element-creation')}
 ```
 
 ### Element with Namespaces
 
 ```java
-// Namespaced element using QName
-QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
-Element envelope = Element.of(soapEnvelope);
-
-QName soapBody = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap");
-Element body = Element.text(soapBody, "Body content");
-envelope.addNode(body);
+{cdi:snippets.snippet('namespaced-elements')}
 ```
 
 ## Document Factory Methods

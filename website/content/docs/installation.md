@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Get started with DomTrip in your Java project using your preferred build tool
+description: Get started with DomTrip in your Java project
 layout: page
 ---
 
@@ -134,9 +134,9 @@ repositories {
 
 Now that DomTrip is installed, let's explore the basics:
 
-- 📚 [Quick Start Guide](../../docs/getting-started/quick-start/) - Your first DomTrip program
-- 🧠 [Basic Concepts](../../docs/getting-started/basic-concepts/) - Understanding DomTrip's approach
-- 🚀 [API Reference](../../docs/api/editor/) - Detailed API documentation
+- 📚 [Quick Start Guide](getting-started/quick-start/) - Your first DomTrip program
+- 🧠 [Basic Concepts](getting-started/basic-concepts/) - Understanding DomTrip's approach
+- 🚀 [API Reference](api/editor/) - Detailed API documentation
 
 ## Troubleshooting
 

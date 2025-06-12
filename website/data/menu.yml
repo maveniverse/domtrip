@@ -8,6 +8,8 @@ items:
     items:
       - title: "Introduction"
         path: "/docs/introduction/"
+      - title: "Installation"
+        path: "/docs/installation/"
       - title: "Getting Started"
         path: "/docs/getting-started/"
         items:

@@ -40,6 +40,8 @@ items:
     items:
       - title: "Factory Methods"
         path: "/docs/advanced/factory-methods/"
+      - title: "Builder Patterns"
+        path: "/docs/advanced/builder-patterns/"
   - title: "API Reference"
     path: "/docs/api/"
     items:

@@ -1,3 +1,5 @@
+{@io.quarkiverse.roq.frontmatter.runtime.model.Site site}
+{@java.util.List<io.vertx.core.json.JsonObject> menu}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +28,7 @@
                 <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰</button>
                 <ul class="navbar-nav">
                     <li><a href="{site.url}docs/">Documentation</a></li>
-                    <li><a href="{site.url}docs/api/editor/">API Reference</a></li>
+                    <li><a href="{site.url}docs/api/">API Reference</a></li>
                     <li><a href="{site.url}javadoc/">Javadoc</a></li>
                     <li><a href="{site.url}examples/">Examples</a></li>
                 </ul>
@@ -38,47 +40,22 @@
             <!-- Sidebar -->
             <aside class="sidebar" id="sidebar">
                 <div class="sidebar-content">
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">Getting Started</div>
-                        <ul class="sidebar-nav">
-                            <li><a href="{site.url}docs/getting-started/installation/">Installation</a></li>
-                            <li><a href="{site.url}docs/getting-started/quick-start/">Quick Start</a></li>
-                            <li><a href="{site.url}docs/getting-started/basic-concepts/">Basic Concepts</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">Features</div>
-                        <ul class="sidebar-nav">
-                            <li><a href="{site.url}docs/features/lossless-parsing/">Lossless Parsing</a></li>
-                            <li><a href="{site.url}docs/features/formatting-preservation/">Formatting Preservation</a></li>
-                            <li><a href="{site.url}docs/features/namespace-support/">Namespace Support</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">API Reference</div>
-                        <ul class="sidebar-nav">
-                            <li><a href="{site.url}docs/api/editor/">Editor</a></li>
-                            <li><a href="{site.url}docs/api/configuration/">Configuration</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">Advanced</div>
-                        <ul class="sidebar-nav">
-                            <li><a href="{site.url}docs/advanced/builder-patterns/">Builder Patterns</a></li>
-                        </ul>
-                    </div>
-
-                    <div class="sidebar-section">
-                        <div class="sidebar-section-title">More</div>
-                        <ul class="sidebar-nav">
-                            <li><a href="{site.url}docs/comparison/">Comparison</a></li>
-                            <li><a href="{site.url}docs/migration/">Migration Guide</a></li>
-                            <li><a href="{site.url}examples/">Examples</a></li>
-                        </ul>
-                    </div>
+                    <ul class="sidebar-nav">
+                    {#for item in cdi:menu.items}
+                        <li class="sidebar-menu">
+                            <a href="{site.url(item.path)}" class="sidebar-section-title">{item.title}</a>
+                        {#if item.get("items")}
+                            <ul class="sidebar-nav">
+                                {#for subitem in item.items}
+                                    <li class="sidebar-submenu">
+                                        <a href="{site.url(subitem.path)}" class="sidebar-submenu-title">{subitem.title}</a>
+                                    </li>
+                                {/for}
+                            </ul>
+                        {/if}
+                        </li>
+                    {/for}
+                    </ul>
                 </div>
             </aside>
 
@@ -106,7 +83,7 @@
                         <h4>Docs</h4>
                         <ul>
                             <li><a href="{site.url}docs/getting-started/quick-start/">Getting Started</a></li>
-                            <li><a href="{site.url}docs/api/editor/">API Reference</a></li>
+                            <li><a href="{site.url}docs/api/">API Reference</a></li>
                             <li><a href="{site.url}javadoc/">Javadoc</a></li>
                             <li><a href="{site.url}examples/">Examples</a></li>
                         </ul>

@@ -1075,6 +1075,7 @@ public class Editor {
                 newElement.followingWhitespaceInternal(lineEnding);
             } else if (!hasTextNodeBefore) {
                 // No text node before, add proper preceding whitespace
+                // Use the same approach as addElementWithWhitespaceControl
                 newElement.precedingWhitespaceInternal(indentation);
                 // If inserting at the end, ensure proper following whitespace
                 if (index == parent.nodeCount()) {
@@ -1260,23 +1261,39 @@ public class Editor {
         boolean hasTextNodeAfter = (index + 1) < parent.nodeCount() && parent.getNode(index + 1) instanceof Text;
 
         if (!indentation.isEmpty()) {
-            // Use the same approach as addElementWithWhitespaceControl
-            // Just the indentation (previous element's following whitespace handles the newline)
-            newElement.precedingWhitespaceInternal(indentation);
+            // For insertAfter, we need to handle the whitespace transfer properly
+            if (hasTextNodeAfter) {
+                // There's a text node after - transfer its whitespace to the new element
+                Text textNode = (Text) parent.getNode(index + 1);
+                String textContent = textNode.content();
+                newElement.precedingWhitespaceInternal(textContent);
+                // Remove the text node since its content is now part of the new element
+                parent.removeNode(textNode);
+            } else if ((index + 1) < parent.nodeCount()) {
+                // There's an element after - use the reference element's following whitespace
+                String referenceFollowing = referenceElement.followingWhitespace();
+                if (!referenceFollowing.isEmpty()) {
+                    // Transfer the reference element's following whitespace to the new element
+                    newElement.precedingWhitespaceInternal(referenceFollowing);
+                    // Clear the reference element's following whitespace to avoid duplication
+                    referenceElement.followingWhitespaceInternal("");
+                    // Give the new element proper following whitespace
+                    newElement.followingWhitespaceInternal(lineEnding + indentation);
+                } else {
+                    // Reference element has no following whitespace, add proper whitespace
+                    newElement.precedingWhitespaceInternal(lineEnding + indentation);
+                    newElement.followingWhitespaceInternal(lineEnding + indentation);
+                }
 
-            // Only add following whitespace if there's no text node after
-            if (!hasTextNodeAfter) {
+                // Ensure the next element has proper whitespace if it doesn't
+                Element nextElement = (Element) parent.getNode(index + 1);
+                if (nextElement.precedingWhitespace().isEmpty()) {
+                    nextElement.precedingWhitespaceInternal("");
+                }
+            } else {
+                // Inserting at the end
+                newElement.precedingWhitespaceInternal(lineEnding + indentation);
                 newElement.followingWhitespaceInternal(lineEnding);
-            }
-        }
-
-        // Ensure reference element has proper whitespace if it doesn't have any
-        // But only if there's no text node before it
-        if (!indentation.isEmpty() && referenceElement.precedingWhitespace().isEmpty()) {
-            int refIndex = findElementIndex(parent, referenceElement);
-            boolean hasTextNodeBeforeRef = refIndex > 0 && parent.getNode(refIndex - 1) instanceof Text;
-            if (!hasTextNodeBeforeRef) {
-                referenceElement.precedingWhitespaceInternal(indentation);
             }
         }
 

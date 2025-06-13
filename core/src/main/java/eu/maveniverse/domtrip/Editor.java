@@ -1082,12 +1082,28 @@ public class Editor {
                 } else {
                     // Check if previous element has following whitespace
                     Element prevElement = (Element) parent.getNode(index - 1);
-                    if (prevElement.followingWhitespace().isEmpty()) {
+                    String prevFollowing = prevElement.followingWhitespace();
+                    if (prevFollowing.isEmpty()) {
                         // Previous element has no following whitespace, add newline + indentation
                         newElement.precedingWhitespaceInternal(lineEnding + indentation);
                     } else {
-                        // Previous element has following whitespace, just add indentation
-                        newElement.precedingWhitespaceInternal(indentation);
+                        // Previous element has following whitespace, transfer it to new element
+                        newElement.precedingWhitespaceInternal(prevFollowing);
+                        // Clear previous element's following whitespace to avoid duplication
+                        prevElement.followingWhitespaceInternal("");
+                        // Give new element proper following whitespace
+                        newElement.followingWhitespaceInternal(lineEnding + indentation);
+                    }
+
+                    // Ensure the next element (if any) has proper whitespace
+                    if (index < parent.nodeCount()) {
+                        Element nextElement = (Element) parent.getNode(index);
+                        if (nextElement.precedingWhitespace().isEmpty()) {
+                            nextElement.precedingWhitespaceInternal("");
+                        }
+                    } else {
+                        // Inserting at the end - ensure proper following whitespace
+                        newElement.followingWhitespaceInternal(lineEnding);
                     }
                 }
                 // If inserting at the end, ensure proper following whitespace

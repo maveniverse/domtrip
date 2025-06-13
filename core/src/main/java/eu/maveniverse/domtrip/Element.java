@@ -368,7 +368,15 @@ public class Element extends ContainerNode {
      */
     public Element openTagWhitespace(String whitespace) {
         this.openTagWhitespace = whitespace != null ? whitespace : "";
+        markModified();
         return this;
+    }
+
+    /**
+     * Sets open tag whitespace without marking as modified (for use during parsing)
+     */
+    void openTagWhitespaceInternal(String whitespace) {
+        this.openTagWhitespace = whitespace != null ? whitespace : "";
     }
 
     /**
@@ -388,7 +396,15 @@ public class Element extends ContainerNode {
      */
     public Element closeTagWhitespace(String whitespace) {
         this.closeTagWhitespace = whitespace != null ? whitespace : "";
+        markModified();
         return this;
+    }
+
+    /**
+     * Sets close tag whitespace without marking as modified (for use during parsing)
+     */
+    void closeTagWhitespaceInternal(String whitespace) {
+        this.closeTagWhitespace = whitespace != null ? whitespace : "";
     }
 
     /**
@@ -490,8 +506,12 @@ public class Element extends ContainerNode {
                     child.toXml(sb);
                 }
 
-                // Add closing tag
-                sb.append("</").append(name).append(">");
+                // Add closing tag - use original if available, otherwise build from scratch
+                if (!originalCloseTag.isEmpty()) {
+                    sb.append(originalCloseTag);
+                } else {
+                    sb.append("</").append(name).append(">");
+                }
             }
 
             sb.append(followingWhitespace);

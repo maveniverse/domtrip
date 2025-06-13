@@ -499,36 +499,8 @@ public class Serializer {
     }
 
     private void serializeElement(Element element, StringBuilder sb) {
-        // Add preceding whitespace
-        sb.append(element.precedingWhitespace());
-
-        // Opening tag
-        sb.append("<").append(element.name());
-
-        // Attributes - use Attribute objects to preserve formatting
-        for (String attrName : element.attributes().keySet()) {
-            Attribute attr = element.attributeObject(attrName);
-            if (attr != null) {
-                attr.toXml(sb, preserveFormatting && !element.isModified());
-            }
-        }
-
-        if (element.selfClosing()) {
-            sb.append("/>");
-        } else {
-            sb.append(">");
-
-            // Children
-            for (Node child : element.nodes) {
-                serializeNode(child, sb);
-            }
-
-            // Closing tag
-            sb.append("</").append(element.name()).append(">");
-        }
-
-        // Add following whitespace
-        sb.append(element.followingWhitespace());
+        // Use the Element's own toXml method to ensure all whitespace fields are respected
+        element.toXml(sb);
     }
 
     private void serializeElementPretty(Element element, StringBuilder sb, int depth) {

@@ -842,10 +842,10 @@ public class Editor {
             throw new DomTripException("Cannot comment out root element");
         }
 
-        // Serialize the element to XML without any whitespace for inline comment
-        String elementXml = serializeElementCompact(element);
+        // Serialize the element to XML preserving its original formatting
+        String elementXml = element.toXml().trim();
 
-        // Create comment with the element's XML inline (no newlines)
+        // Create comment with the element's XML
         Comment comment = new Comment(" " + elementXml + " ");
 
         // Preserve the element's whitespace
@@ -914,8 +914,8 @@ public class Editor {
             }
             firstIndex = Math.min(firstIndex, index);
             lastIndex = Math.max(lastIndex, index);
-            // Serialize element without any whitespace for inline comment
-            commentContent.append(serializeElementCompact(element));
+            // Serialize element preserving its original formatting but trim whitespace
+            commentContent.append(element.toXml().trim());
         }
 
         commentContent.append(" ");
@@ -925,7 +925,10 @@ public class Editor {
 
         // Preserve whitespace from the first element
         comment.precedingWhitespace(elements[0].precedingWhitespace());
-        comment.followingWhitespace(elements[elements.length - 1].followingWhitespace());
+
+        // Capture the following whitespace from the last element to preserve it
+        String lastElementFollowingWhitespace = elements[elements.length - 1].followingWhitespace();
+        comment.followingWhitespace(""); // Comment itself has no following whitespace initially
 
         // Remove all elements in reverse order to maintain indices
         for (int i = lastIndex; i >= firstIndex; i--) {
@@ -937,6 +940,22 @@ public class Editor {
 
         // Insert the comment at the first position
         parent.insertNode(firstIndex, comment);
+
+        // If the last element had following whitespace, preserve it as a separate text node
+        // We preserve any whitespace that contains newlines, even if it's just whitespace
+        if (lastElementFollowingWhitespace != null && !lastElementFollowingWhitespace.isEmpty()) {
+            Text whitespaceNode = new Text(lastElementFollowingWhitespace);
+            parent.insertNode(firstIndex + 1, whitespaceNode);
+
+            // Ensure the next element (if any) has proper preceding whitespace
+            if ((firstIndex + 2) < parent.nodeCount()) {
+                Node nextNode = parent.getNode(firstIndex + 2);
+                if (nextNode instanceof Element nextElement
+                        && nextElement.precedingWhitespace().isEmpty()) {
+                    nextElement.precedingWhitespaceInternal(lastElementFollowingWhitespace);
+                }
+            }
+        }
 
         return comment;
     }
@@ -1386,80 +1405,6 @@ public class Editor {
             }
         }
         return -1;
-    }
-
-    /**
-     * Serializes an element to compact XML without any whitespace.
-     * This is used for creating inline comments.
-     *
-     * @param element the element to serialize
-     * @return compact XML string without whitespace
-     */
-    private String serializeElementCompact(Element element) {
-        StringBuilder sb = new StringBuilder();
-        serializeElementCompactRecursive(element, sb);
-        return sb.toString();
-    }
-
-    /**
-     * Recursively serializes an element and its children without whitespace.
-     */
-    private void serializeElementCompactRecursive(Element element, StringBuilder sb) {
-        sb.append("<").append(element.name());
-
-        // Add attributes
-        for (String attrName : element.attributes().keySet()) {
-            String attrValue = element.attribute(attrName);
-            sb.append(" ")
-                    .append(attrName)
-                    .append("=\"")
-                    .append(escapeAttributeValue(attrValue))
-                    .append("\"");
-        }
-
-        if (element.nodeCount() == 0) {
-            // Self-closing tag
-            sb.append("/>");
-        } else {
-            sb.append(">");
-
-            // Add children
-            for (Node child : element.nodes().toList()) {
-                if (child instanceof Element childElement) {
-                    serializeElementCompactRecursive(childElement, sb);
-                } else if (child instanceof Text textNode) {
-                    sb.append(escapeTextContent(textNode.content()));
-                }
-                // Skip comments and other node types for compact representation
-            }
-
-            // Closing tag
-            sb.append("</").append(element.name()).append(">");
-        }
-    }
-
-    /**
-     * Escapes special characters in attribute values for XML.
-     */
-    private String escapeAttributeValue(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&apos;");
-    }
-
-    /**
-     * Escapes special characters in text content for XML.
-     */
-    private String escapeTextContent(String content) {
-        if (content == null) {
-            return "";
-        }
-        return content.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     /**

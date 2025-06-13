@@ -842,10 +842,10 @@ public class Editor {
             throw new DomTripException("Cannot comment out root element");
         }
 
-        // Serialize the element to XML
-        String elementXml = element.toXml();
+        // Serialize the element to XML without any whitespace for inline comment
+        String elementXml = serializeElementCompact(element);
 
-        // Create comment with the element's XML
+        // Create comment with the element's XML inline (no newlines)
         Comment comment = new Comment(" " + elementXml + " ");
 
         // Preserve the element's whitespace
@@ -899,7 +899,7 @@ public class Editor {
             }
         }
 
-        // Build the comment content
+        // Build the comment content inline (no newlines)
         StringBuilder commentContent = new StringBuilder();
         commentContent.append(" ");
 
@@ -914,7 +914,8 @@ public class Editor {
             }
             firstIndex = Math.min(firstIndex, index);
             lastIndex = Math.max(lastIndex, index);
-            commentContent.append(element.toXml());
+            // Serialize element without any whitespace for inline comment
+            commentContent.append(serializeElementCompact(element));
         }
 
         commentContent.append(" ");
@@ -1087,12 +1088,20 @@ public class Editor {
                         // Previous element has no following whitespace, add newline + indentation
                         newElement.precedingWhitespaceInternal(lineEnding + indentation);
                     } else {
-                        // Previous element has following whitespace, transfer it to new element
-                        newElement.precedingWhitespaceInternal(prevFollowing);
-                        // Clear previous element's following whitespace to avoid duplication
-                        prevElement.followingWhitespaceInternal("");
-                        // Give new element proper following whitespace
-                        newElement.followingWhitespaceInternal(lineEnding + indentation);
+                        // Previous element has following whitespace, but we need to ensure proper indentation
+                        if (index == parent.nodeCount()) {
+                            // Inserting at the end - ensure proper indentation
+                            newElement.precedingWhitespaceInternal(lineEnding + indentation);
+                            // Clear previous element's following whitespace to avoid duplication
+                            prevElement.followingWhitespaceInternal("");
+                        } else {
+                            // Not at the end - transfer the whitespace
+                            newElement.precedingWhitespaceInternal(prevFollowing);
+                            // Clear previous element's following whitespace to avoid duplication
+                            prevElement.followingWhitespaceInternal("");
+                            // Give new element proper following whitespace
+                            newElement.followingWhitespaceInternal(lineEnding + indentation);
+                        }
                     }
 
                     // Ensure the next element (if any) has proper whitespace
@@ -1299,23 +1308,15 @@ public class Editor {
                 // Remove the text node since its content is now part of the new element
                 parent.removeNode(textNode);
             } else if ((index + 1) < parent.nodeCount()) {
-                // There's an element after - use the reference element's following whitespace
-                String referenceFollowing = referenceElement.followingWhitespace();
-                if (!referenceFollowing.isEmpty()) {
-                    // Transfer the reference element's following whitespace to the new element
-                    newElement.precedingWhitespaceInternal(referenceFollowing);
-                    // Clear the reference element's following whitespace to avoid duplication
-                    referenceElement.followingWhitespaceInternal("");
-                    // Give the new element proper following whitespace
-                    newElement.followingWhitespaceInternal(lineEnding + indentation);
-                } else {
-                    // Reference element has no following whitespace, add proper whitespace
-                    newElement.precedingWhitespaceInternal(lineEnding + indentation);
-                    // For compact XML, ensure the next element gets proper whitespace too
-                    Element nextElement = (Element) parent.getNode(index + 1);
-                    if (nextElement.precedingWhitespace().isEmpty()) {
-                        nextElement.precedingWhitespaceInternal(lineEnding + indentation);
-                    }
+                // There's an element after - we need to insert between elements
+                // The new element should have proper indentation and no following whitespace
+                newElement.precedingWhitespaceInternal(lineEnding + indentation);
+                // Clear the reference element's following whitespace to avoid duplication
+                referenceElement.followingWhitespaceInternal("");
+                // Ensure the next element gets proper preceding whitespace
+                Element nextElement = (Element) parent.getNode(index + 1);
+                if (nextElement.precedingWhitespace().isEmpty()) {
+                    nextElement.precedingWhitespaceInternal(lineEnding + indentation);
                 }
             } else {
                 // Inserting at the end - check if we need to format the reference element
@@ -1323,8 +1324,22 @@ public class Editor {
                     // This is compact XML, format the reference element too
                     referenceElement.precedingWhitespaceInternal(lineEnding + indentation);
                 }
+                // Clear the reference element's following whitespace to avoid duplication
+                referenceElement.followingWhitespaceInternal("");
                 newElement.precedingWhitespaceInternal(lineEnding + indentation);
-                newElement.followingWhitespaceInternal(lineEnding);
+                // For the last element, check if we need to set following whitespace to properly indent the parent's
+                // closing tag
+                // Only do this if the parent has multiple children and proper indentation structure
+                if (parent.nodeCount() > 1 && parent.parent() != null) {
+                    String parentIndentation = whitespaceManager.inferIndentation(parent.parent());
+                    if (!parentIndentation.isEmpty()) {
+                        newElement.followingWhitespaceInternal(lineEnding + parentIndentation);
+                    } else {
+                        newElement.followingWhitespaceInternal(lineEnding);
+                    }
+                } else {
+                    newElement.followingWhitespaceInternal(lineEnding);
+                }
             }
         }
 
@@ -1371,6 +1386,80 @@ public class Editor {
             }
         }
         return -1;
+    }
+
+    /**
+     * Serializes an element to compact XML without any whitespace.
+     * This is used for creating inline comments.
+     *
+     * @param element the element to serialize
+     * @return compact XML string without whitespace
+     */
+    private String serializeElementCompact(Element element) {
+        StringBuilder sb = new StringBuilder();
+        serializeElementCompactRecursive(element, sb);
+        return sb.toString();
+    }
+
+    /**
+     * Recursively serializes an element and its children without whitespace.
+     */
+    private void serializeElementCompactRecursive(Element element, StringBuilder sb) {
+        sb.append("<").append(element.name());
+
+        // Add attributes
+        for (String attrName : element.attributes().keySet()) {
+            String attrValue = element.attribute(attrName);
+            sb.append(" ")
+                    .append(attrName)
+                    .append("=\"")
+                    .append(escapeAttributeValue(attrValue))
+                    .append("\"");
+        }
+
+        if (element.nodeCount() == 0) {
+            // Self-closing tag
+            sb.append("/>");
+        } else {
+            sb.append(">");
+
+            // Add children
+            for (Node child : element.nodes().toList()) {
+                if (child instanceof Element childElement) {
+                    serializeElementCompactRecursive(childElement, sb);
+                } else if (child instanceof Text textNode) {
+                    sb.append(escapeTextContent(textNode.content()));
+                }
+                // Skip comments and other node types for compact representation
+            }
+
+            // Closing tag
+            sb.append("</").append(element.name()).append(">");
+        }
+    }
+
+    /**
+     * Escapes special characters in attribute values for XML.
+     */
+    private String escapeAttributeValue(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&apos;");
+    }
+
+    /**
+     * Escapes special characters in text content for XML.
+     */
+    private String escapeTextContent(String content) {
+        if (content == null) {
+            return "";
+        }
+        return content.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     /**

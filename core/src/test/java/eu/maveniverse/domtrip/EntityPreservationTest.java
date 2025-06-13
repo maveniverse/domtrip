@@ -138,7 +138,22 @@ public class EntityPreservationTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element modify = (Element) editor.root().getNode(3); // Find modify element
+
+        // Debug: print the structure to understand the issue
+        System.out.println("Root has " + editor.root().nodeCount() + " nodes:");
+        for (int i = 0; i < editor.root().nodeCount(); i++) {
+            Node node = editor.root().getNode(i);
+            System.out.println("  [" + i + "]: " + node.getClass().getSimpleName() + " - "
+                    + (node instanceof Element
+                            ? ((Element) node).name()
+                            : node instanceof Text ? "'" + ((Text) node).content() + "'" : node.toString()));
+        }
+
+        // Find the modify element by name instead of index
+        Element modify = editor.root().child("modify").orElse(null);
+        if (modify == null) {
+            throw new AssertionError("Could not find 'modify' element");
+        }
         modify.textContent("new content");
 
         String result = editor.toXml();

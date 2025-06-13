@@ -184,6 +184,13 @@ public abstract class Node {
     }
 
     /**
+     * Sets preceding whitespace without marking as modified (for use during parsing)
+     */
+    void precedingWhitespaceInternal(String whitespace) {
+        this.precedingWhitespace = whitespace != null ? whitespace : "";
+    }
+
+    /**
      * Gets the whitespace that follows this node in the original XML.
      *
      * <p>This includes any whitespace characters that appeared after this
@@ -208,7 +215,15 @@ public abstract class Node {
      */
     public Node followingWhitespace(String whitespace) {
         this.followingWhitespace = whitespace != null ? whitespace : "";
+        markModified();
         return this;
+    }
+
+    /**
+     * Sets following whitespace without marking as modified (for use during parsing)
+     */
+    void followingWhitespaceInternal(String whitespace) {
+        this.followingWhitespace = whitespace != null ? whitespace : "";
     }
 
     // Modification tracking

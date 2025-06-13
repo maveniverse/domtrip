@@ -79,7 +79,12 @@ public class XmlConformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element textElement = (Element) editor.root().getNode(1);
+
+        // Find the text element by name instead of index
+        Element textElement = editor.root().child("text").orElse(null);
+        if (textElement == null) {
+            throw new AssertionError("Could not find 'text' element");
+        }
         String content = textElement.textContent();
 
         // Entities should be decoded in the content
@@ -132,8 +137,13 @@ public class XmlConformanceTest {
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
-        Element element = (Element) editor.root().getNode(1);
-        Element preserve = (Element) editor.root().getNode(3);
+
+        // Find elements by name instead of index
+        Element element = editor.root().child("element").orElse(null);
+        Element preserve = editor.root().child("preserve").orElse(null);
+        if (element == null || preserve == null) {
+            throw new AssertionError("Could not find required elements");
+        }
 
         // Text content should include whitespace
         assertEquals("  content with spaces  ", element.textContent());

@@ -162,7 +162,10 @@ public class EnhancedNavigationTest {
         assertEquals(5, elementCount);
 
         long textCount = root.nodes().filter(node -> node instanceof Text).count();
-        assertTrue(textCount > 0); // Should have whitespace text nodes
+        // With whitespace capture, whitespace is stored as element properties, not separate text nodes
+        // The root element only contains child elements, no direct text content
+        // Text nodes exist within the child elements (like groupId containing "com.example")
+        assertEquals(0, textCount);
     }
 
     @Test

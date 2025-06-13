@@ -1171,7 +1171,7 @@ public class Editor {
             newElement.precedingWhitespaceInternal(referenceWhitespace);
             // Give the reference element appropriate whitespace for its new position
             if (!indentation.isEmpty()) {
-                referenceElement.precedingWhitespaceInternal(indentation);
+                referenceElement.precedingWhitespaceInternal(lineEnding + indentation);
             } else {
                 referenceElement.precedingWhitespaceInternal("");
             }
@@ -1302,7 +1302,11 @@ public class Editor {
                     }
                 }
             } else {
-                // Inserting at the end
+                // Inserting at the end - check if we need to format the reference element
+                if (referenceElement.precedingWhitespace().isEmpty()) {
+                    // This is compact XML, format the reference element too
+                    referenceElement.precedingWhitespaceInternal(lineEnding + indentation);
+                }
                 newElement.precedingWhitespaceInternal(lineEnding + indentation);
                 newElement.followingWhitespaceInternal(lineEnding);
             }

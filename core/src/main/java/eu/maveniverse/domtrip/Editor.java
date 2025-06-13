@@ -1075,8 +1075,21 @@ public class Editor {
                 newElement.followingWhitespaceInternal(lineEnding);
             } else if (!hasTextNodeBefore) {
                 // No text node before, add proper preceding whitespace
-                // Use the same approach as addElementWithWhitespaceControl
-                newElement.precedingWhitespaceInternal(indentation);
+                // For compact XML, we need newline + indentation
+                if (index == 0) {
+                    // Inserting at the beginning - add newline + indentation
+                    newElement.precedingWhitespaceInternal(lineEnding + indentation);
+                } else {
+                    // Check if previous element has following whitespace
+                    Element prevElement = (Element) parent.getNode(index - 1);
+                    if (prevElement.followingWhitespace().isEmpty()) {
+                        // Previous element has no following whitespace, add newline + indentation
+                        newElement.precedingWhitespaceInternal(lineEnding + indentation);
+                    } else {
+                        // Previous element has following whitespace, just add indentation
+                        newElement.precedingWhitespaceInternal(indentation);
+                    }
+                }
                 // If inserting at the end, ensure proper following whitespace
                 if (index == parent.nodeCount()) {
                     newElement.followingWhitespaceInternal(lineEnding);
@@ -1175,12 +1188,12 @@ public class Editor {
                     // Adjust the index since we removed a node before the insertion point
                     index--;
                 } else {
-                    // Add proper indentation if no text node before
-                    newElement.precedingWhitespaceInternal(indentation);
+                    // Add proper indentation with newline for compact XML
+                    newElement.precedingWhitespaceInternal(lineEnding + indentation);
                 }
                 // The reference element needs whitespace for its new position if it doesn't have any
                 if (referenceElement.precedingWhitespace().isEmpty()) {
-                    referenceElement.precedingWhitespaceInternal(indentation);
+                    referenceElement.precedingWhitespaceInternal(lineEnding + indentation);
                 }
             }
         }
@@ -1282,13 +1295,11 @@ public class Editor {
                 } else {
                     // Reference element has no following whitespace, add proper whitespace
                     newElement.precedingWhitespaceInternal(lineEnding + indentation);
-                    newElement.followingWhitespaceInternal(lineEnding + indentation);
-                }
-
-                // Ensure the next element has proper whitespace if it doesn't
-                Element nextElement = (Element) parent.getNode(index + 1);
-                if (nextElement.precedingWhitespace().isEmpty()) {
-                    nextElement.precedingWhitespaceInternal("");
+                    // For compact XML, ensure the next element gets proper whitespace too
+                    Element nextElement = (Element) parent.getNode(index + 1);
+                    if (nextElement.precedingWhitespace().isEmpty()) {
+                        nextElement.precedingWhitespaceInternal(lineEnding + indentation);
+                    }
                 }
             } else {
                 // Inserting at the end

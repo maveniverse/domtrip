@@ -256,7 +256,7 @@ p {
 
 /* Navigation */
 .navbar {
-    background-color: var(--background-color);
+    background-color: white;
     border-bottom: 1px solid var(--border-color);
     padding: 0.75rem 0;
     position: fixed;
@@ -282,9 +282,12 @@ p {
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: var(--text-color);
+    color: white;
     font-weight: 600;
     font-size: 1.25rem;
+    background-color: #212934;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
 }
 
 .navbar-logo {
@@ -302,7 +305,7 @@ p {
 
 .navbar-nav a {
     text-decoration: none;
-    color: var(--text-color);
+    color: #212934;
     font-weight: 500;
     transition: color 0.2s;
 }
@@ -332,7 +335,7 @@ p {
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    color: var(--text-color);
+    color: #212934;
 }
 
 /* Responsive design */

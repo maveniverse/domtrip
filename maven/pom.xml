@@ -23,7 +23,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>eu.maveniverse</groupId>
+      <groupId>eu.maveniverse.maven.domtrip</groupId>
       <artifactId>domtrip-core</artifactId>
       <version>${project.version}</version>
     </dependency>

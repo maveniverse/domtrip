@@ -50,9 +50,11 @@ class ExtensionsEditorTest {
         Element extension = editor.addExtension(root, "org.apache.maven.wagon", "wagon-ssh", "3.5.1");
 
         assertEquals(EXTENSION, extension.name());
-        assertEquals("org.apache.maven.wagon", extension.child(GROUP_ID).get().textContent());
-        assertEquals("wagon-ssh", extension.child(ARTIFACT_ID).get().textContent());
-        assertEquals("3.5.1", extension.child(VERSION).get().textContent());
+        assertEquals(
+                "org.apache.maven.wagon",
+                extension.child(GROUP_ID).orElseThrow().textContent());
+        assertEquals("wagon-ssh", extension.child(ARTIFACT_ID).orElseThrow().textContent());
+        assertEquals("3.5.1", extension.child(VERSION).orElseThrow().textContent());
         assertTrue(extension.child(CLASSIFIER).isEmpty());
         assertTrue(extension.child(TYPE).isEmpty());
     }
@@ -67,11 +69,13 @@ class ExtensionsEditorTest {
                 editor.addExtension(root, "io.takari.maven", "takari-smart-builder", "0.6.1", "tests", "test-jar");
 
         assertEquals(EXTENSION, extension.name());
-        assertEquals("io.takari.maven", extension.child(GROUP_ID).get().textContent());
-        assertEquals("takari-smart-builder", extension.child(ARTIFACT_ID).get().textContent());
-        assertEquals("0.6.1", extension.child(VERSION).get().textContent());
-        assertEquals("tests", extension.child(CLASSIFIER).get().textContent());
-        assertEquals("test-jar", extension.child(TYPE).get().textContent());
+        assertEquals("io.takari.maven", extension.child(GROUP_ID).orElseThrow().textContent());
+        assertEquals(
+                "takari-smart-builder",
+                extension.child(ARTIFACT_ID).orElseThrow().textContent());
+        assertEquals("0.6.1", extension.child(VERSION).orElseThrow().textContent());
+        assertEquals("tests", extension.child(CLASSIFIER).orElseThrow().textContent());
+        assertEquals("test-jar", extension.child(TYPE).orElseThrow().textContent());
     }
 
     @Test
@@ -83,9 +87,10 @@ class ExtensionsEditorTest {
         Element extension = editor.addExtension(root, "org.example", "example-extension", "1.0.0", null, null);
 
         assertEquals(EXTENSION, extension.name());
-        assertEquals("org.example", extension.child(GROUP_ID).get().textContent());
-        assertEquals("example-extension", extension.child(ARTIFACT_ID).get().textContent());
-        assertEquals("1.0.0", extension.child(VERSION).get().textContent());
+        assertEquals("org.example", extension.child(GROUP_ID).orElseThrow().textContent());
+        assertEquals(
+                "example-extension", extension.child(ARTIFACT_ID).orElseThrow().textContent());
+        assertEquals("1.0.0", extension.child(VERSION).orElseThrow().textContent());
         assertTrue(extension.child(CLASSIFIER).isEmpty());
         assertTrue(extension.child(TYPE).isEmpty());
     }
@@ -144,18 +149,21 @@ class ExtensionsEditorTest {
 
         // Verify first extension
         Element first = extensions.get(0);
-        assertEquals("org.apache.maven.wagon", first.child(GROUP_ID).get().textContent());
-        assertEquals("wagon-ssh", first.child(ARTIFACT_ID).get().textContent());
+        assertEquals(
+                "org.apache.maven.wagon", first.child(GROUP_ID).orElseThrow().textContent());
+        assertEquals("wagon-ssh", first.child(ARTIFACT_ID).orElseThrow().textContent());
 
         // Verify second extension
         Element second = extensions.get(1);
-        assertEquals("io.takari.maven", second.child(GROUP_ID).get().textContent());
-        assertEquals("takari-smart-builder", second.child(ARTIFACT_ID).get().textContent());
+        assertEquals("io.takari.maven", second.child(GROUP_ID).orElseThrow().textContent());
+        assertEquals(
+                "takari-smart-builder", second.child(ARTIFACT_ID).orElseThrow().textContent());
 
         // Verify third extension
         Element third = extensions.get(2);
-        assertEquals("org.eclipse.tycho", third.child(GROUP_ID).get().textContent());
-        assertEquals("tycho-maven-plugin", third.child(ARTIFACT_ID).get().textContent());
+        assertEquals("org.eclipse.tycho", third.child(GROUP_ID).orElseThrow().textContent());
+        assertEquals(
+                "tycho-maven-plugin", third.child(ARTIFACT_ID).orElseThrow().textContent());
     }
 
     @Test

@@ -68,9 +68,9 @@ class SettingsEditorTest {
         Element server = editor.addServer(servers, "my-server", "username", "password");
 
         assertEquals(SERVER, server.name());
-        assertEquals("my-server", server.child(ID).get().textContent());
-        assertEquals("username", server.child(USERNAME).get().textContent());
-        assertEquals("password", server.child(PASSWORD).get().textContent());
+        assertEquals("my-server", server.child(ID).orElseThrow().textContent());
+        assertEquals("username", server.child(USERNAME).orElseThrow().textContent());
+        assertEquals("password", server.child(PASSWORD).orElseThrow().textContent());
     }
 
     @Test
@@ -83,7 +83,7 @@ class SettingsEditorTest {
         Element server = editor.addServer(servers, "my-server", null, null);
 
         assertEquals(SERVER, server.name());
-        assertEquals("my-server", server.child(ID).get().textContent());
+        assertEquals("my-server", server.child(ID).orElseThrow().textContent());
         assertTrue(server.child(USERNAME).isEmpty());
         assertTrue(server.child(PASSWORD).isEmpty());
     }
@@ -99,10 +99,12 @@ class SettingsEditorTest {
                 mirrors, "central-mirror", "Central Mirror", "https://repo1.maven.org/maven2", "central");
 
         assertEquals(MIRROR, mirror.name());
-        assertEquals("central-mirror", mirror.child(ID).get().textContent());
-        assertEquals("Central Mirror", mirror.child(NAME).get().textContent());
-        assertEquals("https://repo1.maven.org/maven2", mirror.child(URL).get().textContent());
-        assertEquals("central", mirror.child(MIRROR_OF).get().textContent());
+        assertEquals("central-mirror", mirror.child(ID).orElseThrow().textContent());
+        assertEquals("Central Mirror", mirror.child(NAME).orElseThrow().textContent());
+        assertEquals(
+                "https://repo1.maven.org/maven2",
+                mirror.child(URL).orElseThrow().textContent());
+        assertEquals("central", mirror.child(MIRROR_OF).orElseThrow().textContent());
     }
 
     @Test
@@ -115,10 +117,10 @@ class SettingsEditorTest {
         Element proxy = editor.addProxy(proxies, "my-proxy", "http", "proxy.example.com", 8080);
 
         assertEquals(PROXY, proxy.name());
-        assertEquals("my-proxy", proxy.child(ID).get().textContent());
-        assertEquals("http", proxy.child(PROTOCOL).get().textContent());
-        assertEquals("proxy.example.com", proxy.child(HOST).get().textContent());
-        assertEquals("8080", proxy.child(PORT).get().textContent());
+        assertEquals("my-proxy", proxy.child(ID).orElseThrow().textContent());
+        assertEquals("http", proxy.child(PROTOCOL).orElseThrow().textContent());
+        assertEquals("proxy.example.com", proxy.child(HOST).orElseThrow().textContent());
+        assertEquals("8080", proxy.child(PORT).orElseThrow().textContent());
     }
 
     @Test
@@ -131,7 +133,7 @@ class SettingsEditorTest {
         Element profile = editor.addProfile(profiles, "dev-profile");
 
         assertEquals(PROFILE, profile.name());
-        assertEquals("dev-profile", profile.child(ID).get().textContent());
+        assertEquals("dev-profile", profile.child(ID).orElseThrow().textContent());
     }
 
     @Test

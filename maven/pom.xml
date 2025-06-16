@@ -51,7 +51,6 @@
           <docencoding>UTF-8</docencoding>
           <doctitle>DomTrip Maven ${project.version} API Documentation</doctitle>
           <header>&lt;b&gt;DomTrip Maven ${project.version}&lt;/b&gt;</header>
-          <footer>&lt;b&gt;DomTrip Maven ${project.version}&lt;/b&gt;</footer>
           <bottom>Copyright © 2025 Maveniverse. All rights reserved.</bottom>
           <links>
             <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>

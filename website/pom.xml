@@ -9,6 +9,7 @@
   </parent>
 
   <artifactId>domtrip-website</artifactId>
+  <name>${project.groupId}:${project.artifactId}</name>
 
   <properties>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>

@@ -18,8 +18,7 @@
   </parent>
 
   <artifactId>domtrip-maven</artifactId>
-
-  <name>DomTrip Maven</name>
+  <name>${project.groupId}:${project.artifactId}</name>
   <description>Maven-specific extensions for DomTrip XML editing library</description>
 
   <dependencies>

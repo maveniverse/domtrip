@@ -18,6 +18,8 @@
   </parent>
 
   <artifactId>domtrip-core</artifactId>
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>DomTrip XML editing library core</description>
 
   <dependencies>
     <dependency>

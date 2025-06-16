@@ -51,6 +51,17 @@ layout: index
            namespace support, and type-safe configuration. Clean, intuitive API that feels natural.
        </p>
    </div>
+
+   <div class="feature-card">
+       <div class="feature-icon">🏗️</div>
+       <h3 class="feature-title">Maven Ecosystem Support</h3>
+       <p class="feature-description">
+           Specialized editors for <strong>POM</strong>, <strong>settings.xml</strong>,
+           <strong>extensions.xml</strong>, and <strong>toolchains.xml</strong> files with
+           Maven-aware element ordering, intelligent formatting, and convenience methods.
+           Complete Maven tooling support.
+       </p>
+   </div>
 </div>
 </div>
 </section>

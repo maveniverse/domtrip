@@ -38,7 +38,7 @@ public class SnippetProcessor {
 
     private final Map<String, String> snippetCache = new HashMap<>();
     private volatile long lastModified = 0;
-    private volatile Path snippetsDirectory = null;
+    private volatile Path[] snippetsDirectories = null;
 
     /**
      * Initialize snippets on startup for better performance.
@@ -55,15 +55,15 @@ public class SnippetProcessor {
      */
     private synchronized void loadSnippetsIfNeeded() {
         try {
-            if (snippetsDirectory == null) {
-                snippetsDirectory = findSnippetsDirectory();
-                if (snippetsDirectory == null) {
-                    System.out.println("⚠️  Warning: Could not find snippets directory");
+            if (snippetsDirectories == null) {
+                snippetsDirectories = findSnippetsDirectories();
+                if (snippetsDirectories.length == 0) {
+                    System.out.println("⚠️  Warning: Could not find any snippets directories");
                     return;
                 }
             }
 
-            long currentModified = getDirectoryLastModified(snippetsDirectory);
+            long currentModified = getDirectoriesLastModified(snippetsDirectories);
             if (currentModified > lastModified) {
                 System.out.println("🔄 Reloading snippets (files changed)...");
                 snippetCache.clear();
@@ -112,59 +112,86 @@ public class SnippetProcessor {
     }
 
     /**
-     * Gets the last modification time of all files in a directory.
+     * Gets the last modification time of all files in multiple directories.
      */
-    private long getDirectoryLastModified(Path directory) throws IOException {
-        if (!Files.exists(directory)) {
-            return 0;
+    private long getDirectoriesLastModified(Path[] directories) throws IOException {
+        long maxModified = 0;
+        for (Path directory : directories) {
+            if (Files.exists(directory)) {
+                try (Stream<Path> files = Files.walk(directory)) {
+                    long dirModified = files.filter(path -> path.toString().endsWith(".java"))
+                            .mapToLong(path -> {
+                                try {
+                                    return Files.getLastModifiedTime(path).toMillis();
+                                } catch (IOException e) {
+                                    return 0;
+                                }
+                            })
+                            .max()
+                            .orElse(0);
+                    maxModified = Math.max(maxModified, dirModified);
+                }
+            }
         }
-
-        try (Stream<Path> files = Files.walk(directory)) {
-            return files.filter(path -> path.toString().endsWith(".java"))
-                    .mapToLong(path -> {
-                        try {
-                            return Files.getLastModifiedTime(path).toMillis();
-                        } catch (IOException e) {
-                            return 0;
-                        }
-                    })
-                    .max()
-                    .orElse(0);
-        }
+        return maxModified;
     }
 
     private void loadSnippets() throws IOException {
-        if (snippetsDirectory == null || !Files.exists(snippetsDirectory)) {
-            System.out.println("⚠️  Warning: Snippets directory not available");
+        if (snippetsDirectories == null || snippetsDirectories.length == 0) {
+            System.out.println("⚠️  Warning: No snippets directories available");
             return;
         }
 
-        try (Stream<Path> files = Files.walk(snippetsDirectory)) {
-            files.filter(path -> path.toString().endsWith(".java")).forEach(this::processFile);
-        }
-
-        System.out.println("📝 Loaded " + snippetCache.size() + " code snippets from " + snippetsDirectory);
-    }
-
-    private Path findSnippetsDirectory() {
-        // Try different possible locations relative to the website module
-        String[] possiblePaths = {
-            "../core/src/test/java/eu/maveniverse/domtrip/snippets", // From website directory
-            "../../core/src/test/java/eu/maveniverse/domtrip/snippets", // From website/target
-            "core/src/test/java/eu/maveniverse/domtrip/snippets", // From project root
-            "./core/src/test/java/eu/maveniverse/domtrip/snippets" // Alternative
-        };
-
-        for (String pathStr : possiblePaths) {
-            Path path = Path.of(pathStr);
-            if (Files.exists(path) && Files.isDirectory(path)) {
-                System.out.println("📁 Found snippets directory: " + path.toAbsolutePath());
-                return path;
+        for (Path snippetsDirectory : snippetsDirectories) {
+            if (Files.exists(snippetsDirectory)) {
+                try (Stream<Path> files = Files.walk(snippetsDirectory)) {
+                    files.filter(path -> path.toString().endsWith(".java")).forEach(this::processFile);
+                }
+                System.out.println("📝 Loaded snippets from " + snippetsDirectory);
             }
         }
 
-        System.err.println("❌ Could not find snippets directory. Tried: " + String.join(", ", possiblePaths));
-        return null;
+        System.out.println("📝 Total loaded " + snippetCache.size() + " code snippets from "
+                + snippetsDirectories.length + " directories");
+    }
+
+    private Path[] findSnippetsDirectories() {
+        // Try different possible locations relative to the website module
+        String[][] possiblePaths = {
+            // Core module snippets
+            {
+                "../core/src/test/java/eu/maveniverse/domtrip/snippets", // From website directory
+                "../../core/src/test/java/eu/maveniverse/domtrip/snippets", // From website/target
+                "core/src/test/java/eu/maveniverse/domtrip/snippets", // From project root
+                "./core/src/test/java/eu/maveniverse/domtrip/snippets" // Alternative
+            },
+            // Maven module snippets
+            {
+                "../maven/src/test/java/org/maveniverse/domtrip/maven/snippets", // From website directory
+                "../../maven/src/test/java/org/maveniverse/domtrip/maven/snippets", // From website/target
+                "maven/src/test/java/org/maveniverse/domtrip/maven/snippets", // From project root
+                "./maven/src/test/java/org/maveniverse/domtrip/maven/snippets" // Alternative
+            }
+        };
+
+        java.util.List<Path> foundDirectories = new java.util.ArrayList<>();
+
+        for (String[] modulePathOptions : possiblePaths) {
+            for (String pathStr : modulePathOptions) {
+                Path path = Path.of(pathStr);
+                if (Files.exists(path) && Files.isDirectory(path)) {
+                    System.out.println("📁 Found snippets directory: " + path.toAbsolutePath());
+                    foundDirectories.add(path);
+                    break; // Found this module's directory, move to next module
+                }
+            }
+        }
+
+        if (foundDirectories.isEmpty()) {
+            System.err.println("❌ Could not find any snippets directories.");
+        }
+
+        return foundDirectories.toArray(new Path[0]);
     }
 
     private void processFile(Path filePath) {

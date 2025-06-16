@@ -2,7 +2,7 @@
 
 **Lossless XML Editing for Java**
 
-[![Maven Central](https://img.shields.io/maven-central/v/eu.maveniverse/domtrip.svg)](https://central.sonatype.com/artifact/eu.maveniverse/domtrip)
+[![Maven Central](https://img.shields.io/maven-central/v/eu.maveniverse.maven.domtrip/domtrip.svg)](https://central.sonatype.com/artifact/eu.maveniverse.maven.domtrip/domtrip)
 [![GitHub](https://img.shields.io/github/license/maveniverse/domtrip.svg)](https://github.com/maveniverse/domtrip/blob/master/LICENSE)
 [![Documentation](https://img.shields.io/badge/docs-website-blue.svg)](https://maveniverse.github.io/domtrip/)
 
@@ -24,9 +24,9 @@ Add DomTrip to your Maven project:
 
 ```xml
 <dependency>
-    <groupId>eu.maveniverse</groupId>
-    <artifactId>domtrip</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <groupId>eu.maveniverse.maven.domtrip</groupId>
+    <artifactId>domtrip-maven</artifactId>
+    <version>${version.domtrip}</version>
 </dependency>
 ```
 

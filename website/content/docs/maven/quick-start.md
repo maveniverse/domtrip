@@ -12,33 +12,7 @@ Get up and running with the DomTrip Maven extension in just a few minutes. This 
 Let's start by modifying an existing POM file:
 
 ```java
-import eu.maveniverse.domtrip.Document;
-import eu.maveniverse.domtrip.Element;
-import org.maveniverse.domtrip.maven.PomEditor;
-import static org.maveniverse.domtrip.maven.MavenPomElements.Elements.*;
-
-// Parse an existing POM
-String pomXml = """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <project xmlns="http://maven.apache.org/POM/4.0.0">
-      <modelVersion>4.0.0</modelVersion>
-      <groupId>com.example</groupId>
-      <artifactId>my-project</artifactId>
-      <version>1.0.0</version>
-    </project>
-    """;
-
-Document doc = Document.of(pomXml);
-PomEditor editor = new PomEditor(doc);
-Element root = editor.root();
-
-// Add elements with automatic ordering
-editor.insertMavenElement(root, NAME, "My Example Project");
-editor.insertMavenElement(root, DESCRIPTION, "A sample project");
-
-// Generate the result
-String result = editor.toXml();
-System.out.println(result);
+{cdi:snippets.snippet('editing-existing-pom')}
 ```
 
 **Output:**
@@ -60,88 +34,25 @@ Notice how the `name` and `description` elements were automatically placed in th
 ## Creating a POM from Scratch
 
 ```java
-// Create a new POM document
-PomEditor editor = new PomEditor();
-editor.createMavenDocument("project");
-Element root = editor.root();
-
-// Add basic project information
-editor.insertMavenElement(root, MODEL_VERSION, "4.0.0");
-editor.insertMavenElement(root, GROUP_ID, "com.example");
-editor.insertMavenElement(root, ARTIFACT_ID, "new-project");
-editor.insertMavenElement(root, VERSION, "1.0.0");
-editor.insertMavenElement(root, PACKAGING, "jar");
-
-// Add project metadata
-editor.insertMavenElement(root, NAME, "New Project");
-editor.insertMavenElement(root, DESCRIPTION, "A brand new project");
-
-// Add properties
-Element properties = editor.insertMavenElement(root, PROPERTIES);
-editor.addProperty(properties, "maven.compiler.source", "17");
-editor.addProperty(properties, "maven.compiler.target", "17");
-editor.addProperty(properties, "project.build.sourceEncoding", "UTF-8");
-
-String result = editor.toXml();
+{cdi:snippets.snippet('basic-pom-creation')}
 ```
 
 ## Adding Dependencies
 
 ```java
-// Add dependencies section
-Element dependencies = editor.insertMavenElement(root, DEPENDENCIES);
-
-// Add JUnit dependency
-editor.addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", "5.9.2");
-
-// Find the dependency we just added and set its scope
-Element junitDep = editor.findChildElement(dependencies, DEPENDENCY);
-editor.insertMavenElement(junitDep, SCOPE, "test");
-
-// Add another dependency
-editor.addDependency(dependencies, "org.slf4j", "slf4j-api", "2.0.7");
+{cdi:snippets.snippet('adding-dependencies')}
 ```
 
 ## Adding Plugins
 
 ```java
-// Add build section
-Element build = editor.insertMavenElement(root, BUILD);
-Element plugins = editor.insertMavenElement(build, PLUGINS);
-
-// Add Maven Compiler Plugin
-Element compilerPlugin = editor.addPlugin(plugins, 
-    "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
-
-// Add configuration to the plugin
-Element config = editor.insertMavenElement(compilerPlugin, CONFIGURATION);
-editor.addElement(config, "source", "17");
-editor.addElement(config, "target", "17");
-
-// Add Surefire Plugin (no version needed - will be managed)
-editor.addPlugin(plugins, "org.apache.maven.plugins", "maven-surefire-plugin", null);
+{cdi:snippets.snippet('adding-plugins')}
 ```
 
 ## Working with Multi-Module Projects
 
 ```java
-// Create parent POM
-PomEditor parentEditor = new PomEditor();
-parentEditor.createMavenDocument("project");
-Element parentRoot = parentEditor.root();
-
-// Set up parent project
-parentEditor.insertMavenElement(parentRoot, MODEL_VERSION, "4.0.0");
-parentEditor.insertMavenElement(parentRoot, GROUP_ID, "com.example");
-parentEditor.insertMavenElement(parentRoot, ARTIFACT_ID, "parent-project");
-parentEditor.insertMavenElement(parentRoot, VERSION, "1.0.0");
-parentEditor.insertMavenElement(parentRoot, PACKAGING, "pom");
-
-// Add modules
-Element modules = parentEditor.insertMavenElement(parentRoot, MODULES);
-parentEditor.addModule(modules, "core");
-parentEditor.addModule(modules, "web");
-parentEditor.addModule(modules, "cli");
+{cdi:snippets.snippet('multi-module-project')}
 ```
 
 ## Common Patterns

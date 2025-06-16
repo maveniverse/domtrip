@@ -54,11 +54,12 @@ layout: index
 
    <div class="feature-card">
        <div class="feature-icon">🏗️</div>
-       <h3 class="feature-title">Maven POM Support</h3>
+       <h3 class="feature-title">Maven Ecosystem Support</h3>
        <p class="feature-description">
-           Specialized <strong>PomEditor</strong> with Maven-aware element ordering, intelligent
-           blank line insertion, and convenience methods for dependencies, plugins, and modules.
-           Perfect for Maven tooling and POM manipulation.
+           Specialized editors for <strong>POM</strong>, <strong>settings.xml</strong>,
+           <strong>extensions.xml</strong>, and <strong>toolchains.xml</strong> files with
+           Maven-aware element ordering, intelligent formatting, and convenience methods.
+           Complete Maven tooling support.
        </p>
    </div>
 </div>

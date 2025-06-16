@@ -29,49 +29,85 @@ The DomTrip Maven extension provides specialized functionality for working with 
 ### Basic POM Creation with Maven Extension
 
 ```java
-import org.maveniverse.domtrip.maven.PomEditor;
-import eu.maveniverse.domtrip.Element;
-import static org.maveniverse.domtrip.maven.MavenPomElements.Elements.*;
-
-// Create a new POM with Maven-aware ordering
-PomEditor editor = new PomEditor();
-editor.createMavenDocument("project");
-Element root = editor.root();
-
-// Add elements - they'll be automatically ordered
-editor.insertMavenElement(root, MODEL_VERSION, "4.0.0");
-editor.insertMavenElement(root, GROUP_ID, "com.example");
-editor.insertMavenElement(root, ARTIFACT_ID, "my-project");
-editor.insertMavenElement(root, VERSION, "1.0.0");
-editor.insertMavenElement(root, NAME, "My Project");
-
-String result = editor.toXml();
+{cdi:snippets.snippet('basic-pom-creation')}
 ```
 
 ### Adding Dependencies with Maven Extension
 
 ```java
-// Add dependencies with proper structure
-Element dependencies = editor.insertMavenElement(root, DEPENDENCIES);
-editor.addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", "5.9.2");
-
-// Add scope to the dependency
-Element junitDep = editor.findChildElement(dependencies, DEPENDENCY);
-editor.insertMavenElement(junitDep, SCOPE, "test");
+{cdi:snippets.snippet('adding-dependencies')}
 ```
 
 ### Adding Plugins with Maven Extension
 
 ```java
-// Add build plugins with configuration
-Element build = editor.insertMavenElement(root, BUILD);
-Element plugins = editor.insertMavenElement(build, PLUGINS);
+{cdi:snippets.snippet('adding-plugins')}
+```
 
-Element compilerPlugin = editor.addPlugin(plugins,
-    "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
-Element config = editor.insertMavenElement(compilerPlugin, CONFIGURATION);
-editor.addElement(config, "source", "17");
-editor.addElement(config, "target", "17");
+## Maven Settings Editing
+
+The SettingsEditor provides specialized functionality for working with Maven settings.xml files.
+
+### Basic Settings Creation
+
+```java
+{cdi:snippets.snippet('basic-settings-creation')}
+```
+
+### Adding Servers
+
+```java
+{cdi:snippets.snippet('adding-servers')}
+```
+
+### Adding Mirrors
+
+```java
+{cdi:snippets.snippet('adding-mirrors')}
+```
+
+### Adding Profiles
+
+```java
+{cdi:snippets.snippet('adding-profiles')}
+```
+
+## Maven Extensions Editing
+
+The ExtensionsEditor provides functionality for working with Maven extensions.xml files.
+
+### Basic Extensions Creation
+
+```java
+{cdi:snippets.snippet('basic-extensions-creation')}
+```
+
+### Adding Extensions
+
+```java
+{cdi:snippets.snippet('adding-extensions')}
+```
+
+## Maven Toolchains Editing
+
+The ToolchainsEditor provides functionality for working with Maven toolchains.xml files.
+
+### Basic Toolchains Creation
+
+```java
+{cdi:snippets.snippet('basic-toolchains-creation')}
+```
+
+### Adding JDK Toolchains
+
+```java
+{cdi:snippets.snippet('adding-jdk-toolchains')}
+```
+
+### Adding Various Toolchains
+
+```java
+{cdi:snippets.snippet('adding-various-toolchains')}
 ```
 
 ### Core Library Examples

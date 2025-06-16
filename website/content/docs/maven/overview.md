@@ -5,7 +5,7 @@ description: Overview of DomTrip's Maven-specific extensions for POM file editin
 
 # Maven Extension Overview
 
-The DomTrip Maven extension (`domtrip-maven`) provides specialized functionality for working with Maven POM files, extending the core DomTrip library with Maven-specific features and conventions.
+The DomTrip Maven extension (`domtrip-maven`) provides specialized functionality for working with Maven configuration files, extending the core DomTrip library with Maven-specific features and conventions.
 
 ## Key Features
 
@@ -40,48 +40,50 @@ Automatically adds appropriate blank lines between element groups to maintain re
 
 ### 🎯 **Convenience Methods**
 Specialized methods for common Maven operations:
-- `addDependency()` - Add dependencies with proper structure
-- `addPlugin()` - Add plugins with configuration
-- `addModule()` - Add modules to multi-module projects
-- `addProperty()` - Add properties with proper placement
-- `findChildElement()` - Navigate POM structure easily
+- **PomEditor**: `addDependency()`, `addPlugin()`, `addModule()`, `addProperty()`
+- **SettingsEditor**: `addServer()`, `addMirror()`, `addProxy()`, `addProfile()`
+- **ExtensionsEditor**: `addExtension()` with proper coordinates
+- **ToolchainsEditor**: `addJdkToolchain()`, `addNetBeansToolchain()`, `addToolchain()`
 
 ### 🔧 **Type-Safe Constants**
-The `MavenPomElements` class provides comprehensive constants for:
-- **Element names**: All standard Maven POM elements
-- **Attribute names**: Common XML attributes used in POMs
-- **Namespace URIs**: Maven 4.0.0 and 4.1.0 namespaces
-- **Schema locations**: XSD schema references
-- **File names**: Standard Maven file and directory names
+Comprehensive constants classes for all Maven file types:
+- **MavenPomElements**: POM elements, attributes, namespaces, and schema locations
+- **MavenSettingsElements**: Settings elements, values, and configuration options
+- **MavenExtensionsElements**: Extensions elements and common extension types
+- **MavenToolchainsElements**: Toolchain elements, types, and common vendors
 
 ## Architecture
 
 The Maven extension is built on top of the core DomTrip library:
 
 ```
-┌─────────────────────────────────────┐
-│           domtrip-maven             │
-│  ┌─────────────┐ ┌─────────────────┐│
-│  │ PomEditor   │ │ MavenPomElements││
-│  │             │ │                 ││
-│  │ - Maven     │ │ - Constants     ││
-│  │   ordering  │ │ - Namespaces    ││
-│  │ - Blank     │ │ - Schema URIs   ││
-│  │   lines     │ │                 ││
-│  │ - Helpers   │ │                 ││
-│  └─────────────┘ └─────────────────┘│
-└─────────────────────────────────────┘
-┌─────────────────────────────────────┐
-│            domtrip-core             │
-│  ┌─────────────┐ ┌─────────────────┐│
-│  │ Editor      │ │ Document        ││
-│  │             │ │                 ││
-│  │ - Lossless  │ │ - Parsing       ││
-│  │   editing   │ │ - Serialization ││
-│  │ - Formatting│ │ - Navigation    ││
-│  │   preserve  │ │                 ││
-│  └─────────────┘ └─────────────────┘│
-└─────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                      domtrip-maven                          │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐│
+│  │ PomEditor   │ │SettingsEditor│ │ExtensionsEd.│ │Toolchain││
+│  │             │ │             │ │             │ │Editor   ││
+│  │ - POM       │ │ - Settings  │ │ - Extensions│ │ - Tool  ││
+│  │   ordering  │ │   ordering  │ │   ordering  │ │   chains││
+│  │ - Deps/     │ │ - Servers/  │ │ - Extension │ │ - JDK   ││
+│  │   Plugins   │ │   Mirrors   │ │   coords    │ │   setup ││
+│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘│
+│  ┌─────────────────────────────────────────────────────────┐│
+│  │                   Constants Classes                     ││
+│  │ MavenPomElements | MavenSettingsElements |              ││
+│  │ MavenExtensionsElements | MavenToolchainsElements       ││
+│  └─────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                        domtrip-core                         │
+│  ┌─────────────┐ ┌─────────────────┐ ┌─────────────────────┐│
+│  │ Editor      │ │ Document        │ │ Configuration       ││
+│  │             │ │                 │ │                     ││
+│  │ - Lossless  │ │ - Parsing       │ │ - Formatting        ││
+│  │   editing   │ │ - Serialization │ │ - Whitespace        ││
+│  │ - Formatting│ │ - Navigation    │ │ - Indentation       ││
+│  │   preserve  │ │ - Validation    │ │                     ││
+│  └─────────────┘ └─────────────────┘ └─────────────────────┘│
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ## Use Cases

@@ -17,7 +17,7 @@
     <version>39</version>
   </parent>
 
-  <groupId>eu.maveniverse</groupId>
+  <groupId>eu.maveniverse.maven.domtrip</groupId>
   <artifactId>domtrip</artifactId>
   <version>0.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>

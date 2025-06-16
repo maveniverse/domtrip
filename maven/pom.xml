@@ -12,7 +12,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>eu.maveniverse</groupId>
+    <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip</artifactId>
     <version>0.1.1-SNAPSHOT</version>
   </parent>

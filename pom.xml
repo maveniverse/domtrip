@@ -8,7 +8,7 @@
     https://www.eclipse.org/legal/epl-v20.html
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -19,7 +19,7 @@
 
   <groupId>eu.maveniverse</groupId>
   <artifactId>domtrip</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1.0</version>
   <packaging>pom</packaging>
   <name>${project.groupId}:${project.artifactId}</name>
 
@@ -32,7 +32,7 @@
   <scm>
     <connection>scm:git:git@github.com:maveniverse/domtrip.git</connection>
     <developerConnection>scm:git:git@github.com:maveniverse/domtrip.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>release-0.1.0</tag>
     <url>https://github.com/maveniverse/domtrip</url>
   </scm>
 

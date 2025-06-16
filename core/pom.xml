@@ -58,16 +58,6 @@
               <goal>jar</goal>
             </goals>
           </execution>
-          <execution>
-            <id>generate-javadoc-site</id>
-            <goals>
-              <goal>javadoc</goal>
-            </goals>
-            <phase>site</phase>
-            <configuration>
-              <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
     </plugins>

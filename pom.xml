@@ -24,6 +24,7 @@
 
   <modules>
     <module>core</module>
+    <module>domtrip-maven</module>
     <module>website</module>
   </modules>
 

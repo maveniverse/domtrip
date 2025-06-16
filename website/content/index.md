@@ -51,6 +51,16 @@ layout: index
            namespace support, and type-safe configuration. Clean, intuitive API that feels natural.
        </p>
    </div>
+
+   <div class="feature-card">
+       <div class="feature-icon">🏗️</div>
+       <h3 class="feature-title">Maven POM Support</h3>
+       <p class="feature-description">
+           Specialized <strong>PomEditor</strong> with Maven-aware element ordering, intelligent
+           blank line insertion, and convenience methods for dependencies, plugins, and modules.
+           Perfect for Maven tooling and POM manipulation.
+       </p>
+   </div>
 </div>
 </div>
 </section>

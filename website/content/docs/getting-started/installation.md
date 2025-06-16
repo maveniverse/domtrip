@@ -15,7 +15,9 @@ Get started with DomTrip in your Java project using your preferred build tool.
 
 ## Maven
 
-Add DomTrip to your `pom.xml`:
+### Core Library
+
+Add DomTrip core to your `pom.xml`:
 
 ```xml
 <dependency>
@@ -25,9 +27,29 @@ Add DomTrip to your `pom.xml`:
 </dependency>
 ```
 
+### Maven Extension (Recommended for POM editing)
+
+For Maven POM file editing, use the Maven extension which includes the core library:
+
+```xml
+<dependency>
+    <groupId>eu.maveniverse</groupId>
+    <artifactId>domtrip-maven</artifactId>
+    <version>0.1-SNAPSHOT</version>
+</dependency>
+```
+
+The Maven extension provides:
+- **PomEditor** class with Maven-aware element ordering
+- **MavenPomElements** constants for type-safe element names
+- Convenience methods for dependencies, plugins, and modules
+- Automatic blank line insertion between element groups
+
 ## Gradle
 
-Add DomTrip to your `build.gradle`:
+### Core Library
+
+Add DomTrip core to your `build.gradle`:
 
 ```groovy
 dependencies {
@@ -35,11 +57,25 @@ dependencies {
 }
 ```
 
+### Maven Extension
+
+For Maven POM editing, use the Maven extension:
+
+```groovy
+dependencies {
+    implementation 'eu.maveniverse:domtrip-maven:0.1-SNAPSHOT'
+}
+```
+
 Or for Kotlin DSL (`build.gradle.kts`):
 
 ```kotlin
 dependencies {
+    // Core library
     implementation("eu.maveniverse:domtrip-core:0.1-SNAPSHOT")
+
+    // Or Maven extension (includes core)
+    implementation("eu.maveniverse:domtrip-maven:0.1-SNAPSHOT")
 }
 ```
 
@@ -111,11 +147,17 @@ repositories {
 
 ## Next Steps
 
-Now that DomTrip is installed, let's explore the basics:
+Now that DomTrip is installed, choose your path:
 
+### Core Library
 - 📚 [Quick Start Guide](../../docs/getting-started/quick-start/) - Your first DomTrip program
 - 🧠 [Basic Concepts](../../docs/getting-started/basic-concepts/) - Understanding DomTrip's approach
 - 🚀 [API Reference](../../docs/api/editor/) - Detailed API documentation
+
+### Maven Extension
+- 🏗️ [Maven Quick Start](../../docs/maven/quick-start/) - Maven POM editing in 5 minutes
+- 📖 [Maven Overview](../../docs/maven/overview/) - Understanding Maven-specific features
+- 🔧 [Maven API Reference](../../docs/maven/api/) - Complete PomEditor documentation
 
 ## Troubleshooting
 

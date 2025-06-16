@@ -29,6 +29,13 @@
     <module>website</module>
   </modules>
 
+  <scm>
+    <connection>scm:git:git@github.com:maveniverse/domtrip.git</connection>
+    <developerConnection>scm:git:git@github.com:maveniverse/domtrip.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/maveniverse/domtrip</url>
+  </scm>
+
   <properties>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

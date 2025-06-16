@@ -14,7 +14,7 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <version.surefire-plugin>3.5.3</version.surefire-plugin>
-    <version.quarkus.platform>3.23.2</version.quarkus.platform>
+    <version.quarkus.platform>3.23.3</version.quarkus.platform>
     <version.quarkus-roq>1.6.1</version.quarkus-roq>
   </properties>
 
@@ -86,7 +86,6 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <version>3.1.1</version>
             <executions>
               <execution>
                 <id>generate-javadocs</id>

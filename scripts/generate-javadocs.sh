@@ -63,7 +63,7 @@ print_info "Generating Javadocs for core module..."
 ./mvnw clean javadoc:javadoc -pl core -q
 
 # Check if Javadocs were generated
-JAVADOC_DIR="core/target/site/apidocs"
+JAVADOC_DIR="core/target/reports/apidocs"
 if [ ! -d "$JAVADOC_DIR" ]; then
     print_error "Javadoc generation failed - directory $JAVADOC_DIR not found"
     exit 1

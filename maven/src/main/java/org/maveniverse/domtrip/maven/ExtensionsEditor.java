@@ -49,7 +49,7 @@ import java.util.Optional;
  *
  * @since 0.1
  */
-public class ExtensionsEditor extends Editor {
+public class ExtensionsEditor extends AbstractMavenEditor {
 
     /**
      * Element ordering for extension elements.
@@ -129,8 +129,7 @@ public class ExtensionsEditor extends Editor {
      * @return the newly created element
      */
     public Element insertExtensionsElement(Element parent, String elementName, String textContent) {
-        List<String> orderList = getOrderListForParent(parent);
-        return insertElementAtCorrectPosition(parent, elementName, textContent, orderList);
+        return insertElementAtCorrectPosition(parent, elementName, textContent);
     }
 
     /**
@@ -166,16 +165,16 @@ public class ExtensionsEditor extends Editor {
             String type) {
         Element extension = addElement(extensionsElement, EXTENSION);
 
-        insertElementAtCorrectPosition(extension, GROUP_ID, groupId, EXTENSION_ELEMENT_ORDER);
-        insertElementAtCorrectPosition(extension, ARTIFACT_ID, artifactId, EXTENSION_ELEMENT_ORDER);
-        insertElementAtCorrectPosition(extension, VERSION, version, EXTENSION_ELEMENT_ORDER);
+        insertElementAtCorrectPosition(extension, GROUP_ID, groupId);
+        insertElementAtCorrectPosition(extension, ARTIFACT_ID, artifactId);
+        insertElementAtCorrectPosition(extension, VERSION, version);
 
         if (classifier != null) {
-            insertElementAtCorrectPosition(extension, CLASSIFIER, classifier, EXTENSION_ELEMENT_ORDER);
+            insertElementAtCorrectPosition(extension, CLASSIFIER, classifier);
         }
 
         if (type != null) {
-            insertElementAtCorrectPosition(extension, TYPE, type, EXTENSION_ELEMENT_ORDER);
+            insertElementAtCorrectPosition(extension, TYPE, type);
         }
 
         return extension;
@@ -196,78 +195,12 @@ public class ExtensionsEditor extends Editor {
     /**
      * Gets the appropriate element order list for the given parent element.
      */
-    private List<String> getOrderListForParent(Element parent) {
+    @Override
+    protected List<String> getOrderListForParent(Element parent) {
         String parentName = parent.name();
         return switch (parentName) {
             case EXTENSION -> EXTENSION_ELEMENT_ORDER;
             default -> null;
         };
-    }
-
-    /**
-     * Inserts an element at the correct position based on element ordering.
-     */
-    private Element insertElementAtCorrectPosition(
-            Element parent, String elementName, String textContent, List<String> order) {
-        if (order == null) {
-            // No specific ordering defined, just append at the end
-            Element element = addElement(parent, elementName);
-            if (textContent != null && !textContent.isEmpty()) {
-                element.textContent(textContent);
-            }
-            return element;
-        }
-
-        // Find the position of the new element in the ordering
-        int newElementIndex = order.indexOf(elementName);
-        if (newElementIndex == -1) {
-            // Element not in ordering, append at the end
-            Element element = addElement(parent, elementName);
-            if (textContent != null && !textContent.isEmpty()) {
-                element.textContent(textContent);
-            }
-            return element;
-        }
-
-        // Find the correct insertion position by looking at existing children
-        Element insertAfter = null;
-        Element insertBefore = null;
-
-        // Look for elements that should come before this one
-        for (int i = newElementIndex - 1; i >= 0; i--) {
-            String beforeElementName = order.get(i);
-            Element existing = parent.child(beforeElementName).orElse(null);
-            if (existing != null) {
-                insertAfter = existing;
-                break;
-            }
-        }
-
-        // Look for elements that should come after this one
-        for (int i = newElementIndex + 1; i < order.size(); i++) {
-            String afterElementName = order.get(i);
-            Element existing = parent.child(afterElementName).orElse(null);
-            if (existing != null) {
-                insertBefore = existing;
-                break;
-            }
-        }
-
-        // Insert the element at the correct position
-        Element element;
-        if (insertBefore != null) {
-            element = insertElementBefore(insertBefore, elementName);
-        } else if (insertAfter != null) {
-            element = insertElementAfter(insertAfter, elementName);
-        } else {
-            element = addElement(parent, elementName);
-        }
-
-        // Set text content if provided
-        if (textContent != null && !textContent.isEmpty()) {
-            element.textContent(textContent);
-        }
-
-        return element;
     }
 }

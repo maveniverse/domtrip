@@ -53,7 +53,7 @@ import java.util.Optional;
  *
  * @since 0.1
  */
-public class SettingsEditor extends Editor {
+public class SettingsEditor extends AbstractMavenEditor {
 
     /**
      * Element ordering for Maven settings.xml files.
@@ -172,8 +172,7 @@ public class SettingsEditor extends Editor {
      * @return the newly created element
      */
     public Element insertSettingsElement(Element parent, String elementName, String textContent) {
-        List<String> orderList = getOrderListForParent(parent);
-        return insertElementAtCorrectPosition(parent, elementName, textContent, orderList);
+        return insertElementAtCorrectPosition(parent, elementName, textContent);
     }
 
     /**
@@ -187,12 +186,12 @@ public class SettingsEditor extends Editor {
      */
     public Element addServer(Element serversElement, String id, String username, String password) {
         Element server = addElement(serversElement, SERVER);
-        insertElementAtCorrectPosition(server, ID, id, SERVER_ELEMENT_ORDER);
+        insertElementAtCorrectPosition(server, ID, id);
         if (username != null) {
-            insertElementAtCorrectPosition(server, USERNAME, username, SERVER_ELEMENT_ORDER);
+            insertElementAtCorrectPosition(server, USERNAME, username);
         }
         if (password != null) {
-            insertElementAtCorrectPosition(server, PASSWORD, password, SERVER_ELEMENT_ORDER);
+            insertElementAtCorrectPosition(server, PASSWORD, password);
         }
         return server;
     }
@@ -209,10 +208,10 @@ public class SettingsEditor extends Editor {
      */
     public Element addMirror(Element mirrorsElement, String id, String name, String url, String mirrorOf) {
         Element mirror = addElement(mirrorsElement, MIRROR);
-        insertElementAtCorrectPosition(mirror, ID, id, MIRROR_ELEMENT_ORDER);
-        insertElementAtCorrectPosition(mirror, NAME, name, MIRROR_ELEMENT_ORDER);
-        insertElementAtCorrectPosition(mirror, URL, url, MIRROR_ELEMENT_ORDER);
-        insertElementAtCorrectPosition(mirror, MIRROR_OF, mirrorOf, MIRROR_ELEMENT_ORDER);
+        insertElementAtCorrectPosition(mirror, ID, id);
+        insertElementAtCorrectPosition(mirror, NAME, name);
+        insertElementAtCorrectPosition(mirror, URL, url);
+        insertElementAtCorrectPosition(mirror, MIRROR_OF, mirrorOf);
         return mirror;
     }
 
@@ -228,10 +227,10 @@ public class SettingsEditor extends Editor {
      */
     public Element addProxy(Element proxiesElement, String id, String protocol, String host, int port) {
         Element proxy = addElement(proxiesElement, PROXY);
-        insertElementAtCorrectPosition(proxy, ID, id, PROXY_ELEMENT_ORDER);
-        insertElementAtCorrectPosition(proxy, PROTOCOL, protocol, PROXY_ELEMENT_ORDER);
-        insertElementAtCorrectPosition(proxy, HOST, host, PROXY_ELEMENT_ORDER);
-        insertElementAtCorrectPosition(proxy, PORT, String.valueOf(port), PROXY_ELEMENT_ORDER);
+        insertElementAtCorrectPosition(proxy, ID, id);
+        insertElementAtCorrectPosition(proxy, PROTOCOL, protocol);
+        insertElementAtCorrectPosition(proxy, HOST, host);
+        insertElementAtCorrectPosition(proxy, PORT, String.valueOf(port));
         return proxy;
     }
 
@@ -244,7 +243,7 @@ public class SettingsEditor extends Editor {
      */
     public Element addProfile(Element profilesElement, String id) {
         Element profile = addElement(profilesElement, PROFILE);
-        insertElementAtCorrectPosition(profile, ID, id, PROFILE_ELEMENT_ORDER);
+        insertElementAtCorrectPosition(profile, ID, id);
         return profile;
     }
 
@@ -275,7 +274,8 @@ public class SettingsEditor extends Editor {
     /**
      * Gets the appropriate element order list for the given parent element.
      */
-    private List<String> getOrderListForParent(Element parent) {
+    @Override
+    protected List<String> getOrderListForParent(Element parent) {
         String parentName = parent.name();
         return switch (parentName) {
             case SETTINGS -> SETTINGS_ELEMENT_ORDER;
@@ -285,72 +285,5 @@ public class SettingsEditor extends Editor {
             case PROXY -> PROXY_ELEMENT_ORDER;
             default -> null;
         };
-    }
-
-    /**
-     * Inserts an element at the correct position based on element ordering.
-     */
-    private Element insertElementAtCorrectPosition(
-            Element parent, String elementName, String textContent, List<String> order) {
-        if (order == null) {
-            // No specific ordering defined, just append at the end
-            Element element = addElement(parent, elementName);
-            if (textContent != null && !textContent.isEmpty()) {
-                element.textContent(textContent);
-            }
-            return element;
-        }
-
-        // Find the position of the new element in the ordering
-        int newElementIndex = order.indexOf(elementName);
-        if (newElementIndex == -1) {
-            // Element not in ordering, append at the end
-            Element element = addElement(parent, elementName);
-            if (textContent != null && !textContent.isEmpty()) {
-                element.textContent(textContent);
-            }
-            return element;
-        }
-
-        // Find the correct insertion position by looking at existing children
-        Element insertAfter = null;
-        Element insertBefore = null;
-
-        // Look for elements that should come before this one
-        for (int i = newElementIndex - 1; i >= 0; i--) {
-            String beforeElementName = order.get(i);
-            Element existing = parent.child(beforeElementName).orElse(null);
-            if (existing != null) {
-                insertAfter = existing;
-                break;
-            }
-        }
-
-        // Look for elements that should come after this one
-        for (int i = newElementIndex + 1; i < order.size(); i++) {
-            String afterElementName = order.get(i);
-            Element existing = parent.child(afterElementName).orElse(null);
-            if (existing != null) {
-                insertBefore = existing;
-                break;
-            }
-        }
-
-        // Insert the element at the correct position
-        Element element;
-        if (insertBefore != null) {
-            element = insertElementBefore(insertBefore, elementName);
-        } else if (insertAfter != null) {
-            element = insertElementAfter(insertAfter, elementName);
-        } else {
-            element = addElement(parent, elementName);
-        }
-
-        // Set text content if provided
-        if (textContent != null && !textContent.isEmpty()) {
-            element.textContent(textContent);
-        }
-
-        return element;
     }
 }

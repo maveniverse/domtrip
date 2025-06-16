@@ -60,7 +60,7 @@ import java.util.Map;
  * @see MavenPomElements
  * @since 0.1
  */
-public class PomEditor extends Editor {
+public class PomEditor extends AbstractMavenEditor {
 
     // Element ordering configuration for Maven POM elements
     private static final Map<String, List<String>> ELEMENT_ORDER = new HashMap<>();
@@ -187,6 +187,51 @@ public class PomEditor extends Editor {
     }
 
     /**
+     * Gets the appropriate element order list for the given parent element.
+     * This implementation provides POM-specific ordering with blank line markers.
+     */
+    @Override
+    protected List<String> getOrderListForParent(Element parent) {
+        return ELEMENT_ORDER.get(parent.name());
+    }
+
+    /**
+     * Determines whether an element name should be skipped during ordering analysis.
+     * For POM files, empty strings represent blank line markers.
+     */
+    @Override
+    protected boolean shouldSkipInOrdering(String elementName) {
+        return elementName.isEmpty(); // Skip blank line markers
+    }
+
+    /**
+     * Enhanced element insertion with POM-specific blank line handling.
+     */
+    @Override
+    protected Element insertElementAtPosition(
+            Element parent,
+            String elementName,
+            Element insertBefore,
+            Element insertAfter,
+            List<String> order,
+            int elementIndex)
+            throws DomTripException {
+        // Determine if we need blank lines before/after based on ordering
+        boolean needsBlankLineBefore = needsBlankLineBefore(order, elementIndex);
+        boolean needsBlankLineAfter = needsBlankLineAfter(order, elementIndex);
+
+        // Insert the element at the correct position with enhanced formatting
+        if (insertBefore != null) {
+            return insertElementBefore(insertBefore, elementName);
+        } else if (insertAfter != null) {
+            return insertElementAfter(insertAfter, elementName);
+        } else {
+            // No reference elements found, use enhanced whitespace control
+            return addElement(parent, elementName, needsBlankLineBefore, needsBlankLineAfter);
+        }
+    }
+
+    /**
      * Inserts a new Maven element with proper ordering and formatting.
      *
      * <p>This method automatically determines the correct position for the new element
@@ -309,91 +354,6 @@ public class PomEditor extends Editor {
     public Element addProperty(Element propertiesElement, String propertyName, String propertyValue)
             throws DomTripException {
         return addElement(propertiesElement, propertyName, propertyValue);
-    }
-
-    /**
-     * Inserts an element at the correct position based on Maven POM element ordering.
-     * This method respects the ELEMENT_ORDER configuration and handles blank lines.
-     *
-     * @param parent the parent element to insert into
-     * @param elementName the name of the element to insert
-     * @param textContent the text content (null for empty element)
-     * @return the newly created element
-     * @throws DomTripException if the element cannot be added
-     */
-    private Element insertElementAtCorrectPosition(Element parent, String elementName, String textContent)
-            throws DomTripException {
-        // Get the ordering for this parent element type
-        List<String> order = ELEMENT_ORDER.get(parent.name());
-        if (order == null) {
-            // No specific ordering defined, just append at the end
-            Element element = addElement(parent, elementName);
-            if (textContent != null && !textContent.isEmpty()) {
-                element.textContent(textContent);
-            }
-            return element;
-        }
-
-        // Find the position of the new element in the ordering
-        int newElementIndex = order.indexOf(elementName);
-        if (newElementIndex == -1) {
-            // Element not in ordering, append at the end
-            Element element = addElement(parent, elementName);
-            if (textContent != null && !textContent.isEmpty()) {
-                element.textContent(textContent);
-            }
-            return element;
-        }
-
-        // Find the correct insertion position by looking at existing children
-        Element insertAfter = null;
-        Element insertBefore = null;
-
-        // Look for elements that should come before this one
-        for (int i = newElementIndex - 1; i >= 0; i--) {
-            String beforeElementName = order.get(i);
-            if (!beforeElementName.isEmpty()) { // Skip blank line markers
-                Element existing = parent.child(beforeElementName).orElse(null);
-                if (existing != null) {
-                    insertAfter = existing;
-                    break;
-                }
-            }
-        }
-
-        // Look for elements that should come after this one
-        for (int i = newElementIndex + 1; i < order.size(); i++) {
-            String afterElementName = order.get(i);
-            if (!afterElementName.isEmpty()) { // Skip blank line markers
-                Element existing = parent.child(afterElementName).orElse(null);
-                if (existing != null) {
-                    insertBefore = existing;
-                    break;
-                }
-            }
-        }
-
-        // Determine if we need blank lines before/after based on ordering
-        boolean needsBlankLineBefore = needsBlankLineBefore(order, newElementIndex);
-        boolean needsBlankLineAfter = needsBlankLineAfter(order, newElementIndex);
-
-        // Insert the element at the correct position
-        Element element;
-        if (insertBefore != null) {
-            element = insertElementBefore(insertBefore, elementName);
-        } else if (insertAfter != null) {
-            element = insertElementAfter(insertAfter, elementName);
-        } else {
-            // No reference elements found, use enhanced whitespace control
-            element = addElement(parent, elementName, needsBlankLineBefore, needsBlankLineAfter);
-        }
-
-        // Set text content if provided
-        if (textContent != null && !textContent.isEmpty()) {
-            element.textContent(textContent);
-        }
-
-        return element;
     }
 
     /**

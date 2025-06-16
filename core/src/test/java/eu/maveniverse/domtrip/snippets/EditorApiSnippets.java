@@ -360,4 +360,182 @@ public class EditorApiSnippets extends BaseSnippetTest {
 
         Assertions.assertEquals(config, usedConfig);
     }
+
+    @Test
+    public void demonstrateBasicConstructors() {
+        // START: basic-constructors
+        // Default constructor
+        Editor editor = new Editor();
+
+        // With custom configuration
+        DomTripConfig config = DomTripConfig.prettyPrint();
+        Editor configuredEditor = new Editor(config);
+
+        // With existing document
+        String xml = "<project></project>";
+        Document doc = Document.of(xml);
+        Editor documentEditor = new Editor(doc);
+
+        // With document and configuration
+        Editor fullEditor = new Editor(doc, DomTripConfig.strict());
+        // END: basic-constructors
+
+        Assertions.assertNotNull(editor);
+        Assertions.assertNotNull(configuredEditor);
+        Assertions.assertNotNull(documentEditor);
+        Assertions.assertNotNull(fullEditor);
+    }
+
+    @Test
+    public void demonstrateAdvancedConstructorExamples() {
+        // START: advanced-constructor-examples
+        // Working with an existing document
+        String xmlString = "<project><version>1.0</version></project>";
+        Document existingDoc = Document.of(xmlString);
+        Editor editor = new Editor(existingDoc);
+
+        // Working with a programmatically created document
+        Document doc = Document.withRootElement("project");
+        Editor programmaticEditor = new Editor(doc);
+
+        // Continue editing
+        Element root = programmaticEditor.root();
+        programmaticEditor.addElement(root, "version", "1.0");
+        // END: advanced-constructor-examples
+
+        Assertions.assertNotNull(editor);
+        Assertions.assertNotNull(programmaticEditor);
+        Assertions.assertEquals(
+                "1.0", programmaticEditor.root().child("version").orElseThrow().textContent());
+    }
+
+    @Test
+    public void demonstrateBasicOperations() {
+        // START: basic-operations
+        // Get document
+        Editor editor = new Editor();
+        editor.createDocument("project");
+        Document document = editor.document();
+
+        // Get root element
+        Element root = editor.root();
+
+        // Create document with root element
+        editor.createDocument("project");
+        Element newRoot = editor.root(); // <project></project>
+
+        // Serialize to XML
+        String xml = editor.toXml();
+
+        // Pretty printing
+        String prettyXml = editor.toXml(DomTripConfig.prettyPrint());
+        // END: basic-operations
+
+        Assertions.assertNotNull(document);
+        Assertions.assertNotNull(root);
+        Assertions.assertNotNull(xml);
+        Assertions.assertNotNull(prettyXml);
+    }
+
+    @Test
+    public void demonstrateElementOperations() {
+        // START: element-operations
+        String xml = "<project><version>1.0</version><dependency><version>2.0</version></dependency></project>";
+        Editor editor = new Editor(Document.of(xml));
+        Element root = editor.root();
+
+        // Find first element with name
+        Element version = root.child("version").orElse(null);
+
+        // Find all elements with name using descendants
+        List<Element> allVersions = root.descendants("version").toList();
+
+        // Add new child element
+        Element child = editor.addElement(root, "newChild");
+
+        // Remove element (if it exists)
+        Element toRemove = root.child("deprecated").orElse(null);
+        if (toRemove != null) {
+            editor.removeElement(toRemove);
+        }
+
+        // Get text content
+        String content = version != null ? version.textContent() : "";
+        // END: element-operations
+
+        Assertions.assertNotNull(version);
+        Assertions.assertNotNull(allVersions);
+        Assertions.assertNotNull(child);
+        Assertions.assertEquals("1.0", content);
+    }
+
+    @Test
+    public void demonstrateAttributeManagement() {
+        // START: attribute-management
+        String xml = "<dependency scope='test'></dependency>";
+        Editor editor = new Editor(Document.of(xml));
+        Element element = editor.root();
+
+        // For XML: <element attr1='existing' attr2="another"/>
+        editor.setAttribute(element, "attr1", "updated"); // Preserves single quotes
+        editor.setAttribute(element, "attr3", "new"); // Infers quote style from existing
+
+        // Remove attribute
+        editor.removeAttribute(element, "deprecated");
+
+        // Set multiple attributes
+        Map<String, String> attrs = Map.of(
+                "scope", "test",
+                "optional", "true");
+        editor.setAttributes(element, attrs);
+
+        // Get attribute value
+        String scopeValue = element.attribute("scope");
+
+        // Check if attribute exists
+        boolean hasOptional = element.hasAttribute("optional");
+        // END: attribute-management
+
+        Assertions.assertEquals("updated", element.attribute("attr1"));
+        Assertions.assertEquals("new", element.attribute("attr3"));
+        Assertions.assertEquals("test", scopeValue);
+        Assertions.assertTrue(hasOptional);
+    }
+
+    @Test
+    public void demonstrateCommentManagement() {
+        // START: comment-management
+        String xml = "<project><version>1.0</version></project>";
+        Editor editor = new Editor(Document.of(xml));
+        Element parent = editor.root();
+
+        // Add comment as child of parent
+        editor.addComment(parent, " Configuration section ");
+
+        // Using fluent builder API for comments
+        editor.add().comment().to(parent).withContent(" End of configuration ").build();
+        // END: comment-management
+
+        String result = editor.toXml();
+        Assertions.assertTrue(result.contains("Configuration section"));
+        Assertions.assertTrue(result.contains("End of configuration"));
+    }
+
+    @Test
+    public void demonstrateSpecificExceptionHandling() {
+        // START: specific-exception-handling
+        // ✅ Specific exception handling
+        try {
+            String xmlContent = "<root><unclosed>";
+            Document doc = Document.of(xmlContent);
+            Editor editor = new Editor(doc);
+        } catch (DomTripException e) {
+            // Handle DomTrip errors (including parsing errors)
+            System.err.println("DomTrip error: " + e.getMessage());
+        }
+        // END: specific-exception-handling
+
+        // Test passes - demonstrates exception handling patterns
+        Assertions.assertTrue(true);
+    }
 }

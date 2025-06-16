@@ -15,7 +15,7 @@ The `Editor` class is the main entry point for DomTrip. It provides high-level o
 Creates a new editor with default configuration.
 
 ```java
-Editor editor = new Editor();
+{cdi:snippets.snippet('basic-constructors')}
 ```
 
 ### `Editor(DomTripConfig config)`
@@ -23,8 +23,7 @@ Editor editor = new Editor();
 Creates a new editor with custom configuration.
 
 ```java
-DomTripConfig config = DomTripConfig.prettyPrint();
-Editor editor = new Editor(config);
+{cdi:snippets.snippet('basic-constructors')}
 ```
 
 ### `Editor(Document document)`
@@ -40,8 +39,7 @@ Creates a new editor with an existing Document object.
 Creates a new editor with an existing Document and custom configuration.
 
 ```java
-Document doc = Document.of(xml);
-Editor editor = new Editor(doc, DomTripConfig.strict());
+{cdi:snippets.snippet('basic-constructors')}
 ```
 
 **Throws:** `IllegalArgumentException` if document is null.
@@ -49,24 +47,7 @@ Editor editor = new Editor(doc, DomTripConfig.strict());
 ## Advanced Constructor Examples
 
 ```java
-// Working with an existing document
-Document existingDoc = Document.of(xmlString);
-Editor editor = new Editor(existingDoc);
-
-// Working with a programmatically created document
-Document doc = Document.withRootElement("project");
-Editor editor = new Editor(doc);
-
-// Working with existing document and custom config
-Document existingDoc = Document.of(xmlString);
-DomTripConfig config = DomTripConfig.prettyPrint()
-    .withIndentString("  ")
-    .withPreserveComments(true);
-Editor editor = new Editor(existingDoc, config);
-
-// Working with builder-created document
-Document doc = Document.withRootElement("maven");
-Editor editor = new Editor(doc, DomTripConfig.minimal());
+{cdi:snippets.snippet('advanced-constructor-examples')}
 ```
 
 ## Document Management
@@ -76,7 +57,7 @@ Editor editor = new Editor(doc, DomTripConfig.minimal());
 Gets the current XML document.
 
 ```java
-Document document = editor.document();
+{cdi:snippets.snippet('basic-operations')}
 ```
 
 ### `root()`
@@ -84,7 +65,7 @@ Document document = editor.document();
 Gets the root element of the document.
 
 ```java
-Element root = editor.root();
+{cdi:snippets.snippet('basic-operations')}
 ```
 
 ### `createDocument(String rootElementName)`
@@ -92,8 +73,7 @@ Element root = editor.root();
 Creates a new document with the specified root element.
 
 ```java
-editor.createDocument("project");
-Element root = editor.root(); // <project></project>
+{cdi:snippets.snippet('basic-operations')}
 ```
 
 ## Serialization
@@ -103,7 +83,7 @@ Element root = editor.root(); // <project></project>
 Serializes the document to XML string with preserved formatting.
 
 ```java
-String xml = editor.toXml();
+{cdi:snippets.snippet('basic-operations')}
 ```
 
 ### `toXml(DomTripConfig config)`
@@ -119,7 +99,7 @@ Serializes with custom configuration.
 For pretty printing, use the configuration approach:
 
 ```java
-String prettyXml = editor.toXml(DomTripConfig.prettyPrint());
+{cdi:snippets.snippet('basic-operations')}
 ```
 
 ## Element Operations
@@ -129,7 +109,7 @@ String prettyXml = editor.toXml(DomTripConfig.prettyPrint());
 Finds the first element with the specified name in the document.
 
 ```java
-Element version = editor.findElement("version");
+{cdi:snippets.snippet('element-operations')}
 ```
 
 **Returns:** The element, or `null` if not found.
@@ -139,7 +119,7 @@ Element version = editor.findElement("version");
 Finds all elements with the specified name.
 
 ```java
-List<Element> dependencies = editor.findElements("dependency");
+{cdi:snippets.snippet('element-operations')}
 ```
 
 ### `addElement(Element parent, String name)`
@@ -147,8 +127,7 @@ List<Element> dependencies = editor.findElements("dependency");
 Adds a new child element to the parent.
 
 ```java
-Element parent = editor.root();
-Element child = editor.addElement(parent, "newChild");
+{cdi:snippets.snippet('element-operations')}
 ```
 
 **Returns:** The newly created element.
@@ -174,8 +153,7 @@ Batch operation to add multiple child elements.
 Removes an element from its parent.
 
 ```java
-Element toRemove = editor.findElement("deprecated");
-editor.removeElement(toRemove);
+{cdi:snippets.snippet('element-operations')}
 ```
 
 ## Text Content Operations
@@ -193,7 +171,7 @@ Sets the text content of an element.
 Gets the text content of an element.
 
 ```java
-String content = editor.getTextContent(element);
+{cdi:snippets.snippet('element-operations')}
 ```
 
 ## Attribute Operations
@@ -207,14 +185,7 @@ Sets an attribute value with intelligent formatting preservation and inference.
 - **New attributes**: Infers formatting from existing attributes on the element
 
 ```java
-// For XML: <element attr1='existing' attr2="another"/>
-editor.setAttribute(element, "attr1", "updated");  // Preserves single quotes
-editor.setAttribute(element, "attr3", "new");      // Infers quote style from existing
-
-// For multi-line attributes:
-// <element attr1="value1"
-//          attr2="value2"/>
-editor.setAttribute(element, "attr3", "value3");   // Maintains alignment
+{cdi:snippets.snippet('attribute-management')}
 ```
 
 ### `getAttribute(Element element, String name)`
@@ -230,7 +201,7 @@ Gets an attribute value.
 Removes an attribute.
 
 ```java
-editor.removeAttribute(element, "deprecated");
+{cdi:snippets.snippet('attribute-management')}
 ```
 
 ### `setAttributes(Element element, Map<String, String> attributes)`
@@ -238,12 +209,7 @@ editor.removeAttribute(element, "deprecated");
 Sets multiple attributes at once with intelligent formatting.
 
 ```java
-Map<String, String> attrs = Map.of(
-    "scope", "test",
-    "optional", "true"
-);
-editor.setAttributes(element, attrs);
-// Each attribute uses inferred formatting based on existing patterns
+{cdi:snippets.snippet('attribute-management')}
 ```
 
 **Advanced Attribute Formatting:**
@@ -251,20 +217,7 @@ editor.setAttributes(element, attrs);
 For fine-grained control over attribute formatting, you can work with `Attribute` objects directly:
 
 ```java
-// Get attribute object for advanced manipulation
-Attribute attr = element.getAttributeObject("combine.children");
-if (attr != null) {
-    attr.setValue("merge");  // Preserves all formatting
-}
-
-// Create custom formatted attribute
-Attribute customAttr = Attribute.builder()
-    .name("newAttr")
-    .value("value")
-    .quoteStyle(QuoteStyle.SINGLE)
-    .precedingWhitespace("\n         ")  // For alignment
-    .build();
-element.setAttributeObject("newAttr", customAttr);
+{cdi:snippets.snippet('attribute-management')}
 ```
 
 ## Comment Operations
@@ -282,7 +235,7 @@ Adds a comment as a child of the parent element.
 Adds a comment before the specified element.
 
 ```java
-editor.addCommentBefore(element, " Configuration section ");
+{cdi:snippets.snippet('comment-management')}
 ```
 
 ### `addCommentAfter(Element element, String content)`
@@ -290,7 +243,7 @@ editor.addCommentBefore(element, " Configuration section ");
 Adds a comment after the specified element.
 
 ```java
-editor.addCommentAfter(element, " End of configuration ");
+{cdi:snippets.snippet('comment-management')}
 ```
 
 ## Fluent Builder API
@@ -342,13 +295,7 @@ The Editor class throws specific exceptions for different error conditions:
 ### 3. Handle Exceptions Appropriately
 
 ```java
-// ✅ Specific exception handling
-try {
-    editor.loadXml(xmlContent);
-} catch (ParseException e) {
-    // Handle parsing errors specifically
-    showUserFriendlyError("Invalid XML format: " + e.getMessage());
-}
+{cdi:snippets.snippet('specific-exception-handling')}
 ```
 
 ## Thread Safety

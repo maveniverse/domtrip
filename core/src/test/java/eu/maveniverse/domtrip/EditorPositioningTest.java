@@ -408,7 +408,7 @@ class EditorPositioningTest {
         editor.addElement(newDep1, "artifactId", "mockito-core");
 
         // Insert after existing dependency
-        Element newDep2 = editor.insertElementAfter(dependencies, "dependency");
+        Element newDep2 = editor.addElement(dependencies, "dependency");
         editor.addElement(newDep2, "groupId", "org.hamcrest");
         editor.addElement(newDep2, "artifactId", "hamcrest-core");
 

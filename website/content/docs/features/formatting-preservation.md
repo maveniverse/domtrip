@@ -28,10 +28,17 @@ Every node stores the whitespace that appears before and after it:
 ```
 
 ### Element-Level Whitespace
-Elements also track whitespace within their tags:
+Elements track whitespace at multiple levels within their structure:
 
 ```java
 {cdi:snippets.snippet('element-whitespace')}
+```
+
+### Inner Element Whitespace
+For elements that contain only whitespace (no child elements), DomTrip provides special handling:
+
+```java
+{cdi:snippets.snippet('inner-element-whitespace')}
 ```
 
 ### Attribute Formatting

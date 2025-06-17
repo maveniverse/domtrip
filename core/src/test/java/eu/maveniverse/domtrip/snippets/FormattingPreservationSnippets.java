@@ -86,6 +86,30 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
+    public void demonstrateInnerElementWhitespace() {
+        String xml = "<parent>\n    \n</parent>";
+
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+
+        // START: inner-element-whitespace
+        Element element = doc.root();
+
+        // Whitespace immediately after opening tag: <element>WHITESPACE
+        String innerFollowing = element.innerFollowingWhitespace(); // "\n    "
+
+        // Whitespace immediately before closing tag: WHITESPACE</element>
+        String innerPreceding = element.innerPrecedingWhitespace(); // "\n"
+
+        // These fields are used when an element contains only whitespace
+        // (no child elements), providing a cleaner model than Text nodes
+        // END: inner-element-whitespace
+
+        Assertions.assertEquals("\n    ", innerFollowing);
+        Assertions.assertEquals("\n", innerPreceding);
+    }
+
+    @Test
     public void demonstrateIntelligentInference() {
         // START: intelligent-inference
         // Existing structure:

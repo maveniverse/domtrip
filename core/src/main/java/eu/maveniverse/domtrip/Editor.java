@@ -1,5 +1,6 @@
 package eu.maveniverse.domtrip;
 
+import java.awt.*;
 import java.util.Map;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Map;
  *
  * <p>The Editor class provides a convenient, user-friendly interface for parsing,
  * modifying, and serializing XML documents. It combines the functionality of
- * {@link Parser}, {@link Serializer}, and {@link WhitespaceManager} to offer
+ * {@link Parser}, and {@link Serializer} to offer
  * a complete XML editing solution with lossless formatting preservation.</p>
  *
  * <h3>Capabilities:</h3>
@@ -95,7 +96,6 @@ import java.util.Map;
 public class Editor {
 
     private final Serializer serializer;
-    private final WhitespaceManager whitespaceManager;
     private final DomTripConfig config;
     private Document document;
     private final String lineEnding;
@@ -172,7 +172,6 @@ public class Editor {
     public Editor(Document document, DomTripConfig config) {
         this.config = config != null ? config : DomTripConfig.defaults();
         this.serializer = new Serializer();
-        this.whitespaceManager = new WhitespaceManager(this.config);
         this.document = document; // Can be null for empty editors
         this.lineEnding = detectLineEnding(); // Detect from document or use config default
     }
@@ -218,54 +217,8 @@ public class Editor {
 
         Element newElement = new Element(elementName.trim());
 
-        // Try to preserve indentation using WhitespaceManager
-        String indentation = whitespaceManager.inferIndentation(parent);
-        if (!indentation.isEmpty()) {
-            // Check if parent already has child elements with proper indentation
-            boolean hasChildrenWithIndentation = false;
-            for (int i = 0; i < parent.nodeCount(); i++) {
-                Node child = parent.getNode(i);
-                if (child instanceof Element && !child.precedingWhitespace().isEmpty()) {
-                    hasChildrenWithIndentation = true;
-                    break;
-                }
-            }
-
-            if (!hasChildrenWithIndentation) {
-                // Parent has no children with indentation, add one more level
-                // Detect the indentation unit (tab vs spaces) and use the same pattern
-                String indentUnit = detectIndentationUnit(indentation);
-                indentation = indentation + indentUnit;
-            }
-
-            newElement.precedingWhitespaceInternal(lineEnding + indentation);
-        }
-
-        // Check if the last child is a text node with just whitespace (closing tag whitespace)
-        // If so, insert the new element before it, and add proper closing whitespace after
-        int childCount = parent.nodeCount();
-        if (childCount > 0) {
-            Node lastChild = parent.getNode(childCount - 1);
-            if (lastChild instanceof Text lastText) {
-                String content = lastText.content();
-                // Use WhitespaceManager to check if it's whitespace only
-                if (whitespaceManager.isWhitespaceOnly(content) && content.contains(lineEnding)) {
-                    // Insert before the last text node
-                    parent.insertNode(childCount - 1, newElement);
-                    return newElement;
-                }
-            }
-        }
-
-        // Default: add at the end
-        parent.addNode(newElement);
-
-        // Add closing whitespace if parent has indentation
-        if (!indentation.isEmpty() && parent.parent() != null) {
-            String parentIndent = whitespaceManager.inferIndentation(parent.parent());
-            Text closingWhitespace = new Text(lineEnding + parentIndent);
-            parent.addNode(closingWhitespace);
-        }
+        // Use centralized node addition with automatic whitespace normalization
+        insertChild(parent, newElement, parent.nodeCount());
 
         return newElement;
     }
@@ -309,20 +262,8 @@ public class Editor {
             }
         }
 
-        // Try to preserve indentation using WhitespaceManager
-        String indentation = whitespaceManager.inferIndentation(parent);
-        if (!indentation.isEmpty()) {
-            newElement.precedingWhitespaceInternal(lineEnding + indentation);
-        }
-
-        parent.addNode(newElement);
-
-        // Add closing whitespace if parent has indentation
-        if (!indentation.isEmpty() && parent.parent() != null) {
-            String parentIndent = whitespaceManager.inferIndentation(parent.parent());
-            Text closingWhitespace = new Text(lineEnding + parentIndent);
-            parent.addNode(closingWhitespace);
-        }
+        // Use centralized node addition with automatic whitespace normalization
+        insertChild(parent, newElement, parent.nodeCount());
 
         return newElement;
     }
@@ -342,155 +283,6 @@ public class Editor {
             element.textContent(textContent);
         }
         return element;
-    }
-
-    /**
-     * Adds a new element with enhanced whitespace control.
-     *
-     * <p>This method provides fine-grained control over whitespace insertion,
-     * allowing you to force blank lines before and/or after the new element
-     * regardless of existing formatting patterns.</p>
-     *
-     * @param parent the parent element
-     * @param elementName the name of the new element
-     * @param forceBlankLineBefore if true, ensures a blank line before the element
-     * @param forceBlankLineAfter if true, ensures a blank line after the element
-     * @return the newly created element
-     * @throws DomTripException if the element cannot be added
-     */
-    public Element addElement(
-            Element parent, String elementName, boolean forceBlankLineBefore, boolean forceBlankLineAfter)
-            throws DomTripException {
-        if (parent == null) {
-            throw new DomTripException("Parent element cannot be null");
-        }
-        if (elementName == null || elementName.trim().isEmpty()) {
-            throw new DomTripException("Element name cannot be null or empty");
-        }
-
-        Element newElement = new Element(elementName.trim());
-        addElementWithWhitespaceControl(parent, newElement, forceBlankLineBefore, forceBlankLineAfter);
-        return newElement;
-    }
-
-    /**
-     * Adds a new element with text content and enhanced whitespace control.
-     *
-     * @param parent the parent element
-     * @param elementName the name of the new element
-     * @param textContent the text content for the element
-     * @param forceBlankLineBefore if true, ensures a blank line before the element
-     * @param forceBlankLineAfter if true, ensures a blank line after the element
-     * @return the newly created element
-     * @throws DomTripException if the element cannot be added
-     */
-    public Element addElement(
-            Element parent,
-            String elementName,
-            String textContent,
-            boolean forceBlankLineBefore,
-            boolean forceBlankLineAfter)
-            throws DomTripException {
-        Element element = addElement(parent, elementName, forceBlankLineBefore, forceBlankLineAfter);
-        if (textContent != null && !textContent.isEmpty()) {
-            element.textContent(textContent);
-        }
-        return element;
-    }
-
-    /**
-     * Adds a new element using a QName with enhanced whitespace control.
-     *
-     * @param parent the parent element
-     * @param qname the QName for the new element
-     * @param forceBlankLineBefore if true, ensures a blank line before the element
-     * @param forceBlankLineAfter if true, ensures a blank line after the element
-     * @return the newly created element
-     * @throws DomTripException if the element cannot be added
-     */
-    public Element addElement(Element parent, QName qname, boolean forceBlankLineBefore, boolean forceBlankLineAfter)
-            throws DomTripException {
-        if (parent == null) {
-            throw new DomTripException("Parent element cannot be null");
-        }
-        if (qname == null) {
-            throw new DomTripException("QName cannot be null");
-        }
-
-        // Create element without automatic namespace declaration
-        Element newElement = new Element(qname.qualifiedName());
-
-        // Add namespace declaration if needed and not already declared
-        if (qname.hasNamespace() && !isNamespaceDeclaredInHierarchy(parent, qname)) {
-            if (qname.hasPrefix()) {
-                newElement.namespaceDeclaration(qname.prefix(), qname.namespaceURI());
-            } else {
-                newElement.namespaceDeclaration(null, qname.namespaceURI());
-            }
-        }
-
-        addElementWithWhitespaceControl(parent, newElement, forceBlankLineBefore, forceBlankLineAfter);
-        return newElement;
-    }
-
-    /**
-     * Adds a new element using a QName with text content and enhanced whitespace control.
-     *
-     * @param parent the parent element
-     * @param qname the QName for the new element
-     * @param textContent the text content for the element
-     * @param forceBlankLineBefore if true, ensures a blank line before the element
-     * @param forceBlankLineAfter if true, ensures a blank line after the element
-     * @return the newly created element
-     * @throws DomTripException if the element cannot be added
-     */
-    public Element addElement(
-            Element parent, QName qname, String textContent, boolean forceBlankLineBefore, boolean forceBlankLineAfter)
-            throws DomTripException {
-        Element element = addElement(parent, qname, forceBlankLineBefore, forceBlankLineAfter);
-        if (textContent != null && !textContent.isEmpty()) {
-            element.textContent(textContent);
-        }
-        return element;
-    }
-
-    /**
-     * Helper method to add an element with enhanced whitespace control.
-     * Updated to work with the new whitespace capture system.
-     */
-    private void addElementWithWhitespaceControl(
-            Element parent, Element newElement, boolean forceBlankLineBefore, boolean forceBlankLineAfter) {
-        // Infer indentation for children of the parent
-        String elementIndentation = whitespaceManager.inferIndentation(parent);
-
-        // Determine preceding whitespace for the new element
-        // We need to account for existing whitespace from previous elements
-        String precedingWhitespace;
-        if (forceBlankLineBefore) {
-            // For a blank line before, we want: existing_following + blank_line + indentation
-            // Since existing element already has '\n' following, we just need one more '\n'
-            precedingWhitespace = lineEnding + elementIndentation;
-        } else {
-            // Normal case: just the indentation (previous element's following whitespace handles the newline)
-            precedingWhitespace = elementIndentation;
-        }
-        newElement.precedingWhitespaceInternal(precedingWhitespace);
-
-        // Determine following whitespace for the new element
-        // The new element should have the same following whitespace as the last element
-        // to maintain the parent's closing structure
-        String followingWhitespace = lineEnding;
-        if (forceBlankLineAfter) {
-            followingWhitespace = lineEnding + lineEnding;
-        }
-        newElement.followingWhitespaceInternal(followingWhitespace);
-
-        // Add the element to the parent
-        parent.addNode(newElement);
-
-        // In the new whitespace capture system, we don't need to add text nodes
-        // for closing whitespace. The element's followingWhitespace property
-        // and the parent's structure will handle the formatting.
     }
 
     /**
@@ -569,7 +361,7 @@ public class Editor {
             if (node instanceof Element) {
                 return false;
             }
-            if (node instanceof Text text && !whitespaceManager.isWhitespaceOnly(text.content())) {
+            if (node instanceof Text text && !isWhitespaceOnly(text.content())) {
                 return false;
             }
         }
@@ -585,7 +377,7 @@ public class Editor {
             if (node instanceof Element) {
                 return false;
             }
-            if (node instanceof Text text && !whitespaceManager.isWhitespaceOnly(text.content())) {
+            if (node instanceof Text text && !isWhitespaceOnly(text.content())) {
                 return false;
             }
         }
@@ -607,7 +399,7 @@ public class Editor {
         // Remove following whitespace-only text nodes
         while (elementIndex < container.nodes.size()) {
             Node nextNode = container.nodes.get(elementIndex);
-            if (nextNode instanceof Text text && whitespaceManager.isWhitespaceOnly(text.content())) {
+            if (nextNode instanceof Text text && isWhitespaceOnly(text.content())) {
                 container.removeNode(text);
                 // Don't increment elementIndex since we removed a node
             } else {
@@ -641,7 +433,7 @@ public class Editor {
         int removeFromIndex = elementIndex - 1;
         while (removeFromIndex >= 0) {
             Node prevNode = container.nodes.get(removeFromIndex);
-            if (prevNode instanceof Text text && whitespaceManager.isWhitespaceOnly(text.content())) {
+            if (prevNode instanceof Text text && isWhitespaceOnly(text.content())) {
                 removeFromIndex--;
             } else {
                 break;
@@ -702,7 +494,7 @@ public class Editor {
         // Remove any remaining whitespace-only text nodes that are now redundant
         for (int i = container.nodes.size() - 1; i >= 0; i--) {
             Node node = container.nodes.get(i);
-            if (node instanceof Text text && whitespaceManager.isWhitespaceOnly(text.content())) {
+            if (node instanceof Text text && isWhitespaceOnly(text.content())) {
                 String content = text.content();
                 // Remove if it's just spaces/tabs (not structural newlines)
                 if (!content.contains(lineEnding) && content.trim().isEmpty()) {
@@ -802,8 +594,8 @@ public class Editor {
 
         Comment comment = new Comment(content != null ? content : "");
 
-        // Try to preserve indentation using WhitespaceManager
-        String indentation = whitespaceManager.inferIndentation(parent);
+        // Try to preserve indentation by inferring from parent context
+        String indentation = inferIndentation(parent);
         if (!indentation.isEmpty()) {
             comment.precedingWhitespace(lineEnding + indentation);
         }
@@ -853,7 +645,7 @@ public class Editor {
         comment.followingWhitespace(element.followingWhitespace());
 
         // Find the element's position and replace it
-        int index = findElementIndex(parent, element);
+        int index = parent.nodes.indexOf(element);
         if (index >= 0) {
             parent.removeNode(element);
             parent.insertNode(index, comment);
@@ -908,7 +700,7 @@ public class Editor {
         int lastIndex = -1;
 
         for (Element element : elements) {
-            int index = findElementIndex(parent, element);
+            int index = parent.nodes.indexOf(element);
             if (index < 0) {
                 throw new DomTripException("Element not found in parent");
             }
@@ -1003,7 +795,7 @@ public class Editor {
             }
 
             // Find the comment's position
-            int index = findCommentIndex(parent, comment);
+            int index = parent.nodes.indexOf(comment);
             if (index < 0) {
                 throw new DomTripException("Comment not found in parent");
             }
@@ -1071,78 +863,9 @@ public class Editor {
 
         Element newElement = new Element(elementName.trim());
 
-        // Handle whitespace based on context
-        String indentation = whitespaceManager.inferIndentation(parent);
-        if (!indentation.isEmpty()) {
-            // Check if there's already a text node before the insertion point
-            boolean hasTextNodeBefore = index > 0 && parent.getNode(index - 1) instanceof Text;
+        // Use centralized node insertion with automatic whitespace normalization
+        insertChild(parent, newElement, index);
 
-            if (hasTextNodeBefore && index == parent.nodeCount()) {
-                // Special case: inserting at the end with a text node before
-                // Modify the existing text node to include proper indentation
-                Text textNode = (Text) parent.getNode(index - 1);
-                String textContent = textNode.content();
-                if (textContent.endsWith(lineEnding)) {
-                    // Replace the final newline with newline + indentation
-                    textNode.content(textContent + indentation);
-                } else {
-                    // Add newline + indentation
-                    textNode.content(textContent + lineEnding + indentation);
-                }
-                // The new element doesn't need preceding whitespace
-                newElement.precedingWhitespaceInternal("");
-                // But it needs following whitespace to close the parent properly
-                newElement.followingWhitespaceInternal(lineEnding);
-            } else if (!hasTextNodeBefore) {
-                // No text node before, add proper preceding whitespace
-                // For compact XML, we need newline + indentation
-                if (index == 0) {
-                    // Inserting at the beginning - add newline + indentation
-                    newElement.precedingWhitespaceInternal(lineEnding + indentation);
-                } else {
-                    // Check if previous element has following whitespace
-                    Element prevElement = (Element) parent.getNode(index - 1);
-                    String prevFollowing = prevElement.followingWhitespace();
-                    if (prevFollowing.isEmpty()) {
-                        // Previous element has no following whitespace, add newline + indentation
-                        newElement.precedingWhitespaceInternal(lineEnding + indentation);
-                    } else {
-                        // Previous element has following whitespace, but we need to ensure proper indentation
-                        if (index == parent.nodeCount()) {
-                            // Inserting at the end - ensure proper indentation
-                            newElement.precedingWhitespaceInternal(lineEnding + indentation);
-                            // Clear previous element's following whitespace to avoid duplication
-                            prevElement.followingWhitespaceInternal("");
-                        } else {
-                            // Not at the end - transfer the whitespace
-                            newElement.precedingWhitespaceInternal(prevFollowing);
-                            // Clear previous element's following whitespace to avoid duplication
-                            prevElement.followingWhitespaceInternal("");
-                            // Give new element proper following whitespace
-                            newElement.followingWhitespaceInternal(lineEnding + indentation);
-                        }
-                    }
-
-                    // Ensure the next element (if any) has proper whitespace
-                    if (index < parent.nodeCount()) {
-                        Element nextElement = (Element) parent.getNode(index);
-                        if (nextElement.precedingWhitespace().isEmpty()) {
-                            nextElement.precedingWhitespaceInternal("");
-                        }
-                    } else {
-                        // Inserting at the end - ensure proper following whitespace
-                        newElement.followingWhitespaceInternal(lineEnding);
-                    }
-                }
-                // If inserting at the end, ensure proper following whitespace
-                if (index == parent.nodeCount()) {
-                    newElement.followingWhitespaceInternal(lineEnding);
-                }
-            }
-            // If hasTextNodeBefore && not at end, don't add any whitespace (handled by existing text node)
-        }
-
-        parent.insertNode(index, newElement);
         return newElement;
     }
 
@@ -1196,62 +919,16 @@ public class Editor {
             throw new DomTripException("Reference element has no parent");
         }
 
-        int index = findElementIndex(parent, referenceElement);
+        int index = parent.nodes.indexOf(referenceElement);
         if (index < 0) {
             throw new DomTripException("Reference element not found in parent");
         }
 
         Element newElement = new Element(elementName.trim());
 
-        // Handle whitespace for insertBefore operation
-        String indentation = whitespaceManager.inferIndentation(parent);
-        String referenceWhitespace = referenceElement.precedingWhitespace();
+        // Use centralized node insertion with automatic whitespace normalization
+        insertChild(parent, newElement, index);
 
-        // Check if there's already a text node before the insertion point
-        boolean hasTextNodeBefore = index > 0 && parent.getNode(index - 1) instanceof Text;
-
-        if (!referenceWhitespace.isEmpty()) {
-            // Transfer the reference element's whitespace to the new element
-            newElement.precedingWhitespaceInternal(referenceWhitespace);
-            // Give the reference element appropriate whitespace for its new position
-            if (!indentation.isEmpty()) {
-                referenceElement.precedingWhitespaceInternal(lineEnding + indentation);
-            } else {
-                referenceElement.precedingWhitespaceInternal("");
-            }
-        } else {
-            // If reference element has no whitespace, handle based on context
-            if (!indentation.isEmpty()) {
-                if (hasTextNodeBefore) {
-                    // Transfer the text node's content to the new element's preceding whitespace
-                    Text textNode = (Text) parent.getNode(index - 1);
-                    String textContent = textNode.content();
-                    newElement.precedingWhitespaceInternal(textContent);
-                    // Remove the text node since its content is now part of the new element
-                    parent.removeNode(textNode);
-                    // Adjust the index since we removed a node before the insertion point
-                    index--;
-                } else {
-                    // Add proper indentation with newline for compact XML
-                    newElement.precedingWhitespaceInternal(lineEnding + indentation);
-                }
-                // The reference element needs whitespace for its new position if it doesn't have any
-                if (referenceElement.precedingWhitespace().isEmpty()) {
-                    referenceElement.precedingWhitespaceInternal(lineEnding + indentation);
-                }
-            }
-        }
-
-        // Normalize reference element to use explicit closing tags for consistency
-        if (referenceElement.selfClosing() && referenceElement.nodeCount() == 0) {
-            referenceElement.selfClosing(false);
-            // Ensure proper following whitespace when converting from self-closing
-            if (referenceElement.followingWhitespace().isEmpty()) {
-                referenceElement.followingWhitespaceInternal(lineEnding);
-            }
-        }
-
-        parent.insertNode(index, newElement);
         return newElement;
     }
 
@@ -1304,70 +981,16 @@ public class Editor {
             throw new DomTripException("Reference element has no parent");
         }
 
-        int index = findElementIndex(parent, referenceElement);
+        int index = parent.nodes.indexOf(referenceElement);
         if (index < 0) {
             throw new DomTripException("Reference element not found in parent");
         }
 
         Element newElement = new Element(elementName.trim());
 
-        // Handle whitespace for insertAfter operation
-        String indentation = whitespaceManager.inferIndentation(parent);
+        // Use centralized node insertion with automatic whitespace normalization
+        insertChild(parent, newElement, index + 1);
 
-        // Check if there's a text node after the insertion point
-        boolean hasTextNodeAfter = (index + 1) < parent.nodeCount() && parent.getNode(index + 1) instanceof Text;
-
-        if (!indentation.isEmpty()) {
-            // For insertAfter, we need to handle the whitespace transfer properly
-            if (hasTextNodeAfter) {
-                // There's a text node after - transfer its whitespace to the new element
-                Text textNode = (Text) parent.getNode(index + 1);
-                String textContent = textNode.content();
-                newElement.precedingWhitespaceInternal(textContent);
-                // Remove the text node since its content is now part of the new element
-                parent.removeNode(textNode);
-            } else if ((index + 1) < parent.nodeCount()) {
-                // There's an element after - we need to insert between elements
-                // The new element should have proper indentation and no following whitespace
-                newElement.precedingWhitespaceInternal(lineEnding + indentation);
-                // Clear the reference element's following whitespace to avoid duplication
-                referenceElement.followingWhitespaceInternal("");
-                // Ensure the next element gets proper preceding whitespace
-                Element nextElement = (Element) parent.getNode(index + 1);
-                if (nextElement.precedingWhitespace().isEmpty()) {
-                    nextElement.precedingWhitespaceInternal(lineEnding + indentation);
-                }
-            } else {
-                // Inserting at the end - check if we need to format the reference element
-                if (referenceElement.precedingWhitespace().isEmpty()) {
-                    // This is compact XML, format the reference element too
-                    referenceElement.precedingWhitespaceInternal(lineEnding + indentation);
-                }
-                // Clear the reference element's following whitespace to avoid duplication
-                referenceElement.followingWhitespaceInternal("");
-                newElement.precedingWhitespaceInternal(lineEnding + indentation);
-                // For the last element, check if we need to set following whitespace to properly indent the parent's
-                // closing tag
-                // Only do this if the parent has multiple children and proper indentation structure
-                if (parent.nodeCount() > 1 && parent.parent() != null) {
-                    String parentIndentation = whitespaceManager.inferIndentation(parent.parent());
-                    if (!parentIndentation.isEmpty()) {
-                        newElement.followingWhitespaceInternal(lineEnding + parentIndentation);
-                    } else {
-                        newElement.followingWhitespaceInternal(lineEnding);
-                    }
-                } else {
-                    newElement.followingWhitespaceInternal(lineEnding);
-                }
-            }
-        }
-
-        // Normalize reference element to use explicit closing tags for consistency
-        if (referenceElement.selfClosing() && referenceElement.nodeCount() == 0) {
-            referenceElement.selfClosing(false);
-        }
-
-        parent.insertNode(index + 1, newElement);
         return newElement;
     }
 
@@ -1390,38 +1013,6 @@ public class Editor {
     }
 
     // ========== HELPER METHODS ==========
-
-    /**
-     * Finds the index of an element within its parent's child list.
-     *
-     * @param parent the parent container
-     * @param element the element to find
-     * @return the index of the element, or -1 if not found
-     */
-    private int findElementIndex(ContainerNode parent, Element element) {
-        for (int i = 0; i < parent.nodeCount(); i++) {
-            if (parent.getNode(i) == element) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Finds the index of a comment within its parent's child list.
-     *
-     * @param parent the parent container
-     * @param comment the comment to find
-     * @return the index of the comment, or -1 if not found
-     */
-    private int findCommentIndex(ContainerNode parent, Comment comment) {
-        for (int i = 0; i < parent.nodeCount(); i++) {
-            if (parent.getNode(i) == comment) {
-                return i;
-            }
-        }
-        return -1;
-    }
 
     /**
      * Detects the indentation unit (tab vs spaces) from existing indentation.
@@ -1683,15 +1274,6 @@ public class Editor {
     }
 
     /**
-     * Gets the whitespace manager used by this editor.
-     *
-     * @return the WhitespaceManager instance
-     */
-    public WhitespaceManager whitespaceManager() {
-        return whitespaceManager;
-    }
-
-    /**
      * Creates a fluent builder for adding nodes.
      */
     public NodeBuilder add() {
@@ -1877,7 +1459,7 @@ public class Editor {
             }
 
             // Use Editor's whitespace management
-            String indentation = editor.whitespaceManager().inferIndentation(parent);
+            String indentation = editor.inferIndentation(parent);
             if (!indentation.isEmpty()) {
                 element.precedingWhitespace(editor.lineEnding + indentation);
             }
@@ -1938,7 +1520,7 @@ public class Editor {
             }
 
             // Use Editor's whitespace management
-            String indentation = editor.whitespaceManager().inferIndentation(parent);
+            String indentation = editor.inferIndentation(parent);
             if (!indentation.isEmpty()) {
                 comment.precedingWhitespace(editor.lineEnding + indentation);
             }
@@ -2233,5 +1815,280 @@ public class Editor {
         }
 
         return false; // Namespace not found in hierarchy
+    }
+
+    // ========== NODE INSERTION METHODS ==========
+    // Centralized node insertion with automatic whitespace normalization
+
+    /**
+     * Inserts a node at the specified index in the parent and normalizes whitespace.
+     * This is the central method that all node insertions should go through.
+     *
+     * @param parent the parent container to insert into
+     * @param newElement the node to insert
+     * @param index the index at which to insert the node
+     */
+    private void insertChild(ContainerNode parent, Element newElement, int index) {
+        index = normalizeWhitespaces(parent, index);
+        int count = parent.nodeCount();
+        String properIndentation = inferElementIndentation(parent);
+
+        if (count == 0) {
+            // Case 1: Inserting into empty parent
+            // Set up proper indentation for the new element and closing whitespace for parent
+            if (!properIndentation.isEmpty()) {
+                newElement.precedingWhitespace(lineEnding + properIndentation);
+                if (parent instanceof Element parentElement) {
+                    String parentIndentation = getElementIndentation(parentElement);
+                    newElement.followingWhitespace(lineEnding + parentIndentation);
+                }
+            }
+
+        } else if (index == 0) {
+            // Case 2: Inserting at the beginning
+            // Transfer any existing preceding whitespace from the first element to the new element
+            Node firstNode = parent.nodes.get(0);
+            if (firstNode instanceof Element firstElement) {
+                String existingPreceding = firstElement.precedingWhitespace();
+                if (!existingPreceding.isEmpty()) {
+                    newElement.precedingWhitespace(existingPreceding);
+                    // Clear the first element's preceding whitespace to avoid duplication
+                    firstElement.precedingWhitespace("");
+                } else if (!properIndentation.isEmpty()) {
+                    // No existing whitespace, set proper indentation
+                    newElement.precedingWhitespace(lineEnding + properIndentation);
+                }
+
+                // Ensure the first element gets proper preceding whitespace for its new position
+                if (!properIndentation.isEmpty()) {
+                    firstElement.precedingWhitespace(lineEnding + properIndentation);
+                    // Clear new element's following whitespace to avoid duplication
+                    newElement.followingWhitespace("");
+                }
+            }
+
+        } else if (index == count) {
+            // Case 3: Inserting at the end
+            // Set proper indentation for the new element
+            if (!properIndentation.isEmpty()) {
+                newElement.precedingWhitespace(lineEnding + properIndentation);
+            }
+
+            // Transfer any closing whitespace from the last element to the new element
+            Node lastNode = parent.nodes.get(count - 1);
+            if (lastNode instanceof Element lastElement) {
+                String existingFollowing = lastElement.followingWhitespace();
+                if (!existingFollowing.isEmpty()) {
+                    newElement.followingWhitespace(existingFollowing);
+                    // Clear the last element's following whitespace to avoid duplication
+                    lastElement.followingWhitespace("");
+                } else if (parent instanceof Element parentElement) {
+                    // Set up proper closing whitespace
+                    String parentIndentation = getElementIndentation(parentElement);
+                    if (!parentIndentation.isEmpty()) {
+                        newElement.followingWhitespace(lineEnding + parentIndentation);
+                    }
+                }
+
+                // Clear previous element's following whitespace since we set new element's preceding
+                if (!newElement.precedingWhitespace().isEmpty()) {
+                    lastElement.followingWhitespace("");
+                }
+            }
+
+        } else {
+            // Case 4: Inserting in the middle
+            // Normalize whitespace: either previous element has followingWhitespace OR new element has
+            // precedingWhitespace
+
+            Node prevNode = parent.nodes.get(index - 1);
+            Node nextNode = parent.nodes.get(index);
+
+            if (prevNode instanceof Element prevElement && nextNode instanceof Element nextElement) {
+                // Check if there's existing whitespace between the elements
+                String prevFollowing = prevElement.followingWhitespace();
+                String nextPreceding = nextElement.precedingWhitespace();
+
+                if (!prevFollowing.isEmpty()) {
+                    // Previous element has following whitespace - transfer it to new element's preceding
+                    newElement.precedingWhitespace(prevFollowing);
+                    prevElement.followingWhitespace("");
+                } else if (!nextPreceding.isEmpty()) {
+                    // Next element has preceding whitespace - use it for new element
+                    newElement.precedingWhitespace(nextPreceding);
+                    nextElement.precedingWhitespace("");
+                } else if (!properIndentation.isEmpty()) {
+                    // No existing whitespace - set proper indentation
+                    newElement.precedingWhitespace(lineEnding + properIndentation);
+                }
+
+                // Ensure the next element has proper preceding whitespace
+                if (nextElement.precedingWhitespace().isEmpty() && !properIndentation.isEmpty()) {
+                    nextElement.precedingWhitespace(lineEnding + properIndentation);
+                    // Clear new element's following whitespace to avoid duplication
+                    newElement.followingWhitespace("");
+                }
+            }
+        }
+
+        parent.insertNode(index, newElement);
+    }
+
+    /**
+     * Normalizes whitespace by converting Text node whitespaces to element whitespace properties.
+     * This gives us a cleaner state to work with before insertion.
+     *
+     * @param parent the parent element to normalize
+     */
+    private int normalizeWhitespaces(ContainerNode parent, int index) {
+        if (!(parent instanceof Element parentElement)) {
+            return index;
+        }
+
+        // Convert whitespace-only Text nodes to element whitespace properties
+        for (int i = 0; i < parent.nodes.size(); i++) {
+            Node node = parent.nodes.get(i);
+
+            if (node instanceof Text textNode && isWhitespaceOnly(textNode.content())) {
+                // This is a whitespace-only text node
+                String whitespace = textNode.content();
+                if (index > i) {
+                    index--;
+                }
+                if (i == 0) {
+                    // First node - this is inner following whitespace for the parent
+                    parentElement.innerFollowingWhitespaceInternal(whitespace);
+                    parent.removeNode(textNode);
+                    i--; // Adjust index since we removed a node
+                } else if (i == parent.nodes.size() - 1) {
+                    // Last node - this is inner preceding whitespace for the parent
+                    parentElement.innerPrecedingWhitespaceInternal(whitespace);
+                    parent.removeNode(textNode);
+                    i--; // Adjust index since we removed a node
+                } else {
+                    // Middle node - transfer to preceding whitespace of next element
+                    Node nextNode = parent.nodes.get(i + 1);
+                    if (nextNode instanceof Element nextElement) {
+                        nextElement.precedingWhitespaceInternal(whitespace);
+                        parent.removeNode(textNode);
+                        i--; // Adjust index since we removed a node
+                    }
+                }
+            }
+        }
+        return index;
+    }
+
+    /**
+     * Infers the proper indentation for an element based on its context.
+     */
+    private String inferElementIndentation(ContainerNode container) {
+        // First try to get indentation from sibling elements
+        for (Node sibling : container.nodes) {
+            if (sibling instanceof Element siblingElement) {
+                String siblingIndent = getElementIndentation(siblingElement);
+                if (!siblingIndent.isEmpty()) {
+                    return siblingIndent;
+                }
+            }
+        }
+
+        // If no siblings, infer from parent context
+        if (container instanceof Element parentElement) {
+            String parentIndent = getElementIndentation(parentElement);
+            if (!parentIndent.isEmpty()) {
+                String indentUnit = detectIndentationUnit(parentIndent);
+                return parentIndent + indentUnit;
+            }
+        }
+
+        // Fallback to config default
+        return config.indentString();
+    }
+
+    public void addBlankLineBefore(Element element) {
+        int index = element.parent().nodes.indexOf(element);
+        if (index > 0) {
+            Node prev = element.parent().nodes.get(index - 1);
+            prev.followingWhitespace(lineEnding + prev.followingWhitespace());
+        } else if (element.parent() instanceof Element parentElement) {
+            parentElement.innerFollowingWhitespace(lineEnding + element.followingWhitespace());
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    public void addBlankLineAfter(Element element) {
+        String currentFollowing = element.followingWhitespace();
+        // Add an extra newline to create a blank line
+        element.followingWhitespace(lineEnding + currentFollowing);
+    }
+
+    /**
+     * Infers the indentation pattern from the context of a node.
+     * This replaces the WhitespaceManager.inferIndentation method.
+     */
+    private String inferIndentation(Node context) {
+        if (context == null) {
+            return config.indentString();
+        }
+
+        // First, look for indentation patterns in the node's children
+        if (context instanceof ContainerNode container) {
+            for (Node child : container.nodes) {
+                // Check preceding whitespace
+                String precedingWs = child.precedingWhitespace();
+                if (precedingWs != null && precedingWs.contains("\n")) {
+                    // Extract indentation after the last newline
+                    int lastNewline = precedingWs.lastIndexOf('\n');
+                    if (lastNewline >= 0 && lastNewline < precedingWs.length() - 1) {
+                        return precedingWs.substring(lastNewline + 1);
+                    }
+                }
+            }
+        }
+
+        // If no children, look at siblings (for when context is a child node)
+        Node parent = context.parent();
+        if (parent instanceof ContainerNode parentContainer) {
+            for (Node sibling : parentContainer.nodes) {
+                String precedingWs = sibling.precedingWhitespace();
+                if (precedingWs != null && precedingWs.contains("\n")) {
+                    // Extract indentation after the last newline
+                    int lastNewline = precedingWs.lastIndexOf('\n');
+                    if (lastNewline >= 0 && lastNewline < precedingWs.length() - 1) {
+                        return precedingWs.substring(lastNewline + 1);
+                    }
+                }
+            }
+        }
+
+        // Fallback to configured indent string
+        return config.indentString();
+    }
+
+    /**
+     * Gets the indentation of an element by examining its preceding whitespace.
+     */
+    private String getElementIndentation(Element element) {
+        String whitespace = element.precedingWhitespace();
+        if (whitespace.isEmpty()) {
+            return "";
+        }
+
+        int lastNewline = whitespace.lastIndexOf('\n');
+        if (lastNewline >= 0) {
+            return whitespace.substring(lastNewline + 1);
+        }
+
+        return "";
+    }
+
+    /**
+     * Checks if the given content contains only whitespace.
+     * This replaces the WhitespaceManager.isWhitespaceOnly method.
+     */
+    boolean isWhitespaceOnly(String content) {
+        return content == null || content.trim().isEmpty();
     }
 }

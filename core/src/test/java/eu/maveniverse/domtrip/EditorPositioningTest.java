@@ -61,8 +61,18 @@ class EditorPositioningTest {
 
     @Test
     void testInsertElementAtWithTextContent() throws DomTripException {
-        String xml = "<root><first/><third/></root>";
-        String expected = "<root><first/>\n    <second>content2</second><third/></root>";
+        String xml = """
+            <root>
+                <first/>
+                <third/>
+            </root>""";
+        String expected =
+                """
+            <root>
+                <first/>
+                <second>content2</second>
+                <third/>
+            </root>""";
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
@@ -111,12 +121,15 @@ class EditorPositioningTest {
 
     @Test
     void testInsertElementBeforeWithTextContent() throws DomTripException {
-        String xml = "<root><existing/></root>";
+        String xml = """
+            <root>
+                <existing/>
+            </root>""";
         String expected =
                 """
             <root>
                 <newElement>new content</newElement>
-                <existing></existing>
+                <existing/>
             </root>""";
 
         Document doc = Document.of(xml);
@@ -166,11 +179,14 @@ class EditorPositioningTest {
 
     @Test
     void testInsertElementAfterWithTextContent() throws DomTripException {
-        String xml = "<root><existing/></root>";
+        String xml = """
+            <root>
+                <existing/>
+            </root>""";
         String expected =
                 """
             <root>
-                <existing></existing>
+                <existing/>
                 <newElement>new content</newElement>
             </root>""";
 
@@ -178,7 +194,7 @@ class EditorPositioningTest {
         editor = new Editor(doc);
         Element existing = doc.root().child("existing").orElseThrow();
 
-        editor.insertElementAfter(existing, "newElement", "new content");
+        editor.insertElementAfter(existing, "newElement").textContent("new content");
 
         String result = editor.toXml();
         assertEquals(expected, result);

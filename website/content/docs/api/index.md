@@ -19,6 +19,23 @@ The Editor API provides a fluent interface for creating and modifying XML docume
 - **Text content handling**
 - **Comment and processing instruction support**
 
+### [Element API](element/)
+The Element API provides comprehensive methods for XML element manipulation with formatting preservation.
+
+- **Element creation and modification**
+- **Attribute management with quote style preservation**
+- **Text content with whitespace preservation**
+- **Inner whitespace control for formatting**
+- **Namespace-aware operations**
+
+### [Document API](document/)
+The Document API manages XML documents and document-level properties.
+
+- **Document creation and parsing**
+- **XML declaration management**
+- **DOCTYPE support**
+- **Root element management**
+
 ### [Configuration](configuration/)
 Configuration options for customizing DomTrip's behavior.
 

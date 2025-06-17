@@ -79,6 +79,7 @@ public final class MavenPomElements {
         public static final String OUTPUT_DIRECTORY = "outputDirectory";
         public static final String TEST_OUTPUT_DIRECTORY = "testOutputDirectory";
         public static final String EXTENSIONS = "extensions";
+        public static final String EXTENSION = "extension";
         public static final String EXECUTIONS = "executions";
         public static final String GOALS = "goals";
         public static final String INHERITED = "inherited";

@@ -366,4 +366,53 @@ class EditorPositioningTest {
         String result = editor.toXml();
         assertEquals(expected, result);
     }
+
+    @Test
+    void testSimpleAppendScenario() throws DomTripException {
+        String xml =
+                """
+            <root>
+                <dependencies>
+                    <dependency>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </dependency>
+                </dependencies>
+            </root>""";
+        String expected =
+                """
+            <root>
+                <dependencies>
+                    <dependency>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.mockito</groupId>
+                        <artifactId>mockito-core</artifactId>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.hamcrest</groupId>
+                        <artifactId>hamcrest-core</artifactId>
+                    </dependency>
+                </dependencies>
+            </root>""";
+
+        Document doc = Document.of(xml);
+        editor = new Editor(doc);
+        Element dependencies = doc.root().child("dependencies").orElseThrow();
+
+        // Insert before existing dependency
+        Element newDep1 = editor.addElement(dependencies, "dependency");
+        editor.addElement(newDep1, "groupId", "org.mockito");
+        editor.addElement(newDep1, "artifactId", "mockito-core");
+
+        // Insert after existing dependency
+        Element newDep2 = editor.insertElementAfter(dependencies, "dependency");
+        editor.addElement(newDep2, "groupId", "org.hamcrest");
+        editor.addElement(newDep2, "artifactId", "hamcrest-core");
+
+        String result = editor.toXml();
+        assertEquals(expected, result);
+    }
 }

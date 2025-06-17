@@ -236,10 +236,9 @@ public class Parser {
 
                     // Check if this is whitespace-only content
                     if (isWhitespaceOnly(decodedText)) {
-                        // This is whitespace that should be captured as node whitespace
-                        // We'll handle this when we parse the next element
+                        // This is whitespace that should be captured as element whitespace
+                        // We'll handle this when we parse the next element or closing tag
                         // For now, store it for the next element to use as precedingWhitespace
-                        // But we still need to create a text node for mixed content scenarios
                         Text textNode = new Text(decodedText, rawText);
                         ContainerNode current = (ContainerNode) nodeStack.peek();
                         current.addNodeInternal(textNode);
@@ -286,6 +285,11 @@ public class Parser {
                             current.addNodeInternal(piNode);
                         }
                     } else if (nextChar == '/') {
+                        // Before parsing closing tag, handle inner whitespace for the current element
+                        if (!nodeStack.isEmpty() && nodeStack.peek() instanceof Element currentElement) {
+                            captureInnerWhitespace(currentElement);
+                        }
+
                         // Parse closing tag and capture following whitespace
                         Element closedElement = parseClosingTag(nodeStack);
                         if (closedElement != null) {
@@ -621,6 +625,56 @@ public class Parser {
             // Reset position if we didn't capture the whitespace
             position = savedPosition;
         }
+    }
+
+    /**
+     * Captures inner whitespace for an element that contains only whitespace-only Text nodes.
+     * This converts whitespace Text nodes to inner whitespace fields when appropriate.
+     */
+    private void captureInnerWhitespace(Element element) {
+        if (element.nodes.isEmpty()) {
+            return; // No children to process
+        }
+
+        // Check if all children are whitespace-only Text nodes
+        boolean allWhitespace =
+                element.nodes.stream().allMatch(node -> node instanceof Text text && isWhitespaceOnly(text.content()));
+
+        if (allWhitespace) {
+            if (element.nodes.size() == 1) {
+                // Single whitespace-only Text node - convert to inner whitespace
+                Text textNode = (Text) element.nodes.get(0);
+                String whitespace = textNode.content();
+
+                // Split the whitespace: first part goes to innerFollowingWhitespace,
+                // last part goes to innerPrecedingWhitespace
+                String[] lines = whitespace.split("\\r?\\n", -1);
+                if (lines.length > 1) {
+                    // Multi-line whitespace
+                    element.innerFollowingWhitespaceInternal("\n" + lines[1]);
+                    if (lines.length > 2) {
+                        element.innerPrecedingWhitespaceInternal("\n" + lines[lines.length - 1]);
+                    }
+                } else {
+                    // Single line whitespace - put it all in innerFollowingWhitespace
+                    element.innerFollowingWhitespaceInternal(whitespace);
+                }
+
+                // Remove the Text node
+                element.nodes.clear();
+            } else if (element.nodes.size() > 1) {
+                // Multiple whitespace-only Text nodes - convert first and last
+                Text firstText = (Text) element.nodes.get(0);
+                Text lastText = (Text) element.nodes.get(element.nodes.size() - 1);
+
+                element.innerFollowingWhitespaceInternal(firstText.content());
+                element.innerPrecedingWhitespaceInternal(lastText.content());
+
+                // Remove all Text nodes
+                element.nodes.clear();
+            }
+        }
+        // If there are mixed content (Text and Element nodes), leave them as is
     }
 
     /**

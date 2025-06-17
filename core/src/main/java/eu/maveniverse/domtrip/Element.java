@@ -78,6 +78,8 @@ public class Element extends ContainerNode {
     private Map<String, Attribute> attributes;
     private String openTagWhitespace; // Whitespace within the opening tag
     private String closeTagWhitespace; // Whitespace within the closing tag
+    private String innerFollowingWhitespace; // Whitespace immediately after the opening tag
+    private String innerPrecedingWhitespace; // Whitespace immediately before the closing tag
     private boolean selfClosing;
     private String originalOpenTag; // Original opening tag for reference
     private String originalCloseTag; // Original closing tag for reference
@@ -101,6 +103,8 @@ public class Element extends ContainerNode {
         this.attributes = new LinkedHashMap<>(); // Preserve attribute order
         this.openTagWhitespace = "";
         this.closeTagWhitespace = "";
+        this.innerFollowingWhitespace = "";
+        this.innerPrecedingWhitespace = "";
         this.selfClosing = false;
         this.originalOpenTag = "";
         this.originalCloseTag = "";
@@ -408,6 +412,111 @@ public class Element extends ContainerNode {
     }
 
     /**
+     * Gets the whitespace immediately after the opening tag.
+     *
+     * <p>This field is used for elements that contain only whitespace content
+     * (no child elements). Instead of creating Text nodes for whitespace,
+     * DomTrip stores it as element properties for a cleaner model.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // XML: <parent>\n    \n</parent>
+     * String whitespace = element.innerFollowingWhitespace(); // "\n    "
+     * }</pre>
+     *
+     * @return the inner following whitespace, or empty string if none
+     * @see #innerPrecedingWhitespace()
+     * @see #precedingWhitespace()
+     * @see #followingWhitespace()
+     */
+    public String innerFollowingWhitespace() {
+        return innerFollowingWhitespace;
+    }
+
+    /**
+     * Sets the whitespace immediately after the opening tag.
+     *
+     * <p>Use this method to control the whitespace that appears immediately
+     * after the opening tag in elements that contain only whitespace content.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * element.innerFollowingWhitespace("\n  ");
+     * // Results in: <element>\n  \n</element> (with innerPrecedingWhitespace)
+     * }</pre>
+     *
+     * @param whitespace the whitespace to set (null is treated as empty string)
+     * @return this element for method chaining
+     * @see #innerFollowingWhitespace()
+     * @see #innerPrecedingWhitespace(String)
+     */
+    public Element innerFollowingWhitespace(String whitespace) {
+        this.innerFollowingWhitespace = whitespace != null ? whitespace : "";
+        markModified();
+        return this;
+    }
+
+    /**
+     * Sets inner following whitespace without marking as modified (for use during parsing)
+     */
+    void innerFollowingWhitespaceInternal(String whitespace) {
+        this.innerFollowingWhitespace = whitespace != null ? whitespace : "";
+    }
+
+    /**
+     * Gets the whitespace immediately before the closing tag.
+     *
+     * <p>This field is used for elements that contain only whitespace content
+     * (no child elements). It represents the whitespace that appears just
+     * before the closing tag, typically used for proper indentation.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // XML: <parent>\n    \n</parent>
+     * String whitespace = element.innerPrecedingWhitespace(); // "\n"
+     * }</pre>
+     *
+     * @return the inner preceding whitespace, or empty string if none
+     * @see #innerFollowingWhitespace()
+     * @see #precedingWhitespace()
+     * @see #followingWhitespace()
+     */
+    public String innerPrecedingWhitespace() {
+        return innerPrecedingWhitespace;
+    }
+
+    /**
+     * Sets the whitespace immediately before the closing tag.
+     *
+     * <p>Use this method to control the whitespace that appears immediately
+     * before the closing tag in elements that contain only whitespace content.
+     * This is typically used for proper indentation of the closing tag.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * element.innerPrecedingWhitespace("\n");
+     * // Results in: <element>\n  \n</element> (with innerFollowingWhitespace)
+     * }</pre>
+     *
+     * @param whitespace the whitespace to set (null is treated as empty string)
+     * @return this element for method chaining
+     * @see #innerPrecedingWhitespace()
+     * @see #innerFollowingWhitespace(String)
+     */
+    public Element innerPrecedingWhitespace(String whitespace) {
+        this.innerPrecedingWhitespace = whitespace != null ? whitespace : "";
+        markModified();
+        return this;
+    }
+
+    /**
+     * Sets inner preceding whitespace without marking as modified (for use during parsing)
+     */
+    void innerPrecedingWhitespaceInternal(String whitespace) {
+        this.innerPrecedingWhitespace = whitespace != null ? whitespace : "";
+    }
+
+    /**
      * Checks if this element is self-closing.
      *
      * @return true if the element is self-closing, false otherwise
@@ -496,7 +605,7 @@ public class Element extends ContainerNode {
                 // Extract opening tag from original
                 int closeIndex = originalOpenTag.indexOf('>');
                 if (closeIndex > 0) {
-                    sb.append(originalOpenTag.substring(0, closeIndex + 1));
+                    sb.append(originalOpenTag, 0, closeIndex + 1);
                 } else {
                     sb.append(originalOpenTag);
                 }
@@ -532,10 +641,16 @@ public class Element extends ContainerNode {
         } else {
             sb.append(openTagWhitespace).append(">");
 
+            // Add inner following whitespace (after opening tag)
+            sb.append(innerFollowingWhitespace);
+
             // Add children
             for (Node child : nodes) {
                 child.toXml(sb);
             }
+
+            // Add inner preceding whitespace (before closing tag)
+            sb.append(innerPrecedingWhitespace);
 
             // Add closing tag
             sb.append("</").append(closeTagWhitespace).append(name).append(">");

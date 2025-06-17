@@ -220,15 +220,22 @@ public class PomEditor extends AbstractMavenEditor {
         boolean needsBlankLineBefore = needsBlankLineBefore(order, elementIndex);
         boolean needsBlankLineAfter = needsBlankLineAfter(order, elementIndex);
 
-        // Insert the element at the correct position with enhanced formatting
+        // Insert the element at the correct position
+        Element newElement;
         if (insertBefore != null) {
-            return insertElementBefore(insertBefore, elementName);
+            newElement = insertElementBefore(insertBefore, elementName);
         } else if (insertAfter != null) {
-            return insertElementAfter(insertAfter, elementName);
+            newElement = insertElementAfter(insertAfter, elementName);
         } else {
-            // No reference elements found, use enhanced whitespace control
-            return addElement(parent, elementName, needsBlankLineBefore, needsBlankLineAfter);
+            newElement = addElement(parent, elementName);
         }
+        if (needsBlankLineBefore) {
+            addBlankLineBefore(newElement);
+        }
+        if (needsBlankLineAfter) {
+            addBlankLineAfter(newElement);
+        }
+        return newElement;
     }
 
     /**

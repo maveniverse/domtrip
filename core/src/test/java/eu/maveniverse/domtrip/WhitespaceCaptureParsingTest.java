@@ -66,10 +66,9 @@ class WhitespaceCaptureParsingTest {
 
         System.out.println("\n=== Node Following Whitespace Capture Test ===");
         System.out.println("XML: " + xml);
-        System.out.println("child followingWhitespace: '" + child.followingWhitespace() + "'");
         System.out.println("Expected: '\\n' (newline)");
 
-        assertEquals("\n", child.followingWhitespace(), "Should capture following whitespace");
+        assertEquals("\n", root.innerPrecedingWhitespace(), "Should capture following whitespace");
     }
 
     @Test
@@ -86,11 +85,9 @@ class WhitespaceCaptureParsingTest {
 
         System.out.println("parent precedingWhitespace: '" + parent.precedingWhitespace() + "'");
         System.out.println("parent openTagWhitespace: '" + parent.openTagWhitespace() + "'");
-        System.out.println("parent followingWhitespace: '" + parent.followingWhitespace() + "'");
 
         System.out.println("child precedingWhitespace: '" + child.precedingWhitespace() + "'");
         System.out.println("child closeTagWhitespace: '" + child.closeTagWhitespace() + "'");
-        System.out.println("child followingWhitespace: '" + child.followingWhitespace() + "'");
 
         // Test some of the captured whitespace
         assertEquals("\n  ", parent.precedingWhitespace(), "Parent should have preceding whitespace");

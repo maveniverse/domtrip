@@ -137,9 +137,6 @@ public class ProcessingInstruction extends Node {
             }
             sb.append("?>");
         }
-
-        // Add following whitespace
-        sb.append(followingWhitespace);
     }
 
     @Override

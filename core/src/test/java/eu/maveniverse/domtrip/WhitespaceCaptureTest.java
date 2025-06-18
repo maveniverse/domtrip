@@ -40,10 +40,6 @@ class WhitespaceCaptureTest {
         String precedingWs = firstElement.precedingWhitespace();
         assertNotNull(precedingWs, "Preceding whitespace should not be null");
         // Should contain whitespace from after the comment to before the element
-
-        // Test following whitespace
-        String followingWs = firstElement.followingWhitespace();
-        assertNotNull(followingWs, "Following whitespace should not be null");
     }
 
     @Test
@@ -161,7 +157,6 @@ class WhitespaceCaptureTest {
 
         // Test root element whitespace
         assertNotNull(root.precedingWhitespace(), "Root preceding whitespace should not be null");
-        assertNotNull(root.followingWhitespace(), "Root following whitespace should not be null");
 
         // Test root attributes
         Attribute nsAttr = root.attributeObject("xmlns:ns");
@@ -184,7 +179,6 @@ class WhitespaceCaptureTest {
         Element child = element.child("child").orElse(null);
         if (child != null) {
             assertNotNull(child.precedingWhitespace(), "Child preceding whitespace should not be null");
-            assertNotNull(child.followingWhitespace(), "Child following whitespace should not be null");
         }
     }
 
@@ -244,13 +238,11 @@ class WhitespaceCaptureTest {
 
         // Even with minimal whitespace, the fields should be initialized
         assertNotNull(element.precedingWhitespace(), "Preceding whitespace should not be null");
-        assertNotNull(element.followingWhitespace(), "Following whitespace should not be null");
         assertNotNull(element.openTagWhitespace(), "Open tag whitespace should not be null");
         assertNotNull(element.closeTagWhitespace(), "Close tag whitespace should not be null");
 
         // With minimal whitespace, these should be empty strings
         assertEquals("", element.precedingWhitespace(), "Should have empty preceding whitespace");
-        assertEquals("", element.followingWhitespace(), "Should have empty following whitespace");
         assertEquals("", element.openTagWhitespace(), "Should have empty open tag whitespace");
         assertEquals("", element.closeTagWhitespace(), "Should have empty close tag whitespace");
     }
@@ -282,12 +274,10 @@ class WhitespaceCaptureTest {
         assertEquals("   ", root.openTagWhitespace(), "FIXED: Open tag whitespace now captured!");
         assertEquals("", root.closeTagWhitespace(), "Root close tag has no whitespace");
         assertEquals("", root.precedingWhitespace(), "Root has no preceding whitespace (first element)");
-        assertEquals("", root.followingWhitespace(), "Root has no following whitespace (last element)");
 
         assertEquals("   ", child.openTagWhitespace(), "FIXED: Child open tag whitespace now captured!");
         assertEquals("   ", child.closeTagWhitespace(), "FIXED: Child close tag whitespace now captured!");
         assertEquals("\n    ", child.precedingWhitespace(), "FIXED: Child preceding whitespace now captured!");
-        assertEquals("\n", child.followingWhitespace(), "FIXED: Child following whitespace now captured!");
 
         // Document what should be captured when implemented:
         // - root.openTagWhitespace() should be "   " (spaces before >)
@@ -317,10 +307,6 @@ class WhitespaceCaptureTest {
         element.clearModified();
         assertFalse(element.isModified(), "Element should not be modified after clearing");
 
-        // FIXED: followingWhitespace() setter now calls markModified()
-        element.followingWhitespace("  ");
-        assertTrue(element.isModified(), "FIXED: followingWhitespace now marks as modified");
-
         // Test modifying element-level whitespace
         element.clearModified();
         element.openTagWhitespace(" ");
@@ -344,9 +330,9 @@ class WhitespaceCaptureTest {
 
         // Set whitespace on the new element
         newElement.precedingWhitespace("\n    ");
-        newElement.followingWhitespace("\n");
         newElement.openTagWhitespace(" ");
         newElement.closeTagWhitespace(" ");
+        root.innerPrecedingWhitespace("\n");
 
         // Add to document
         root.addNode(newElement);
@@ -400,7 +386,6 @@ class WhitespaceCaptureTest {
 
         // Set whitespace fields
         element.precedingWhitespace("  ");
-        element.followingWhitespace("  ");
         element.openTagWhitespace(" ");
         element.closeTagWhitespace(" ");
 
@@ -410,14 +395,7 @@ class WhitespaceCaptureTest {
         String result = editor.toXml();
 
         // Check what actually works
-        assertTrue(result.contains("  <element"), "Should use precedingWhitespace (WORKS)");
-        assertTrue(result.contains(">  "), "Should use followingWhitespace (WORKS)");
-
-        // openTagWhitespace works!
-        assertTrue(result.contains("<element "), "openTagWhitespace IS used (WORKS!)");
-
-        // FIXED: closeTagWhitespace now works too!
-        assertTrue(result.contains("</ element>"), "FIXED: closeTagWhitespace now works!");
+        assertEquals("  <element test=\"value\" >content</ element>", result);
     }
 
     @Test
@@ -431,10 +409,6 @@ class WhitespaceCaptureTest {
         assertTrue(element.isModified(), "precedingWhitespace should mark as modified (WORKS)");
 
         // Clear and test other setters - these should now work after bug fixes
-        element.clearModified();
-        element.followingWhitespace("  ");
-        assertTrue(element.isModified(), "FIXED: followingWhitespace now marks as modified");
-
         element.clearModified();
         element.openTagWhitespace("  ");
         assertTrue(element.isModified(), "FIXED: openTagWhitespace now marks as modified");

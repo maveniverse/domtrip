@@ -587,7 +587,6 @@ public class Serializer {
             sb.append(" ").append(pi.data());
         }
         sb.append("?>");
-        sb.append(pi.followingWhitespace());
     }
 
     private void serializeProcessingInstructionPretty(ProcessingInstruction pi, StringBuilder sb, int depth) {

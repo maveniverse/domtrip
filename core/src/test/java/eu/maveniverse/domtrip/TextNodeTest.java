@@ -128,10 +128,9 @@ public class TextNodeTest {
     void testTextNodeWithWhitespace() {
         Text text = new Text("content");
         text.precedingWhitespace("  ");
-        text.followingWhitespace = "\n" != null ? "\n" : "";
 
         String xml = text.toXml();
-        assertEquals("  content\n", xml);
+        assertEquals("  content", xml);
     }
 
     @Test

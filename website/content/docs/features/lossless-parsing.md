@@ -88,7 +88,8 @@ Every node tracks its surrounding whitespace:
 ```java
 public abstract class Node {
     protected String precedingWhitespace;  // Whitespace before the node
-    protected String followingWhitespace;  // Whitespace after the node
+    // Note: followingWhitespace has been removed in favor of a simplified model
+    // where whitespace is stored as precedingWhitespace of the next node
 }
 ```
 

@@ -57,7 +57,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
         // For this XML: "  <element>content</element>\n"
         Element element = doc.root().child("groupId").orElseThrow();
         String before = element.precedingWhitespace(); // "    " (4 spaces)
-        String after = element.followingWhitespace(); // "\n"
+        String after = element.parent().parentElement().innerPrecedingWhitespace(); // "\n"
         // END: whitespace-tracking
 
         Assertions.assertEquals("    ", before);
@@ -96,7 +96,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
         Element element = doc.root();
 
         // Whitespace immediately after opening tag: <element>WHITESPACE
-        String innerFollowing = element.innerFollowingWhitespace(); // "\n    "
+        String innerFollowing = element.parentElement().innerPrecedingWhitespace(); // "\n    "
 
         // Whitespace immediately before closing tag: WHITESPACE</element>
         String innerPreceding = element.innerPrecedingWhitespace(); // "\n"

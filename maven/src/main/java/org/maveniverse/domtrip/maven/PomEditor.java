@@ -129,6 +129,7 @@ public class PomEditor extends AbstractMavenEditor {
                         EXTENSIONS,
                         "", // blank line
                         PLUGIN_MANAGEMENT,
+                        "", // blank line
                         PLUGINS));
 
         // Plugin element order
@@ -217,8 +218,8 @@ public class PomEditor extends AbstractMavenEditor {
             int elementIndex)
             throws DomTripException {
         // Determine if we need blank lines before/after based on ordering
-        boolean needsBlankLineBefore = needsBlankLineBefore(order, elementIndex);
-        boolean needsBlankLineAfter = needsBlankLineAfter(order, elementIndex);
+        boolean needsBlankLineBefore = needsBlankLineBefore(parent, order, elementIndex);
+        boolean needsBlankLineAfter = needsBlankLineAfter(parent, order, elementIndex);
 
         // Insert the element at the correct position
         Element newElement;
@@ -365,15 +366,46 @@ public class PomEditor extends AbstractMavenEditor {
 
     /**
      * Determines if a blank line should be added before the element based on ordering.
+     * Only adds blank lines if there are elements before the insertion point.
      */
-    private boolean needsBlankLineBefore(List<String> order, int elementIndex) {
-        return elementIndex > 0 && order.get(elementIndex - 1).isEmpty();
+    private boolean needsBlankLineBefore(Element parent, List<String> order, int elementIndex) {
+        // Don't add blank lines if this is the first element being inserted
+        // (even if parent has children, if they come after this element in the order)
+
+        // Check if there are any existing elements that come before this element in the order
+        boolean hasElementsBefore = false;
+        for (int i = 0; i < elementIndex; i++) {
+            String orderElement = order.get(i);
+            if (!orderElement.isEmpty() && parent.child(orderElement).isPresent()) {
+                hasElementsBefore = true;
+                break;
+            }
+        }
+
+        return hasElementsBefore
+                && elementIndex > 0
+                && order.get(elementIndex - 1).isEmpty();
     }
 
     /**
      * Determines if a blank line should be added after the element based on ordering.
+     * Only adds blank lines if there are elements after the insertion point.
      */
-    private boolean needsBlankLineAfter(List<String> order, int elementIndex) {
-        return elementIndex < order.size() - 1 && order.get(elementIndex + 1).isEmpty();
+    private boolean needsBlankLineAfter(Element parent, List<String> order, int elementIndex) {
+        // Don't add blank lines if there are no elements that come after this element
+
+        // Check if there are any existing elements that come after this element in the order
+        boolean hasElementsAfter = false;
+        for (int i = elementIndex + 2; i < order.size(); i++) { // Skip the blank line marker at elementIndex + 1
+            String orderElement = order.get(i);
+            if (!orderElement.isEmpty() && parent.child(orderElement).isPresent()) {
+                hasElementsAfter = true;
+                break;
+            }
+        }
+
+        return hasElementsAfter
+                && elementIndex < order.size() - 1
+                && order.get(elementIndex + 1).isEmpty();
     }
 }

@@ -72,8 +72,6 @@ public abstract class Node {
     protected ContainerNode parent;
     /** Whitespace that appears before this node in the original XML */
     protected String precedingWhitespace;
-    /** Whitespace that appears after this node in the original XML */
-    protected String followingWhitespace;
     /** Flag indicating whether this node has been modified since parsing */
     protected boolean modified;
 
@@ -86,7 +84,6 @@ public abstract class Node {
      */
     public Node() {
         this.precedingWhitespace = "";
-        this.followingWhitespace = "";
         this.modified = false;
     }
 
@@ -188,42 +185,6 @@ public abstract class Node {
      */
     void precedingWhitespaceInternal(String whitespace) {
         this.precedingWhitespace = whitespace != null ? whitespace : "";
-    }
-
-    /**
-     * Gets the whitespace that follows this node in the original XML.
-     *
-     * <p>This includes any whitespace characters that appeared after this
-     * node in the source XML, enabling preservation of original formatting.</p>
-     *
-     * @return the following whitespace string, never null
-     * @see #followingWhitespace(String)
-     */
-    public String followingWhitespace() {
-        return followingWhitespace;
-    }
-
-    /**
-     * Sets the whitespace that follows this node.
-     *
-     * <p>This method allows control over the whitespace formatting
-     * after this node when serializing to XML.</p>
-     *
-     * @param whitespace the whitespace string to set, null is treated as empty string
-     * @return this node for method chaining
-     * @see #followingWhitespace()
-     */
-    public Node followingWhitespace(String whitespace) {
-        this.followingWhitespace = whitespace != null ? whitespace : "";
-        markModified();
-        return this;
-    }
-
-    /**
-     * Sets following whitespace without marking as modified (for use during parsing)
-     */
-    void followingWhitespaceInternal(String whitespace) {
-        this.followingWhitespace = whitespace != null ? whitespace : "";
     }
 
     // Modification tracking

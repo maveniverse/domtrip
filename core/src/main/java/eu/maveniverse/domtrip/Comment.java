@@ -133,7 +133,6 @@ public class Comment extends Node {
     public void toXml(StringBuilder sb) {
         sb.append(precedingWhitespace);
         sb.append("<!--").append(content).append("-->");
-        sb.append(followingWhitespace);
     }
 
     /**

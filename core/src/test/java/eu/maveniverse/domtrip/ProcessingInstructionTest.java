@@ -80,11 +80,10 @@ public class ProcessingInstructionTest {
     @Test
     void testProcessingInstructionWithWhitespace() {
         ProcessingInstruction pi = new ProcessingInstruction("<?target instruction data?>");
-        pi.precedingWhitespace("\n  ");
-        pi.followingWhitespace = "\n" != null ? "\n" : "";
+        pi.precedingWhitespace("\n  \n");
 
         String xml = pi.toXml();
-        assertEquals("\n  <?target instruction data?>\n", xml);
+        assertEquals("\n  \n<?target instruction data?>", xml);
     }
 
     @Test
@@ -230,12 +229,10 @@ public class ProcessingInstructionTest {
     @Test
     void testProcessingInstructionClone() {
         ProcessingInstruction original = new ProcessingInstruction("<?target data?>");
-        original.precedingWhitespace("\n");
-        original.followingWhitespace = " " != null ? " " : "";
+        original.precedingWhitespace("\n ");
 
         // Test that the PI maintains its properties
         assertEquals("<?target data?>", original.originalContent());
-        assertEquals("\n", original.precedingWhitespace());
-        assertEquals(" ", original.followingWhitespace());
+        assertEquals("\n ", original.precedingWhitespace());
     }
 }

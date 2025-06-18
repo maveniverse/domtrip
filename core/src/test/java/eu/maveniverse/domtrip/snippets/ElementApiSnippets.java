@@ -126,16 +126,11 @@ public class ElementApiSnippets {
         // Whitespace before the element
         String preceding = element.precedingWhitespace(); // "    "
 
-        // Whitespace after the element
-        String following = element.followingWhitespace(); // "\n"
-
         // Set whitespace programmatically
         element.precedingWhitespace("  ");
-        element.followingWhitespace("\n\n");
         // END: node-whitespace
 
         Assertions.assertEquals("    ", preceding);
-        Assertions.assertEquals("\n", following);
     }
 
     @Test
@@ -167,19 +162,14 @@ public class ElementApiSnippets {
         Element parent = doc.root();
 
         // START: inner-element-whitespace
-        // Whitespace immediately after opening tag: <parent>WHITESPACE
-        String innerFollowing = parent.innerFollowingWhitespace(); // "\n    "
-
         // Whitespace immediately before closing tag: WHITESPACE</parent>
         String innerPreceding = parent.innerPrecedingWhitespace(); // "\n"
 
         // Set inner whitespace for elements with only whitespace content
-        parent.innerFollowingWhitespace("\n  ");
-        parent.innerPrecedingWhitespace("\n");
+        parent.innerPrecedingWhitespace("\n    \n");
         // END: inner-element-whitespace
 
-        Assertions.assertEquals("\n    ", innerFollowing);
-        Assertions.assertEquals("\n", innerPreceding);
+        Assertions.assertEquals("\n    \n", innerPreceding);
     }
 
     @Test

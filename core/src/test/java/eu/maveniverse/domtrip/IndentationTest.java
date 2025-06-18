@@ -1,5 +1,6 @@
 package eu.maveniverse.domtrip;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +52,21 @@ public class IndentationTest {
 
     @Test
     void testNestedIndentation() {
-        String xml = "<root>\n" + "  <parent>\n" + "    <child>content</child>\n" + "  </parent>\n" + "</root>";
+        String xml =
+                """
+            <root>
+              <parent>
+                <child>content</child>
+              </parent>
+            </root>""";
+        String expected =
+                """
+            <root>
+              <parent>
+                <child>content</child>
+                <newChild>new content</newChild>
+              </parent>
+            </root>""";
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
@@ -61,8 +76,7 @@ public class IndentationTest {
         String result = editor.toXml();
 
         // New child should be indented at the same level as existing child
-        assertTrue(result.contains("    <child>content</child>"));
-        assertTrue(result.contains("    <newChild>new content</newChild>"));
+        assertEquals(expected, result);
     }
 
     @Test

@@ -290,11 +290,9 @@ public class Parser {
                             captureInnerWhitespace(currentElement);
                         }
 
-                        // Parse closing tag and capture following whitespace
+                        // Parse closing tag
                         Element closedElement = parseClosingTag(nodeStack);
-                        if (closedElement != null) {
-                            captureFollowingWhitespace(closedElement);
-                        }
+                        // Note: Following whitespace will be captured as preceding whitespace of next sibling
                     } else {
                         // Parse opening tag
                         Element element = parseOpeningTag();
@@ -605,76 +603,21 @@ public class Parser {
     }
 
     /**
-     * Captures following whitespace for an element by looking ahead in the XML.
-     */
-    private void captureFollowingWhitespace(Element element) {
-        int savedPosition = position;
-        StringBuilder followingWhitespace = new StringBuilder();
-
-        // Look ahead to capture whitespace that follows this element
-        while (position < length && Character.isWhitespace(xml.charAt(position))) {
-            followingWhitespace.append(xml.charAt(position));
-            position++;
-        }
-
-        // If we found whitespace and the next thing is another element or end of content,
-        // capture it as following whitespace
-        if (!followingWhitespace.isEmpty() && (position >= length || xml.charAt(position) == '<')) {
-            element.followingWhitespaceInternal(followingWhitespace.toString());
-        } else {
-            // Reset position if we didn't capture the whitespace
-            position = savedPosition;
-        }
-    }
-
-    /**
      * Captures inner whitespace for an element that contains only whitespace-only Text nodes.
      * This converts whitespace Text nodes to inner whitespace fields when appropriate.
      */
-    private void captureInnerWhitespace(Element element) {
-        if (element.nodes.isEmpty()) {
-            return; // No children to process
-        }
+    private void captureInnerWhitespace(Element parent) {
+        // Look for the last child that is a whitespace-only text node
+        if (!parent.nodes.isEmpty()) {
+            Node lastChild = parent.nodes.get(parent.nodes.size() - 1);
+            if (lastChild instanceof Text textNode && isWhitespaceOnly(textNode.content())) {
+                // Capture this whitespace as preceding whitespace for the element
+                parent.innerPrecedingWhitespaceInternal(textNode.content());
 
-        // Check if all children are whitespace-only Text nodes
-        boolean allWhitespace =
-                element.nodes.stream().allMatch(node -> node instanceof Text text && isWhitespaceOnly(text.content()));
-
-        if (allWhitespace) {
-            if (element.nodes.size() == 1) {
-                // Single whitespace-only Text node - convert to inner whitespace
-                Text textNode = (Text) element.nodes.get(0);
-                String whitespace = textNode.content();
-
-                // Split the whitespace: first part goes to innerFollowingWhitespace,
-                // last part goes to innerPrecedingWhitespace
-                String[] lines = whitespace.split("\\r?\\n", -1);
-                if (lines.length > 1) {
-                    // Multi-line whitespace
-                    element.innerFollowingWhitespaceInternal("\n" + lines[1]);
-                    if (lines.length > 2) {
-                        element.innerPrecedingWhitespaceInternal("\n" + lines[lines.length - 1]);
-                    }
-                } else {
-                    // Single line whitespace - put it all in innerFollowingWhitespace
-                    element.innerFollowingWhitespaceInternal(whitespace);
-                }
-
-                // Remove the Text node
-                element.nodes.clear();
-            } else if (element.nodes.size() > 1) {
-                // Multiple whitespace-only Text nodes - convert first and last
-                Text firstText = (Text) element.nodes.get(0);
-                Text lastText = (Text) element.nodes.get(element.nodes.size() - 1);
-
-                element.innerFollowingWhitespaceInternal(firstText.content());
-                element.innerPrecedingWhitespaceInternal(lastText.content());
-
-                // Remove all Text nodes
-                element.nodes.clear();
+                // Remove the whitespace-only text node since it's now captured as element whitespace
+                parent.nodes.remove(parent.nodes.size() - 1);
             }
         }
-        // If there are mixed content (Text and Element nodes), leave them as is
     }
 
     /**

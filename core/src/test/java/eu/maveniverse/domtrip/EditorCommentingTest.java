@@ -58,11 +58,14 @@ class EditorCommentingTest {
                 <third>content3</third>
                 <keep>keep this</keep>
             </root>""";
-        String expected = "<root>\n" + "    <!-- <first>content1</first><second>content2</second> -->\n"
-                + "    \n"
-                + "    <third>content3</third>\n"
-                + "    <keep>keep this</keep>\n"
-                + "</root>";
+        String expected =
+                """
+            <root>
+                <!-- <first>content1</first>
+                <second>content2</second> -->
+                <third>content3</third>
+                <keep>keep this</keep>
+            </root>""";
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);

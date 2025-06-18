@@ -364,9 +364,6 @@ public class Document extends ContainerNode {
         if (root != null && !nodes.contains(root)) {
             root.toXml(sb);
         }
-
-        // Add following whitespace
-        sb.append(followingWhitespace);
     }
 
     /**

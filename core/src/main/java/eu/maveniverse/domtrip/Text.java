@@ -285,8 +285,6 @@ public class Text extends Node {
                 sb.append(escapeTextContent(content));
             }
         }
-
-        sb.append(followingWhitespace);
     }
 
     /**

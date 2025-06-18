@@ -79,7 +79,8 @@ DomTrip tracks whitespace at multiple levels:
 ```java
 public abstract class Node {
     protected String precedingWhitespace;  // Before the node
-    protected String followingWhitespace;  // After the node
+    // Note: followingWhitespace has been removed - whitespace is now stored
+    // as precedingWhitespace of the next node for a cleaner model
 }
 ```
 

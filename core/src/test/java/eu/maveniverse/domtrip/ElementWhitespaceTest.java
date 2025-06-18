@@ -72,7 +72,7 @@ class ElementWhitespaceTest {
         assertEquals("   value with spaces   ", item.textContent());
         assertEquals("no spaces", clean.textContent());
         assertEquals("", empty.textContent());
-        assertEquals("   ", whitespace.textContent());
+        assertEquals("   ", whitespace.innerPrecedingWhitespace());
     }
 
     @Test

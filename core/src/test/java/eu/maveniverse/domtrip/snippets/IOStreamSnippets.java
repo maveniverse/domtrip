@@ -183,7 +183,8 @@ public class IOStreamSnippets extends BaseSnippetTest {
         InputStream utf16Stream = new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_16));
 
         Document doc = Document.of(utf16Stream);
-        Assertions.assertEquals("UTF-16", doc.encoding());
+        // UTF-16 with BOM is detected as UTF-16BE or UTF-16LE
+        Assertions.assertTrue(doc.encoding().startsWith("UTF-16"));
 
         // Serialization uses the same encoding
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

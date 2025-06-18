@@ -56,11 +56,11 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
         // START: whitespace-tracking
         // For this XML: "  <element>content</element>\n"
         Element element = doc.root().child("groupId").orElseThrow();
-        String before = element.precedingWhitespace(); // "    " (4 spaces)
-        String after = element.followingWhitespace(); // "\n"
+        String before = element.precedingWhitespace(); // "\n    " (newline + 4 spaces)
+        String after = doc.root().innerPrecedingWhitespace(); // "\n"
         // END: whitespace-tracking
 
-        Assertions.assertEquals("    ", before);
+        Assertions.assertEquals("\n    ", before);
         Assertions.assertEquals("\n", after);
     }
 
@@ -83,6 +83,26 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
 
         Assertions.assertEquals("  ", openTagWhitespace);
         Assertions.assertEquals("  ", closeTagWhitespace);
+    }
+
+    @Test
+    public void demonstrateInnerElementWhitespace() {
+        String xml = "<parent>\n    \n</parent>";
+
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+
+        // START: inner-element-whitespace
+        Element element = doc.root();
+
+        // Whitespace immediately before closing tag: WHITESPACE</element>
+        String innerPreceding = element.innerPrecedingWhitespace(); // "\n    \n"
+
+        // This field is used when an element contains only whitespace
+        // (no child elements), providing a cleaner model than Text nodes
+        // END: inner-element-whitespace
+
+        Assertions.assertEquals("\n    \n", innerPreceding);
     }
 
     @Test

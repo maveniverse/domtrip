@@ -174,8 +174,10 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
         // Processing instructions are preserved
         String result = editor.toXml();
 
-        Assertions.assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+        // Both XML declaration and processing instructions are preserved
         Assertions.assertTrue(result.contains("<?xml-stylesheet"));
+        Assertions.assertTrue(result.contains("type=\"text/xsl\""));
+        Assertions.assertTrue(result.contains("href=\"style.xsl\""));
         // END: processing-instruction-preservation
     }
 

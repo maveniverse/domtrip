@@ -159,7 +159,8 @@ class EditorInsertRemoveTest {
         editor = new Editor(doc);
         Element root = doc.root();
 
-        editor.addElement(root, "newElement", "newContent", true, false);
+        Element newElement = editor.addElement(root, "newElement", "newContent");
+        editor.addBlankLineBefore(newElement);
         String result = editor.toXml();
 
         String expected =
@@ -184,7 +185,8 @@ class EditorInsertRemoveTest {
         editor = new Editor(doc);
         Element root = doc.root();
 
-        editor.addElement(root, "newElement", "newContent", false, true);
+        Element newElement = editor.addElement(root, "newElement", "newContent");
+        editor.addBlankLineAfter(newElement);
         String result = editor.toXml();
 
         String expected =
@@ -209,7 +211,9 @@ class EditorInsertRemoveTest {
         editor = new Editor(doc);
         Element root = doc.root();
 
-        editor.addElement(root, "newElement", "newContent", true, true);
+        Element newElement = editor.addElement(root, "newElement", "newContent");
+        editor.addBlankLineBefore(newElement);
+        editor.addBlankLineAfter(newElement);
         String result = editor.toXml();
 
         String expected =
@@ -237,7 +241,8 @@ class EditorInsertRemoveTest {
         Element root = doc.root();
 
         QName qname = QName.of("http://example.com", "newElement", "ns");
-        editor.addElement(root, qname, "newContent", true, false);
+        Element newElement = editor.addElement(root, qname, "newContent");
+        editor.addBlankLineBefore(newElement);
         String result = editor.toXml();
 
         String expected =
@@ -264,14 +269,14 @@ class EditorInsertRemoveTest {
     @Test
     void testAddElementNullHandling() {
         // Test null parent
-        assertThrows(DomTripException.class, () -> editor.addElement(null, "test", false, false));
+        assertThrows(DomTripException.class, () -> editor.addElement(null, "test"));
 
         // Test null element name
         Element parent = new Element("parent");
-        assertThrows(DomTripException.class, () -> editor.addElement(parent, (String) null, false, false));
+        assertThrows(DomTripException.class, () -> editor.addElement(parent, (String) null));
 
         // Test empty element name
-        assertThrows(DomTripException.class, () -> editor.addElement(parent, "", false, false));
+        assertThrows(DomTripException.class, () -> editor.addElement(parent, ""));
     }
 
     @Test

@@ -128,6 +128,34 @@ Jackson XML is primarily for object mapping, but here are equivalent operations:
 {cdi:snippets.snippet('migration-xpath-queries')}
 ```
 
+## Breaking Changes in Recent Versions
+
+### Whitespace API Simplification (v0.1.1+)
+
+The whitespace handling API has been simplified for better maintainability:
+
+**Removed Methods:**
+- `Node.followingWhitespace()` and `Node.followingWhitespace(String)`
+- `Element.innerFollowingWhitespace()` and `Element.innerFollowingWhitespace(String)`
+
+**Migration Strategy:**
+```java
+// OLD: Setting whitespace after a node
+node.followingWhitespace("\n  ");
+
+// NEW: Set whitespace before the next node instead
+nextNode.precedingWhitespace("\n  ");
+
+// OLD: Setting whitespace after opening tag
+element.innerFollowingWhitespace("\n    ");
+
+// NEW: Set whitespace before first child instead
+firstChild.precedingWhitespace("\n    ");
+```
+
+**Rationale:**
+The simplified model eliminates redundant whitespace storage where the same whitespace was stored in multiple places. This reduces memory usage and eliminates synchronization issues.
+
 ## Migration Checklist
 
 ### Before Migration

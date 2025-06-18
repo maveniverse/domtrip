@@ -236,10 +236,9 @@ public class Parser {
 
                     // Check if this is whitespace-only content
                     if (isWhitespaceOnly(decodedText)) {
-                        // This is whitespace that should be captured as node whitespace
-                        // We'll handle this when we parse the next element
+                        // This is whitespace that should be captured as element whitespace
+                        // We'll handle this when we parse the next element or closing tag
                         // For now, store it for the next element to use as precedingWhitespace
-                        // But we still need to create a text node for mixed content scenarios
                         Text textNode = new Text(decodedText, rawText);
                         ContainerNode current = (ContainerNode) nodeStack.peek();
                         current.addNodeInternal(textNode);
@@ -286,11 +285,14 @@ public class Parser {
                             current.addNodeInternal(piNode);
                         }
                     } else if (nextChar == '/') {
-                        // Parse closing tag and capture following whitespace
-                        Element closedElement = parseClosingTag(nodeStack);
-                        if (closedElement != null) {
-                            captureFollowingWhitespace(closedElement);
+                        // Before parsing closing tag, handle inner whitespace for the current element
+                        if (!nodeStack.isEmpty() && nodeStack.peek() instanceof Element currentElement) {
+                            captureInnerWhitespace(currentElement);
                         }
+
+                        // Parse closing tag
+                        Element closedElement = parseClosingTag(nodeStack);
+                        // Note: Following whitespace will be captured as preceding whitespace of next sibling
                     } else {
                         // Parse opening tag
                         Element element = parseOpeningTag();
@@ -601,25 +603,20 @@ public class Parser {
     }
 
     /**
-     * Captures following whitespace for an element by looking ahead in the XML.
+     * Captures inner whitespace for an element that contains only whitespace-only Text nodes.
+     * This converts whitespace Text nodes to inner whitespace fields when appropriate.
      */
-    private void captureFollowingWhitespace(Element element) {
-        int savedPosition = position;
-        StringBuilder followingWhitespace = new StringBuilder();
+    private void captureInnerWhitespace(Element parent) {
+        // Look for the last child that is a whitespace-only text node
+        if (!parent.nodes.isEmpty()) {
+            Node lastChild = parent.nodes.get(parent.nodes.size() - 1);
+            if (lastChild instanceof Text textNode && isWhitespaceOnly(textNode.content())) {
+                // Capture this whitespace as preceding whitespace for the element
+                parent.innerPrecedingWhitespaceInternal(textNode.content());
 
-        // Look ahead to capture whitespace that follows this element
-        while (position < length && Character.isWhitespace(xml.charAt(position))) {
-            followingWhitespace.append(xml.charAt(position));
-            position++;
-        }
-
-        // If we found whitespace and the next thing is another element or end of content,
-        // capture it as following whitespace
-        if (!followingWhitespace.isEmpty() && (position >= length || xml.charAt(position) == '<')) {
-            element.followingWhitespaceInternal(followingWhitespace.toString());
-        } else {
-            // Reset position if we didn't capture the whitespace
-            position = savedPosition;
+                // Remove the whitespace-only text node since it's now captured as element whitespace
+                parent.nodes.remove(parent.nodes.size() - 1);
+            }
         }
     }
 

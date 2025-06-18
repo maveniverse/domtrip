@@ -78,6 +78,7 @@ public class Element extends ContainerNode {
     private Map<String, Attribute> attributes;
     private String openTagWhitespace; // Whitespace within the opening tag
     private String closeTagWhitespace; // Whitespace within the closing tag
+    private String innerPrecedingWhitespace; // Whitespace immediately before the closing tag
     private boolean selfClosing;
     private String originalOpenTag; // Original opening tag for reference
     private String originalCloseTag; // Original closing tag for reference
@@ -101,6 +102,7 @@ public class Element extends ContainerNode {
         this.attributes = new LinkedHashMap<>(); // Preserve attribute order
         this.openTagWhitespace = "";
         this.closeTagWhitespace = "";
+        this.innerPrecedingWhitespace = "";
         this.selfClosing = false;
         this.originalOpenTag = "";
         this.originalCloseTag = "";
@@ -408,6 +410,56 @@ public class Element extends ContainerNode {
     }
 
     /**
+     * Gets the whitespace immediately before the closing tag.
+     *
+     * <p>This field is used for elements that contain only whitespace content
+     * (no child elements). It represents the whitespace that appears just
+     * before the closing tag, typically used for proper indentation.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // XML: <parent>\n    \n</parent>
+     * String whitespace = element.innerPrecedingWhitespace(); // "\n"
+     * }</pre>
+     *
+     * @return the inner preceding whitespace, or empty string if none
+     * @see #precedingWhitespace()
+     */
+    public String innerPrecedingWhitespace() {
+        return innerPrecedingWhitespace;
+    }
+
+    /**
+     * Sets the whitespace immediately before the closing tag.
+     *
+     * <p>Use this method to control the whitespace that appears immediately
+     * before the closing tag in elements that contain only whitespace content.
+     * This is typically used for proper indentation of the closing tag.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * element.innerPrecedingWhitespace("\n");
+     * // Results in: <element>content\n</element> (whitespace before closing tag)
+     * }</pre>
+     *
+     * @param whitespace the whitespace to set (null is treated as empty string)
+     * @return this element for method chaining
+     * @see #innerPrecedingWhitespace()
+     */
+    public Element innerPrecedingWhitespace(String whitespace) {
+        this.innerPrecedingWhitespace = whitespace != null ? whitespace : "";
+        markModified();
+        return this;
+    }
+
+    /**
+     * Sets inner preceding whitespace without marking as modified (for use during parsing)
+     */
+    void innerPrecedingWhitespaceInternal(String whitespace) {
+        this.innerPrecedingWhitespace = whitespace != null ? whitespace : "";
+    }
+
+    /**
      * Checks if this element is self-closing.
      *
      * @return true if the element is self-closing, false otherwise
@@ -496,15 +548,18 @@ public class Element extends ContainerNode {
                 // Extract opening tag from original
                 int closeIndex = originalOpenTag.indexOf('>');
                 if (closeIndex > 0) {
-                    sb.append(originalOpenTag.substring(0, closeIndex + 1));
+                    sb.append(originalOpenTag, 0, closeIndex + 1);
                 } else {
                     sb.append(originalOpenTag);
                 }
 
-                // Add children
+                // Add children (they have their own preceding whitespace)
                 for (Node child : nodes) {
                     child.toXml(sb);
                 }
+
+                // Add inner preceding whitespace (before closing tag)
+                sb.append(innerPrecedingWhitespace);
 
                 // Add closing tag - use original if available, otherwise build from scratch
                 if (!originalCloseTag.isEmpty()) {
@@ -513,8 +568,6 @@ public class Element extends ContainerNode {
                     sb.append("</").append(name).append(">");
                 }
             }
-
-            sb.append(followingWhitespace);
             return;
         }
 
@@ -532,16 +585,17 @@ public class Element extends ContainerNode {
         } else {
             sb.append(openTagWhitespace).append(">");
 
-            // Add children
+            // Add children (they have their own preceding whitespace)
             for (Node child : nodes) {
                 child.toXml(sb);
             }
 
+            // Add inner preceding whitespace (before closing tag)
+            sb.append(innerPrecedingWhitespace);
+
             // Add closing tag
             sb.append("</").append(closeTagWhitespace).append(name).append(">");
         }
-
-        sb.append(followingWhitespace);
     }
 
     /**

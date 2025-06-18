@@ -128,64 +128,16 @@ public class ConfigurationTest {
     }
 
     @Test
-    void testWhitespaceStyleEnum() {
-        assertEquals(" ", WhitespaceStyle.SINGLE_SPACE.getValue());
-        assertEquals("  ", WhitespaceStyle.DOUBLE_SPACE.getValue());
-        assertEquals("\t", WhitespaceStyle.TAB.getValue());
-        assertEquals("\n", WhitespaceStyle.NEWLINE.getValue());
-        assertEquals("\n    ", WhitespaceStyle.NEWLINE_WITH_INDENT.getValue());
-        assertEquals("", WhitespaceStyle.EMPTY.getValue());
-
-        assertEquals(WhitespaceStyle.SINGLE_SPACE, WhitespaceStyle.fromString(" "));
-        assertEquals(WhitespaceStyle.DOUBLE_SPACE, WhitespaceStyle.fromString("  "));
-        assertEquals(WhitespaceStyle.TAB, WhitespaceStyle.fromString("\t"));
-
-        // Unknown whitespace should return SINGLE_SPACE
-        assertEquals(WhitespaceStyle.SINGLE_SPACE, WhitespaceStyle.fromString("unknown"));
-        assertEquals(WhitespaceStyle.SINGLE_SPACE, WhitespaceStyle.fromString(null));
-
-        assertEquals(" ", WhitespaceStyle.SINGLE_SPACE.toString());
-        assertEquals("\t", WhitespaceStyle.TAB.toString());
-    }
-
-    @Test
-    void testWhitespaceManager() {
+    void testWhitespace() {
         DomTripConfig config = DomTripConfig.defaults().withIndentString("  ");
-        WhitespaceManager wm = new WhitespaceManager(config);
+        Editor editor = new Editor(config);
 
         // Test whitespace detection
-        assertTrue(wm.isWhitespaceOnly("   "));
-        assertTrue(wm.isWhitespaceOnly("\n\t  "));
-        assertTrue(wm.isWhitespaceOnly(""));
-        assertTrue(wm.isWhitespaceOnly(null));
-        assertFalse(wm.isWhitespaceOnly("content"));
-        assertFalse(wm.isWhitespaceOnly("  content  "));
-
-        // Test indentation creation
-        assertEquals("", wm.createIndentation(0));
-        assertEquals("  ", wm.createIndentation(1));
-        assertEquals("    ", wm.createIndentation(2));
-        assertEquals("      ", wm.createIndentation(3));
-
-        // Test depth calculation
-        assertEquals(0, wm.calculateDepth(""));
-        assertEquals(0, wm.calculateDepth("no newline"));
-        assertEquals(1, wm.calculateDepth("\n  "));
-        assertEquals(2, wm.calculateDepth("\n    "));
-        assertEquals(0, wm.calculateDepth("\n"));
-
-        // Test normalization (with preserve whitespace enabled, content is returned as-is)
-        assertEquals("", wm.normalizeWhitespace(""));
-        assertEquals("content", wm.normalizeWhitespace("content"));
-        assertEquals("  content  ", wm.normalizeWhitespace("  content  "));
-        assertEquals("a   b\n\tc", wm.normalizeWhitespace("a   b\n\tc"));
-
-        // Test with preserve whitespace disabled
-        DomTripConfig noWhitespaceConfig =
-                DomTripConfig.defaults().withWhitespacePreservation(false).withIndentString("  ");
-        WhitespaceManager noWsManager = new WhitespaceManager(noWhitespaceConfig);
-
-        assertEquals("content", noWsManager.normalizeWhitespace("  content  "));
-        assertEquals("a b c", noWsManager.normalizeWhitespace("a   b\n\tc"));
+        assertTrue(editor.isWhitespaceOnly("   "));
+        assertTrue(editor.isWhitespaceOnly("\n\t  "));
+        assertTrue(editor.isWhitespaceOnly(""));
+        assertTrue(editor.isWhitespaceOnly(null));
+        assertFalse(editor.isWhitespaceOnly("content"));
+        assertFalse(editor.isWhitespaceOnly("  content  "));
     }
 }

@@ -70,13 +70,9 @@ public class QuickStartSnippets extends BaseSnippetTest {
             // START: loading-xml-from-file
             // From file (recommended - handles encoding automatically)
             // import java.nio.file.Path;
-            Document doc2 = Document.of(Path.of("config.xml"));
+            Document doc2 = Document.of(tempFile);
             Editor editor2 = new Editor(doc2);
             // END: loading-xml-from-file
-
-            // For testing, use the temp file
-            doc2 = Document.of(tempFile);
-            editor2 = new Editor(doc2);
 
             Assertions.assertEquals("config", editor2.root().name());
 
@@ -85,18 +81,12 @@ public class QuickStartSnippets extends BaseSnippetTest {
             // import java.io.InputStream;
             // import java.nio.file.Files;
             // import java.nio.file.Path;
-            try (InputStream inputStream = Files.newInputStream(Path.of("config.xml"))) {
-                Document doc3 = Document.of(inputStream);
-                Editor editor3 = new Editor(doc3);
-            }
-            // END: loading-xml-from-inputstream
-
-            // For testing, use the temp file
             try (InputStream inputStream = Files.newInputStream(tempFile)) {
                 Document doc3 = Document.of(inputStream);
                 Editor editor3 = new Editor(doc3);
                 Assertions.assertEquals("config", editor3.root().name());
             }
+            // END: loading-xml-from-inputstream
         } finally {
             Files.deleteIfExists(tempFile);
         }

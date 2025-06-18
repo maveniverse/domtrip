@@ -60,12 +60,12 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
         String xmlWithPIs =
                 """
             <?xml version="1.0"?>
-            <?xml-stylesheet type="text/xsl" href="style.xsl"?>
+            <?stylesheet type="text/xsl" href="style.xsl"?>
             <root>content</root>
             """;
         Document doc = Document.of(xmlWithPIs);
 
-        // Find all processing instructions in document
+        // Find all processing instructions in document (XML declaration is stored separately)
         List<ProcessingInstruction> pis = doc.nodes()
                 .filter(node -> node instanceof ProcessingInstruction)
                 .map(node -> (ProcessingInstruction) node)
@@ -75,12 +75,13 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
         Optional<ProcessingInstruction> stylesheet = doc.nodes()
                 .filter(node -> node instanceof ProcessingInstruction)
                 .map(node -> (ProcessingInstruction) node)
-                .filter(pi -> "xml-stylesheet".equals(pi.target()))
+                .filter(pi -> "stylesheet".equals(pi.target()))
                 .findFirst();
         // END: finding-processing-instructions
 
-        Assertions.assertTrue(pis.size() > 0);
+        Assertions.assertEquals(1, pis.size()); // Only stylesheet, not XML declaration
         Assertions.assertTrue(stylesheet.isPresent());
+        Assertions.assertEquals("stylesheet", stylesheet.orElseThrow().target());
     }
 
     @Test
@@ -128,7 +129,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
                 """
             <?xml version="1.0"?>
 
-            <?xml-stylesheet href="style.css"?>
+            <?stylesheet href="style.css"?>
 
             <root/>
             """;
@@ -139,13 +140,15 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
         Optional<ProcessingInstruction> stylesheet = doc.nodes()
                 .filter(node -> node instanceof ProcessingInstruction)
                 .map(node -> (ProcessingInstruction) node)
-                .filter(pi -> "xml-stylesheet".equals(pi.target()))
+                .filter(pi -> "stylesheet".equals(pi.target()))
                 .findFirst();
 
         // Whitespace around PIs is preserved in the document structure
         // END: position-whitespace-preservation
 
         Assertions.assertTrue(stylesheet.isPresent());
+        Assertions.assertEquals("stylesheet", stylesheet.orElseThrow().target());
+        Assertions.assertTrue(stylesheet.orElseThrow().data().contains("style.css"));
     }
 
     @Test

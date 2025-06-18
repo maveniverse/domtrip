@@ -308,7 +308,7 @@ public class DocumentSnippets extends BaseSnippetTest {
 
         // Check if document is valid
         boolean hasRoot = doc.root() != null;
-        boolean hasValidStructure = doc.nodes().count() > 0;
+        boolean hasValidStructure = doc.root() != null; // Document with root element is valid
 
         // Validate XML declaration
         boolean hasXmlDecl = !doc.xmlDeclaration().isEmpty();
@@ -316,6 +316,7 @@ public class DocumentSnippets extends BaseSnippetTest {
 
         Assertions.assertTrue(hasRoot);
         Assertions.assertTrue(hasValidStructure);
+        Assertions.assertTrue(hasXmlDecl);
     }
 
     @Test

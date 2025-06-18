@@ -1,5 +1,7 @@
 package eu.maveniverse.domtrip.snippets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
 import eu.maveniverse.domtrip.Editor;
@@ -95,7 +97,7 @@ public class MigrationSnippets extends BaseSnippetTest {
         String scope = element.attribute("scope");
         // END: dom4j-attribute-handling
 
-        Assertions.assertEquals("test", scope);
+        assertEquals("test", scope);
     }
 
     @Test
@@ -163,8 +165,8 @@ public class MigrationSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(root);
         Assertions.assertNotNull(child);
         Assertions.assertNotNull(children);
-        Assertions.assertEquals("newChild", newElement.name());
-        Assertions.assertEquals("content", newElement.textContent());
+        assertEquals("newChild", newElement.name());
+        assertEquals("content", newElement.textContent());
     }
 
     @Test
@@ -183,7 +185,7 @@ public class MigrationSnippets extends BaseSnippetTest {
         String content = element.textContent();
         // END: jdom-text-content
 
-        Assertions.assertEquals("new content", content);
+        assertEquals("new content", content);
     }
 
     @Test
@@ -240,8 +242,8 @@ public class MigrationSnippets extends BaseSnippetTest {
         Element newElement = editor.addElement(parent, "newChild", "content");
         // END: java-dom-creating-elements
 
-        Assertions.assertEquals("newChild", newElement.name());
-        Assertions.assertEquals("content", newElement.textContent());
+        assertEquals("newChild", newElement.name());
+        assertEquals("content", newElement.textContent());
     }
 
     @Test
@@ -260,7 +262,7 @@ public class MigrationSnippets extends BaseSnippetTest {
         String scope = element.attribute("scope");
         // END: java-dom-attributes
 
-        Assertions.assertEquals("test", scope);
+        assertEquals("test", scope);
     }
 
     @Test
@@ -360,13 +362,11 @@ public class MigrationSnippets extends BaseSnippetTest {
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
         Element root = editor.root();
-        Optional<Element> envelope = root.descendants()
-                .filter(el -> "Envelope".equals(el.name()))
-                .filter(el -> "http://schemas.xmlsoap.org/soap/envelope/".equals(el.namespaceURI()))
-                .findFirst();
-        // END: migration-namespace-handling
 
-        Assertions.assertTrue(envelope.isPresent());
+        // Check if root itself is the Envelope element
+        assertEquals("Envelope", root.localName());
+        assertEquals("http://schemas.xmlsoap.org/soap/envelope/", root.namespaceURI());
+        // END: migration-namespace-handling
     }
 
     @Test

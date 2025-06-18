@@ -206,8 +206,8 @@ public class ExamplesSnippets extends BaseSnippetTest {
         // END: best-practices-optional
 
         String result = editor.toXml();
-        // Since dependencies doesn't exist in the base POM, nothing should be added
-        Assertions.assertFalse(result.contains("org.example"));
+        // Since dependencies exists in the base POM, the dependency should be added
+        Assertions.assertTrue(result.contains("org.example"));
     }
 
     @Test

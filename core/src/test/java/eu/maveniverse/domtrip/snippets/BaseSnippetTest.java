@@ -69,6 +69,15 @@ public abstract class BaseSnippetTest {
                     <maven.compiler.target>17</maven.compiler.target>
                     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
                 </properties>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                        <version>4.13.2</version>
+                        <scope>test</scope>
+                    </dependency>
+                </dependencies>
             </project>
             """;
     }

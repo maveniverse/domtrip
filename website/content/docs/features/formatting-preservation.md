@@ -89,26 +89,95 @@ editor.addElement(newDep, "artifactId").setTextContent("mockito-core");
 // Result maintains consistent indentation
 ```
 
+## Automatic Formatting Detection
+
+DomTrip automatically detects the formatting style of existing XML documents and preserves it when adding new content:
+
+```java
+// Raw XML (no formatting) - automatically detected
+String rawXml = "<root><child>content</child></root>";
+Editor editor = new Editor(rawXml);
+editor.addElement(editor.root(), "new", "element");
+// Result: <root><child>content</child><new>element</new></root>
+
+// Pretty XML - formatting preserved
+String prettyXml = """
+    <root>
+        <child>content</child>
+    </root>
+    """;
+Editor prettyEditor = new Editor(prettyXml);
+prettyEditor.addElement(prettyEditor.root(), "new", "element");
+// Result maintains indentation and line breaks
+
+// Custom spacing - patterns preserved
+String customXml = "<root  attr1=\"value1\"   attr2=\"value2\"/>";
+Editor customEditor = new Editor(customXml);
+customEditor.setAttribute(customEditor.root(), "attr3", "value3");
+// Result maintains the custom spacing pattern
+```
+
+## Serialization Modes
+
+DomTrip provides flexible serialization modes to control output formatting:
+
+### Preserve Formatting Mode (Default)
+Maintains original formatting for unmodified content and automatically detects formatting patterns:
+
+```java
+Serializer serializer = new Serializer(); // prettyPrint = false (default)
+String result = serializer.serialize(document);
+// Preserves original formatting exactly
+```
+
+### Pretty Print Mode
+Applies consistent formatting with configurable indentation and line endings:
+
+```java
+Serializer prettySerializer = new Serializer();
+prettySerializer.setPrettyPrint(true);
+prettySerializer.setIndentString("    "); // 4 spaces
+prettySerializer.setLineEnding("\n");
+String prettyResult = prettySerializer.serialize(document);
+```
+
+### Raw Mode
+Produces completely unformatted output with no line breaks or indentation:
+
+```java
+// Using convenience method
+Serializer rawSerializer = new Serializer(DomTripConfig.raw());
+String rawResult = rawSerializer.serialize(document);
+// Result: <root><child>content</child></root>
+
+// Manual configuration
+Serializer manualRaw = new Serializer();
+manualRaw.setPrettyPrint(true);
+manualRaw.setIndentString(""); // No indentation
+manualRaw.setLineEnding("");   // No line endings
+```
+
 ## Configuration Options
 
 You can control formatting behavior through `DomTripConfig`:
 
 ```java
-// Strict preservation (default)
-DomTripConfig strict = DomTripConfig.strict()
-    .withPreserveWhitespace(true)
-    .withPreserveComments(true);
+// Default preservation mode
+DomTripConfig preserve = DomTripConfig.defaults();
 
 // Pretty printing for new content
 DomTripConfig pretty = DomTripConfig.prettyPrint()
-    .withIndentation("    ")  // 4 spaces
-    .withNewlineAfterElements(true);
+    .withIndentString("    ")  // 4 spaces
+    .withLineEnding("\n");
+
+// Raw mode (no formatting)
+DomTripConfig raw = DomTripConfig.raw();
 
 // Custom configuration
-DomTripConfig custom = DomTripConfig.defaults()
-    .withIndentation("  ")    // 2 spaces
-    .withPreserveWhitespace(true)
-    .withQuoteStyle(QuoteStyle.DOUBLE);
+DomTripConfig custom = DomTripConfig.prettyPrint()
+    .withIndentString("\t")    // Tabs
+    .withLineEnding("\r\n")    // Windows line endings
+    .withPreserveComments(true);
 ```
 
 ## Best Practices

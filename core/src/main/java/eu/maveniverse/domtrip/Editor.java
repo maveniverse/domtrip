@@ -204,7 +204,6 @@ public class Editor {
 
         Serializer prettySerializer = new Serializer();
         prettySerializer.setPrettyPrint(true);
-        prettySerializer.setPreserveFormatting(false);
         return prettySerializer.serialize(document);
     }
 
@@ -1605,7 +1604,7 @@ public class Editor {
      * Infers alignment whitespace for multi-line attribute formatting.
      */
     private String inferAlignmentWhitespace(String existingWhitespace) {
-        if (existingWhitespace == null || !existingWhitespace.contains(lineEnding)) {
+        if (existingWhitespace == null || lineEnding.isEmpty() || !existingWhitespace.contains(lineEnding)) {
             return " ";
         }
 
@@ -1623,16 +1622,33 @@ public class Editor {
     /**
      * Detects the line ending style used in the document.
      *
-     * @return the detected line ending (\r\n, \n, or \r), or the config default if none detected
+     * @return the detected line ending (\r\n, \n, or \r), empty string for raw formatting,
+     *         or the config default if document is null or empty
      */
     private String detectLineEnding() {
         if (document == null) {
             return config.lineEnding();
         }
 
+        // Check if document has any content to analyze
+        if (isDocumentEmpty()) {
+            return config.lineEnding(); // Use config default for empty documents
+        }
+
         // Check various places in the document for line endings
         String detected = detectLineEndingInNode(document);
-        return detected != null ? detected : config.lineEnding();
+        if (detected != null) {
+            return detected;
+        }
+
+        // If no line endings are detected but document has content,
+        // check if this is truly raw formatting (no formatting at all)
+        // vs. just no line breaks (but may have other formatting like custom spacing)
+        if (isTrulyRawFormatting()) {
+            return ""; // Use empty string to indicate raw formatting
+        }
+
+        return config.lineEnding(); // Use config default for documents with some formatting but no line breaks
     }
 
     /**
@@ -1645,6 +1661,26 @@ public class Editor {
             String detected = extractLineEnding(precedingWs);
             if (detected != null) {
                 return detected;
+            }
+        }
+
+        // For elements, also check inner whitespace and original tag content
+        if (node instanceof Element element) {
+            String innerWs = element.innerPrecedingWhitespace();
+            if (innerWs != null) {
+                String detected = extractLineEnding(innerWs);
+                if (detected != null) {
+                    return detected;
+                }
+            }
+
+            // Check original tag content for line breaks (attribute alignment)
+            String originalTag = element.originalOpenTag();
+            if (originalTag != null) {
+                String detected = extractLineEnding(originalTag);
+                if (detected != null) {
+                    return detected;
+                }
             }
         }
 
@@ -1693,6 +1729,117 @@ public class Editor {
         }
 
         return null;
+    }
+
+    /**
+     * Checks if the document is empty (has no meaningful content to analyze for formatting).
+     *
+     * @return true if the document has no root element or content nodes
+     */
+    private boolean isDocumentEmpty() {
+        if (document == null) {
+            return true;
+        }
+
+        // Check if there's a root element
+        if (document.root() != null) {
+            return false; // Has root element, not empty
+        }
+
+        // Check if there are any non-whitespace nodes
+        for (Node node : document.nodes) {
+            if (!(node instanceof Text) || !((Text) node).isWhitespaceOnly()) {
+                return false; // Has non-whitespace content
+            }
+        }
+
+        return true; // No meaningful content
+    }
+
+    /**
+     * Determines if the document is truly in raw formatting (no formatting at all).
+     * This is more restrictive than just checking for line breaks - it also checks
+     * for other formatting indicators like custom spacing.
+     *
+     * @return true if the document appears to have no formatting whatsoever
+     */
+    private boolean isTrulyRawFormatting() {
+        if (document == null || document.root() == null) {
+            return false;
+        }
+
+        // Check if there's any custom spacing in attributes
+        if (hasCustomAttributeSpacing(document.root())) {
+            return false; // Has custom spacing, not truly raw
+        }
+
+        // Check if there's any significant whitespace in the document structure
+        return !hasAnySignificantWhitespace(document);
+    }
+
+    /**
+     * Checks if an element has custom attribute spacing (more than single spaces).
+     */
+    private boolean hasCustomAttributeSpacing(Element element) {
+        // Check this element's attributes
+        for (String attrName : element.attributes().keySet()) {
+            Attribute attr = element.attributeObject(attrName);
+            if (attr != null) {
+                String whitespace = attr.precedingWhitespace();
+                if (whitespace != null && (whitespace.length() > 1 || !whitespace.equals(" "))) {
+                    return true; // Found custom spacing
+                }
+            }
+        }
+
+        // Check child elements recursively
+        for (Node child : element.nodes) {
+            if (child instanceof Element childElement) {
+                if (hasCustomAttributeSpacing(childElement)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the document has any significant whitespace patterns.
+     */
+    private boolean hasAnySignificantWhitespace(Node node) {
+        // Check preceding whitespace
+        String precedingWs = node.precedingWhitespace();
+        if (precedingWs != null && !precedingWs.isEmpty() && !precedingWs.equals(" ")) {
+            return true;
+        }
+
+        // For elements, check various whitespace fields
+        if (node instanceof Element element) {
+            if (!element.openTagWhitespace().isEmpty()
+                    || !element.closeTagWhitespace().isEmpty()
+                    || !element.innerPrecedingWhitespace().isEmpty()) {
+                return true;
+            }
+        }
+
+        // Check text content for whitespace-only nodes with significant content
+        if (node instanceof Text text && text.isWhitespaceOnly()) {
+            if (!text.content().isEmpty() && !text.content().equals(" ")) {
+                return true;
+            }
+        }
+
+        // Check children recursively
+        if (node instanceof ContainerNode container) {
+            for (Node child : container.nodes) {
+                if (hasAnySignificantWhitespace(child)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -1850,6 +1997,11 @@ public class Editor {
             return config.indentString();
         }
 
+        // If we detected raw formatting (empty line ending), use empty indentation too
+        if (lineEnding.isEmpty()) {
+            return "";
+        }
+
         Map<String, Integer> unitCounts = new HashMap<>();
 
         // Collect all indentation units from the entire document
@@ -1858,7 +2010,7 @@ public class Editor {
         // Find the best unit using smart selection
         String detected = selectBestIndentationUnit(unitCounts);
 
-        // Ensure we never return null or empty
+        // Ensure we never return null or empty (unless raw formatting)
         return (detected != null && !detected.isEmpty()) ? detected : config.indentString();
     }
 

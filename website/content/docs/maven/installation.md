@@ -15,7 +15,7 @@ Add the Maven extension to your project's `pom.xml`:
 <dependency>
     <groupId>eu.maveniverse</groupId>
     <artifactId>domtrip-maven</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -27,7 +27,7 @@ For Gradle projects, add to your `build.gradle`:
 
 ```gradle
 dependencies {
-    implementation 'eu.maveniverse:domtrip-maven:0.1-SNAPSHOT'
+    implementation 'eu.maveniverse:domtrip-maven:0.2.0'
 }
 ```
 
@@ -35,7 +35,7 @@ Or for Gradle Kotlin DSL (`build.gradle.kts`):
 
 ```kotlin
 dependencies {
-    implementation("eu.maveniverse:domtrip-maven:0.1-SNAPSHOT")
+    implementation("eu.maveniverse:domtrip-maven:0.2.0")
 }
 ```
 
@@ -130,7 +130,7 @@ If you have version conflicts with transitive dependencies:
 <dependency>
     <groupId>eu.maveniverse</groupId>
     <artifactId>domtrip-maven</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2.0</version>
     <exclusions>
         <exclusion>
             <groupId>*</groupId>
@@ -142,7 +142,7 @@ If you have version conflicts with transitive dependencies:
 <dependency>
     <groupId>eu.maveniverse</groupId>
     <artifactId>domtrip-core</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 

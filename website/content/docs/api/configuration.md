@@ -51,6 +51,21 @@ DomTripConfig minimal = DomTripConfig.minimal();
 // - Compact output
 ```
 
+### Raw Configuration
+
+Completely unformatted output (single line, no indentation):
+
+```java
+DomTripConfig raw = DomTripConfig.raw();
+// - No line breaks
+// - No indentation
+// - Single continuous line
+// - Minimal file size
+// - Useful for APIs or storage optimization
+
+// Example output: <root><child>content</child></root>
+```
+
 ## Whitespace Configuration
 
 Control how whitespace is handled:
@@ -156,6 +171,10 @@ DomTripConfig production = DomTripConfig.defaults()
 // API response configuration - minimal output
 DomTripConfig api = DomTripConfig.minimal()
     .withXmlDeclaration(false);
+
+// Raw configuration - completely unformatted
+DomTripConfig raw = DomTripConfig.raw();
+// Perfect for storage optimization or when formatting is not needed
 ```
 
 ## Environment-Specific Configurations

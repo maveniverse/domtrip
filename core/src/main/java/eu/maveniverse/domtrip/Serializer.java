@@ -20,37 +20,70 @@ import java.nio.charset.StandardCharsets;
  * <ul>
  *   <li><strong>Selective Preservation</strong> - Preserves formatting only for unmodified content</li>
  *   <li><strong>Pretty Printing</strong> - Configurable indentation and formatting</li>
- *   <li><strong>Minimal Output</strong> - Option to minimize whitespace for size optimization</li>
+ *   <li><strong>Raw Mode</strong> - Completely unformatted output (no line breaks or indentation)</li>
+ *   <li><strong>Automatic Detection</strong> - Intelligently detects and preserves existing formatting patterns</li>
  *   <li><strong>Attribute Formatting</strong> - Preserves quote styles and attribute order</li>
  *   <li><strong>Namespace Handling</strong> - Serialization of namespace declarations</li>
  * </ul>
  *
  * <h3>Serialization Modes:</h3>
  * <ul>
- *   <li><strong>Preservation Mode</strong> - Maintains original formatting for unchanged content</li>
- *   <li><strong>Pretty Print Mode</strong> - Applies consistent indentation and formatting</li>
- *   <li><strong>Compact Mode</strong> - Minimizes whitespace for smaller output</li>
+ *   <li><strong>Preservation Mode</strong> ({@code prettyPrint = false}, default) -
+ *       Maintains original formatting for unchanged content. Automatically detects
+ *       formatting patterns in existing XML and preserves them when adding new content.</li>
+ *   <li><strong>Pretty Print Mode</strong> ({@code prettyPrint = true}) -
+ *       Applies consistent indentation and formatting using configured settings.
+ *       When {@code lineEnding = ""} and {@code indentString = ""}, produces raw mode output.</li>
+ * </ul>
+ *
+ * <h3>Raw Mode:</h3>
+ * <p>Raw mode produces XML with no line breaks or indentation, resulting in a single
+ * continuous line. This is useful for minimizing file size or when formatting is not desired.
+ * Raw mode can be achieved by setting both {@code lineEnding} and {@code indentString} to
+ * empty strings, or by using {@link DomTripConfig#raw()}.</p>
+ *
+ * <h3>Automatic Formatting Detection:</h3>
+ * <p>When parsing existing XML documents, the system automatically detects the formatting style:
+ * <ul>
+ *   <li><strong>Raw formatting</strong> - XML with no line breaks or custom spacing is detected
+ *       and preserved when adding new content</li>
+ *   <li><strong>Pretty formatting</strong> - XML with consistent indentation is detected and preserved</li>
+ *   <li><strong>Custom formatting</strong> - XML with custom spacing patterns is detected and preserved</li>
  * </ul>
  *
  * <h3>Usage Examples:</h3>
  * <pre>{@code
- * // Basic serialization with preservation
+ * // Basic serialization with preservation (default)
  * Serializer serializer = new Serializer();
  * String xml = serializer.serialize(document);
+ *
+ * // Pretty printing with custom indentation
+ * Serializer prettySerializer = new Serializer();
+ * prettySerializer.setPrettyPrint(true);
+ * prettySerializer.setIndentString("    "); // 4 spaces
+ * prettySerializer.setLineEnding("\n");
+ * String prettyXml = prettySerializer.serialize(document);
+ *
+ * // Raw mode (no formatting)
+ * Serializer rawSerializer = new Serializer(DomTripConfig.raw());
+ * String rawXml = rawSerializer.serialize(document);
+ * // Result: <root><child>content</child></root>
+ *
+ * // Manual raw mode configuration
+ * Serializer manualRaw = new Serializer();
+ * manualRaw.setPrettyPrint(true);
+ * manualRaw.setIndentString(""); // No indentation
+ * manualRaw.setLineEnding("");   // No line endings
  *
  * // Serialize to OutputStream with encoding
  * OutputStream outputStream = new FileOutputStream("output.xml");
  * serializer.serialize(document, outputStream);
  *
- * // Pretty printing
- * Serializer prettySerializer = new Serializer(DomTripConfig.prettyPrint());
- * String prettyXml = prettySerializer.serialize(document);
- *
- * // Custom configuration
- * DomTripConfig config = DomTripConfig.defaults()
- *     .withIndentation("  ")
- *     .withPreserveWhitespace(false);
- * Serializer customSerializer = new Serializer(config);
+ * // Using configuration
+ * DomTripConfig config = DomTripConfig.prettyPrint()
+ *     .withIndentString("\t")
+ *     .withLineEnding("\r\n");
+ * Serializer configSerializer = new Serializer(config);
  * }</pre>
  *
  * <h3>Performance Considerations:</h3>
@@ -63,12 +96,12 @@ import java.nio.charset.StandardCharsets;
  *
  * @see Parser
  * @see DomTripConfig
+ * @see DomTripConfig#raw()
  * @see Document
  * @see Node
  */
 public class Serializer {
 
-    private boolean preserveFormatting;
     private String indentString;
     private boolean prettyPrint;
     private boolean preserveComments;
@@ -79,11 +112,10 @@ public class Serializer {
     /**
      * Creates a new Serializer with default settings.
      *
-     * <p>Default settings include formatting preservation enabled,
-     * two-space indentation, and pretty printing disabled.</p>
+     * <p>Default settings include two-space indentation, pretty printing disabled
+     * (which preserves original formatting), and standard line endings.</p>
      */
     public Serializer() {
-        this.preserveFormatting = true;
         this.indentString = "  "; // Two spaces
         this.prettyPrint = false;
         this.preserveComments = true;
@@ -93,46 +125,17 @@ public class Serializer {
     }
 
     /**
-     * Creates a new Serializer with specified formatting preservation setting.
-     *
-     * @param preserveFormatting true to preserve original formatting, false otherwise
-     */
-    public Serializer(boolean preserveFormatting) {
-        this();
-        this.preserveFormatting = preserveFormatting;
-    }
-
-    /**
      * Creates a new Serializer with the specified configuration.
      *
      * @param config the DomTripConfig to use for serialization settings
      */
     public Serializer(DomTripConfig config) {
-        this.preserveFormatting = config.isPreserveWhitespace();
         this.prettyPrint = config.isPrettyPrint();
         this.indentString = config.indentString();
         this.preserveComments = config.isPreserveComments();
         this.preserveProcessingInstructions = config.isPreserveProcessingInstructions();
         this.omitXmlDeclaration = config.isOmitXmlDeclaration();
         this.lineEnding = config.lineEnding();
-    }
-
-    /**
-     * Checks if formatting preservation is enabled.
-     *
-     * @return true if original formatting is preserved, false otherwise
-     */
-    public boolean isPreserveFormatting() {
-        return preserveFormatting;
-    }
-
-    /**
-     * Sets whether to preserve original formatting.
-     *
-     * @param preserveFormatting true to preserve formatting, false otherwise
-     */
-    public void setPreserveFormatting(boolean preserveFormatting) {
-        this.preserveFormatting = preserveFormatting;
     }
 
     /**
@@ -172,6 +175,24 @@ public class Serializer {
     }
 
     /**
+     * Gets the line ending string used for pretty printing.
+     *
+     * @return the line ending string
+     */
+    public String getLineEnding() {
+        return lineEnding;
+    }
+
+    /**
+     * Sets the line ending string for pretty printing.
+     *
+     * @param lineEnding the line ending string, or null for default
+     */
+    public void setLineEnding(String lineEnding) {
+        this.lineEnding = lineEnding != null ? lineEnding : "\n";
+    }
+
+    /**
      * Serializes an XML document to string with custom configuration.
      *
      * <p>Creates a temporary serializer with the specified configuration
@@ -195,7 +216,7 @@ public class Serializer {
     /**
      * Serializes an XML document to string using this serializer's configuration.
      *
-     * <p>If formatting preservation is enabled and the document is unmodified,
+     * <p>If pretty printing is disabled and the document is unmodified,
      * the original formatting will be preserved. Otherwise, the document will
      * be serialized according to this serializer's configuration.</p>
      *
@@ -207,8 +228,8 @@ public class Serializer {
             return "";
         }
 
-        if (preserveFormatting && !document.isModified()) {
-            // If document is unmodified, use original formatting
+        if (!prettyPrint && !document.isModified()) {
+            // If pretty printing is disabled and document is unmodified, use original formatting
             return document.toXml();
         }
 
@@ -221,12 +242,17 @@ public class Serializer {
 
         // Add DOCTYPE if present
         if (!document.doctype().isEmpty()) {
-            sb.append(lineEnding).append(document.doctype());
+            if (prettyPrint && !lineEnding.isEmpty()) {
+                sb.append(lineEnding);
+            }
+            sb.append(document.doctype());
         }
 
         // Add document element and other children
         if (prettyPrint) {
-            sb.append(lineEnding);
+            if (!lineEnding.isEmpty()) {
+                sb.append(lineEnding);
+            }
             serializeNodePretty(document, sb, 0);
         } else {
             serializeNode(document, sb);
@@ -392,7 +418,7 @@ public class Serializer {
     /**
      * Serializes a single node to string.
      *
-     * <p>If formatting preservation is enabled and the node is unmodified,
+     * <p>If pretty printing is disabled and the node is unmodified,
      * the original formatting will be preserved. Otherwise, the node will
      * be serialized according to this serializer's configuration.</p>
      *
@@ -404,7 +430,7 @@ public class Serializer {
             return "";
         }
 
-        if (preserveFormatting && !node.isModified()) {
+        if (!prettyPrint && !node.isModified()) {
             return node.toXml();
         }
 
@@ -419,8 +445,8 @@ public class Serializer {
     }
 
     private void serializeNode(Node node, StringBuilder sb) {
-        if (preserveFormatting && !node.isModified()) {
-            // Use original formatting for unmodified nodes
+        if (!node.isModified()) {
+            // Use original formatting for unmodified nodes when not pretty printing
             node.toXml(sb);
             return;
         }
@@ -449,12 +475,7 @@ public class Serializer {
     }
 
     private void serializeNodePretty(Node node, StringBuilder sb, int depth) {
-        if (preserveFormatting && !node.isModified()) {
-            // Use original formatting for unmodified nodes
-            node.toXml(sb);
-            return;
-        }
-
+        // Always apply pretty printing formatting, ignoring original formatting
         switch (node.type()) {
             case DOCUMENT:
                 serializeDocumentPretty((Document) node, sb, depth);
@@ -505,7 +526,7 @@ public class Serializer {
 
     private void serializeElementPretty(Element element, StringBuilder sb, int depth) {
         // Indentation
-        if (depth > 0) {
+        if (depth > 0 && !lineEnding.isEmpty()) {
             sb.append(lineEnding);
             for (int i = 0; i < depth; i++) {
                 sb.append(indentString);
@@ -515,11 +536,11 @@ public class Serializer {
         // Opening tag
         sb.append("<").append(element.name());
 
-        // Attributes - use Attribute objects to preserve formatting
+        // Attributes - use Attribute objects with pretty print formatting
         for (String attrName : element.attributes().keySet()) {
             Attribute attr = element.attributeObject(attrName);
             if (attr != null) {
-                attr.toXml(sb, preserveFormatting && !element.isModified());
+                attr.toXml(sb, false); // Don't preserve original formatting in pretty print mode
             }
         }
 
@@ -540,7 +561,7 @@ public class Serializer {
             }
 
             // Closing tag
-            if (hasElementChildren) {
+            if (hasElementChildren && !lineEnding.isEmpty()) {
                 sb.append(lineEnding);
                 for (int i = 0; i < depth; i++) {
                     sb.append(indentString);
@@ -571,7 +592,7 @@ public class Serializer {
     }
 
     private void serializeCommentPretty(Comment comment, StringBuilder sb, int depth) {
-        if (depth > 0) {
+        if (depth > 0 && !lineEnding.isEmpty()) {
             sb.append(lineEnding);
             for (int i = 0; i < depth; i++) {
                 sb.append(indentString);
@@ -590,7 +611,7 @@ public class Serializer {
     }
 
     private void serializeProcessingInstructionPretty(ProcessingInstruction pi, StringBuilder sb, int depth) {
-        if (depth > 0) {
+        if (depth > 0 && !lineEnding.isEmpty()) {
             sb.append(lineEnding);
             for (int i = 0; i < depth; i++) {
                 sb.append(indentString);

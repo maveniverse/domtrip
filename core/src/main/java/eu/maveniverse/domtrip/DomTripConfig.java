@@ -110,6 +110,21 @@ public class DomTripConfig {
         return config;
     }
 
+    /**
+     * Creates a raw configuration for completely unformatted output.
+     *
+     * <p>Raw mode produces XML with no line breaks or indentation whatsoever,
+     * resulting in a single continuous line of XML. This is useful for
+     * minimizing file size or when formatting is not desired.</p>
+     */
+    public static DomTripConfig raw() {
+        DomTripConfig config = new DomTripConfig();
+        config.prettyPrint = true;
+        config.indentString = "";
+        config.lineEnding = "";
+        return config;
+    }
+
     // Fluent setters
     public DomTripConfig withWhitespacePreservation(boolean preserve) {
         this.preserveWhitespace = preserve;

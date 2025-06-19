@@ -124,7 +124,7 @@ Great for analyzing and modifying POMs:
 <dependency>
     <groupId>eu.maveniverse</groupId>
     <artifactId>domtrip-maven</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 

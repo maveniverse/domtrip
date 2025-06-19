@@ -23,7 +23,7 @@ Add DomTrip core to your `pom.xml`:
 <dependency>
     <groupId>eu.maveniverse</groupId>
     <artifactId>domtrip-core</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ For Maven POM file editing, use the Maven extension which includes the core libr
 <dependency>
     <groupId>eu.maveniverse</groupId>
     <artifactId>domtrip-maven</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -53,7 +53,7 @@ Add DomTrip core to your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'eu.maveniverse:domtrip-core:0.1-SNAPSHOT'
+    implementation 'eu.maveniverse:domtrip-core:0.2.0'
 }
 ```
 
@@ -63,7 +63,7 @@ For Maven POM editing, use the Maven extension:
 
 ```groovy
 dependencies {
-    implementation 'eu.maveniverse:domtrip-maven:0.1-SNAPSHOT'
+    implementation 'eu.maveniverse:domtrip-maven:0.2.0'
 }
 ```
 
@@ -72,10 +72,10 @@ Or for Kotlin DSL (`build.gradle.kts`):
 ```kotlin
 dependencies {
     // Core library
-    implementation("eu.maveniverse:domtrip-core:0.1-SNAPSHOT")
+    implementation("eu.maveniverse:domtrip-core:0.2.0")
 
     // Or Maven extension (includes core)
-    implementation("eu.maveniverse:domtrip-maven:0.1-SNAPSHOT")
+    implementation("eu.maveniverse:domtrip-maven:0.2.0")
 }
 ```
 
@@ -84,7 +84,7 @@ dependencies {
 Add DomTrip to your `build.sbt`:
 
 ```scala
-libraryDependencies += "eu.maveniverse" % "domtrip-core" % "0.1-SNAPSHOT"
+libraryDependencies += "eu.maveniverse" % "domtrip-core" % "0.2.0"
 ```
 
 ## Verify Installation
@@ -119,7 +119,7 @@ If you see "✅ DomTrip is working!" and "Round-trip successful: true", you're a
 
 ## Snapshot Versions
 
-DomTrip is currently in development. To use snapshot versions, add the snapshot repository:
+To use the latest development snapshot versions, add the snapshot repository:
 
 ### Maven
 

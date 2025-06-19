@@ -26,7 +26,7 @@ Add DomTrip to your Maven project:
 <dependency>
     <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip-maven</artifactId>
-    <version>${version.domtrip}</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -37,14 +37,14 @@ Add DomTrip to your Maven project:
 Editor editor = new Editor(Document.of(xmlString));
 
 // Make targeted changes
-Element version = editor.findElement("version");
+Element version = editor.root().descendant("version").orElseThrow();
 editor.setTextContent(version, "2.0.0");
 
 // Add new elements with automatic formatting
-Element dependencies = editor.findElement("dependencies");
+Element dependencies = editor.root().descendant("dependencies").orElseThrow();
 Element newDep = editor.addElement(dependencies, "dependency");
-editor.addElement(newDep, "groupId").setTextContent("junit");
-editor.addElement(newDep, "artifactId").setTextContent("junit");
+editor.addElement(newDep, "groupId", "junit");
+editor.addElement(newDep, "artifactId", "junit");
 
 // Get result with preserved formatting
 String result = editor.toXml();
@@ -98,35 +98,34 @@ Create XML elements with convenient factory methods:
 
 ```java
 // Simple elements
-Element version = Element.textElement("version", "1.0.0");
-Element properties = Element.emptyElement("properties");
-Element br = Element.selfClosingElement("br");
+Element version = Element.text("version", "1.0.0");
+Element properties = Element.of("properties");
+Element br = Element.selfClosing("br");
 
 // Elements with attributes
 Map<String, String> attrs = Map.of("scope", "test", "optional", "true");
-Element dependency = Element.elementWithAttributes("dependency", attrs);
+Element dependency = Element.withAttributes("dependency", attrs);
 
 // Namespaced elements
-Element soapEnvelope = Element.namespacedElement("soap", "Envelope",
-    "http://schemas.xmlsoap.org/soap/envelope/");
-Element defaultNs = Element.elementInNamespace("http://example.com/ns", "item");
+QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
+Element nsElement = Element.of(soapEnvelope);
+Element defaultNs = Element.of(QName.of("http://example.com/ns", "item"));
 
 // Documents
-Document doc = Document.withRootElement("project");
-Document minimal = Document.minimal("root");
+Document doc = Document.of().root(Element.of("project"));
+Document withDecl = Document.withXmlDeclaration("1.0", "UTF-8");
 ```
 
-### Builder Patterns
+### Fluent API
 
 Create complex XML structures with fluent APIs:
 
 ```java
-Element dependency = Element.builder("dependency")
-    .withAttribute("scope", "test")
-    .withChild(Element.builder("groupId").withText("junit").build())
-    .withChild(Element.builder("artifactId").withText("junit").build())
-    .withChild(Element.builder("version").withText("4.13.2").build())
-    .build();
+Element dependency = Element.of("dependency")
+    .attribute("scope", "test");
+dependency.addNode(Element.text("groupId", "junit"));
+dependency.addNode(Element.text("artifactId", "junit"));
+dependency.addNode(Element.text("version", "4.13.2"));
 ```
 
 ### Stream-Based Navigation
@@ -136,9 +135,9 @@ Navigate XML documents with Java Streams:
 ```java
 // Find all test dependencies
 root.descendants()
-    .filter(e -> "dependency".equals(e.getName()))
-    .filter(e -> "test".equals(e.getAttribute("scope")))
-    .forEach(dep -> System.out.println(dep.findChild("artifactId").orElse("")));
+    .filter(e -> "dependency".equals(e.name()))
+    .filter(e -> "test".equals(e.attribute("scope")))
+    .forEach(dep -> System.out.println(dep.child("artifactId").map(Element::textContent).orElse("")));
 ```
 
 ### Namespace-Aware Operations
@@ -147,14 +146,13 @@ Work with XML namespaces naturally:
 
 ```java
 // Find elements by namespace URI and local name
-Optional<Element> soapBody = root.findChildByNamespace(
-    "http://schemas.xmlsoap.org/soap/envelope/", "Body");
+QName soapBodyQName = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body");
+Optional<Element> soapBody = root.child(soapBodyQName);
 
 // Create namespaced elements
-Element element = Element.builder("item")
-    .withNamespace("ex", "http://example.com/ns")
-    .withDefaultNamespace("http://example.com/default")
-    .build();
+Element element = Element.of("item")
+    .namespaceDeclaration("ex", "http://example.com/ns")
+    .namespaceDeclaration(null, "http://example.com/default");
 ```
 
 ### Configuration Management
@@ -163,12 +161,12 @@ Customize DomTrip behavior for different use cases:
 
 ```java
 // Strict preservation (default)
-DomTripConfig strict = DomTripConfig.strict();
+DomTripConfig strict = DomTripConfig.defaults();
 
 // Pretty printing for clean output
 DomTripConfig pretty = DomTripConfig.prettyPrint()
-    .withIndentation("  ")
-    .withQuoteStyle(QuoteStyle.DOUBLE);
+    .withIndentString("  ")
+    .withDefaultQuoteStyle(QuoteStyle.DOUBLE);
 
 Editor editor = new Editor(Document.of(xml), pretty);
 ```
@@ -319,7 +317,7 @@ DomTrip is licensed under the [Eclipse Public License 2.0](LICENSE).
 ## 🔗 Links
 
 - **📖 [Documentation](https://maveniverse.github.io/domtrip/)**
-- **📦 [Maven Central](https://central.sonatype.com/artifact/eu.maveniverse/domtrip)**
+- **📦 [Maven Central](https://central.sonatype.com/artifact/eu.maveniverse.maven.domtrip/domtrip)**
 - **🐛 [Issues](https://github.com/maveniverse/domtrip/issues)**
 - **💬 [Discussions](https://github.com/maveniverse/domtrip/discussions)**
 

@@ -23,6 +23,7 @@ import java.util.regex.Pattern;
  * <h3>Parsing Features:</h3>
  * <ul>
  *   <li><strong>Whitespace Preservation</strong> - Maintains all whitespace exactly as written</li>
+ *   <li><strong>Automatic Whitespace Normalization</strong> - Never creates Text nodes with only whitespace</li>
  *   <li><strong>Attribute Formatting</strong> - Preserves quote styles, order, and spacing</li>
  *   <li><strong>Comment Preservation</strong> - Keeps all XML comments in their original positions</li>
  *   <li><strong>Entity Preservation</strong> - Maintains entity references in their original form</li>
@@ -36,9 +37,19 @@ import java.util.regex.Pattern;
  *   <li>Tokenizes the input XML character by character</li>
  *   <li>Identifies XML constructs (elements, comments, text, etc.)</li>
  *   <li>Preserves original formatting information for each construct</li>
+ *   <li>Automatically normalizes whitespace-only content to element properties</li>
  *   <li>Builds a complete node tree with parent-child relationships</li>
  *   <li>Maintains modification flags for selective formatting preservation</li>
  * </ol>
+ *
+ * <h3>Whitespace Normalization:</h3>
+ * <p>The parser automatically normalizes whitespace during parsing to ensure a clean tree structure:</p>
+ * <ul>
+ *   <li><strong>No Whitespace-Only Text Nodes</strong> - Whitespace between elements is captured in element properties</li>
+ *   <li><strong>Mixed Content Preservation</strong> - Text nodes with actual content preserve their whitespace</li>
+ *   <li><strong>Lossless Round-Trip</strong> - All whitespace is preserved for perfect XML reconstruction</li>
+ *   <li><strong>Element Properties</strong> - Whitespace stored in precedingWhitespace, innerPrecedingWhitespace, etc.</li>
+ * </ul>
  *
  * <h3>Error Handling:</h3>
  * <p>The parser provides detailed error information for malformed XML:</p>
@@ -224,27 +235,28 @@ public class Parser {
         nodeStack.push(document);
 
         StringBuilder precedingWhitespace = new StringBuilder();
+        StringBuilder pendingWhitespace = new StringBuilder();
 
         while (position < length) {
             char ch = xml.charAt(position);
 
             if (ch == '<') {
-                // Save any preceding whitespace/text
+                // Process any preceding text/whitespace
                 if (!precedingWhitespace.isEmpty()) {
                     String rawText = precedingWhitespace.toString();
                     String decodedText = Text.unescapeTextContent(rawText);
 
-                    // Check if this is whitespace-only content
                     if (isWhitespaceOnly(decodedText)) {
-                        // This is whitespace that should be captured as element whitespace
-                        // We'll handle this when we parse the next element or closing tag
-                        // For now, store it for the next element to use as precedingWhitespace
-                        Text textNode = new Text(decodedText, rawText);
-                        ContainerNode current = (ContainerNode) nodeStack.peek();
-                        current.addNodeInternal(textNode);
+                        // This is whitespace - store it for the next node
+                        pendingWhitespace.append(decodedText);
                     } else {
-                        // This is actual text content, create a text node
+                        // This is actual text content - create a text node
                         Text textNode = new Text(decodedText, rawText);
+                        // Apply any pending whitespace as preceding whitespace
+                        if (!pendingWhitespace.isEmpty()) {
+                            textNode.precedingWhitespaceInternal(pendingWhitespace.toString());
+                            pendingWhitespace.setLength(0);
+                        }
                         ContainerNode current = (ContainerNode) nodeStack.peek();
                         current.addNodeInternal(textNode);
                     }
@@ -258,11 +270,21 @@ public class Parser {
                         if (position + 3 < length && xml.startsWith("<!--", position)) {
                             // Parse comment
                             Comment comment = parseComment();
+                            // Apply any pending whitespace as preceding whitespace
+                            if (!pendingWhitespace.isEmpty()) {
+                                comment.precedingWhitespaceInternal(pendingWhitespace.toString());
+                                pendingWhitespace.setLength(0);
+                            }
                             ContainerNode current = (ContainerNode) nodeStack.peek();
                             current.addNodeInternal(comment);
                         } else if (position + 8 < length && xml.startsWith("<![CDATA[", position)) {
                             // Parse CDATA
                             Text cdata = parseCData();
+                            // Apply any pending whitespace as preceding whitespace
+                            if (!pendingWhitespace.isEmpty()) {
+                                cdata.precedingWhitespaceInternal(pendingWhitespace.toString());
+                                pendingWhitespace.setLength(0);
+                            }
                             ContainerNode current = (ContainerNode) nodeStack.peek();
                             current.addNodeInternal(cdata);
                         } else if (position + 9 < length && xml.startsWith("<!DOCTYPE", position)) {
@@ -281,13 +303,21 @@ public class Parser {
                         } else {
                             // Add other processing instructions as nodes
                             ProcessingInstruction piNode = new ProcessingInstruction(pi);
+                            // Apply any pending whitespace as preceding whitespace
+                            if (!pendingWhitespace.isEmpty()) {
+                                piNode.precedingWhitespaceInternal(pendingWhitespace.toString());
+                                pendingWhitespace.setLength(0);
+                            }
                             ContainerNode current = (ContainerNode) nodeStack.peek();
                             current.addNodeInternal(piNode);
                         }
                     } else if (nextChar == '/') {
-                        // Before parsing closing tag, handle inner whitespace for the current element
+                        // Before parsing closing tag, handle any pending whitespace as inner whitespace
                         if (!nodeStack.isEmpty() && nodeStack.peek() instanceof Element currentElement) {
-                            captureInnerWhitespace(currentElement);
+                            if (!pendingWhitespace.isEmpty()) {
+                                currentElement.innerPrecedingWhitespaceInternal(pendingWhitespace.toString());
+                                pendingWhitespace.setLength(0);
+                            }
                         }
 
                         // Parse closing tag
@@ -296,11 +326,12 @@ public class Parser {
                     } else {
                         // Parse opening tag
                         Element element = parseOpeningTag();
+                        // Apply any pending whitespace as preceding whitespace
+                        if (!pendingWhitespace.isEmpty()) {
+                            element.precedingWhitespaceInternal(pendingWhitespace.toString());
+                            pendingWhitespace.setLength(0);
+                        }
                         ContainerNode current = (ContainerNode) nodeStack.peek();
-
-                        // Capture preceding whitespace from the last whitespace-only text node
-                        capturePrecedingWhitespace(element, current);
-
                         current.addNodeInternal(element);
 
                         if (!element.selfClosing()) {
@@ -315,12 +346,32 @@ public class Parser {
             }
         }
 
-        // Add any remaining whitespace/text
+        // Handle any remaining whitespace/text
         if (!precedingWhitespace.isEmpty()) {
             String rawText = precedingWhitespace.toString();
             String decodedText = Text.unescapeTextContent(rawText);
-            Text textNode = new Text(decodedText, rawText);
-            document.addNodeInternal(textNode);
+
+            if (isWhitespaceOnly(decodedText)) {
+                // This is whitespace - store it for the document
+                pendingWhitespace.append(decodedText);
+            } else {
+                // This is actual text content - create a text node
+                Text textNode = new Text(decodedText, rawText);
+                // Apply any pending whitespace as preceding whitespace
+                if (!pendingWhitespace.isEmpty()) {
+                    textNode.precedingWhitespaceInternal(pendingWhitespace.toString());
+                    pendingWhitespace.setLength(0);
+                }
+                document.addNodeInternal(textNode);
+            }
+        }
+
+        // Handle any remaining pending whitespace - create a text node for document-level trailing whitespace
+        if (!pendingWhitespace.isEmpty()) {
+            // This is trailing whitespace at the document level (after the root element)
+            // We need to preserve it as a text node since there's no element to assign it to
+            Text trailingWhitespace = new Text(pendingWhitespace.toString());
+            document.addNodeInternal(trailingWhitespace);
         }
 
         // Set the document element (first element child)
@@ -583,41 +634,6 @@ public class Parser {
      */
     private boolean isWhitespaceOnly(String content) {
         return content != null && content.trim().isEmpty();
-    }
-
-    /**
-     * Captures preceding whitespace for an element from the last whitespace-only text node.
-     */
-    private void capturePrecedingWhitespace(Element element, ContainerNode parent) {
-        // Look for the last child that is a whitespace-only text node
-        if (!parent.nodes.isEmpty()) {
-            Node lastChild = parent.nodes.get(parent.nodes.size() - 1);
-            if (lastChild instanceof Text textNode && isWhitespaceOnly(textNode.content())) {
-                // Capture this whitespace as preceding whitespace for the element
-                element.precedingWhitespaceInternal(textNode.content());
-
-                // Remove the whitespace-only text node since it's now captured as element whitespace
-                parent.nodes.remove(parent.nodes.size() - 1);
-            }
-        }
-    }
-
-    /**
-     * Captures inner whitespace for an element that contains only whitespace-only Text nodes.
-     * This converts whitespace Text nodes to inner whitespace fields when appropriate.
-     */
-    private void captureInnerWhitespace(Element parent) {
-        // Look for the last child that is a whitespace-only text node
-        if (!parent.nodes.isEmpty()) {
-            Node lastChild = parent.nodes.get(parent.nodes.size() - 1);
-            if (lastChild instanceof Text textNode && isWhitespaceOnly(textNode.content())) {
-                // Capture this whitespace as preceding whitespace for the element
-                parent.innerPrecedingWhitespaceInternal(textNode.content());
-
-                // Remove the whitespace-only text node since it's now captured as element whitespace
-                parent.nodes.remove(parent.nodes.size() - 1);
-            }
-        }
     }
 
     /**

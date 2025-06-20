@@ -1896,6 +1896,10 @@ public class Editor {
      * @param index the index at which to insert the node
      */
     private void insertChild(ContainerNode parent, Element newElement, int index) {
+        // TODO: Recursively fix indentation for elements moved between documents
+        // When an element is moved from another document, we should adapt its formatting
+        // and the formatting of all its descendants to match the target document's style
+
         index = normalizeWhitespaces(parent, index);
         int count = parent.nodeCount();
         String properIndentation = inferIndentation(parent);

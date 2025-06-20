@@ -109,6 +109,42 @@ public class Element extends ContainerNode {
     }
 
     /**
+     * Private copy constructor for cloning.
+     *
+     * @param original the element to copy from
+     */
+    private Element(Element original) {
+        super(); // Initialize ContainerNode with empty nodes list
+        this.name = original.name;
+
+        // Deep copy attributes to avoid sharing Attribute objects
+        this.attributes = new LinkedHashMap<>();
+        for (Map.Entry<String, Attribute> entry : original.attributes.entrySet()) {
+            this.attributes.put(entry.getKey(), entry.getValue().clone());
+        }
+
+        this.openTagWhitespace = original.openTagWhitespace;
+        this.closeTagWhitespace = original.closeTagWhitespace;
+        this.innerPrecedingWhitespace = original.innerPrecedingWhitespace;
+        this.selfClosing = original.selfClosing;
+        this.originalOpenTag = original.originalOpenTag;
+        this.originalCloseTag = original.originalCloseTag;
+
+        // Copy inherited Node properties
+        this.precedingWhitespace = original.precedingWhitespace;
+
+        // Deep copy children directly to avoid addNode() side effects
+        for (Node child : original.nodes().toList()) {
+            Node clonedChild = child.clone();
+            clonedChild.parent(this); // Set parent directly
+            this.nodes.add(clonedChild); // Add directly to list
+        }
+
+        // Note: parent is intentionally not copied - clone has no parent
+        // Note: modified flag is not copied - clone starts as unmodified
+    }
+
+    /**
      * Returns the node type for this element.
      *
      * @return {@link NodeType#ELEMENT}
@@ -1039,6 +1075,11 @@ public class Element extends ContainerNode {
         }
 
         return false; // Namespace not found in hierarchy
+    }
+
+    @Override
+    public Element clone() {
+        return new Element(this);
     }
 
     @Override

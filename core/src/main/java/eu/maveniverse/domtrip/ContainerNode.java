@@ -34,6 +34,10 @@ public abstract class ContainerNode extends Node {
      */
     public void addNode(Node node) {
         if (node != null) {
+            // Remove from previous parent if it exists
+            if (node.parent() != null) {
+                node.parent().removeNode(node);
+            }
             node.parent(this);
             nodes.add(node);
             // If this is an Element and it was self-closing, make it not self-closing
@@ -62,6 +66,10 @@ public abstract class ContainerNode extends Node {
      */
     public void insertNode(int index, Node node) {
         if (node != null && index >= 0 && index <= nodes.size()) {
+            // Remove from previous parent if it exists
+            if (node.parent() != null) {
+                node.parent().removeNode(node);
+            }
             node.parent(this);
             nodes.add(index, node);
             // If this is an Element and it was self-closing, make it not self-closing

@@ -93,6 +93,39 @@ public class Document extends ContainerNode {
     }
 
     /**
+     * Private copy constructor for cloning.
+     *
+     * @param original the document to copy from
+     */
+    private Document(Document original) {
+        super(); // Initialize ContainerNode with empty nodes list
+        this.xmlDeclaration = original.xmlDeclaration;
+        this.doctype = original.doctype;
+        this.encoding = original.encoding;
+        this.version = original.version;
+        this.standalone = original.standalone;
+
+        // Copy inherited Node properties
+        this.precedingWhitespace = original.precedingWhitespace;
+
+        // Copy root element if it exists
+        if (original.root != null) {
+            this.root = original.root.clone();
+            this.root.parent(this); // Set parent directly
+        }
+
+        // Deep copy children directly to avoid addNode() side effects
+        for (Node child : original.nodes().toList()) {
+            Node clonedChild = child.clone();
+            clonedChild.parent(this); // Set parent directly
+            this.nodes.add(clonedChild); // Add directly to list
+        }
+
+        // Note: parent is intentionally not copied - clone has no parent
+        // Note: modified flag is not copied - clone starts as unmodified
+    }
+
+    /**
      * Returns the node type for this document.
      *
      * @return {@link NodeType#DOCUMENT}
@@ -596,6 +629,11 @@ public class Document extends ContainerNode {
         } catch (IOException e) {
             throw new DomTripException("Failed to read file: " + path, e);
         }
+    }
+
+    @Override
+    public Document clone() {
+        return new Document(this);
     }
 
     /**

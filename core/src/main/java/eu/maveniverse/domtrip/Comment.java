@@ -68,6 +68,22 @@ public class Comment extends Node {
     }
 
     /**
+     * Private copy constructor for cloning.
+     *
+     * @param original the comment to copy from
+     */
+    private Comment(Comment original) {
+        super();
+        this.content = original.content;
+
+        // Copy inherited Node properties
+        this.precedingWhitespace = original.precedingWhitespace;
+
+        // Note: parent is intentionally not copied - clone has no parent
+        // Note: modified flag is not copied - clone starts as unmodified
+    }
+
+    /**
      * Returns the node type for this comment.
      *
      * @return {@link NodeType#COMMENT}
@@ -158,6 +174,11 @@ public class Comment extends Node {
      */
     public boolean isEmpty() {
         return content.isEmpty();
+    }
+
+    @Override
+    public Comment clone() {
+        return new Comment(this);
     }
 
     /**

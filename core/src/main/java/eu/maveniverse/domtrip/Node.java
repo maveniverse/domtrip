@@ -120,6 +120,24 @@ public abstract class Node {
     public abstract void toXml(StringBuilder sb);
 
     /**
+     * Creates a deep clone of this node.
+     *
+     * <p>The cloned node will have:</p>
+     * <ul>
+     *   <li>All properties copied from the original</li>
+     *   <li>All child nodes recursively cloned (for container nodes)</li>
+     *   <li>Whitespace and formatting properties preserved</li>
+     *   <li>No parent (parent is set to null)</li>
+     * </ul>
+     *
+     * <p>The cloned node and its descendants will have their parent-child
+     * relationships properly established within the cloned subtree.</p>
+     *
+     * @return a new node that is a deep copy of this node
+     */
+    public abstract Node clone();
+
+    /**
      * Gets the parent container node of this node.
      *
      * <p>Returns the parent container node in the XML tree, or null if this is the

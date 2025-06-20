@@ -62,6 +62,24 @@ public class ProcessingInstruction extends Node {
         parseContent();
     }
 
+    /**
+     * Private copy constructor for cloning.
+     *
+     * @param original the processing instruction to copy from
+     */
+    private ProcessingInstruction(ProcessingInstruction original) {
+        super();
+        this.target = original.target;
+        this.data = original.data;
+        this.originalContent = original.originalContent;
+
+        // Copy inherited Node properties
+        this.precedingWhitespace = original.precedingWhitespace;
+
+        // Note: parent is intentionally not copied - clone has no parent
+        // Note: modified flag is not copied - clone starts as unmodified
+    }
+
     private void parseContent() {
         if (originalContent.startsWith("<?") && originalContent.endsWith("?>")) {
             String content =
@@ -137,6 +155,11 @@ public class ProcessingInstruction extends Node {
             }
             sb.append("?>");
         }
+    }
+
+    @Override
+    public ProcessingInstruction clone() {
+        return new ProcessingInstruction(this);
     }
 
     @Override

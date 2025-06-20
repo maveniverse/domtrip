@@ -87,6 +87,25 @@ public class Text extends Node {
         this.rawContent = rawContent;
     }
 
+    /**
+     * Private copy constructor for cloning.
+     *
+     * @param original the text node to copy from
+     */
+    private Text(Text original) {
+        super();
+        this.content = original.content;
+        this.rawContent = original.rawContent;
+        this.isCData = original.isCData;
+        this.preserveWhitespace = original.preserveWhitespace;
+
+        // Copy inherited Node properties
+        this.precedingWhitespace = original.precedingWhitespace;
+
+        // Note: parent is intentionally not copied - clone has no parent
+        // Note: modified flag is not copied - clone starts as unmodified
+    }
+
     @Override
     public NodeType type() {
         return NodeType.TEXT;
@@ -325,6 +344,11 @@ public class Text extends Node {
             content = content.replaceAll("\\s+", " ").trim();
             markModified();
         }
+    }
+
+    @Override
+    public Text clone() {
+        return new Text(this);
     }
 
     @Override

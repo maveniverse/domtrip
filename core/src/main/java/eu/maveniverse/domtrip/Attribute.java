@@ -249,6 +249,15 @@ public class Attribute {
     }
 
     /**
+     * Creates a deep clone of this attribute.
+     *
+     * @return a new attribute that is a copy of this attribute
+     */
+    public Attribute clone() {
+        return new Attribute(this.name, this.value, this.quoteStyle, this.precedingWhitespace, this.rawValue);
+    }
+
+    /**
      * Creates an attribute with the specified name and value.
      *
      * <p>Factory method following modern Java naming conventions.</p>

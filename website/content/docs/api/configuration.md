@@ -136,9 +136,8 @@ Build a comprehensive configuration:
 
 ```java
 DomTripConfig config = DomTripConfig.defaults()
-    // Whitespace settings
+    // Formatting settings
     .withIndentString("  ")                         // 2-space indentation
-    .withWhitespacePreservation(true)               // Keep original whitespace
     .withPrettyPrint(false)                         // No reformatting
 
     // Content preservation
@@ -246,8 +245,7 @@ Here's a complete list of available configuration methods:
 
 ```java
 DomTripConfig config = DomTripConfig.defaults()
-    // Whitespace control
-    .withWhitespacePreservation(boolean)           // Preserve original whitespace
+    // Formatting control
     .withPrettyPrint(boolean)                      // Enable pretty printing
     .withIndentString(String)                      // Set indentation string
     .withLineEnding(String)                        // Set line ending style

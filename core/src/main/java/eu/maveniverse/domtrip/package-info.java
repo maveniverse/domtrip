@@ -59,7 +59,6 @@
  * <p>Use {@link eu.maveniverse.domtrip.DomTripConfig} to control parsing and serialization behavior:</p>
  * <pre>{@code
  * DomTripConfig config = DomTripConfig.defaults()
- *     .withWhitespacePreservation(true)
  *     .withCommentPreservation(true)
  *     .withPrettyPrint(false);
  *

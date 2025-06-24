@@ -62,25 +62,12 @@ public class ConfigurationDemo {
         System.out.println("1. Configuration Options Demo:");
 
         // Default configuration
-        Editor defaultEditor = new Editor(Document.of(xml), DomTripConfig.strict());
+        Editor defaultEditor = new Editor(Document.of(xml), DomTripConfig.defaults());
         System.out.println("Default configuration preserves everything:");
-        System.out.println("- Preserves whitespace: " + defaultEditor.config().isPreserveWhitespace());
         System.out.println("- Preserves comments: " + defaultEditor.config().isPreserveComments());
         System.out.println(
                 "- Preserves processing instructions: " + defaultEditor.config().isPreserveProcessingInstructions());
         System.out.println("- Default quote style: " + defaultEditor.config().defaultQuoteStyle());
-
-        // Strict configuration (now same as default)
-        Editor strictEditor = new Editor(Document.of(xml), DomTripConfig.strict());
-        System.out.println("\nStrict configuration (same as default):");
-        System.out.println("- Preserves whitespace: " + strictEditor.config().isPreserveWhitespace());
-        System.out.println("- Preserves comments: " + strictEditor.config().isPreserveComments());
-
-        // Lenient configuration (now same as default)
-        Editor lenientEditor = new Editor(Document.of(xml), DomTripConfig.lenient());
-        System.out.println("\nLenient configuration (same as default):");
-        System.out.println("- Preserves whitespace: " + lenientEditor.config().isPreserveWhitespace());
-        System.out.println("- Preserves comments: " + lenientEditor.config().isPreserveComments());
 
         // Custom configuration
         DomTripConfig customConfig = DomTripConfig.defaults()
@@ -196,10 +183,10 @@ public class ConfigurationDemo {
         System.out.println(xml);
 
         try {
-            // Test with whitespace preservation
-            DomTripConfig preserveConfig = DomTripConfig.defaults().withWhitespacePreservation(true);
+            // Test with default configuration
+            DomTripConfig preserveConfig = DomTripConfig.defaults();
             Editor preserveEditor = new Editor(Document.of(xml), preserveConfig);
-            System.out.println("\nWith whitespace preservation:");
+            System.out.println("\nWith default configuration:");
             System.out.println(preserveEditor.toXml());
 
             // Test with different indentation

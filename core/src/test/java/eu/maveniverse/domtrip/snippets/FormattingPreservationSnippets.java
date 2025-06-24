@@ -146,22 +146,19 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
 
         // START: configuration-control
         // Preset configurations
-        DomTripConfig strict = DomTripConfig.strict(); // Maximum preservation
-        DomTripConfig lenient = DomTripConfig.lenient(); // Flexible formatting
+        DomTripConfig defaults = DomTripConfig.defaults(); // Default preservation
         DomTripConfig pretty = DomTripConfig.prettyPrint(); // Clean output
 
         // Custom configuration
         DomTripConfig custom = DomTripConfig.defaults()
                 .withIndentString("  ") // 2 spaces
-                .withWhitespacePreservation(true) // Keep original whitespace
                 .withCommentPreservation(true); // Keep comments
         // END: configuration-control
 
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc, custom);
 
-        Assertions.assertNotNull(strict);
-        Assertions.assertNotNull(lenient);
+        Assertions.assertNotNull(defaults);
         Assertions.assertNotNull(pretty);
         Assertions.assertNotNull(custom);
     }

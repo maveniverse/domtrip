@@ -144,7 +144,6 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
         // Custom configuration
         DomTripConfig custom = DomTripConfig.defaults()
                 .withIndentString("  ") // 2 spaces
-                .withWhitespacePreservation(true) // Keep original whitespace
                 .withCommentPreservation(true) // Keep comments
                 .withDefaultQuoteStyle(QuoteStyle.DOUBLE); // Prefer double quotes
         // END: configuration-system

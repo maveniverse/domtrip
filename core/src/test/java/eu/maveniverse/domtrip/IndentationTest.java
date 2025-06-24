@@ -166,4 +166,58 @@ public class IndentationTest {
         assertTrue(foundChild1, "Should find child1 element");
         assertTrue(foundChild2, "Should find child2 element");
     }
+
+    @Test
+    void testRecursiveIndentationFix() {
+        // Create a target document with 2-space indentation
+        String targetXml = """
+            <target>
+              <existing>element</existing>
+            </target>""";
+
+        Document targetDoc = Document.of(targetXml);
+        Editor targetEditor = new Editor(targetDoc);
+        Element targetRoot = targetDoc.root();
+
+        // Build a complex nested structure using Editor methods
+        // This will trigger the recursive indentation fix as elements are added
+        Element complex = targetEditor.addElement(targetRoot, "complex");
+        Element nested = targetEditor.addElement(complex, "nested");
+        targetEditor.addElement(nested, "deep", "content");
+        targetEditor.addElement(nested, "another", "value");
+        targetEditor.addElement(complex, "sibling", "data");
+
+        String result = targetEditor.toXml();
+
+        // Verify that all elements are properly indented with 2-space indentation
+        // The complex element should be at the same level as existing (2 spaces)
+        assertTrue(
+                result.contains("  <existing>element</existing>"), "Existing element should have 2-space indentation");
+        assertTrue(result.contains("  <complex>"), "Complex element should have 2-space indentation");
+
+        // Nested elements should have 4 spaces (2 + 2)
+        assertTrue(result.contains("    <nested>"), "Nested element should have 4-space indentation");
+        assertTrue(result.contains("    <sibling>data</sibling>"), "Sibling element should have 4-space indentation");
+
+        // Deep elements should have 6 spaces (2 + 2 + 2)
+        assertTrue(result.contains("      <deep>content</deep>"), "Deep element should have 6-space indentation");
+        assertTrue(
+                result.contains("      <another>value</another>"), "Another element should have 6-space indentation");
+
+        // Verify the overall structure is correct
+        String expected =
+                """
+            <target>
+              <existing>element</existing>
+              <complex>
+                <nested>
+                  <deep>content</deep>
+                  <another>value</another>
+                </nested>
+                <sibling>data</sibling>
+              </complex>
+            </target>""";
+
+        assertEquals(expected, result, "The entire structure should have consistent 2-space indentation");
+    }
 }

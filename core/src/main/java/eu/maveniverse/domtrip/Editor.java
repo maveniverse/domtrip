@@ -980,39 +980,6 @@ public class Editor {
     }
 
     /**
-     * Creates a deep clone of an element with all its attributes and children.
-     *
-     * @param element the element to clone
-     * @return a new element that is a copy of the original
-     */
-    private Element cloneElement(Element element) {
-        Element clone = new Element(element.name());
-
-        // Copy attributes
-        for (String attrName : element.attributes().keySet()) {
-            clone.attribute(attrName, element.attribute(attrName));
-        }
-
-        // Copy children recursively
-        for (Node child : element.nodes().toList()) {
-            if (child instanceof Element childElement) {
-                clone.addNode(cloneElement(childElement));
-            } else if (child instanceof Text textNode) {
-                clone.addNode(new Text(textNode.content()));
-            } else if (child instanceof Comment commentNode) {
-                clone.addNode(new Comment(commentNode.content()));
-            }
-            // Add other node types as needed
-        }
-
-        // Copy whitespace and other properties
-        clone.precedingWhitespace(element.precedingWhitespace());
-        clone.selfClosing(element.selfClosing());
-
-        return clone;
-    }
-
-    /**
      * Creates a new XML document with the specified root element.
      *
      * <p>This method creates a new document with a default XML declaration
@@ -1896,10 +1863,6 @@ public class Editor {
      * @param index the index at which to insert the node
      */
     private void insertChild(ContainerNode parent, Element newElement, int index) {
-        // TODO: Recursively fix indentation for elements moved between documents
-        // When an element is moved from another document, we should adapt its formatting
-        // and the formatting of all its descendants to match the target document's style
-
         index = normalizeWhitespaces(parent, index);
         int count = parent.nodeCount();
         String properIndentation = inferIndentation(parent);
@@ -1912,7 +1875,40 @@ public class Editor {
 
         newElement.precedingWhitespace(lineEnding + properIndentation);
 
+        // Recursively fix indentation for elements moved between documents
+        // When an element is moved from another document, we should adapt its formatting
+        // and the formatting of all its descendants to match the target document's style
+        fixRecursiveIndentation(newElement, properIndentation);
+
         parent.insertNode(index, newElement);
+    }
+
+    /**
+     * Recursively fixes indentation for an element and all its descendants to match
+     * the target document's indentation style.
+     *
+     * <p>This method is called when an element is moved between documents or when
+     * we need to ensure that the entire element tree uses consistent indentation
+     * that matches the target document's formatting style.</p>
+     *
+     * @param element the element to fix indentation for
+     * @param indentation the indentation level for this element
+     */
+    private void fixRecursiveIndentation(Element element, String indentation) {
+        // Fix the innerPrecedingWhitespace for this element if it has element children
+        if (element.children().findAny().isPresent()) {
+            element.innerPrecedingWhitespace(lineEnding + indentation);
+        }
+
+        // Process direct child elements recursively
+        String childIndentation = indentation + detectedIndentationUnit;
+        element.children().forEach(child -> {
+            // Update the child's preceding whitespace to match target document style
+            child.precedingWhitespace(lineEnding + childIndentation);
+
+            // Recursively fix indentation for the child's descendants
+            fixRecursiveIndentation(child, childIndentation);
+        });
     }
 
     /**

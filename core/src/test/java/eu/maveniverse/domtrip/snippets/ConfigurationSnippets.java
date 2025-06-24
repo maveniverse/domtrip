@@ -18,10 +18,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
         DomTripConfig minimal = DomTripConfig.minimal();
 
         // Create custom configuration
-        DomTripConfig custom = DomTripConfig.defaults()
-                .withIndentString("  ")
-                .withWhitespacePreservation(true)
-                .withDefaultQuoteStyle(QuoteStyle.DOUBLE);
+        DomTripConfig custom = DomTripConfig.defaults().withIndentString("  ").withDefaultQuoteStyle(QuoteStyle.DOUBLE);
 
         // Use with Editor
         String xml = "<root><child>value</child></root>";
@@ -39,7 +36,6 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     public void demonstratePresetConfigurations() {
         // START: preset-configurations
         DomTripConfig defaults = DomTripConfig.defaults();
-        // - Preserves all whitespace
         // - Preserves all comments
         // - Preserves processing instructions
         // - Uses double quotes by default
@@ -47,12 +43,11 @@ public class ConfigurationSnippets extends BaseSnippetTest {
 
         DomTripConfig pretty = DomTripConfig.prettyPrint();
         // - Consistent indentation
-        // - Clean whitespace formatting
+        // - Clean formatting
         // - Preserves comments and processing instructions
         // - Readable structure
 
         DomTripConfig minimal = DomTripConfig.minimal();
-        // - No whitespace preservation
         // - No comments
         // - No processing instructions
         // - Omits XML declaration
@@ -68,7 +63,6 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     public void demonstrateWhitespaceConfiguration() {
         // START: whitespace-configuration
         DomTripConfig config = DomTripConfig.defaults()
-                .withWhitespacePreservation(true) // Keep original whitespace
                 .withIndentString("    ") // 4 spaces for new content
                 .withPrettyPrint(false); // Disable pretty printing
         // END: whitespace-configuration
@@ -158,9 +152,8 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     public void demonstrateCompleteConfiguration() {
         // START: complete-configuration
         DomTripConfig config = DomTripConfig.defaults()
-                // Whitespace settings
+                // Formatting settings
                 .withIndentString("  ") // 2-space indentation
-                .withWhitespacePreservation(true) // Keep original whitespace
                 .withPrettyPrint(false) // No reformatting
 
                 // Content preservation
@@ -186,8 +179,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
                 DomTripConfig.prettyPrint().withIndentString("  ").withCommentPreservation(true);
 
         // Production configuration - preserve everything
-        DomTripConfig production =
-                DomTripConfig.defaults().withWhitespacePreservation(true).withCommentPreservation(true);
+        DomTripConfig production = DomTripConfig.defaults().withCommentPreservation(true);
 
         // API response configuration - minimal output
         DomTripConfig api = DomTripConfig.minimal().withXmlDeclaration(false);
@@ -250,8 +242,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     public void demonstrateAvailableConfigurationMethods() {
         // START: available-configuration-methods
         DomTripConfig config = DomTripConfig.defaults()
-                // Whitespace control
-                .withWhitespacePreservation(true) // Preserve original whitespace
+                // Formatting control
                 .withPrettyPrint(false) // Enable pretty printing
                 .withIndentString("  ") // Set indentation string
                 .withLineEnding("\n") // Set line ending style
@@ -274,7 +265,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     private static DomTripConfig forProduction() {
-        return DomTripConfig.defaults().withWhitespacePreservation(true).withCommentPreservation(true);
+        return DomTripConfig.defaults().withCommentPreservation(true);
     }
 
     private static DomTripConfig forTesting() {

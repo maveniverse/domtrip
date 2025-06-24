@@ -188,7 +188,6 @@ public class QuickStartSnippets extends BaseSnippetTest {
         // Custom configuration
         DomTripConfig custom = DomTripConfig.defaults()
                 .withIndentString("  ") // 2 spaces
-                .withWhitespacePreservation(true)
                 .withCommentPreservation(true);
         String customXml = editor.toXml(custom);
         // END: configuration-options

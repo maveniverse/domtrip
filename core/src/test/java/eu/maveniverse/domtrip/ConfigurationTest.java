@@ -17,7 +17,6 @@ public class ConfigurationTest {
     void testDomTripConfigDefaults() {
         DomTripConfig config = DomTripConfig.defaults();
 
-        assertTrue(config.isPreserveWhitespace());
         assertTrue(config.isPreserveComments());
         assertTrue(config.isPreserveProcessingInstructions());
         assertEquals(QuoteStyle.DOUBLE, config.defaultQuoteStyle());
@@ -26,29 +25,10 @@ public class ConfigurationTest {
     }
 
     @Test
-    void testDomTripConfigStrict() {
-        DomTripConfig config = DomTripConfig.strict();
-
-        // Strict is now an alias for defaults
-        assertTrue(config.isPreserveWhitespace());
-        assertTrue(config.isPreserveComments());
-    }
-
-    @Test
-    void testDomTripConfigLenient() {
-        DomTripConfig config = DomTripConfig.lenient();
-
-        // Lenient is now an alias for defaults
-        assertTrue(config.isPreserveWhitespace());
-        assertTrue(config.isPreserveComments());
-    }
-
-    @Test
     void testDomTripConfigPrettyPrint() {
         DomTripConfig config = DomTripConfig.prettyPrint();
 
         assertTrue(config.isPrettyPrint());
-        assertFalse(config.isPreserveWhitespace());
         // Other defaults should remain
         assertTrue(config.isPreserveComments());
     }
@@ -56,14 +36,12 @@ public class ConfigurationTest {
     @Test
     void testDomTripConfigFluentApi() {
         DomTripConfig config = DomTripConfig.defaults()
-                .withWhitespacePreservation(false)
                 .withCommentPreservation(false)
                 .withProcessingInstructionPreservation(false)
                 .withDefaultQuoteStyle(QuoteStyle.SINGLE)
                 .withPrettyPrint(true)
                 .withIndentString("\t");
 
-        assertFalse(config.isPreserveWhitespace());
         assertFalse(config.isPreserveComments());
         assertFalse(config.isPreserveProcessingInstructions());
         assertEquals(QuoteStyle.SINGLE, config.defaultQuoteStyle());
@@ -73,7 +51,7 @@ public class ConfigurationTest {
 
     @Test
     void testEditorWithConfiguration() throws DomTripException {
-        DomTripConfig config = DomTripConfig.strict().withDefaultQuoteStyle(QuoteStyle.SINGLE);
+        DomTripConfig config = DomTripConfig.defaults().withDefaultQuoteStyle(QuoteStyle.SINGLE);
 
         Editor editor = new Editor(config);
         assertEquals(config, editor.config());

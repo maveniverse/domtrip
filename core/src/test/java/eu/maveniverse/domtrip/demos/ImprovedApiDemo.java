@@ -119,10 +119,6 @@ public class ImprovedApiDemo {
         Editor defaultEditor = new Editor(Document.of(xml), DomTripConfig.defaults());
         System.out.println("Default config: " + defaultEditor.toXml());
 
-        // Strict configuration
-        Editor strictEditor = new Editor(Document.of(xml), DomTripConfig.strict());
-        System.out.println("Strict config: " + strictEditor.toXml());
-
         // Pretty print configuration
         Editor prettyEditor = new Editor(Document.of(xml), DomTripConfig.prettyPrint());
         System.out.println("Pretty print config: " + prettyEditor.toXml());

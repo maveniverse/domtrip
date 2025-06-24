@@ -377,7 +377,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
         Editor documentEditor = new Editor(doc);
 
         // With document and configuration
-        Editor fullEditor = new Editor(doc, DomTripConfig.strict());
+        Editor fullEditor = new Editor(doc, DomTripConfig.defaults());
         // END: basic-constructors
 
         Assertions.assertNotNull(editor);

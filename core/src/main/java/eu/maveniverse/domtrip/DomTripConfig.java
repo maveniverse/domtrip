@@ -18,8 +18,8 @@ package eu.maveniverse.domtrip;
  *
  * <h3>Common Usage Patterns:</h3>
  * <pre>{@code
- * // Strict preservation (default)
- * DomTripConfig strict = DomTripConfig.defaults();
+ * // Default preservation
+ * DomTripConfig defaults = DomTripConfig.defaults();
  *
  * // Pretty printing for readable output
  * DomTripConfig pretty = DomTripConfig.prettyPrint()
@@ -28,12 +28,10 @@ package eu.maveniverse.domtrip;
  *
  * // Minimal output for size optimization
  * DomTripConfig minimal = DomTripConfig.minimal()
- *     .withCommentPreservation(false)
- *     .withWhitespacePreservation(false);
+ *     .withCommentPreservation(false);
  *
  * // Custom configuration
  * DomTripConfig custom = DomTripConfig.defaults()
- *     .withWhitespacePreservation(true)
  *     .withDefaultQuoteStyle(QuoteStyle.SINGLE);
  * }</pre>
  *
@@ -41,7 +39,6 @@ package eu.maveniverse.domtrip;
  * <p>DomTripConfig uses a fluent builder pattern for easy configuration:</p>
  * <pre>{@code
  * DomTripConfig config = DomTripConfig.defaults()
- *     .withWhitespacePreservation(true)
  *     .withCommentPreservation(true)
  *     .withPrettyPrint(false)
  *     .withIndentString("    ")
@@ -54,7 +51,6 @@ package eu.maveniverse.domtrip;
  * @see QuoteStyle
  */
 public class DomTripConfig {
-    private boolean preserveWhitespace = true;
     private boolean preserveComments = true;
     private boolean preserveProcessingInstructions = true;
     private QuoteStyle defaultQuoteStyle = QuoteStyle.DOUBLE;
@@ -73,28 +69,11 @@ public class DomTripConfig {
     }
 
     /**
-     * Creates a strict configuration with all preservation features enabled.
-     * This is an alias for defaults() for backward compatibility.
-     */
-    public static DomTripConfig strict() {
-        return new DomTripConfig();
-    }
-
-    /**
-     * Creates a lenient configuration with all preservation features enabled.
-     * This is an alias for defaults() for backward compatibility.
-     */
-    public static DomTripConfig lenient() {
-        return new DomTripConfig();
-    }
-
-    /**
      * Creates a configuration optimized for pretty printing.
      */
     public static DomTripConfig prettyPrint() {
         DomTripConfig config = new DomTripConfig();
         config.prettyPrint = true;
-        config.preserveWhitespace = false;
         return config;
     }
 
@@ -103,7 +82,6 @@ public class DomTripConfig {
      */
     public static DomTripConfig minimal() {
         DomTripConfig config = new DomTripConfig();
-        config.preserveWhitespace = false;
         config.preserveComments = false;
         config.preserveProcessingInstructions = false;
         config.omitXmlDeclaration = true;
@@ -126,11 +104,6 @@ public class DomTripConfig {
     }
 
     // Fluent setters
-    public DomTripConfig withWhitespacePreservation(boolean preserve) {
-        this.preserveWhitespace = preserve;
-        return this;
-    }
-
     public DomTripConfig withCommentPreservation(boolean preserve) {
         this.preserveComments = preserve;
         return this;
@@ -167,10 +140,6 @@ public class DomTripConfig {
     }
 
     // Getters
-    public boolean isPreserveWhitespace() {
-        return preserveWhitespace;
-    }
-
     public boolean isPreserveComments() {
         return preserveComments;
     }

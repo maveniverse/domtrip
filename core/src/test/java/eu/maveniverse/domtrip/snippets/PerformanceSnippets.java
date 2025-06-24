@@ -256,9 +256,8 @@ public class PerformanceSnippets extends BaseSnippetTest {
     public void demonstrateConfigurationOptimization() {
         // START: configuration-optimization
         // Optimize configuration for performance (conceptual)
-        DomTripConfig performanceConfig = DomTripConfig.defaults()
-                .withCommentPreservation(false) // Skip comments if not needed
-                .withWhitespacePreservation(false); // Normalize whitespace
+        DomTripConfig performanceConfig =
+                DomTripConfig.defaults().withCommentPreservation(false); // Skip comments if not needed
 
         String xmlContent = createTestXml("root");
         Document document = Document.of(xmlContent);

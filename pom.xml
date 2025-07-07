@@ -14,7 +14,7 @@
   <parent>
     <groupId>eu.maveniverse.maven.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>39</version>
+    <version>40</version>
   </parent>
 
   <groupId>eu.maveniverse.maven.domtrip</groupId>
@@ -39,7 +39,7 @@
   <properties>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.junit>5.13.1</version.junit>
+    <version.junit>5.13.3</version.junit>
   </properties>
 
 </project>

@@ -26,10 +26,10 @@ jobs:
         cache: 'maven'
     
     - name: Run tests and verify build
-      run: ./mvnw verify
+      run: ./mvnw --no-transfer-progress verify
     
     - name: Test website build
-      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw -f website clean package quarkus:run -DskipTests
+      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw --no-transfer-progress -f website clean package quarkus:run -DskipTests
     
     - name: Upload test results
       uses: actions/upload-artifact@v4

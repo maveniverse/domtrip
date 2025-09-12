@@ -15,7 +15,7 @@
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
     <version.surefire-plugin>3.5.3</version.surefire-plugin>
-    <version.quarkus.platform>3.24.5</version.quarkus.platform>
+    <version.quarkus.platform>3.26.3</version.quarkus.platform>
     <version.quarkus-roq>1.9.0</version.quarkus-roq>
   </properties>
 

@@ -150,7 +150,7 @@ public class CompletePomExample {
         
         // Test dependencies
         Element junitDep = editor.addDependency(dependencies, 
-            "org.junit.jupiter", "junit-jupiter", "${junit.version}");
+            "org.junit.jupiter", "junit-jupiter", "$\{junit.version\}");
         editor.insertMavenElement(junitDep, SCOPE, "test");
 
         // Build configuration
@@ -161,8 +161,8 @@ public class CompletePomExample {
         Element compilerPlugin = editor.addPlugin(plugins, 
             "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
         Element compilerConfig = editor.insertMavenElement(compilerPlugin, CONFIGURATION);
-        editor.addElement(compilerConfig, "source", "${maven.compiler.source}");
-        editor.addElement(compilerConfig, "target", "${maven.compiler.target}");
+        editor.addElement(compilerConfig, "source", "$\{maven.compiler.source\}");
+        editor.addElement(compilerConfig, "target", "$\{maven.compiler.target\}");
 
         // Surefire plugin
         editor.addPlugin(plugins, "org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");

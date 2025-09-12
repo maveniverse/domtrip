@@ -305,7 +305,7 @@ Within each `<dependency>` element:
   <scope>test</scope>
   
   <!-- 4. System Path (for system scope) -->
-  <systemPath>${java.home}/lib/rt.jar</systemPath>
+  <systemPath>$\{java.home\}/lib/rt.jar</systemPath>
   
   <!-- 5. Optional -->
   <optional>true</optional>

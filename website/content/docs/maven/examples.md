@@ -176,12 +176,12 @@ public class MultiModuleProject {
         Element depMgmtDeps = editor.insertMavenElement(depMgmt, DEPENDENCIES);
         
         // Manage internal module versions
-        editor.addDependency(depMgmtDeps, "${project.groupId}", "common", "${project.version}");
-        editor.addDependency(depMgmtDeps, "${project.groupId}", "core", "${project.version}");
+        editor.addDependency(depMgmtDeps, "$\{project.groupId\}", "common", "$\{project.version\}");
+        editor.addDependency(depMgmtDeps, "${\project.groupId\}", "core", "$\{project.version\}");
         
         // Manage external dependencies
-        editor.addDependency(depMgmtDeps, "org.slf4j", "slf4j-api", "${slf4j.version}");
-        editor.addDependency(depMgmtDeps, "org.junit.jupiter", "junit-jupiter", "${junit.version}");
+        editor.addDependency(depMgmtDeps, "org.slf4j", "slf4j-api", "$\{slf4j.version\}");
+        editor.addDependency(depMgmtDeps, "org.junit.jupiter", "junit-jupiter", "$\{junit.version\}");
 
         // Plugin management
         Element build = editor.insertMavenElement(root, BUILD);
@@ -418,13 +418,13 @@ public class CompleteExample {
         Element dependencies = editor.insertMavenElement(root, DEPENDENCIES);
         
         // Production dependencies
-        editor.addDependency(dependencies, "org.springframework", "spring-context", "${spring.version}");
-        editor.addDependency(dependencies, "org.slf4j", "slf4j-api", "${slf4j.version}");
+        editor.addDependency(dependencies, "org.springframework", "spring-context", "$\{spring.version\}");
+        editor.addDependency(dependencies, "org.slf4j", "slf4j-api", "$\{slf4j.version\}");
         editor.addDependency(dependencies, "ch.qos.logback", "logback-classic", "1.4.7");
         
         // Test dependencies
         Element junitDep = editor.addDependency(dependencies, 
-            "org.junit.jupiter", "junit-jupiter", "${junit.version}");
+            "org.junit.jupiter", "junit-jupiter", "$\{junit.version\}");
         editor.insertMavenElement(junitDep, SCOPE, "test");
         
         Element mockitoDep = editor.addDependency(dependencies, 
@@ -441,8 +441,8 @@ public class CompleteExample {
         Element compilerPlugin = editor.addPlugin(plugins, 
             "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
         Element compilerConfig = editor.insertMavenElement(compilerPlugin, CONFIGURATION);
-        editor.addElement(compilerConfig, "source", "${maven.compiler.source}");
-        editor.addElement(compilerConfig, "target", "${maven.compiler.target}");
+        editor.addElement(compilerConfig, "source", "$\{maven.compiler.source\}");
+        editor.addElement(compilerConfig, "target", "$\{maven.compiler.target\}");
         
         // Surefire plugin
         Element surefirePlugin = editor.addPlugin(plugins, 

@@ -108,6 +108,7 @@ public class Serializer {
     private boolean preserveProcessingInstructions;
     private boolean omitXmlDeclaration;
     private String lineEnding;
+    private EmptyElementStyle emptyElementStyle;
 
     /**
      * Creates a new Serializer with default settings.
@@ -122,6 +123,7 @@ public class Serializer {
         this.preserveProcessingInstructions = true;
         this.omitXmlDeclaration = false;
         this.lineEnding = "\n";
+        this.emptyElementStyle = EmptyElementStyle.SELF_CLOSING;
     }
 
     /**
@@ -136,6 +138,7 @@ public class Serializer {
         this.preserveProcessingInstructions = config.isPreserveProcessingInstructions();
         this.omitXmlDeclaration = config.isOmitXmlDeclaration();
         this.lineEnding = config.lineEnding();
+        this.emptyElementStyle = config.emptyElementStyle();
     }
 
     /**
@@ -190,6 +193,24 @@ public class Serializer {
      */
     public void setLineEnding(String lineEnding) {
         this.lineEnding = lineEnding != null ? lineEnding : "\n";
+    }
+
+    /**
+     * Gets the empty element style used for serialization.
+     *
+     * @return the empty element style
+     */
+    public EmptyElementStyle getEmptyElementStyle() {
+        return emptyElementStyle;
+    }
+
+    /**
+     * Sets the empty element style for serialization.
+     *
+     * @param emptyElementStyle the empty element style, or null for default
+     */
+    public void setEmptyElementStyle(EmptyElementStyle emptyElementStyle) {
+        this.emptyElementStyle = emptyElementStyle != null ? emptyElementStyle : EmptyElementStyle.SELF_CLOSING;
     }
 
     /**
@@ -544,8 +565,46 @@ public class Serializer {
             }
         }
 
-        if (element.selfClosing()) {
-            sb.append("/>");
+        // Check if element is empty (no child nodes)
+        boolean isEmpty = element.nodeCount() == 0;
+
+        if (isEmpty) {
+            // Apply configured empty element style
+            switch (emptyElementStyle) {
+                case EXPANDED:
+                    sb.append(">").append("</").append(element.name()).append(">");
+                    break;
+                case SELF_CLOSING:
+                    sb.append("/>");
+                    break;
+                case SELF_CLOSING_SPACED:
+                    sb.append(" />");
+                    break;
+            }
+        } else if (element.selfClosing()) {
+            // Element is marked as self-closing but has content - this shouldn't happen
+            // but handle gracefully by treating as regular element
+            sb.append(">");
+
+            boolean hasElementChildren = element.nodes.stream().anyMatch(child -> child instanceof Element);
+
+            // Children
+            for (Node child : element.nodes) {
+                if (hasElementChildren && child instanceof Element) {
+                    serializeNodePretty(child, sb, depth + 1);
+                } else {
+                    serializeNode(child, sb);
+                }
+            }
+
+            // Closing tag
+            if (hasElementChildren && !lineEnding.isEmpty()) {
+                sb.append(lineEnding);
+                for (int i = 0; i < depth; i++) {
+                    sb.append(indentString);
+                }
+            }
+            sb.append("</").append(element.name()).append(">");
         } else {
             sb.append(">");
 

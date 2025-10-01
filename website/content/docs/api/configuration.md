@@ -239,6 +239,72 @@ DomTripConfig config = isProduction()
     : DomTripConfig.prettyPrint();                 // Readable for debugging
 ```
 
+## Empty Element Styles
+
+Control how empty XML elements are formatted during serialization:
+
+### Available Styles
+
+DomTrip supports three different empty element styles:
+
+```java
+// Expanded form: <element></element>
+DomTripConfig expanded = DomTripConfig.defaults()
+    .withEmptyElementStyle(EmptyElementStyle.EXPANDED);
+
+// Self-closing: <element/>
+DomTripConfig selfClosing = DomTripConfig.defaults()
+    .withEmptyElementStyle(EmptyElementStyle.SELF_CLOSING);
+
+// Self-closing with space: <element />
+DomTripConfig selfClosingSpaced = DomTripConfig.defaults()
+    .withEmptyElementStyle(EmptyElementStyle.SELF_CLOSING_SPACED);
+```
+
+### Auto-Detection
+
+Automatically detect the predominant empty element style from an existing document:
+
+```java
+Document doc = Document.of(xmlString);
+
+// Auto-detect and apply the detected style
+DomTripConfig config = DomTripConfig.defaults()
+    .withAutoDetectedEmptyElementStyle(doc);
+
+// The configuration will now use the detected style for new empty elements
+```
+
+### Style Examples
+
+```xml
+<!-- EXPANDED style -->
+<root>
+    <empty></empty>
+    <placeholder></placeholder>
+</root>
+
+<!-- SELF_CLOSING style -->
+<root>
+    <empty/>
+    <placeholder/>
+</root>
+
+<!-- SELF_CLOSING_SPACED style -->
+<root>
+    <empty />
+    <placeholder />
+</root>
+```
+
+### Behavior Notes
+
+- Empty element style only affects elements with no child nodes
+- Non-empty elements are unaffected by this setting
+- When pretty printing is disabled, original formatting is preserved when possible
+- Auto-detection analyzes all empty elements and uses the most common style
+- If no empty elements exist or there's a tie, defaults to `SELF_CLOSING`
+
 ## Available Configuration Methods
 
 Here's a complete list of available configuration methods:
@@ -256,7 +322,11 @@ DomTripConfig config = DomTripConfig.defaults()
     .withXmlDeclaration(boolean)                   // Include XML declaration
 
     // Attribute formatting
-    .withDefaultQuoteStyle(QuoteStyle);            // Default quote style for new attributes
+    .withDefaultQuoteStyle(QuoteStyle)             // Default quote style for new attributes
+
+    // Empty element formatting
+    .withEmptyElementStyle(EmptyElementStyle)      // Style for empty elements
+    .withAutoDetectedEmptyElementStyle(Document);  // Auto-detect style from document
 ```
 
 ## Next Steps

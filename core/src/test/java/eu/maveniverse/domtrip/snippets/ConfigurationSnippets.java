@@ -259,6 +259,88 @@ public class ConfigurationSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(config);
     }
 
+    @Test
+    public void demonstrateEmptyElementStyles() {
+        // START: empty-element-styles
+        // Configure different empty element styles
+
+        // Expanded form: <element></element>
+        DomTripConfig expanded = DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.EXPANDED);
+
+        // Self-closing: <element/>
+        DomTripConfig selfClosing = DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.SELF_CLOSING);
+
+        // Self-closing with space: <element />
+        DomTripConfig selfClosingSpaced =
+                DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.SELF_CLOSING_SPACED);
+        // END: empty-element-styles
+
+        Assertions.assertEquals(EmptyElementStyle.EXPANDED, expanded.emptyElementStyle());
+        Assertions.assertEquals(EmptyElementStyle.SELF_CLOSING, selfClosing.emptyElementStyle());
+        Assertions.assertEquals(EmptyElementStyle.SELF_CLOSING_SPACED, selfClosingSpaced.emptyElementStyle());
+    }
+
+    @Test
+    public void demonstrateEmptyElementAutoDetection() {
+        // START: empty-element-auto-detection
+        // XML with self-closing spaced empty elements
+        String xml =
+                """
+            <root>
+                <empty1 />
+                <empty2 />
+                <child>content</child>
+            </root>
+            """;
+
+        Document doc = Document.of(xml);
+
+        // Auto-detect and apply the detected style
+        DomTripConfig config = DomTripConfig.prettyPrint().withAutoDetectedEmptyElementStyle(doc);
+
+        // The configuration will now use SELF_CLOSING_SPACED for new empty elements
+        Serializer serializer = new Serializer(config);
+
+        // Add a new empty element
+        Element newEmpty = Element.of("placeholder");
+        doc.root().addNode(newEmpty);
+
+        String result = serializer.serialize(doc);
+        // New empty element will use the detected style: <placeholder />
+        // END: empty-element-auto-detection
+
+        Assertions.assertEquals(EmptyElementStyle.SELF_CLOSING_SPACED, config.emptyElementStyle());
+        Assertions.assertTrue(result.contains("<placeholder />"));
+    }
+
+    @Test
+    public void demonstrateEmptyElementStyleComparison() {
+        // START: empty-element-style-comparison
+        Document doc = Document.withRootElement("root");
+        Element empty = Element.of("empty");
+        doc.root().addNode(empty);
+
+        // Test different styles
+        DomTripConfig expandedConfig = DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.EXPANDED);
+        String expandedResult = new Serializer(expandedConfig).serialize(doc);
+        // Result: <empty></empty>
+
+        DomTripConfig selfClosingConfig =
+                DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.SELF_CLOSING);
+        String selfClosingResult = new Serializer(selfClosingConfig).serialize(doc);
+        // Result: <empty/>
+
+        DomTripConfig spacedConfig =
+                DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.SELF_CLOSING_SPACED);
+        String spacedResult = new Serializer(spacedConfig).serialize(doc);
+        // Result: <empty />
+        // END: empty-element-style-comparison
+
+        Assertions.assertTrue(expandedResult.contains("<empty></empty>"));
+        Assertions.assertTrue(selfClosingResult.contains("<empty/>"));
+        Assertions.assertTrue(spacedResult.contains("<empty />"));
+    }
+
     // Helper methods for environment-specific configurations example
     private static DomTripConfig forDevelopment() {
         return DomTripConfig.prettyPrint().withIndentString("  ").withCommentPreservation(true);

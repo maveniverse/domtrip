@@ -13,7 +13,7 @@ Add the Maven extension to your project's `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>eu.maveniverse</groupId>
+    <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip-maven</artifactId>
     <version>0.2.0</version>
 </dependency>
@@ -27,7 +27,7 @@ For Gradle projects, add to your `build.gradle`:
 
 ```gradle
 dependencies {
-    implementation 'eu.maveniverse:domtrip-maven:0.2.0'
+    implementation 'eu.maveniverse.maven.domtrip:domtrip-maven:0.2.0'
 }
 ```
 
@@ -35,7 +35,7 @@ Or for Gradle Kotlin DSL (`build.gradle.kts`):
 
 ```kotlin
 dependencies {
-    implementation("eu.maveniverse:domtrip-maven:0.2.0")
+    implementation("eu.maveniverse.maven.domtrip:domtrip-maven:0.2.0")
 }
 ```
 

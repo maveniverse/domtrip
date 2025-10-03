@@ -21,7 +21,7 @@ Add DomTrip core to your `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>eu.maveniverse</groupId>
+    <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip-core</artifactId>
     <version>0.2.0</version>
 </dependency>
@@ -33,7 +33,7 @@ For Maven POM file editing, use the Maven extension which includes the core libr
 
 ```xml
 <dependency>
-    <groupId>eu.maveniverse</groupId>
+    <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip-maven</artifactId>
     <version>0.2.0</version>
 </dependency>
@@ -53,7 +53,7 @@ Add DomTrip core to your `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'eu.maveniverse:domtrip-core:0.2.0'
+    implementation 'eu.maveniverse.maven.domtrip:domtrip-core:0.2.0'
 }
 ```
 
@@ -63,7 +63,7 @@ For Maven POM editing, use the Maven extension:
 
 ```groovy
 dependencies {
-    implementation 'eu.maveniverse:domtrip-maven:0.2.0'
+    implementation 'eu.maveniverse.maven.domtrip:domtrip-maven:0.2.0'
 }
 ```
 
@@ -72,10 +72,10 @@ Or for Kotlin DSL (`build.gradle.kts`):
 ```kotlin
 dependencies {
     // Core library
-    implementation("eu.maveniverse:domtrip-core:0.2.0")
+    implementation("eu.maveniverse.maven.domtrip:domtrip-core:0.2.0")
 
     // Or Maven extension (includes core)
-    implementation("eu.maveniverse:domtrip-maven:0.2.0")
+    implementation("eu.maveniverse.maven.domtrip:domtrip-maven:0.2.0")
 }
 ```
 
@@ -84,7 +84,7 @@ dependencies {
 Add DomTrip to your `build.sbt`:
 
 ```scala
-libraryDependencies += "eu.maveniverse" % "domtrip-core" % "0.2.0"
+libraryDependencies += "eu.maveniverse.maven.domtrip" % "domtrip-core" % "0.2.0"
 ```
 
 ## Verify Installation

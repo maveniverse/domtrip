@@ -32,7 +32,8 @@ package eu.maveniverse.domtrip;
  *
  * // Custom configuration
  * DomTripConfig custom = DomTripConfig.defaults()
- *     .withDefaultQuoteStyle(QuoteStyle.SINGLE);
+ *     .withDefaultQuoteStyle(QuoteStyle.SINGLE)
+ *     .withEmptyElementStyle(EmptyElementStyle.SELF_CLOSING_SPACED);
  * }</pre>
  *
  * <h3>Builder Pattern:</h3>
@@ -42,18 +43,22 @@ package eu.maveniverse.domtrip;
  *     .withCommentPreservation(true)
  *     .withPrettyPrint(false)
  *     .withIndentString("    ")
- *     .withDefaultQuoteStyle(QuoteStyle.SINGLE);
+ *     .withDefaultQuoteStyle(QuoteStyle.SINGLE)
+ *     .withEmptyElementStyle(EmptyElementStyle.EXPANDED);
  * }</pre>
  *
  * @see Editor
  * @see Parser
  * @see Serializer
  * @see QuoteStyle
+ * @see EmptyElementStyle
  */
 public class DomTripConfig {
     private boolean preserveComments = true;
     private boolean preserveProcessingInstructions = true;
     private QuoteStyle defaultQuoteStyle = QuoteStyle.DOUBLE;
+    private EmptyElementStyle emptyElementStyle = EmptyElementStyle.SELF_CLOSING;
+    private boolean forceEmptyElementStyle = false;
     private boolean prettyPrint = false;
     private String indentString = "    ";
     private String lineEnding = "\n";
@@ -139,6 +144,28 @@ public class DomTripConfig {
         return this;
     }
 
+    public DomTripConfig withEmptyElementStyle(EmptyElementStyle emptyElementStyle) {
+        this.emptyElementStyle = emptyElementStyle;
+        return this;
+    }
+
+    /**
+     * Automatically detects and configures the empty element style based on existing
+     * empty elements in the provided document.
+     *
+     * <p>This method analyzes all empty elements in the document to determine the
+     * predominant style and configures this DomTripConfig to use that style.
+     * If no empty elements are found, the current style is preserved.</p>
+     *
+     * @param document the document to analyze for empty element styles
+     * @return this DomTripConfig for method chaining
+     */
+    public DomTripConfig withAutoDetectedEmptyElementStyle(Document document) {
+        EmptyElementStyle detected = EmptyElementStyle.detectFromDocument(document);
+        this.emptyElementStyle = detected;
+        return this;
+    }
+
     // Getters
     public boolean isPreserveComments() {
         return preserveComments;
@@ -150,6 +177,10 @@ public class DomTripConfig {
 
     public QuoteStyle defaultQuoteStyle() {
         return defaultQuoteStyle;
+    }
+
+    public EmptyElementStyle emptyElementStyle() {
+        return emptyElementStyle;
     }
 
     public boolean isPrettyPrint() {

@@ -392,9 +392,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
                 .orElse("default");
 
         // ✅ Good - use streams for type-safe filtering
-        long count = root.children("element")
-                .filter(e -> e.hasAttribute("id"))
-                .count();
+        long count = root.children("element").filter(e -> e.hasAttribute("id")).count();
         // end-snippet:type-safety-best-practices
 
         Assertions.assertEquals("default", value);

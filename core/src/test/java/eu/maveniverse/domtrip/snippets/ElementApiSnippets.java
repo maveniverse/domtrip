@@ -351,15 +351,14 @@ public class ElementApiSnippets {
         // END: removing-elements
 
         Assertions.assertEquals(1, project.children().count());
-        Assertions.assertEquals("other", project.children().findFirst().orElseThrow().name());
+        Assertions.assertEquals(
+                "other", project.children().findFirst().orElseThrow().name());
     }
 
     @Test
     public void demonstrateElementCloning() {
         // START: element-cloning
-        Element original = Element.of("dependency")
-                .attribute("scope", "test")
-                .attribute("optional", "true");
+        Element original = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
         original.addNode(Element.of("groupId").textContent("junit"));
         original.addNode(Element.of("artifactId").textContent("junit"));
 

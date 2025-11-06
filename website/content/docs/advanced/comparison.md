@@ -168,17 +168,6 @@ DomTrip achieves **zero data loss** and perfect round-tripping for:
 </root>
 ```
 
-### Perfect Round-Tripping ✅
-
-DomTrip provides:
-
-- ✅ Perfect round-tripping with zero data loss
-- ✅ Full programmatic access to all XML features
-- ✅ Proper parsing of XML declaration attributes (version, encoding, standalone)
-- ✅ Perfect preservation of numeric character references
-- ✅ Exact DOCTYPE formatting preservation
-- ✅ Preservation of attribute order, quote styles, and whitespace
-
 ### Recommendation
 
 **Use DomTrip when:**

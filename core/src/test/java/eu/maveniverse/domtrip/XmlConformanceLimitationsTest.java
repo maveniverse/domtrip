@@ -5,15 +5,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 /**
- * Documents actual XML conformance limitations vs round-tripping capabilities.
- * This test class categorizes issues into:
- * 1. Round-tripping issues (data loss) - Should be fixed
- * 2. Minor formatting differences (acceptable)
- * 3. XML spec conformance issues (document as limitations)
+ * Tests that verify DomTrip's round-tripping capabilities.
+ * All tests in this class verify perfect round-tripping with zero data loss.
  */
 public class XmlConformanceLimitationsTest {
 
-    // ========== ROUND-TRIPPING ISSUES (DATA LOSS) - NOW FIXED! ==========
+    // ========== PREVIOUSLY PROBLEMATIC CASES - NOW FIXED! ==========
 
     @Test
     void testNumericCharacterReferencesInAttributesNowFixed() {
@@ -32,8 +29,6 @@ public class XmlConformanceLimitationsTest {
         assertTrue(result.contains("&#10;"), "Numeric char ref should be preserved in output");
         assertEquals(xml, result, "Should round-trip exactly");
     }
-
-    // ========== MINOR FORMATTING DIFFERENCES (ACCEPTABLE) ==========
 
     @Test
     void testDoctypeNowPreservedPerfectly() {

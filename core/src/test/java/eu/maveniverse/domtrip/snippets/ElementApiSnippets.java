@@ -237,7 +237,7 @@ public class ElementApiSnippets {
 
     @Test
     public void demonstrateAttributeFormatting() {
-        // START: attribute-formatting
+        // snippet:attribute-formatting
         Element element = Element.of("dependency");
 
         // Set attribute with specific quote style
@@ -253,7 +253,7 @@ public class ElementApiSnippets {
         Element parsed = doc.root();
         // Updating preserves the single quote style
         parsed.attribute("attr", "new-value");
-        // END: attribute-formatting
+        // end-snippet:attribute-formatting
 
         Assertions.assertEquals("junit", element.attribute("groupId"));
         Assertions.assertEquals("junit", element.attribute("artifactId"));
@@ -261,7 +261,7 @@ public class ElementApiSnippets {
 
     @Test
     public void demonstrateNamespaceOperations() {
-        // START: namespace-operations
+        // snippet:namespace-operations
         // Create element with namespace
         QName qname = QName.of("http://maven.apache.org/POM/4.0.0", "project");
         Element project = Element.of(qname);
@@ -274,7 +274,7 @@ public class ElementApiSnippets {
         String namespaceURI = project.namespaceURI();
         String localName = project.localName();
         String prefix = project.prefix();
-        // END: namespace-operations
+        // end-snippet:namespace-operations
 
         Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespaceURI);
         Assertions.assertEquals("project", localName);
@@ -282,7 +282,7 @@ public class ElementApiSnippets {
 
     @Test
     public void demonstrateQnameSupport() {
-        // START: qname-support
+        // snippet:qname-support
         // Create QName with namespace
         QName projectQName = QName.of("http://maven.apache.org/POM/4.0.0", "project");
         Element project = Element.of(projectQName);
@@ -294,7 +294,7 @@ public class ElementApiSnippets {
         String namespaceURI = projectQName.namespaceURI();
         String localName = projectQName.localName();
         String prefix = xsiQName.prefix();
-        // END: qname-support
+        // end-snippet:qname-support
 
         Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespaceURI);
         Assertions.assertEquals("project", localName);
@@ -336,7 +336,7 @@ public class ElementApiSnippets {
             """);
         Element project = doc.root();
 
-        // START: removing-elements
+        // snippet:removing-elements
         // Find and remove specific element
         Optional<Element> toRemove = project.child("dependency");
         toRemove.ifPresent(element -> project.removeNode(element));
@@ -349,7 +349,7 @@ public class ElementApiSnippets {
                 .filter(child -> "deprecated".equals(child.attribute("status")))
                 .collect(Collectors.toList())
                 .forEach(project::removeNode);
-        // END: removing-elements
+        // end-snippet:removing-elements
 
         Assertions.assertEquals(1, project.children().count());
         Assertions.assertEquals(
@@ -383,7 +383,7 @@ public class ElementApiSnippets {
         Document doc = Document.of(xml);
         Element element = doc.root();
 
-        // START: modification-tracking
+        // snippet:modification-tracking
         // Check if element has been modified
         boolean wasModified = element.isModified();
 
@@ -396,7 +396,7 @@ public class ElementApiSnippets {
 
         // Clear modification flag (used internally by serializer)
         element.clearModified();
-        // END: modification-tracking
+        // end-snippet:modification-tracking
 
         Assertions.assertFalse(wasModified);
         Assertions.assertTrue(isModified);
@@ -408,7 +408,7 @@ public class ElementApiSnippets {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
 
-        // START: element-editor-integration
+        // snippet:element-editor-integration
         Element root = editor.root();
 
         // Use Editor methods for modifications
@@ -424,7 +424,7 @@ public class ElementApiSnippets {
         dependency.children().forEach(child -> {
             editor.setAttribute(child, "modified", "true");
         });
-        // END: element-editor-integration
+        // end-snippet:element-editor-integration
 
         Assertions.assertEquals("junit", value);
         Assertions.assertEquals("test", dependency.attribute("scope"));

@@ -124,47 +124,73 @@ Migrating from other libraries to DomTrip is straightforward. Check out our [Mig
 
 ## XML Conformance
 
-DomTrip prioritizes **formatting preservation** over strict XML specification conformance. While it handles most common XML features correctly, there are some edge cases where it may not fully comply with the XML 1.0/1.1 specifications:
+DomTrip prioritizes **formatting preservation** over strict XML specification conformance. Based on comprehensive testing, here's what you need to know:
 
-### Known Limitations
+### Critical Limitation
 
-**DOCTYPE Handling:**
-- Internal DTD subsets may not be fully preserved in all cases
-- External entity references are not validated or expanded
-- DTD-based validation is not performed
+**Numeric Character References in Attributes** ❌
 
-**Character Encoding:**
-- While encoding declarations are preserved, some edge cases with non-UTF encodings may not be handled perfectly
-- Byte Order Mark (BOM) handling may vary across different encodings
+Numeric character references (like `&#10;` for newline or `&#x3C;` for `<`) in attribute values are currently double-escaped, causing data loss:
 
-**Entity References:**
-- Custom entity definitions from DTDs are not expanded
-- Only standard XML entities (`&lt;`, `&gt;`, `&amp;`, `&quot;`, `&apos;`) are guaranteed to work correctly
-- Numeric character references are supported but may be normalized in some cases
+```xml
+<!-- Input -->
+<root attr="line1&#10;line2"/>
 
-**XML Specification Edge Cases:**
-- Some rarely-used XML 1.1 features may not be fully supported
-- Certain combinations of namespace declarations and default namespaces may not preserve exact formatting
-- Processing instruction content with special characters may be normalized
+<!-- Output (INCORRECT) -->
+<root attr="line1&amp;#10;line2"/>
+```
 
-### What Works Well
+**Impact**: The newline character is lost. This is a known bug that will be fixed in a future release.
 
-Despite these limitations, DomTrip excels at:
-- ✅ **Common XML documents** - Configuration files, POMs, SOAP messages, etc.
-- ✅ **Standard entities** - All five predefined XML entities
-- ✅ **CDATA sections** - Perfect preservation of CDATA content
-- ✅ **Comments** - Full comment preservation
-- ✅ **Namespaces** - Comprehensive namespace support for typical use cases
-- ✅ **Whitespace** - Exact preservation of all whitespace
-- ✅ **Encoding declarations** - UTF-8, UTF-16, ISO-8859-1, and other common encodings
+**Workaround**: Use CDATA sections or standard entities instead of numeric character references in attributes.
+
+### Minor Limitations
+
+**DOCTYPE Formatting:**
+- DOCTYPE declarations are preserved but may have an extra newline added
+- No data loss, just minor formatting difference
+
+**XML Declaration Attributes:**
+- XML declaration is preserved as-is, but `version` and `standalone` attributes are not parsed into the Document object
+- No data loss, declaration round-trips correctly
+
+**Attribute Quote Normalization:**
+- `&quot;` in single-quoted attributes becomes literal `"` (semantically equivalent)
+
+### What Works Perfectly ✅
+
+DomTrip provides **perfect round-tripping** for:
+
+- ✅ **Standard XML Entities** - `&lt;`, `&gt;`, `&amp;`, `&quot;`, `&apos;`
+- ✅ **CDATA Sections** - Including CDATA with XML-like content
+- ✅ **Comments** - Single-line and multi-line comments
+- ✅ **Whitespace** - Exact preservation of spaces, tabs, newlines
+- ✅ **Namespaces** - Default and prefixed namespaces, including overriding
+- ✅ **Attribute Order** - Maintains exact attribute order
+- ✅ **Attribute Quote Style** - Preserves single vs. double quotes
+- ✅ **Empty Attributes** - Preserves empty attribute values
+- ✅ **Processing Instructions** - Including xml-stylesheet and custom PIs
+- ✅ **DOCTYPE Declarations** - System, public, and internal subsets (with minor formatting)
+- ✅ **Encoding Declarations** - UTF-8, UTF-16, ISO-8859-1, etc.
 
 ### Recommendation
 
-If you need **strict XML specification conformance** (e.g., for XML schema validation, DTD processing, or standards compliance testing), consider using:
+**Use DomTrip when:**
+- ✅ Editing configuration files (Maven POMs, Spring configs, etc.)
+- ✅ Transforming documents while preserving formatting
+- ✅ Working with human-edited XML that needs to stay readable
+- ✅ You need perfect whitespace and comment preservation
+- ✅ You need to maintain attribute order and quote styles
+
+**Avoid DomTrip when:**
+- ❌ You need numeric character references in attributes (until fixed)
+- ❌ You need strict XML 1.1 specification compliance
+- ❌ You need DTD validation or entity expansion
+- ❌ You need programmatic access to XML declaration attributes
+
+**For strict XML conformance**, consider:
 - **Java DOM** - Full W3C DOM specification compliance
 - **DOM4J** or **JDOM** - Mature libraries with comprehensive XML support
-
-If you need **perfect formatting preservation** for editing existing XML documents (the primary use case for DomTrip), then DomTrip is the ideal choice despite these conformance limitations.
 
 ## Next Steps
 

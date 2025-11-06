@@ -4,7 +4,9 @@ This document provides a detailed analysis of DomTrip's XML conformance and roun
 
 ## Summary
 
-DomTrip is designed for **perfect formatting preservation** rather than strict XML specification conformance. It excels at round-tripping common XML documents while maintaining exact formatting, but has specific limitations with advanced XML features.
+DomTrip is designed for **perfect formatting preservation** rather than strict XML specification conformance. It excels at round-tripping common XML documents while maintaining exact formatting.
+
+**Important**: DomTrip is a **round-tripping library**, not a strict XML parser. It deliberately does NOT implement certain XML spec requirements (like line ending normalization per [XML spec §2.11](https://www.w3.org/TR/2008/REC-xml-20081126/#sec-line-ends)) because doing so would break perfect round-tripping. If you need strict XML 1.0/1.1 specification compliance, use a different library.
 
 ## Round-Tripping Issues (Data Loss)
 
@@ -183,7 +185,11 @@ The following features round-trip with **perfect fidelity**:
 
 ## Summary
 
-DomTrip now provides **perfect round-tripping** for all common XML features with **zero data loss**. The only remaining limitation is that XML declaration attributes (version, standalone) are not parsed into the Document object, but they are still preserved perfectly in the output.
+DomTrip now provides **perfect round-tripping** for all common XML features with **zero data loss**.
+
+**Design Philosophy**: DomTrip prioritizes round-tripping over XML spec conformance. It does NOT normalize line endings, whitespace, or entities according to the XML specification, because doing so would break perfect round-tripping. This is a deliberate design choice.
+
+The only remaining limitation is that XML declaration attributes (version, standalone) are not parsed into the Document object, but they are still preserved perfectly in the output.
 
 ## Action Items
 

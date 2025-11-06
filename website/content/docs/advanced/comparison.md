@@ -24,7 +24,7 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 | **Fluent Builders** | ✅ Full | ❌ No | ❌ No | ❌ No | ⚠️ Limited |
 | **Stream Navigation** | ✅ Native | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Namespace Support** | ✅ Comprehensive | ✅ Good | ✅ Good | ✅ Good | ⚠️ Basic |
-| **XML Conformance** | ✅ Excellent | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
+| **XML Spec Compliance** | ⚠️ Round-trip focused | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
 
 **\* JDOM**: Use `Format.getRawFormat()` to preserve original whitespace between elements  
 **\*\* JDOM**: Configure with `TextMode.PRESERVE` to maintain text content whitespace
@@ -123,9 +123,13 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 
 Migrating from other libraries to DomTrip is straightforward. Check out our [Migration Guide](migration/) for specific examples and patterns for each library.
 
-## XML Conformance
+## XML Conformance vs. Round-Tripping
 
-DomTrip provides **excellent XML conformance** with **perfect round-tripping** for all common XML features. Based on comprehensive testing with 555+ passing tests, here's what you need to know:
+**Important**: DomTrip is a **round-tripping library**, not a strict XML parser. It prioritizes perfect formatting preservation over XML specification compliance.
+
+DomTrip provides **perfect round-tripping** for all common XML features with **zero data loss**. However, it deliberately does NOT implement certain XML spec requirements (like line ending normalization per [XML spec §2.11](https://www.w3.org/TR/2008/REC-xml-20081126/#sec-line-ends)) because doing so would break round-tripping.
+
+Based on comprehensive testing with 555+ passing tests, here's what you need to know:
 
 ### Perfect Round-Tripping ✅
 
@@ -193,14 +197,15 @@ doc.toXml();        // Returns the exact input with version="1.1" and standalone
 - ✅ You need to maintain attribute order and quote styles
 - ✅ You need numeric character references preserved exactly
 
-**DomTrip is also suitable when:**
-- ✅ You need excellent XML conformance with zero data loss
-- ✅ You need perfect round-tripping for all common XML features
-
 **Consider other libraries when:**
+- ⚠️ You need strict XML 1.0/1.1 specification compliance (e.g., line ending normalization)
 - ⚠️ You need programmatic access to XML declaration version/standalone attributes
-- ⚠️ You need strict XML 1.1 specification compliance for edge cases
 - ⚠️ You need DTD validation or entity expansion
+- ⚠️ You need a validating parser
+
+**For strict XML spec compliance**, use:
+- **Java DOM** - Full W3C DOM specification compliance
+- **DOM4J** or **JDOM** - Mature libraries with comprehensive XML support
 
 ## Next Steps
 

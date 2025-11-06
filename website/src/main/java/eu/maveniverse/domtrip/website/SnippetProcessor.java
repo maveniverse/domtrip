@@ -19,11 +19,17 @@ import java.util.stream.Stream;
  * Automatically reloads snippets when source files change, making it perfect
  * for quarkus:dev auto-reload mode.
  *
- * <p>This processor scans Java test files for snippet markers in the format:</p>
+ * <p>This processor scans Java test files for snippet markers in either format:</p>
  * <pre>
  * // START: snippet-name
  * // code here
  * // END: snippet-name
+ * </pre>
+ * <p>or:</p>
+ * <pre>
+ * // snippet:snippet-name
+ * // code here
+ * // end-snippet:snippet-name
  * </pre>
  *
  * <p>The extracted snippets can then be referenced in markdown files using
@@ -33,8 +39,10 @@ import java.util.stream.Stream;
 @RegisterForReflection
 public class SnippetProcessor {
 
-    private static final Pattern SNIPPET_START_PATTERN = Pattern.compile("\\s*//\\s*START:\\s*([a-zA-Z0-9-_]+)\\s*");
-    private static final Pattern SNIPPET_END_PATTERN = Pattern.compile("\\s*//\\s*END:\\s*([a-zA-Z0-9-_]+)\\s*");
+    private static final Pattern SNIPPET_START_PATTERN =
+            Pattern.compile("\\s*//\\s*(?:START:|snippet:)\\s*([a-zA-Z0-9-_]+)\\s*");
+    private static final Pattern SNIPPET_END_PATTERN =
+            Pattern.compile("\\s*//\\s*(?:END:|end-snippet:)\\s*([a-zA-Z0-9-_]+)\\s*");
 
     private final Map<String, String> snippetCache = new HashMap<>();
     private volatile long lastModified = 0;

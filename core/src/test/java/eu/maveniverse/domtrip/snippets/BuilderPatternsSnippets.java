@@ -322,6 +322,105 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
         // end-snippet:error-handling
     }
 
+    @Test
+    public void builderStateValidation() {
+        // snippet:builder-state-validation
+        Editor editor = new Editor();
+        editor.createDocument("root");
+        Element root = editor.root();
+
+        // Validate state before building
+        if (root.children().count() == 0) {
+            editor.addElement(root, "default-child", "default-value");
+        }
+
+        // Ensure required elements exist
+        if (root.child("version").isEmpty()) {
+            editor.addElement(root, "version", "1.0.0");
+        }
+
+        Document doc = editor.document();
+        // end-snippet:builder-state-validation
+
+        Assertions.assertNotNull(doc);
+        Assertions.assertTrue(root.child("version").isPresent());
+    }
+
+    @Test
+    public void methodChainingBestPractices() {
+        // snippet:method-chaining-best-practices
+        // ✅ Good - short chains on one line are readable
+        Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "false");
+
+        // ✅ Good - break longer chains across multiple lines
+        Element person = Element.of("person")
+                .attribute("id", "123")
+                .attribute("active", "true")
+                .attribute("role", "developer");
+
+        // ✅ Good - combine chaining with method calls
+        Element project = Element.of("project").attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
+        project.addNode(Element.of("groupId").textContent("com.example"));
+        project.addNode(Element.of("artifactId").textContent("my-app"));
+        project.addNode(Element.of("version").textContent("1.0.0"));
+        // end-snippet:method-chaining-best-practices
+
+        Assertions.assertNotNull(dependency);
+        Assertions.assertEquals("test", dependency.attribute("scope"));
+        Assertions.assertEquals("123", person.attribute("id"));
+    }
+
+    @Test
+    public void typeSafetyBestPractices() {
+        // snippet:type-safety-best-practices
+        Editor editor = new Editor();
+        editor.createDocument("root");
+        Element root = editor.root();
+
+        // ✅ Good - use type-safe methods
+        Element element = editor.addElement(root, "element");
+        editor.setAttribute(element, "id", "123");
+
+        // ✅ Good - leverage Optional for safe navigation
+        String value = root.child("element")
+                .flatMap(e -> e.child("value"))
+                .map(Element::textContent)
+                .orElse("default");
+
+        // ✅ Good - use streams for type-safe filtering
+        long count = root.children("element").filter(e -> e.hasAttribute("id")).count();
+        // end-snippet:type-safety-best-practices
+
+        Assertions.assertEquals("default", value);
+        Assertions.assertEquals(1, count);
+    }
+
+    @Test
+    public void namespaceConsistency() {
+        // snippet:namespace-consistency
+        Editor editor = new Editor();
+        editor.createDocument("project");
+        Element root = editor.root();
+
+        // ✅ Good - declare namespaces at the root
+        root.namespaceDeclaration("", "http://maven.apache.org/POM/4.0.0");
+        root.namespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+
+        // ✅ Good - use consistent namespace prefixes
+        editor.setAttribute(root, "xsi:schemaLocation", "http://maven.apache.org/POM/4.0.0 ...");
+
+        // ✅ Good - namespace-aware element creation
+        Element dependency = editor.addElement(root, "dependency");
+        editor.addElement(dependency, "groupId", "com.example");
+
+        // ❌ Avoid - mixing prefixed and unprefixed elements inconsistently
+        // ❌ Avoid - declaring the same namespace multiple times with different prefixes
+        // end-snippet:namespace-consistency
+
+        Assertions.assertNotNull(root.namespaceDeclaration(""));
+        Assertions.assertNotNull(root.namespaceDeclaration("xsi"));
+    }
+
     // Helper class for examples
     private static class Person {
         private final String id;

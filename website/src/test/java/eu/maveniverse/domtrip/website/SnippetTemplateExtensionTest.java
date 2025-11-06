@@ -2,7 +2,6 @@ package eu.maveniverse.domtrip.website;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import io.quarkus.qute.RawString;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
@@ -18,20 +17,20 @@ public class SnippetTemplateExtensionTest {
     SnippetTemplateExtension snippetExtension;
 
     @Test
-    public void testSnippetReturnsRawString() {
-        // Test that the snippet method returns a RawString
-        Object result = snippetExtension.snippet("non-existent-snippet");
+    public void testSnippetThrowsExceptionWhenNotFound() {
+        // Test that the snippet method throws an exception for non-existent snippets
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> snippetExtension.snippet("non-existent-snippet"),
+                "snippet() method should throw IllegalArgumentException for non-existent snippet");
 
-        // Verify that the result is a RawString instance
-        assertInstanceOf(RawString.class, result, "snippet() method should return RawString to prevent HTML escaping");
-
-        RawString rawString = (RawString) result;
-        String content = rawString.getValue();
-
-        // Verify that the error message is returned when snippet doesn't exist
+        // Verify that the error message contains the snippet name
         assertTrue(
-                content.contains("Snippet 'non-existent-snippet' not found"),
-                "Should return error message for non-existent snippet");
+                exception.getMessage().contains("non-existent-snippet"),
+                "Exception message should contain the snippet name");
+        assertTrue(
+                exception.getMessage().contains("not found"),
+                "Exception message should indicate snippet was not found");
     }
 
     @Test

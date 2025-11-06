@@ -16,6 +16,10 @@ import jakarta.inject.Named;
  * <p>The snippets are automatically extracted from test files and made available
  * during the template rendering process.</p>
  *
+ * <p><strong>Important:</strong> If a snippet is not found, an {@link IllegalArgumentException}
+ * will be thrown, causing the build to fail. This ensures that all referenced snippets
+ * exist and prevents broken documentation.</p>
+ *
  * <h3>Usage Examples:</h3>
  * <p>In a markdown file or Qute template:</p>
  * <pre>
@@ -24,7 +28,7 @@ import jakarta.inject.Named;
  * ```
  * </pre>
  *
- * <p>Or with error handling:</p>
+ * <p>Optional: Check if a snippet exists before using it:</p>
  * <pre>
  * {#if snippetExists('quick-start-basic')}
  * ```java
@@ -52,17 +56,18 @@ public class SnippetTemplateExtension {
      * Returns a RawString to prevent HTML escaping of code content.
      *
      * @param snippetName the name of the snippet to retrieve
-     * @return the code snippet content as RawString, or a placeholder message if not found
+     * @return the code snippet content as RawString
+     * @throws IllegalArgumentException if the snippet is not found
      */
     public RawString snippet(String snippetName) {
         String snippet = snippetProcessor.getSnippet(snippetName);
         if (snippet != null) {
             return new RawString(snippet);
         } else {
-            System.err.println("⚠️  Warning: Snippet '" + snippetName + "' not found. Available snippets: "
-                    + String.join(", ", snippetProcessor.getAvailableSnippets()));
-            return new RawString("// ❌ Snippet '" + snippetName + "' not found\n// Available snippets: "
-                    + String.join(", ", snippetProcessor.getAvailableSnippets()));
+            String errorMessage = "❌ ERROR: Snippet '" + snippetName + "' not found. Available snippets: "
+                    + String.join(", ", snippetProcessor.getAvailableSnippets());
+            System.err.println(errorMessage);
+            throw new IllegalArgumentException(errorMessage);
         }
     }
 

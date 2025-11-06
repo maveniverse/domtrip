@@ -234,4 +234,199 @@ public class ElementApiSnippets {
         Assertions.assertTrue(testDeps.contains("junit"));
         Assertions.assertTrue(testDeps.contains("mockito"));
     }
+
+    @Test
+    public void demonstrateAttributeFormatting() {
+        // snippet:attribute-formatting
+        Element element = Element.of("dependency");
+
+        // Set attribute with specific quote style
+        Attribute singleQuote = Attribute.of("groupId", "junit", QuoteStyle.SINGLE);
+        element.attributeObject("groupId", singleQuote);
+
+        // Set attribute with double quotes (default)
+        element.attribute("artifactId", "junit");
+
+        // Preserve existing quote style when updating
+        String xml = "<element attr='value'/>";
+        Document doc = Document.of(xml);
+        Element parsed = doc.root();
+        // Updating preserves the single quote style
+        parsed.attribute("attr", "new-value");
+        // end-snippet:attribute-formatting
+
+        Assertions.assertEquals("junit", element.attribute("groupId"));
+        Assertions.assertEquals("junit", element.attribute("artifactId"));
+    }
+
+    @Test
+    public void demonstrateNamespaceOperations() {
+        // snippet:namespace-operations
+        // Create element with namespace
+        QName qname = QName.of("http://maven.apache.org/POM/4.0.0", "project");
+        Element project = Element.of(qname);
+
+        // Declare namespace
+        project.namespaceDeclaration("", "http://maven.apache.org/POM/4.0.0");
+        project.namespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+
+        // Access namespace information
+        String namespaceURI = project.namespaceURI();
+        String localName = project.localName();
+        String prefix = project.prefix();
+        // end-snippet:namespace-operations
+
+        Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespaceURI);
+        Assertions.assertEquals("project", localName);
+    }
+
+    @Test
+    public void demonstrateQnameSupport() {
+        // snippet:qname-support
+        // Create QName with namespace
+        QName projectQName = QName.of("http://maven.apache.org/POM/4.0.0", "project");
+        Element project = Element.of(projectQName);
+
+        // Create QName with prefix
+        QName xsiQName = QName.of("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi");
+
+        // Access QName components
+        String namespaceURI = projectQName.namespaceURI();
+        String localName = projectQName.localName();
+        String prefix = xsiQName.prefix();
+        // end-snippet:qname-support
+
+        Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespaceURI);
+        Assertions.assertEquals("project", localName);
+        Assertions.assertEquals("xsi", prefix);
+    }
+
+    @Test
+    public void demonstrateAddingChildren() {
+        // START: adding-children
+        Element parent = Element.of("dependencies");
+
+        // Add child element
+        Element dependency = Element.of("dependency");
+        parent.addNode(dependency);
+
+        // Add multiple children
+        dependency.addNode(Element.of("groupId").textContent("junit"));
+        dependency.addNode(Element.of("artifactId").textContent("junit"));
+        dependency.addNode(Element.of("version").textContent("4.13.2"));
+
+        // Add child with text
+        Element scope = Element.of("scope").textContent("test");
+        dependency.addNode(scope);
+        // END: adding-children
+
+        Assertions.assertEquals(1, parent.children().count());
+        Assertions.assertEquals(4, dependency.children().count());
+    }
+
+    @Test
+    public void demonstrateRemovingElements() {
+        Document doc = Document.of(
+                """
+            <project>
+                <dependency>junit</dependency>
+                <dependency>mockito</dependency>
+                <other>keep</other>
+            </project>
+            """);
+        Element project = doc.root();
+
+        // snippet:removing-elements
+        // Find and remove specific element
+        Optional<Element> toRemove = project.child("dependency");
+        toRemove.ifPresent(element -> project.removeNode(element));
+
+        // Remove all elements with specific name (collect to list first to avoid ConcurrentModificationException)
+        project.children("dependency").collect(Collectors.toList()).forEach(project::removeNode);
+
+        // Remove by condition (collect to list first to avoid ConcurrentModificationException)
+        project.children()
+                .filter(child -> "deprecated".equals(child.attribute("status")))
+                .collect(Collectors.toList())
+                .forEach(project::removeNode);
+        // end-snippet:removing-elements
+
+        Assertions.assertEquals(1, project.children().count());
+        Assertions.assertEquals(
+                "other", project.children().findFirst().orElseThrow().name());
+    }
+
+    @Test
+    public void demonstrateElementCloning() {
+        // START: element-cloning
+        Element original = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
+        original.addNode(Element.of("groupId").textContent("junit"));
+        original.addNode(Element.of("artifactId").textContent("junit"));
+
+        // Clone the element (deep copy)
+        Element clone = original.clone();
+
+        // Modify clone without affecting original
+        clone.attribute("scope", "compile");
+        clone.child("groupId").ifPresent(g -> g.textContent("mockito"));
+        // END: element-cloning
+
+        Assertions.assertEquals("test", original.attribute("scope"));
+        Assertions.assertEquals("compile", clone.attribute("scope"));
+        Assertions.assertEquals("junit", original.child("groupId").orElseThrow().textContent());
+        Assertions.assertEquals("mockito", clone.child("groupId").orElseThrow().textContent());
+    }
+
+    @Test
+    public void demonstrateModificationTracking() {
+        String xml = "<element attr='value'>content</element>";
+        Document doc = Document.of(xml);
+        Element element = doc.root();
+
+        // snippet:modification-tracking
+        // Check if element has been modified
+        boolean wasModified = element.isModified();
+
+        // Modify the element
+        element.attribute("attr", "new-value");
+        element.textContent("new content");
+
+        // Now it's marked as modified
+        boolean isModified = element.isModified();
+
+        // Clear modification flag (used internally by serializer)
+        element.clearModified();
+        // end-snippet:modification-tracking
+
+        Assertions.assertFalse(wasModified);
+        Assertions.assertTrue(isModified);
+    }
+
+    @Test
+    public void demonstrateElementEditorIntegration() {
+        String xml = "<project></project>";
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+
+        // snippet:element-editor-integration
+        Element root = editor.root();
+
+        // Use Editor methods for modifications
+        Element dependency = editor.addElement(root, "dependency");
+        editor.setAttribute(dependency, "scope", "test");
+        editor.addElement(dependency, "groupId", "junit");
+
+        // Use Element methods for navigation
+        Optional<Element> groupId = dependency.child("groupId");
+        String value = groupId.map(Element::textContent).orElse("unknown");
+
+        // Combine both approaches
+        dependency.children().forEach(child -> {
+            editor.setAttribute(child, "modified", "true");
+        });
+        // end-snippet:element-editor-integration
+
+        Assertions.assertEquals("junit", value);
+        Assertions.assertEquals("test", dependency.attribute("scope"));
+    }
 }

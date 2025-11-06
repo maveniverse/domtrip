@@ -12,18 +12,8 @@ public class NumericCharRefDebugTest {
         Document doc = Document.of(xml);
 
         Element root = doc.root();
-        System.out.println("Is modified: " + root.isModified());
-        System.out.println("Attribute value: [" + root.attribute("attr") + "]");
-
         Attribute attrObj = root.attributeObject("attr");
-        System.out.println("Attribute object: " + attrObj);
-        System.out.println("Raw value: [" + attrObj.rawValue() + "]");
-        System.out.println("Decoded value: [" + attrObj.value() + "]");
-
         String result = doc.toXml();
-        System.out.println("Result: [" + result + "]");
-        System.out.println("Contains &#10;: " + result.contains("&#10;"));
-        System.out.println("Contains newline: " + result.contains("\n"));
 
         // The attribute value should be decoded
         assertTrue(root.attribute("attr").contains("\n"), "Should contain newline");
@@ -42,13 +32,7 @@ public class NumericCharRefDebugTest {
 
         Element root = doc.root();
         Attribute attrObj = root.attributeObject("attr");
-
-        System.out.println("Hex - Raw value: [" + attrObj.rawValue() + "]");
-        System.out.println("Hex - Decoded value: [" + attrObj.value() + "]");
-
         String result = doc.toXml();
-        System.out.println("Hex - Result: [" + result + "]");
-        System.out.println("Hex - Contains &#x3C;: " + result.contains("&#x3C;"));
 
         // The attribute value should be decoded
         assertEquals("<test>", root.attribute("attr"), "Should decode hex refs");

@@ -92,6 +92,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateCommentPreservation() {
         // START: comment-preservation
+        // START: comments-preservation
         String xmlWithComments =
                 """
             <project>
@@ -110,6 +111,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
         String result = editor.toXml();
 
         Assertions.assertEquals(xmlWithComments, result);
+        // END: comments-preservation
         // END: comment-preservation
     }
 

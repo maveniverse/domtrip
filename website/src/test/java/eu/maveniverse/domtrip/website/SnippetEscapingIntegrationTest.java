@@ -65,15 +65,17 @@ public class SnippetEscapingIntegrationTest {
     }
 
     @Test
-    public void testNonExistentSnippetReturnsRawString() {
-        // Even error messages should be returned as RawString
-        RawString result = snippetExtension.snippet("non-existent-snippet-12345");
-        assertNotNull(result, "Should return RawString even for non-existent snippets");
+    public void testNonExistentSnippetThrowsException() {
+        // Non-existent snippets should throw an exception
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> snippetExtension.snippet("non-existent-snippet-12345"),
+                "snippet() method should throw IllegalArgumentException for non-existent snippet");
 
-        String content = result.getValue();
-        assertTrue(content.contains("not found"), "Should contain error message");
-
-        // Verify it's still a RawString
-        assertInstanceOf(RawString.class, result, "Error messages should also be returned as RawString");
+        // Verify that the error message contains useful information
+        assertTrue(exception.getMessage().contains("not found"), "Should contain error message");
+        assertTrue(
+                exception.getMessage().contains("non-existent-snippet-12345"),
+                "Exception message should contain the snippet name");
     }
 }

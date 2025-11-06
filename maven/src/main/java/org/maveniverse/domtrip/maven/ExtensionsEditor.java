@@ -17,6 +17,7 @@ import eu.maveniverse.domtrip.Element;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Specialized editor for Maven extensions.xml files.
@@ -190,6 +191,68 @@ public class ExtensionsEditor extends AbstractMavenEditor {
     public Element findChildElement(Element parent, String elementName) {
         Optional<Element> child = parent.child(elementName);
         return child.orElse(null);
+    }
+
+    // ========== HIGH-LEVEL EXTENSION MANAGEMENT ==========
+
+    /**
+     * Lists all extensions as Artifact objects.
+     *
+     * <p>Extensions are always JAR artifacts without classifiers.</p>
+     *
+     * @return list of Artifact objects representing the extensions
+     */
+    public List<Artifact> listExtensions() {
+        return root().children(EXTENSION).map(this::toJarArtifact).toList();
+    }
+
+    /**
+     * Updates an existing extension or inserts a new one (if upsert is true).
+     *
+     * <p>Existence is checked by GA (groupId:artifactId) matching only, as extensions
+     * are JAR artifacts without classifiers.</p>
+     *
+     * @param upsert whether to insert the extension if it doesn't exist
+     * @param artifact the extension artifact
+     * @return true if the extension was updated or inserted, false otherwise
+     */
+    public boolean updateExtension(boolean upsert, Artifact artifact) {
+        List<Element> matched =
+                root().children(EXTENSION).filter(artifact.predicateGA()).toList();
+        if (matched.isEmpty()) {
+            if (upsert) {
+                addExtension(root(), artifact.groupId(), artifact.artifactId(), artifact.version());
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            Element element = matched.get(0);
+            findChildElement(element, VERSION).textContent(artifact.version());
+            if (matched.size() > 1) {
+                // Multiple matches found - this shouldn't happen but we handle it gracefully
+                System.err.println("Warning: More than one matching extension found: " + matched.size());
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Removes an extension.
+     *
+     * <p>Existence is checked by GA (groupId:artifactId) matching only, as extensions
+     * are JAR artifacts without classifiers.</p>
+     *
+     * @param artifact the extension artifact to remove
+     * @return true if the extension was removed, false if it didn't exist
+     */
+    public boolean deleteExtension(Artifact artifact) {
+        AtomicInteger counter = new AtomicInteger(0);
+        root().children(EXTENSION)
+                .filter(artifact.predicateGA())
+                .peek(e -> counter.incrementAndGet())
+                .forEach(this::removeElement);
+        return counter.get() != 0;
     }
 
     /**

@@ -18,6 +18,8 @@ import eu.maveniverse.domtrip.Element;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Specialized editor for Maven POM files that extends the base {@link Editor} class
@@ -364,6 +366,152 @@ public class PomEditor extends AbstractMavenEditor {
         return addElement(propertiesElement, propertyName, propertyValue);
     }
 
+    // ========== HIGH-LEVEL PROPERTY MANAGEMENT ==========
+
+    /**
+     * Updates or inserts a property value in {@code project/properties/key}.
+     *
+     * <p>If the property already exists, its value is updated. If {@code upsert} is true
+     * and the property doesn't exist, it will be created (along with the properties element if needed).</p>
+     *
+     * @param upsert whether to create the property if it doesn't exist
+     * @param key the property name
+     * @param value the property value
+     * @return true if the property was updated or created, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     */
+    public boolean updateProperty(boolean upsert, String key, String value) throws DomTripException {
+        Element properties = root().child(PROPERTIES).orElse(null);
+        if (properties == null && upsert) {
+            properties = insertMavenElement(root(), PROPERTIES);
+        }
+        if (properties != null) {
+            Element property = properties.child(key).orElse(null);
+            if (property == null && upsert) {
+                property = addElement(properties, key);
+            }
+            if (property != null) {
+                property.textContent(value);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes a property from {@code project/properties/key}.
+     *
+     * @param key the property name
+     * @return true if the property was removed, false if it didn't exist
+     */
+    public boolean deleteProperty(String key) {
+        Element properties = root().child(PROPERTIES).orElse(null);
+        if (properties != null) {
+            Element property = properties.child(key).orElse(null);
+            if (property != null) {
+                removeElement(property);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ========== HIGH-LEVEL PARENT MANAGEMENT ==========
+
+    /**
+     * Sets {@code project/parent} to the given artifact coordinates.
+     *
+     * @param artifact the parent artifact (groupId, artifactId, version)
+     * @throws DomTripException if an error occurs during editing
+     */
+    public void setParent(Artifact artifact) throws DomTripException {
+        Element parent = findChildElement(root(), PARENT);
+        if (parent == null) {
+            parent = insertMavenElement(root(), PARENT);
+        }
+        insertMavenElement(parent, GROUP_ID, artifact.groupId());
+        insertMavenElement(parent, ARTIFACT_ID, artifact.artifactId());
+        insertMavenElement(parent, VERSION, artifact.version());
+    }
+
+    /**
+     * Sets {@code project/version} or {@code project/parent/version} (if project version doesn't exist).
+     *
+     * @param value the version value
+     * @throws IllegalArgumentException if no version element can be found
+     */
+    public void setVersion(String value) {
+        Element version = findChildElement(root(), VERSION);
+        if (version == null) {
+            Element parent = findChildElement(root(), PARENT);
+            if (parent != null) {
+                version = findChildElement(parent, VERSION);
+            }
+        }
+        if (version != null) {
+            version.textContent(value);
+            return;
+        }
+        throw new IllegalArgumentException("Could not set version");
+    }
+
+    /**
+     * Sets {@code project/packaging} to the given value.
+     *
+     * @param value the packaging value (e.g., "jar", "pom", "war")
+     * @throws DomTripException if an error occurs during editing
+     */
+    public void setPackaging(String value) throws DomTripException {
+        Element packaging = findChildElement(root(), PACKAGING);
+        if (packaging == null) {
+            insertMavenElement(root(), PACKAGING, value);
+        } else {
+            packaging.textContent(value);
+        }
+    }
+
+    // ========== HIGH-LEVEL MODULE MANAGEMENT ==========
+
+    /**
+     * Adds a module entry to {@code project/modules/module[]}, if not already present.
+     *
+     * @param moduleName the module name/path
+     * @return true if the module was added, false if it already existed
+     * @throws DomTripException if an error occurs during editing
+     */
+    public boolean addSubProject(String moduleName) throws DomTripException {
+        Element modules = findChildElement(root(), MODULES);
+        if (modules == null) {
+            modules = insertMavenElement(root(), MODULES);
+        }
+        List<String> existing =
+                modules.children(MODULE).map(Element::textContent).toList();
+        if (!existing.contains(moduleName)) {
+            insertMavenElement(modules, MODULE, moduleName);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes a module entry from {@code project/modules/module[]}, if present.
+     *
+     * @param moduleName the module name/path
+     * @return true if the module was removed, false if it didn't exist
+     */
+    public boolean removeSubProject(String moduleName) {
+        Element modules = findChildElement(root(), MODULES);
+        if (modules == null) {
+            return false;
+        }
+        AtomicBoolean removed = new AtomicBoolean(false);
+        modules.children(MODULE)
+                .filter(e -> Objects.equals(moduleName, e.textContent()))
+                .peek(e -> removed.set(true))
+                .forEach(this::removeElement);
+        return removed.get();
+    }
+
     /**
      * Determines if a blank line should be added before the element based on ordering.
      * Only adds blank lines if there are elements before the insertion point.
@@ -407,5 +555,208 @@ public class PomEditor extends AbstractMavenEditor {
         return hasElementsAfter
                 && elementIndex < order.size() - 1
                 && order.get(elementIndex + 1).isEmpty();
+    }
+
+    // ========== HIGH-LEVEL DEPENDENCY MANAGEMENT ==========
+
+    /**
+     * Updates or inserts a managed dependency in {@code project/dependencyManagement/dependencies/dependency[]}.
+     *
+     * <p>If the dependency exists (matched by GATC), its version is updated. If the version is a property
+     * reference (${...}), the property value is updated instead. If {@code upsert} is true and the dependency
+     * doesn't exist, it will be created.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact junit = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * editor.updateManagedDependency(true, junit);
+     * }</pre>
+     *
+     * @param upsert whether to create the dependency if it doesn't exist
+     * @param artifact the artifact coordinates
+     * @return true if the dependency was updated or created, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     * @since 0.3.0
+     */
+    public boolean updateManagedDependency(boolean upsert, Artifact artifact) throws DomTripException {
+        Element root = root();
+        Element dependencyManagement = findChildElement(root, DEPENDENCY_MANAGEMENT);
+        if (dependencyManagement == null && upsert) {
+            dependencyManagement = insertMavenElement(root, DEPENDENCY_MANAGEMENT);
+        }
+        if (dependencyManagement != null) {
+            Element dependencies = findChildElement(dependencyManagement, DEPENDENCIES);
+            if (dependencies == null && upsert) {
+                dependencies = insertMavenElement(dependencyManagement, DEPENDENCIES);
+            }
+            if (dependencies != null) {
+                Element dependency = dependencies
+                        .children(DEPENDENCY)
+                        .filter(artifact.predicateGATC())
+                        .findFirst()
+                        .orElse(null);
+                if (dependency == null && upsert) {
+                    dependency =
+                            addDependency(dependencies, artifact.groupId(), artifact.artifactId(), artifact.version());
+                    // Add type if not default "jar"
+                    if (artifact.type() != null && !"jar".equals(artifact.type())) {
+                        insertMavenElement(dependency, TYPE, artifact.type());
+                    }
+                    // Add classifier if present
+                    if (artifact.classifier() != null) {
+                        insertMavenElement(dependency, CLASSIFIER, artifact.classifier());
+                    }
+                    return true;
+                }
+                if (dependency != null) {
+                    return updateVersionElement(dependency, artifact.version());
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes a managed dependency from {@code project/dependencyManagement/dependencies/dependency[]}.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact junit = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * editor.deleteManagedDependency(junit);
+     * }</pre>
+     *
+     * @param artifact the artifact to remove (matched by GATC)
+     * @return true if the dependency was removed, false if it didn't exist
+     * @since 0.3.0
+     */
+    public boolean deleteManagedDependency(Artifact artifact) {
+        Element dependencyManagement = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+        if (dependencyManagement != null) {
+            Element dependencies = findChildElement(dependencyManagement, DEPENDENCIES);
+            if (dependencies != null) {
+                Element dependency = dependencies
+                        .children(DEPENDENCY)
+                        .filter(artifact.predicateGATC())
+                        .findFirst()
+                        .orElse(null);
+                if (dependency != null) {
+                    return removeElement(dependency);
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Updates or inserts a dependency in {@code project/dependencies/dependency[]}.
+     *
+     * <p>If the dependency exists (matched by GATC), its version is updated. If the version is a property
+     * reference (${...}), the property value is updated instead. If the dependency has no version element,
+     * the managed dependency is updated instead. If {@code upsert} is true and the dependency doesn't exist,
+     * it will be created.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact junit = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * editor.updateDependency(true, junit);
+     * }</pre>
+     *
+     * @param upsert whether to create the dependency if it doesn't exist
+     * @param artifact the artifact coordinates
+     * @return true if the dependency was updated or created, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     * @since 0.3.0
+     */
+    public boolean updateDependency(boolean upsert, Artifact artifact) throws DomTripException {
+        Element dependencies = findChildElement(root(), DEPENDENCIES);
+        if (dependencies == null && upsert) {
+            dependencies = insertMavenElement(root(), DEPENDENCIES);
+        }
+        if (dependencies != null) {
+            Element dependency = dependencies
+                    .children(DEPENDENCY)
+                    .filter(artifact.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (dependency == null && upsert) {
+                dependency = addDependency(dependencies, artifact.groupId(), artifact.artifactId(), artifact.version());
+                // Add type if not default "jar"
+                if (artifact.type() != null && !"jar".equals(artifact.type())) {
+                    insertMavenElement(dependency, TYPE, artifact.type());
+                }
+                // Add classifier if present
+                if (artifact.classifier() != null) {
+                    insertMavenElement(dependency, CLASSIFIER, artifact.classifier());
+                }
+                return true;
+            }
+            if (dependency != null) {
+                java.util.Optional<Element> version = dependency.child(VERSION);
+                if (version.isPresent()) {
+                    return updateVersionElement(dependency, artifact.version());
+                } else {
+                    return updateManagedDependency(false, artifact);
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes a dependency from {@code project/dependencies/dependency[]}.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact junit = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * editor.deleteDependency(junit);
+     * }</pre>
+     *
+     * @param artifact the artifact to remove (matched by GATC)
+     * @return true if the dependency was removed, false if it didn't exist
+     * @since 0.3.0
+     */
+    public boolean deleteDependency(Artifact artifact) {
+        Element dependencies = findChildElement(root(), DEPENDENCIES);
+        if (dependencies != null) {
+            Element dependency = dependencies
+                    .children(DEPENDENCY)
+                    .filter(artifact.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (dependency != null) {
+                return removeElement(dependency);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Updates a version element, handling property references intelligently.
+     *
+     * <p>If the version element contains a property reference (${property.name}), this method
+     * updates the property value instead of the version element itself.</p>
+     *
+     * @param parent the parent element containing the version child
+     * @param newVersion the new version value
+     * @return true if the version was updated, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     */
+    private boolean updateVersionElement(Element parent, String newVersion) throws DomTripException {
+        java.util.Optional<Element> version = parent.child(VERSION);
+        if (version.isPresent()) {
+            String versionValue = version.orElseThrow().textContent();
+            if (versionValue != null && versionValue.startsWith("${") && versionValue.endsWith("}")) {
+                String propertyKey = versionValue.substring(2, versionValue.length() - 1);
+                return updateProperty(false, propertyKey, newVersion);
+            } else {
+                version.orElseThrow().textContent(newVersion);
+                return true;
+            }
+        }
+        return false;
     }
 }

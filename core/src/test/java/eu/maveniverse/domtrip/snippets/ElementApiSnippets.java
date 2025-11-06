@@ -271,12 +271,12 @@ public class ElementApiSnippets {
         project.namespaceDeclaration("xsi", "http://www.w3.org/2001/XMLSchema-instance");
 
         // Access namespace information
-        String namespace = project.namespace();
+        String namespaceURI = project.namespaceURI();
         String localName = project.localName();
         String prefix = project.prefix();
         // END: namespace-operations
 
-        Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespace);
+        Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespaceURI);
         Assertions.assertEquals("project", localName);
     }
 
@@ -288,15 +288,15 @@ public class ElementApiSnippets {
         Element project = Element.of(projectQName);
 
         // Create QName with prefix
-        QName xsiQName = QName.of("http://www.w3.org/2001/XMLSchema-instance", "xsi", "schemaLocation");
+        QName xsiQName = QName.of("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi");
 
         // Access QName components
-        String namespace = projectQName.namespace();
+        String namespaceURI = projectQName.namespaceURI();
         String localName = projectQName.localName();
         String prefix = xsiQName.prefix();
         // END: qname-support
 
-        Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespace);
+        Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespaceURI);
         Assertions.assertEquals("project", localName);
         Assertions.assertEquals("xsi", prefix);
     }
@@ -341,12 +341,13 @@ public class ElementApiSnippets {
         Optional<Element> toRemove = project.child("dependency");
         toRemove.ifPresent(element -> project.removeNode(element));
 
-        // Remove all elements with specific name
-        project.children("dependency").forEach(project::removeNode);
+        // Remove all elements with specific name (collect to list first to avoid ConcurrentModificationException)
+        project.children("dependency").collect(Collectors.toList()).forEach(project::removeNode);
 
-        // Remove by condition
+        // Remove by condition (collect to list first to avoid ConcurrentModificationException)
         project.children()
                 .filter(child -> "deprecated".equals(child.attribute("status")))
+                .collect(Collectors.toList())
                 .forEach(project::removeNode);
         // END: removing-elements
 
@@ -384,17 +385,17 @@ public class ElementApiSnippets {
 
         // START: modification-tracking
         // Check if element has been modified
-        boolean wasModified = element.modified();
+        boolean wasModified = element.isModified();
 
         // Modify the element
         element.attribute("attr", "new-value");
         element.textContent("new content");
 
         // Now it's marked as modified
-        boolean isModified = element.modified();
+        boolean isModified = element.isModified();
 
-        // Mark as unmodified (used internally by serializer)
-        element.modified(false);
+        // Clear modification flag (used internally by serializer)
+        element.clearModified();
         // END: modification-tracking
 
         Assertions.assertFalse(wasModified);

@@ -672,6 +672,30 @@ public class Element extends ContainerNode {
     }
 
     /**
+     * Gets the text content of this element, returning a default value if the text content is null or empty.
+     *
+     * <p>This is a convenience method for getting text content with a fallback value.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * Element scope = dependency.child("scope").orElse(null);
+     * String scopeValue = scope != null ? scope.textContentOr("compile") : "compile";
+     * // Or more simply:
+     * String scopeValue = dependency.child("scope")
+     *     .map(e -> e.textContentOr("compile"))
+     *     .orElse("compile");
+     * }</pre>
+     *
+     * @param defaultValue the default value to return if text content is null or empty
+     * @return the text content or default value
+     * @since 0.3.0
+     */
+    public String textContentOr(String defaultValue) {
+        String text = textContent();
+        return (text != null && !text.isEmpty()) ? text : defaultValue;
+    }
+
+    /**
      * Sets the text content, replacing all existing text children.
      *
      * <p><strong>Note:</strong> This method replaces all text children and does not
@@ -901,6 +925,57 @@ public class Element extends ContainerNode {
                 .map(child -> (Element) child)
                 .filter(element -> name.equals(element.name()))
                 .findFirst();
+    }
+
+    /**
+     * Gets the text content of an optional child element with the given name.
+     *
+     * <p>This is a convenience method that combines child element lookup and text content extraction
+     * with a default value, making it useful for reading optional configuration values. If the child
+     * element exists but has no text content (empty element), the default value is returned.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * Element dependency = ...;
+     * // Get scope with default value "compile"
+     * String scope = dependency.childTextOr("scope", "compile");
+     *
+     * // Get optional classifier (returns null if not present)
+     * String classifier = dependency.childTextOr("classifier", null);
+     * }</pre>
+     *
+     * @param childName the name of the child element
+     * @param defaultValue the default value to return if child is not found or has no text content
+     * @return the text content of the child or default value
+     * @since 0.3.0
+     */
+    public String childTextOr(String childName, String defaultValue) {
+        return child(childName).map(e -> e.textContentOr(defaultValue)).orElse(defaultValue);
+    }
+
+    /**
+     * Gets the text content of a required child element with the given name.
+     *
+     * <p>This method is useful when a child element is mandatory and you want to fail fast
+     * with a clear error message if it's missing.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * Element dependency = ...;
+     * // Get required groupId (throws if missing)
+     * String groupId = dependency.childTextRequired("groupId");
+     * }</pre>
+     *
+     * @param childName the name of the child element
+     * @return the text content of the child
+     * @throws IllegalArgumentException if the child element is not found
+     * @since 0.3.0
+     */
+    public String childTextRequired(String childName) {
+        return child(childName)
+                .map(Element::textContent)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Required child element '" + childName + "' not found in element '" + name + "'"));
     }
 
     /**

@@ -2,6 +2,7 @@
 title: "Element Positioning"
 description: "Insert XML elements at specific positions with precise control"
 weight: 60
+layout: page
 ---
 
 # Element Positioning

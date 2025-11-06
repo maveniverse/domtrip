@@ -1,6 +1,7 @@
 ---
 title: Maven Examples
 description: Real-world examples of using the DomTrip Maven extension
+layout: page
 ---
 
 # Maven Examples

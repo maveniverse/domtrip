@@ -2,6 +2,7 @@
 title: "Processing Instructions"
 description: "Working with XML processing instructions in DomTrip"
 weight: 60
+layout: page
 ---
 
 # Processing Instructions

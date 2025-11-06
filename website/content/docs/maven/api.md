@@ -1,6 +1,7 @@
 ---
 title: PomEditor API Reference
 description: Complete API reference for the PomEditor class and Maven extension
+layout: page
 ---
 
 # PomEditor API Reference

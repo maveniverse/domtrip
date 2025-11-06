@@ -1,6 +1,7 @@
 ---
 title: Maven Extension
 description: DomTrip Maven extension for specialized POM file editing
+layout: page
 ---
 
 # Maven Extension

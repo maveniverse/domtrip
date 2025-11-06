@@ -2,6 +2,7 @@
 title: "Element API"
 description: "Complete reference for the Element class and XML element manipulation"
 weight: 20
+layout: page
 ---
 
 # Element API

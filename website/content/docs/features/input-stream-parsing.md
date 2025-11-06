@@ -2,6 +2,7 @@
 title: "Input Stream Parsing"
 description: "Parse XML from InputStreams with automatic encoding detection"
 weight: 70
+layout: page
 ---
 
 # Input Stream Parsing

@@ -2,6 +2,7 @@
 title: "Performance"
 description: "Performance characteristics and optimization strategies for DomTrip"
 weight: 90
+layout: page
 ---
 
 # Performance

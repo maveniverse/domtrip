@@ -2,6 +2,7 @@
 title: "Document API"
 description: "Complete reference for the Document class and XML document management"
 weight: 30
+layout: page
 ---
 
 # Document API

@@ -1,6 +1,7 @@
 ---
 title: Maven Extension Installation
 description: How to install and configure the DomTrip Maven extension
+layout: page
 ---
 
 # Maven Extension Installation

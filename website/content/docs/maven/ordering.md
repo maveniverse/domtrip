@@ -1,6 +1,7 @@
 ---
 title: Maven Element Ordering
 description: Understanding how PomEditor orders elements according to Maven conventions
+layout: page
 ---
 
 # Maven Element Ordering

@@ -2,6 +2,7 @@
 title: "Error Handling"
 description: "Comprehensive error handling and recovery strategies in DomTrip"
 weight: 80
+layout: page
 ---
 
 # Error Handling

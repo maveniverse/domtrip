@@ -2,6 +2,7 @@
 title: "Element Commenting"
 description: "Comment out and uncomment XML elements while preserving formatting"
 weight: 50
+layout: page
 ---
 
 # Element Commenting

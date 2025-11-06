@@ -1,6 +1,7 @@
 ---
 title: Maven Quick Start
 description: Get started with DomTrip Maven extension in 5 minutes
+layout: page
 ---
 
 # Maven Quick Start

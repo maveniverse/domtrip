@@ -20,7 +20,6 @@ import org.junit.jupiter.api.Test;
 public class XmlConformanceDetailedTest {
 
     @Test
-    @Disabled("DOCTYPE adds extra newline - minor formatting difference, acceptable")
     void testDoctypeRoundTrip() {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root SYSTEM \"example.dtd\">\n" + "<root/>";
 
@@ -34,7 +33,6 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    @Disabled("DOCTYPE adds extra newline - minor formatting difference, acceptable")
     void testDoctypeWithInternalSubsetRoundTrip() {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root [\n"
                 + "  <!ELEMENT root (child*)>\n"
@@ -53,7 +51,6 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    @Disabled("DOCTYPE adds extra newline - minor formatting difference, acceptable")
     void testDoctypeWithPublicIdRoundTrip() {
         String xml = "<?xml version=\"1.0\"?>\n"
                 + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
@@ -68,7 +65,6 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    @Disabled("DOCTYPE adds extra newline - minor formatting difference, acceptable")
     void testCustomEntityDefinitionRoundTrip() {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root [\n"
                 + "  <!ENTITY custom \"Custom Value\">\n"
@@ -214,7 +210,6 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    @Disabled("Numeric character references in attributes are double-escaped - CRITICAL BUG")
     void testAttributeWithSpecialCharactersRoundTrip() {
         String xml = "<root\n" + "  attr1=\"value with &lt;brackets&gt;\"\n"
                 + "  attr2='value with &quot;quotes&quot;'\n"

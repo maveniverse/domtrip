@@ -291,6 +291,11 @@ public class Parser {
                             // Parse DOCTYPE declaration
                             String doctype = parseDoctype();
                             document.doctype(doctype);
+                            // Store any pending whitespace before DOCTYPE
+                            if (!pendingWhitespace.isEmpty()) {
+                                document.doctypePrecedingWhitespace(pendingWhitespace.toString());
+                                pendingWhitespace.setLength(0);
+                            }
                         } else {
                             // Skip other declarations
                             skipDeclaration();
@@ -523,7 +528,7 @@ public class Parser {
 
         // Check for self-closing tag
         if (position < length && xml.charAt(position) == '/') {
-            element.selfClosing(true);
+            element.selfClosingInternal(true);
             position++; // Skip '/'
         }
 

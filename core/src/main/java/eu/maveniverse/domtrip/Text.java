@@ -315,11 +315,49 @@ public class Text extends Node {
     }
 
     /**
-     * Unescapes XML entities in text content
+     * Unescapes XML entities in text content, including numeric character references
      */
     public static String unescapeTextContent(String text) {
         if (text == null) return "";
-        return text.replace("&lt;", "<")
+
+        // First handle numeric character references (both decimal and hexadecimal)
+        StringBuilder result = new StringBuilder();
+        int i = 0;
+        while (i < text.length()) {
+            if (text.charAt(i) == '&' && i + 2 < text.length() && text.charAt(i + 1) == '#') {
+                // Found potential numeric character reference
+                int end = text.indexOf(';', i + 2);
+                if (end != -1) {
+                    String numericPart = text.substring(i + 2, end);
+                    try {
+                        int codePoint;
+                        if (numericPart.length() > 0
+                                && (numericPart.charAt(0) == 'x' || numericPart.charAt(0) == 'X')) {
+                            // Hexadecimal: &#xHHHH;
+                            codePoint = Integer.parseInt(numericPart.substring(1), 16);
+                        } else {
+                            // Decimal: &#DDDD;
+                            codePoint = Integer.parseInt(numericPart, 10);
+                        }
+                        // Validate code point is valid Unicode
+                        if (Character.isValidCodePoint(codePoint)) {
+                            result.appendCodePoint(codePoint);
+                            i = end + 1;
+                            continue;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Not a valid numeric reference, treat as regular text
+                    }
+                }
+            }
+            result.append(text.charAt(i));
+            i++;
+        }
+
+        // Then handle named entities
+        String unescaped = result.toString();
+        return unescaped
+                .replace("&lt;", "<")
                 .replace("&gt;", ">")
                 .replace("&quot;", "\"")
                 .replace("&apos;", "'")

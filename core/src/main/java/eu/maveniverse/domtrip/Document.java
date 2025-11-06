@@ -70,6 +70,7 @@ public class Document extends ContainerNode {
 
     private String xmlDeclaration;
     private String doctype;
+    private String doctypePrecedingWhitespace;
     private Element root;
     private String encoding;
     private String version;
@@ -87,6 +88,7 @@ public class Document extends ContainerNode {
         super();
         this.xmlDeclaration = "";
         this.doctype = "";
+        this.doctypePrecedingWhitespace = "";
         this.encoding = "UTF-8";
         this.version = "1.0";
         this.standalone = false;
@@ -101,6 +103,7 @@ public class Document extends ContainerNode {
         super(); // Initialize ContainerNode with empty nodes list
         this.xmlDeclaration = original.xmlDeclaration;
         this.doctype = original.doctype;
+        this.doctypePrecedingWhitespace = original.doctypePrecedingWhitespace;
         this.encoding = original.encoding;
         this.version = original.version;
         this.standalone = original.standalone;
@@ -198,6 +201,13 @@ public class Document extends ContainerNode {
         this.doctype = doctype != null ? doctype : "";
         markModified();
         return this;
+    }
+
+    /**
+     * Sets the whitespace before the DOCTYPE declaration (for internal use during parsing).
+     */
+    void doctypePrecedingWhitespace(String whitespace) {
+        this.doctypePrecedingWhitespace = whitespace != null ? whitespace : "";
     }
 
     /**
@@ -380,9 +390,9 @@ public class Document extends ContainerNode {
             sb.append(xmlDeclaration);
         }
 
-        // Add DOCTYPE if present
+        // Add DOCTYPE if present (with its preceding whitespace)
         if (!doctype.isEmpty()) {
-            sb.append("\n").append(doctype);
+            sb.append(doctypePrecedingWhitespace).append(doctype);
         }
 
         // Add preceding whitespace

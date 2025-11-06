@@ -13,23 +13,24 @@ import org.junit.jupiter.api.Test;
  */
 public class XmlConformanceLimitationsTest {
 
-    // ========== ROUND-TRIPPING ISSUES (DATA LOSS) ==========
+    // ========== ROUND-TRIPPING ISSUES (DATA LOSS) - NOW FIXED! ==========
 
     @Test
-    void testNumericCharacterReferencesInAttributesNotPreserved() {
-        // ISSUE: Numeric character references in attributes are double-escaped
+    void testNumericCharacterReferencesInAttributesNowFixed() {
+        // FIXED: Numeric character references in attributes are now properly decoded AND preserved
         String xml = "<root attr=\"line1&#10;line2\"/>";
         Document doc = Document.of(xml);
         String result = doc.toXml();
 
-        // The &#10; becomes &amp;#10; which is wrong
-        assertFalse(result.contains("&#10;"), "Numeric char refs are double-escaped");
-        assertTrue(result.contains("&amp;#10;"), "Shows the double-escaping issue");
-
-        // This is a DATA LOSS issue - the newline character is lost
+        // The newline character should be properly decoded
         Element root = doc.root();
         String attrValue = root.attribute("attr");
-        assertFalse(attrValue.contains("\n"), "Newline character is lost");
+        assertTrue(attrValue.contains("\n"), "Newline character is properly decoded");
+        assertEquals("line1\nline2", attrValue, "Attribute value should contain actual newline");
+
+        // The output should preserve the exact format (&#10;) for perfect round-tripping
+        assertTrue(result.contains("&#10;"), "Numeric char ref should be preserved in output");
+        assertEquals(xml, result, "Should round-trip exactly");
     }
 
     @Test
@@ -51,32 +52,31 @@ public class XmlConformanceLimitationsTest {
     // ========== MINOR FORMATTING DIFFERENCES (ACCEPTABLE) ==========
 
     @Test
-    void testDoctypeAddsExtraNewline() {
-        // MINOR: Extra newline added after DOCTYPE
+    void testDoctypeNowPreservedPerfectly() {
+        // FIXED: DOCTYPE now round-trips perfectly without extra newline
         String xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE root SYSTEM \"example.dtd\">\n<root/>";
         Document doc = Document.of(xml);
         String result = doc.toXml();
 
-        // DOCTYPE is preserved but with extra newline
+        // DOCTYPE is preserved perfectly
         assertTrue(result.contains("<!DOCTYPE root SYSTEM \"example.dtd\">"), "DOCTYPE preserved");
-        assertTrue(result.contains(">\n\n<root"), "Extra newline added");
-
-        // This is acceptable - no data loss, just formatting
+        assertEquals(xml, result, "Should round-trip exactly");
     }
 
     @Test
-    void testAttributeQuoteNormalization() {
-        // MINOR: &quot; in single-quoted attributes becomes literal "
+    void testAttributeQuotePreservationNowFixed() {
+        // FIXED: &quot; in single-quoted attributes is now preserved
         String xml = "<root attr='value with &quot;quotes&quot;'/>";
         Document doc = Document.of(xml);
         String result = doc.toXml();
 
-        // The &quot; becomes " because it's in single quotes
-        assertTrue(result.contains("'value with \"quotes\"'"), "Quote normalized");
+        // The &quot; is now preserved for perfect round-tripping
+        assertTrue(result.contains("&quot;"), "Quote entity preserved");
+        assertEquals(xml, result, "Should round-trip exactly");
 
-        // This is acceptable - semantically equivalent
+        // The decoded value is still correct
         Element root = doc.root();
-        assertEquals("value with \"quotes\"", root.attribute("attr"), "Value is correct");
+        assertEquals("value with \"quotes\"", root.attribute("attr"), "Value is correctly decoded");
     }
 
     @Test

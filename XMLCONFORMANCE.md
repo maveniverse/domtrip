@@ -8,27 +8,70 @@ DomTrip is designed for **perfect formatting preservation** rather than strict X
 
 ## Round-Tripping Issues (Data Loss)
 
-These are issues where data is lost or corrupted during parsing and serialization:
+**ALL FIXED!** ✅
 
-### 1. Numeric Character References in Attributes ❌ CRITICAL
+As of the latest version, DomTrip has **NO data loss issues**. All previously identified round-tripping problems have been resolved:
 
-**Issue**: Numeric character references in attribute values are double-escaped, causing data loss.
+### 1. Numeric Character References in Attributes ✅ FIXED
+
+**Was**: Numeric character references in attribute values were double-escaped, causing data loss.
+
+**Now**: Numeric character references are properly decoded AND preserved for perfect round-tripping.
 
 ```xml
 <!-- Input -->
 <root attr="line1&#10;line2"/>
 
-<!-- Output -->
-<root attr="line1&amp;#10;line2"/>
+<!-- Output (PERFECT) -->
+<root attr="line1&#10;line2"/>
+
+<!-- Decoded value -->
+root.attribute("attr") // Returns "line1\nline2" (with actual newline)
 ```
 
-**Impact**: The newline character (represented by `&#10;`) is lost. The attribute value becomes the literal string `"line1&#10;line2"` instead of `"line1\nline2"`.
+**Fix**: Enhanced `Text.unescapeTextContent()` to handle numeric character references (both decimal `&#DDDD;` and hexadecimal `&#xHHHH;`). Also fixed element modification tracking to preserve raw attribute values.
 
-**Root Cause**: The `Text.unescapeTextContent()` method only handles the five standard XML entities (`&lt;`, `&gt;`, `&amp;`, `&quot;`, `&apos;`) and doesn't decode numeric character references.
+### 2. DOCTYPE Extra Newline ✅ FIXED
 
-**Status**: **NEEDS FIX** - This is a data loss issue.
+**Was**: DOCTYPE declarations had an extra newline added after them.
 
-### 2. XML Declaration Attributes Not Parsed ⚠️ MINOR
+**Now**: DOCTYPE declarations round-trip perfectly with exact whitespace preservation.
+
+```xml
+<!-- Input -->
+<?xml version="1.0"?>
+<!DOCTYPE root SYSTEM "example.dtd">
+<root/>
+
+<!-- Output (PERFECT) -->
+<?xml version="1.0"?>
+<!DOCTYPE root SYSTEM "example.dtd">
+<root/>
+```
+
+**Fix**: Added `doctypePrecedingWhitespace` field to Document to store whitespace before DOCTYPE separately, eliminating the hardcoded newline.
+
+### 3. Attribute Quote Entity Normalization ✅ FIXED
+
+**Was**: `&quot;` in single-quoted attributes became literal `"`.
+
+**Now**: All entities in attributes are preserved exactly as written.
+
+```xml
+<!-- Input -->
+<root attr='value with &quot;quotes&quot;'/>
+
+<!-- Output (PERFECT) -->
+<root attr='value with &quot;quotes&quot;'/>
+```
+
+**Fix**: Same fix as #1 - proper raw value preservation.
+
+## Minor Limitations (Acceptable)
+
+These are minor limitations that don't affect round-tripping but may affect programmatic access:
+
+### 1. XML Declaration Attributes Not Parsed ⚠️ MINOR
 
 **Issue**: XML declaration attributes (version, standalone) are not parsed when using `Document.of(String)`.
 
@@ -41,54 +84,15 @@ These are issues where data is lost or corrupted during parsing and serializatio
 doc.version()      // Returns "1.0" (default)
 doc.isStandalone() // Returns false (default)
 doc.encoding()     // Returns "UTF-8" (correctly parsed)
-```
 
-**Impact**: The XML declaration is preserved as-is in the output, but the Document object doesn't reflect the actual version or standalone values from the input.
-
-**Workaround**: The declaration is preserved verbatim, so round-tripping works. Only programmatic access to these values is affected.
-
-**Status**: **ACCEPTABLE** - No data loss, declaration is preserved.
-
-## Minor Formatting Differences (Acceptable)
-
-These are minor formatting changes that don't affect data integrity:
-
-### 1. DOCTYPE Extra Newline ✅ ACCEPTABLE
-
-**Issue**: An extra newline is added after DOCTYPE declarations.
-
-```xml
-<!-- Input -->
-<?xml version="1.0"?>
-<!DOCTYPE root SYSTEM "example.dtd">
-<root/>
-
-<!-- Output -->
-<?xml version="1.0"?>
-<!DOCTYPE root SYSTEM "example.dtd">
-
+<!-- Output (PERFECT round-trip) -->
+<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
 <root/>
 ```
 
-**Impact**: Minimal - just an extra blank line.
+**Impact**: The XML declaration is preserved perfectly in the output, but the Document object doesn't reflect the actual version or standalone values from the input. This only affects programmatic access to these values, not round-tripping.
 
-**Status**: **ACCEPTABLE** - No data loss, minor formatting difference.
-
-### 2. Attribute Quote Normalization ✅ ACCEPTABLE
-
-**Issue**: `&quot;` in single-quoted attributes becomes literal `"`.
-
-```xml
-<!-- Input -->
-<root attr='value with &quot;quotes&quot;'/>
-
-<!-- Output -->
-<root attr='value with "quotes"'/>
-```
-
-**Impact**: None - semantically equivalent, and actually more readable.
-
-**Status**: **ACCEPTABLE** - Semantically equivalent.
+**Status**: **ACCEPTABLE** - No data loss, perfect round-tripping, only programmatic access affected.
 
 ## What Works Perfectly ✅
 
@@ -177,9 +181,15 @@ The following features round-trip with **perfect fidelity**:
 - ❌ You need DTD validation or entity expansion
 - ❌ You need programmatic access to XML declaration attributes
 
+## Summary
+
+DomTrip now provides **perfect round-tripping** for all common XML features with **zero data loss**. The only remaining limitation is that XML declaration attributes (version, standalone) are not parsed into the Document object, but they are still preserved perfectly in the output.
+
 ## Action Items
 
-1. **FIX**: Add numeric character reference support to `Text.unescapeTextContent()`
-2. **CONSIDER**: Parse XML declaration attributes when using `Document.of(String)`
-3. **DOCUMENT**: Update website with accurate limitations
+1. ✅ **DONE**: Add numeric character reference support to `Text.unescapeTextContent()`
+2. ✅ **DONE**: Fix element modification tracking to preserve raw attribute values
+3. ✅ **DONE**: Fix DOCTYPE extra newline issue
+4. **CONSIDER**: Parse XML declaration attributes when using `Document.of(String)` (low priority - no data loss)
+5. ✅ **DONE**: Update website with accurate limitations
 

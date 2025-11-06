@@ -69,32 +69,32 @@ root.attribute("attr") // Returns "line1\nline2" (with actual newline)
 
 **Fix**: Same fix as #1 - proper raw value preservation.
 
-## Minor Limitations (Acceptable)
+### 4. XML Declaration Attributes Not Parsed ✅ FIXED
 
-These are minor limitations that don't affect round-tripping but may affect programmatic access:
+**Was**: XML declaration attributes (version, standalone) were not parsed when using `Document.of(String)`.
 
-### 1. XML Declaration Attributes Not Parsed ⚠️ MINOR
+**Now**: XML declaration attributes are properly parsed into the Document object.
 
-**Issue**: XML declaration attributes (version, standalone) are not parsed when using `Document.of(String)`.
+```java
+String xml = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
+Document doc = Document.of(xml);
 
-```xml
-<!-- Input -->
-<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
-<root/>
+// Now properly parsed:
+doc.version();      // Returns "1.1" ✅
+doc.isStandalone(); // Returns true ✅
+doc.encoding();     // Returns "UTF-8" ✅
 
-<!-- Parsed values -->
-doc.version()      // Returns "1.0" (default)
-doc.isStandalone() // Returns false (default)
-doc.encoding()     // Returns "UTF-8" (correctly parsed)
-
-<!-- Output (PERFECT round-trip) -->
-<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
-<root/>
+// And still round-trips perfectly:
+doc.toXml();        // Returns exact input
 ```
 
-**Impact**: The XML declaration is preserved perfectly in the output, but the Document object doesn't reflect the actual version or standalone values from the input. This only affects programmatic access to these values, not round-tripping.
+**Fix**: Added call to `updateDocumentFromXmlDeclaration()` when parsing XML declaration processing instruction.
 
-**Status**: **ACCEPTABLE** - No data loss, perfect round-tripping, only programmatic access affected.
+## Minor Limitations (Acceptable)
+
+**NONE!** ✅
+
+All previously identified limitations have been fixed. DomTrip now provides perfect round-tripping with full programmatic access to all XML features.
 
 ## What Works Perfectly ✅
 
@@ -189,13 +189,11 @@ DomTrip now provides **perfect round-tripping** for all common XML features with
 
 **Design Philosophy**: DomTrip prioritizes round-tripping over XML spec conformance. It does NOT normalize line endings, whitespace, or entities according to the XML specification, because doing so would break perfect round-tripping. This is a deliberate design choice.
 
-The only remaining limitation is that XML declaration attributes (version, standalone) are not parsed into the Document object, but they are still preserved perfectly in the output.
-
 ## Action Items
 
 1. ✅ **DONE**: Add numeric character reference support to `Text.unescapeTextContent()`
 2. ✅ **DONE**: Fix element modification tracking to preserve raw attribute values
 3. ✅ **DONE**: Fix DOCTYPE extra newline issue
-4. **CONSIDER**: Parse XML declaration attributes when using `Document.of(String)` (low priority - no data loss)
+4. ✅ **DONE**: Parse XML declaration attributes when using `Document.of(String)`
 5. ✅ **DONE**: Update website with accurate limitations
 

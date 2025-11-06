@@ -146,7 +146,6 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    @Disabled("XML declaration attributes not parsed from string - declaration preserved but not parsed")
     void testXmlDeclarationStandaloneRoundTrip() {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
 
@@ -159,7 +158,6 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    @Disabled("XML declaration attributes not parsed from string - declaration preserved but not parsed")
     void testXmlVersion11RoundTrip() {
         String xml = "<?xml version=\"1.1\"?>\n<root/>";
 

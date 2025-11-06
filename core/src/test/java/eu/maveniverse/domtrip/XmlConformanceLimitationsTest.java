@@ -33,22 +33,6 @@ public class XmlConformanceLimitationsTest {
         assertEquals(xml, result, "Should round-trip exactly");
     }
 
-    @Test
-    void testXmlDeclarationAttributesNotParsed() {
-        // ISSUE: XML declaration attributes (version, standalone) are not parsed from string
-        String xml = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
-        Document doc = Document.of(xml);
-
-        // These should be parsed but aren't
-        assertEquals("1.0", doc.version(), "Version not parsed from declaration");
-        assertFalse(doc.isStandalone(), "Standalone not parsed from declaration");
-
-        // However, the declaration IS preserved as-is
-        String result = doc.toXml();
-        assertTrue(result.contains("version=\"1.1\""), "Declaration preserved as string");
-        assertTrue(result.contains("standalone=\"yes\""), "Declaration preserved as string");
-    }
-
     // ========== MINOR FORMATTING DIFFERENCES (ACCEPTABLE) ==========
 
     @Test
@@ -77,6 +61,22 @@ public class XmlConformanceLimitationsTest {
         // The decoded value is still correct
         Element root = doc.root();
         assertEquals("value with \"quotes\"", root.attribute("attr"), "Value is correctly decoded");
+    }
+
+    @Test
+    void testXmlDeclarationAttributesParsedNowFixed() {
+        // FIXED: XML declaration attributes are now parsed correctly
+        String xml = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
+        Document doc = Document.of(xml);
+
+        // Attributes are now parsed into the Document object
+        assertEquals("1.1", doc.version(), "Version should be parsed");
+        assertEquals("UTF-8", doc.encoding(), "Encoding should be parsed");
+        assertTrue(doc.isStandalone(), "Standalone should be parsed");
+
+        // And it still round-trips perfectly
+        String result = doc.toXml();
+        assertEquals(xml, result, "Should round-trip exactly");
     }
 
     @Test

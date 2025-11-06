@@ -305,6 +305,8 @@ public class Parser {
                         String pi = parseProcessingInstruction();
                         if (pi.startsWith("<?xml")) {
                             document.xmlDeclaration(pi);
+                            // Parse XML declaration attributes (version, encoding, standalone)
+                            updateDocumentFromXmlDeclaration(document, pi);
                         } else {
                             // Add other processing instructions as nodes
                             ProcessingInstruction piNode = new ProcessingInstruction(pi);

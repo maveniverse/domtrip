@@ -309,10 +309,6 @@ public class SerializationModesTest {
 
         String result = editor.toXml();
 
-        System.out.println("Original raw XML: " + rawXml);
-        System.out.println("After adding element: " + result);
-        System.out.println("Contains line breaks: " + result.contains("\n"));
-
         // Now the system should detect raw formatting and preserve it
         assertFalse(result.contains("\n"), "Should preserve raw formatting when original has no line breaks");
         assertTrue(result.contains("<newElement>new content</newElement>"), "Should contain the new element");
@@ -335,8 +331,6 @@ public class SerializationModesTest {
         editor.addElement(root, "child", "content");
 
         String result = editor.toXml();
-
-        System.out.println("Empty document result: " + result);
 
         // Should use config defaults (pretty print with line endings), not raw formatting
         assertTrue(result.contains("\n"), "Empty document should use config default line endings");
@@ -380,10 +374,5 @@ public class SerializationModesTest {
         emptyPrettyEditor.addElement(emptyPrettyEditor.root(), "child", "content");
         String emptyPrettyResult = emptyPrettyEditor.toXml();
         assertTrue(emptyPrettyResult.contains("\n"), "Empty doc with pretty config should use pretty formatting");
-
-        System.out.println("Raw result: " + rawResult);
-        System.out.println("Pretty result: " + prettyResult);
-        System.out.println("Empty default result: " + emptyResult);
-        System.out.println("Empty pretty result: " + emptyPrettyResult);
     }
 }

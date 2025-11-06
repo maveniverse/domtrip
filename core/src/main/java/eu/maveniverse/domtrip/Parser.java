@@ -291,6 +291,11 @@ public class Parser {
                             // Parse DOCTYPE declaration
                             String doctype = parseDoctype();
                             document.doctype(doctype);
+                            // Store any pending whitespace before DOCTYPE
+                            if (!pendingWhitespace.isEmpty()) {
+                                document.doctypePrecedingWhitespace(pendingWhitespace.toString());
+                                pendingWhitespace.setLength(0);
+                            }
                         } else {
                             // Skip other declarations
                             skipDeclaration();
@@ -298,10 +303,13 @@ public class Parser {
                     } else if (nextChar == '?') {
                         // Parse processing instruction
                         String pi = parseProcessingInstruction();
-                        if (pi.startsWith("<?xml")) {
+                        // Only treat as XML declaration if it starts with "<?xml " (with space) and contains "version="
+                        if (pi.startsWith("<?xml ") && pi.contains("version=")) {
                             document.xmlDeclaration(pi);
+                            // Parse XML declaration attributes (version, encoding, standalone)
+                            updateDocumentFromXmlDeclaration(document, pi);
                         } else {
-                            // Add other processing instructions as nodes
+                            // Add other processing instructions as nodes (including <?xml-stylesheet?>)
                             ProcessingInstruction piNode = new ProcessingInstruction(pi);
                             // Apply any pending whitespace as preceding whitespace
                             if (!pendingWhitespace.isEmpty()) {
@@ -523,7 +531,7 @@ public class Parser {
 
         // Check for self-closing tag
         if (position < length && xml.charAt(position) == '/') {
-            element.selfClosing(true);
+            element.selfClosingInternal(true);
             position++; // Skip '/'
         }
 

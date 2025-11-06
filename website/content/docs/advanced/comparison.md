@@ -17,13 +17,14 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 | **Between-Element Whitespace** | ✅ Exact | ⚠️ Partial | ✅ Yes* | ⚠️ Limited | ❌ No |
 | **In-Element Whitespace** | ✅ Exact | ❌ Lost | ⚠️ Config** | ⚠️ Limited | ❌ No |
 | **Entity Preservation** | ✅ Perfect | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Numeric Char Refs** | ✅ Perfect | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Attribute Quote Style** | ✅ Preserved | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Attribute Order** | ✅ Preserved | ❌ Lost | ❌ Lost | ❌ Lost | ❌ No |
 | **Modern Java API** | ✅ Java 17+ | ❌ Legacy | ❌ Legacy | ❌ Legacy | ✅ Modern |
 | **Fluent Builders** | ✅ Full | ❌ No | ❌ No | ❌ No | ⚠️ Limited |
 | **Stream Navigation** | ✅ Native | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Namespace Support** | ✅ Comprehensive | ✅ Good | ✅ Good | ✅ Good | ⚠️ Basic |
-| **Performance** | ✅ Optimized | ✅ Good | ✅ Good | ⚠️ Slow | ✅ Fast |
+| **XML Spec Compliance** | ⚠️ Round-trip focused | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
 
 **\* JDOM**: Use `Format.getRawFormat()` to preserve original whitespace between elements  
 **\*\* JDOM**: Configure with `TextMode.PRESERVE` to maintain text content whitespace
@@ -122,28 +123,69 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 
 Migrating from other libraries to DomTrip is straightforward. Check out our [Migration Guide](migration/) for specific examples and patterns for each library.
 
-## Performance Comparison
+## XML Conformance vs. Round-Tripping
 
-### Memory Usage
-- **DomTrip**: ~30% overhead for formatting metadata
-- **DOM4J**: Baseline memory usage
-- **JDOM**: ~20% less memory than DOM4J
-- **Java DOM**: ~50% more memory than DOM4J
-- **Jackson XML**: Minimal memory for streaming
+**Important**: DomTrip is a **round-tripping library**, not a strict XML parser. It prioritizes perfect formatting preservation over XML specification compliance.
 
-### Processing Speed
-- **DomTrip**: ~15% slower parsing, faster serialization for unmodified content
-- **DOM4J**: Good overall performance
-- **JDOM**: Similar to DOM4J
-- **Java DOM**: Significantly slower
-- **Jackson XML**: Fastest for data binding scenarios
+DomTrip provides **perfect round-tripping** for all common XML features with **zero data loss**. However, it deliberately does NOT implement certain XML spec requirements (like line ending normalization per [XML spec §2.11](https://www.w3.org/TR/2008/REC-xml-20081126/#sec-line-ends)) because doing so would break round-tripping.
 
-### Best Performance Use Cases
-- **DomTrip**: Configuration file editing, document transformation
-- **DOM4J**: General XML processing, XPath queries
-- **JDOM**: Simple XML manipulation
-- **Java DOM**: Standards compliance scenarios
-- **Jackson XML**: High-throughput data processing
+Based on comprehensive testing with 555+ passing tests, here's what you need to know:
+
+### Perfect Round-Tripping ✅
+
+DomTrip achieves **zero data loss** and perfect round-tripping for:
+
+- ✅ **Standard XML Entities** - `&lt;`, `&gt;`, `&amp;`, `&quot;`, `&apos;`
+- ✅ **Numeric Character References** - Both decimal (`&#10;`) and hexadecimal (`&#x3C;`) formats
+- ✅ **CDATA Sections** - Including CDATA with XML-like content
+- ✅ **Comments** - Single-line and multi-line comments
+- ✅ **Whitespace** - Exact preservation of spaces, tabs, newlines
+- ✅ **Namespaces** - Default and prefixed namespaces, including overriding
+- ✅ **Attribute Order** - Maintains exact attribute order
+- ✅ **Attribute Quote Style** - Preserves single vs. double quotes
+- ✅ **Empty Attributes** - Preserves empty attribute values
+- ✅ **Processing Instructions** - Including xml-stylesheet and custom PIs
+- ✅ **DOCTYPE Declarations** - System, public, and internal subsets with perfect formatting
+- ✅ **Encoding Declarations** - UTF-8, UTF-16, ISO-8859-1, etc.
+
+### Example: Perfect Round-Tripping
+
+```xml
+<!-- Input -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root SYSTEM "example.dtd">
+<root attr="line1&#10;line2" style='color: &quot;red&quot;'>
+  <![CDATA[<special> & content]]>
+  <!-- comment -->
+</root>
+
+<!-- Output (IDENTICAL) -->
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE root SYSTEM "example.dtd">
+<root attr="line1&#10;line2" style='color: &quot;red&quot;'>
+  <![CDATA[<special> & content]]>
+  <!-- comment -->
+</root>
+```
+
+### Recommendation
+
+**Use DomTrip when:**
+- ✅ Editing configuration files (Maven POMs, Spring configs, etc.)
+- ✅ Transforming documents while preserving formatting
+- ✅ Working with human-edited XML that needs to stay readable
+- ✅ You need perfect whitespace and comment preservation
+- ✅ You need to maintain attribute order and quote styles
+- ✅ You need numeric character references preserved exactly
+
+**Consider other libraries when:**
+- ⚠️ You need strict XML 1.0/1.1 specification compliance (e.g., line ending normalization)
+- ⚠️ You need DTD validation or entity expansion
+- ⚠️ You need a validating parser
+
+**For strict XML spec compliance**, use:
+- **Java DOM** - Full W3C DOM specification compliance
+- **DOM4J** or **JDOM** - Mature libraries with comprehensive XML support
 
 ## Next Steps
 

@@ -349,29 +349,25 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     @Test
     public void methodChainingBestPractices() {
         // snippet:method-chaining-best-practices
-        Editor editor = new Editor();
-        editor.createDocument("project");
-        Element root = editor.root();
+        // ✅ Good - short chains on one line are readable
+        Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "false");
 
-        // ✅ Good - readable chaining with clear structure
-        Element dependency = editor.addElement(root, "dependency");
-        editor.setAttribute(dependency, "scope", "test");
-        editor.addElement(dependency, "groupId", "junit");
-        editor.addElement(dependency, "artifactId", "junit");
-        editor.addElement(dependency, "version", "4.13.2");
+        // ✅ Good - break longer chains across multiple lines
+        Element person = Element.of("person")
+                .attribute("id", "123")
+                .attribute("active", "true")
+                .attribute("role", "developer");
 
-        // ✅ Good - break long chains for readability
-        Element person = editor.addElement(root, "person");
-        editor.setAttribute(person, "id", "123");
-        editor.addElement(person, "name", "John Doe");
-        editor.addElement(person, "email", "john@example.com");
-
-        // ❌ Avoid - overly long chains that are hard to read
-        // editor.addElement(root, "complex").setAttribute(...).addElement(...).setAttribute(...);
+        // ✅ Good - combine chaining with method calls
+        Element project = Element.of("project").attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
+        project.addNode(Element.of("groupId").textContent("com.example"));
+        project.addNode(Element.of("artifactId").textContent("my-app"));
+        project.addNode(Element.of("version").textContent("1.0.0"));
         // end-snippet:method-chaining-best-practices
 
         Assertions.assertNotNull(dependency);
         Assertions.assertEquals("test", dependency.attribute("scope"));
+        Assertions.assertEquals("123", person.attribute("id"));
     }
 
     @Test

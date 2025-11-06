@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -81,7 +80,6 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    @Disabled("Numeric character references in text content work, but exact preservation may vary")
     void testNumericCharacterReferencesRoundTrip() {
         String xml = "<root>\n" + "  <hex>&#x3C;&#x3E;&#x26;</hex>\n"
                 + "  <decimal>&#60;&#62;&#38;</decimal>\n"
@@ -170,7 +168,6 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    @Disabled("XML declaration PI not output when parsed from string - minor formatting difference")
     void testProcessingInstructionRoundTrip() {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n"
                 + "<root>\n"

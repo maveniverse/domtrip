@@ -90,6 +90,26 @@ doc.toXml();        // Returns exact input
 
 **Fix**: Added call to `updateDocumentFromXmlDeclaration()` when parsing XML declaration processing instruction.
 
+### 5. XML Declaration vs xml-stylesheet Confusion ✅ FIXED
+
+**Was**: Parser treated any PI starting with `<?xml` as the XML declaration, causing `<?xml-stylesheet?>` to overwrite the actual XML declaration.
+
+**Now**: Parser correctly distinguishes between XML declaration (`<?xml version=...?>`) and other PIs like `<?xml-stylesheet?>`.
+
+```xml
+<!-- Input -->
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="style.xsl"?>
+<root/>
+
+<!-- Output (PERFECT) -->
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="style.xsl"?>
+<root/>
+```
+
+**Fix**: Changed parser check from `pi.startsWith("<?xml")` to `pi.startsWith("<?xml ") && pi.contains("version=")` to only treat actual XML declarations as such.
+
 ## Minor Limitations (Acceptable)
 
 **NONE!** ✅

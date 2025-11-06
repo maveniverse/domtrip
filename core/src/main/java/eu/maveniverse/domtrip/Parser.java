@@ -303,12 +303,13 @@ public class Parser {
                     } else if (nextChar == '?') {
                         // Parse processing instruction
                         String pi = parseProcessingInstruction();
-                        if (pi.startsWith("<?xml")) {
+                        // Only treat as XML declaration if it starts with "<?xml " (with space) and contains "version="
+                        if (pi.startsWith("<?xml ") && pi.contains("version=")) {
                             document.xmlDeclaration(pi);
                             // Parse XML declaration attributes (version, encoding, standalone)
                             updateDocumentFromXmlDeclaration(document, pi);
                         } else {
-                            // Add other processing instructions as nodes
+                            // Add other processing instructions as nodes (including <?xml-stylesheet?>)
                             ProcessingInstruction piNode = new ProcessingInstruction(pi);
                             // Apply any pending whitespace as preceding whitespace
                             if (!pendingWhitespace.isEmpty()) {

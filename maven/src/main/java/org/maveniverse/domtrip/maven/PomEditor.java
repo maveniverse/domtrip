@@ -759,4 +759,178 @@ public class PomEditor extends AbstractMavenEditor {
         }
         return false;
     }
+
+    // ========== HIGH-LEVEL PLUGIN MANAGEMENT ==========
+
+    /**
+     * Updates or inserts a managed plugin in {@code project/build/pluginManagement/plugins/plugin[]}.
+     *
+     * <p>If the plugin exists (matched by GA), its version is updated. If the version is a property
+     * reference (${...}), the property value is updated instead. If {@code upsert} is true and the plugin
+     * doesn't exist, it will be created.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * editor.updateManagedPlugin(true, compilerPlugin);
+     * }</pre>
+     *
+     * @param upsert whether to create the plugin if it doesn't exist
+     * @param artifact the artifact coordinates
+     * @return true if the plugin was updated or created, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     * @since 0.3.0
+     */
+    public boolean updateManagedPlugin(boolean upsert, Artifact artifact) throws DomTripException {
+        Element root = root();
+        Element build = findChildElement(root, BUILD);
+        if (build == null && upsert) {
+            build = insertMavenElement(root, BUILD);
+        }
+        if (build != null) {
+            Element pluginManagement = findChildElement(build, PLUGIN_MANAGEMENT);
+            if (pluginManagement == null && upsert) {
+                pluginManagement = insertMavenElement(build, PLUGIN_MANAGEMENT);
+            }
+            if (pluginManagement != null) {
+                Element plugins = findChildElement(pluginManagement, PLUGINS);
+                if (plugins == null && upsert) {
+                    plugins = insertMavenElement(pluginManagement, PLUGINS);
+                }
+                if (plugins != null) {
+                    Element plugin = plugins.children(PLUGIN)
+                            .filter(artifact.predicateGA())
+                            .findFirst()
+                            .orElse(null);
+                    if (plugin == null && upsert) {
+                        plugin = addPlugin(plugins, artifact.groupId(), artifact.artifactId(), artifact.version());
+                        return true;
+                    }
+                    if (plugin != null) {
+                        return updateVersionElement(plugin, artifact.version());
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes a managed plugin from {@code project/build/pluginManagement/plugins/plugin[]}.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * editor.deleteManagedPlugin(compilerPlugin);
+     * }</pre>
+     *
+     * @param artifact the artifact to remove (matched by GA)
+     * @return true if the plugin was removed, false if it didn't exist
+     * @since 0.3.0
+     */
+    public boolean deleteManagedPlugin(Artifact artifact) {
+        Element build = findChildElement(root(), BUILD);
+        if (build != null) {
+            Element pluginManagement = findChildElement(build, PLUGIN_MANAGEMENT);
+            if (pluginManagement != null) {
+                Element plugins = findChildElement(pluginManagement, PLUGINS);
+                if (plugins != null) {
+                    Element plugin = plugins.children(PLUGIN)
+                            .filter(artifact.predicateGA())
+                            .findFirst()
+                            .orElse(null);
+                    if (plugin != null) {
+                        return removeElement(plugin);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Updates or inserts a plugin in {@code project/build/plugins/plugin[]}.
+     *
+     * <p>If the plugin exists (matched by GA), its version is updated. If the version is a property
+     * reference (${...}), the property value is updated instead. If the plugin has no version element,
+     * the managed plugin is updated instead. If {@code upsert} is true and the plugin doesn't exist,
+     * it will be created.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * editor.updatePlugin(true, compilerPlugin);
+     * }</pre>
+     *
+     * @param upsert whether to create the plugin if it doesn't exist
+     * @param artifact the artifact coordinates
+     * @return true if the plugin was updated or created, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     * @since 0.3.0
+     */
+    public boolean updatePlugin(boolean upsert, Artifact artifact) throws DomTripException {
+        Element build = findChildElement(root(), BUILD);
+        if (build == null && upsert) {
+            build = insertMavenElement(root(), BUILD);
+        }
+        if (build != null) {
+            Element plugins = findChildElement(build, PLUGINS);
+            if (plugins == null && upsert) {
+                plugins = insertMavenElement(build, PLUGINS);
+            }
+            if (plugins != null) {
+                Element plugin = plugins.children(PLUGIN)
+                        .filter(artifact.predicateGA())
+                        .findFirst()
+                        .orElse(null);
+                if (plugin == null && upsert) {
+                    plugin = addPlugin(plugins, artifact.groupId(), artifact.artifactId(), artifact.version());
+                    return true;
+                }
+                if (plugin != null) {
+                    java.util.Optional<Element> version = plugin.child(VERSION);
+                    if (version.isPresent()) {
+                        return updateVersionElement(plugin, artifact.version());
+                    } else {
+                        return updateManagedPlugin(false, artifact);
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes a plugin from {@code project/build/plugins/plugin[]}.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * editor.deletePlugin(compilerPlugin);
+     * }</pre>
+     *
+     * @param artifact the artifact to remove (matched by GA)
+     * @return true if the plugin was removed, false if it didn't exist
+     * @since 0.3.0
+     */
+    public boolean deletePlugin(Artifact artifact) {
+        Element build = findChildElement(root(), BUILD);
+        if (build != null) {
+            Element plugins = findChildElement(build, PLUGINS);
+            if (plugins != null) {
+                Element plugin = plugins.children(PLUGIN)
+                        .filter(artifact.predicateGA())
+                        .findFirst()
+                        .orElse(null);
+                if (plugin != null) {
+                    return removeElement(plugin);
+                }
+            }
+        }
+        return false;
+    }
 }

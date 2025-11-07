@@ -88,7 +88,7 @@ public class ElementApiSnippets {
         String content = element.textContent(); // "This is the description"
 
         // Get trimmed content (removes leading/trailing whitespace)
-        String trimmed = element.trimmedTextContent();
+        String trimmed = element.textContentTrimmed();
         // END: text-content
 
         Assertions.assertEquals("This is the description", content);

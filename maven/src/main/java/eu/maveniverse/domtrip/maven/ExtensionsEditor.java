@@ -1,0 +1,269 @@
+/*
+ * Copyright (c) 2023-2024 Maveniverse Org.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-v20.html
+ */
+package eu.maveniverse.domtrip.maven;
+
+import static eu.maveniverse.domtrip.maven.MavenExtensionsElements.Elements.*;
+import static eu.maveniverse.domtrip.maven.MavenExtensionsElements.Namespaces.*;
+
+import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.Editor;
+import eu.maveniverse.domtrip.Element;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+
+/**
+ * Specialized editor for Maven extensions.xml files.
+ *
+ * <p>The ExtensionsEditor extends the base {@link Editor} class with Maven core extensions-specific functionality,
+ * including automatic element ordering according to Maven conventions, intelligent blank line insertion,
+ * and convenience methods for common extensions operations.</p>
+ *
+ * <p>Key features:</p>
+ * <ul>
+ *   <li><strong>Extensions-aware element ordering</strong> - Automatically orders elements according to Maven extensions conventions</li>
+ *   <li><strong>Formatting preservation</strong> - Maintains original formatting, whitespace, and comments</li>
+ *   <li><strong>Intelligent blank lines</strong> - Adds appropriate blank lines between element groups</li>
+ *   <li><strong>Convenience methods</strong> - Easy-to-use methods for adding extensions</li>
+ * </ul>
+ *
+ * <p>Example usage:</p>
+ * <pre>{@code
+ * // Create a new extensions document
+ * ExtensionsEditor editor = new ExtensionsEditor();
+ * editor.createExtensionsDocument();
+ * Element root = editor.root();
+ *
+ * // Add extensions with convenience methods
+ * editor.addExtension(root, "org.apache.maven.wagon", "wagon-ssh", "3.5.1");
+ * editor.addExtension(root, "io.takari.maven", "takari-smart-builder", "0.6.1");
+ *
+ * String result = editor.toXml();
+ * }</pre>
+ *
+ * @since 0.1
+ */
+public class ExtensionsEditor extends AbstractMavenEditor {
+
+    /**
+     * Element ordering for extension elements.
+     */
+    private static final List<String> EXTENSION_ELEMENT_ORDER =
+            Arrays.asList(GROUP_ID, ARTIFACT_ID, VERSION, CLASSIFIER, TYPE, CONFIGURATION);
+
+    /**
+     * Creates a new ExtensionsEditor with default configuration.
+     */
+    public ExtensionsEditor() {
+        super();
+    }
+
+    /**
+     * Creates a new ExtensionsEditor with the specified configuration.
+     *
+     * @param config the configuration to use
+     */
+    public ExtensionsEditor(DomTripConfig config) {
+        super(config);
+    }
+
+    /**
+     * Creates a new ExtensionsEditor for the specified document.
+     *
+     * @param document the document to edit
+     */
+    public ExtensionsEditor(Document document) {
+        super(document);
+    }
+
+    /**
+     * Creates a new ExtensionsEditor for the specified document with the given configuration.
+     *
+     * @param document the document to edit
+     * @param config the configuration to use
+     */
+    public ExtensionsEditor(Document document, DomTripConfig config) {
+        super(document, config);
+    }
+
+    /**
+     * Creates a new Maven extensions document with proper namespace.
+     *
+     * <p>This method creates a new document with the extensions root element and sets up
+     * the appropriate Maven extensions namespace.</p>
+     */
+    public void createExtensionsDocument() {
+        createDocument(EXTENSIONS);
+        Element root = root();
+        root.attribute("xmlns", EXTENSIONS_1_2_0_NAMESPACE);
+        root.attribute("xmlns:xsi", MavenExtensionsElements.Attributes.XSI_NAMESPACE_URI);
+        root.attribute("xsi:schemaLocation", MavenExtensionsElements.SchemaLocations.EXTENSIONS_1_2_0_SCHEMA_LOCATION);
+    }
+
+    /**
+     * Inserts an element with extensions-aware ordering and formatting.
+     *
+     * <p>This method automatically determines the correct position for the element
+     * based on Maven extensions conventions and adds appropriate blank lines.</p>
+     *
+     * @param parent the parent element
+     * @param elementName the name of the element to insert
+     * @return the newly created element
+     */
+    public Element insertExtensionsElement(Element parent, String elementName) {
+        return insertExtensionsElement(parent, elementName, null);
+    }
+
+    /**
+     * Inserts an element with extensions-aware ordering, formatting, and text content.
+     *
+     * @param parent the parent element
+     * @param elementName the name of the element to insert
+     * @param textContent the text content for the element (can be null)
+     * @return the newly created element
+     */
+    public Element insertExtensionsElement(Element parent, String elementName, String textContent) {
+        return insertElementAtCorrectPosition(parent, elementName, textContent);
+    }
+
+    /**
+     * Adds an extension with the specified coordinates.
+     *
+     * @param extensionsElement the extensions parent element (root element)
+     * @param groupId the extension group ID
+     * @param artifactId the extension artifact ID
+     * @param version the extension version
+     * @return the newly created extension element
+     */
+    public Element addExtension(Element extensionsElement, String groupId, String artifactId, String version) {
+        return addExtension(extensionsElement, groupId, artifactId, version, null, null);
+    }
+
+    /**
+     * Adds an extension with the specified coordinates and optional classifier and type.
+     *
+     * @param extensionsElement the extensions parent element (root element)
+     * @param groupId the extension group ID
+     * @param artifactId the extension artifact ID
+     * @param version the extension version
+     * @param classifier the extension classifier (can be null)
+     * @param type the extension type (can be null, defaults to "jar")
+     * @return the newly created extension element
+     */
+    public Element addExtension(
+            Element extensionsElement,
+            String groupId,
+            String artifactId,
+            String version,
+            String classifier,
+            String type) {
+        Element extension = addElement(extensionsElement, EXTENSION);
+
+        insertElementAtCorrectPosition(extension, GROUP_ID, groupId);
+        insertElementAtCorrectPosition(extension, ARTIFACT_ID, artifactId);
+        insertElementAtCorrectPosition(extension, VERSION, version);
+
+        if (classifier != null) {
+            insertElementAtCorrectPosition(extension, CLASSIFIER, classifier);
+        }
+
+        if (type != null) {
+            insertElementAtCorrectPosition(extension, TYPE, type);
+        }
+
+        return extension;
+    }
+
+    /**
+     * Finds a direct child element by name.
+     *
+     * @param parent the parent element
+     * @param elementName the name of the child element to find
+     * @return the child element if found, null otherwise
+     */
+    public Element findChildElement(Element parent, String elementName) {
+        Optional<Element> child = parent.child(elementName);
+        return child.orElse(null);
+    }
+
+    // ========== HIGH-LEVEL EXTENSION MANAGEMENT ==========
+
+    /**
+     * Lists all extensions as Artifact objects.
+     *
+     * <p>Extensions are always JAR artifacts without classifiers.</p>
+     *
+     * @return list of Artifact objects representing the extensions
+     */
+    public List<Artifact> listExtensions() {
+        return root().children(EXTENSION).map(this::toJarArtifact).toList();
+    }
+
+    /**
+     * Updates an existing extension or inserts a new one (if upsert is true).
+     *
+     * <p>Existence is checked by GA (groupId:artifactId) matching only, as extensions
+     * are JAR artifacts without classifiers.</p>
+     *
+     * @param upsert whether to insert the extension if it doesn't exist
+     * @param artifact the extension artifact
+     * @return true if the extension was updated or inserted, false otherwise
+     */
+    public boolean updateExtension(boolean upsert, Artifact artifact) {
+        List<Element> matched =
+                root().children(EXTENSION).filter(artifact.predicateGA()).toList();
+        if (matched.isEmpty()) {
+            if (upsert) {
+                addExtension(root(), artifact.groupId(), artifact.artifactId(), artifact.version());
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            Element element = matched.get(0);
+            findChildElement(element, VERSION).textContent(artifact.version());
+            if (matched.size() > 1) {
+                // Multiple matches found - this shouldn't happen but we handle it gracefully
+                System.err.println("Warning: More than one matching extension found: " + matched.size());
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Removes an extension.
+     *
+     * <p>Existence is checked by GA (groupId:artifactId) matching only, as extensions
+     * are JAR artifacts without classifiers.</p>
+     *
+     * @param artifact the extension artifact to remove
+     * @return true if the extension was removed, false if it didn't exist
+     */
+    public boolean deleteExtension(Artifact artifact) {
+        AtomicInteger counter = new AtomicInteger(0);
+        root().children(EXTENSION)
+                .filter(artifact.predicateGA())
+                .peek(e -> counter.incrementAndGet())
+                .forEach(this::removeElement);
+        return counter.get() != 0;
+    }
+
+    /**
+     * Gets the appropriate element order list for the given parent element.
+     */
+    @Override
+    protected List<String> getOrderListForParent(Element parent) {
+        String parentName = parent.name();
+        return switch (parentName) {
+            case EXTENSION -> EXTENSION_ELEMENT_ORDER;
+            default -> null;
+        };
+    }
+}

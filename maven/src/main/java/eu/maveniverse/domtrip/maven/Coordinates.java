@@ -16,7 +16,12 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
- * Represents a Maven artifact with its coordinates (groupId, artifactId, version, classifier, and type).
+ * Represents Maven coordinates (groupId, artifactId, version, classifier, and type). This record is pure abstraction,
+ * and is <em>neither an "artifact" nor a "dependency"</em>, is really just a structure to carry coordinates together
+ * (and validate them). Important: because of this, we used name {@code type} for last element, while in fact it is
+ * sometimes used as "type" and sometimes used as "extension", depending on context where this record is used. In
+ * real life artifacts have extension (and not type), while dependencies have type (or as in Maven resolver, extension
+ * derived from type).
  *
  * <p>This is a simple immutable record for representing Maven artifact coordinates. It provides
  * convenient factory methods and string representations commonly used in Maven.</p>
@@ -27,13 +32,13 @@ import java.util.function.Predicate;
  *
  * <h3>Usage Examples:</h3>
  * <pre>{@code
- * // Create artifacts
- * Artifact jar = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
- * Artifact pom = Artifact.of("org.example", "my-project", "1.0.0", null, "pom");
- * Artifact classified = Artifact.of("org.example", "my-lib", "1.0.0", "sources", "jar");
+ * // Create Coordinates
+ * Coordinates jar = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
+ * Coordinates pom = Coordinates.of("org.example", "my-project", "1.0.0", null, "pom");
+ * Coordinates classified = Coordinates.of("org.example", "my-lib", "1.0.0", "sources", "jar");
  *
  * // Maven 4 inference - groupId/version may be null
- * Artifact inferred = Artifact.of(null, "my-module", null, null, "jar");
+ * Coordinates inferred = Coordinates.of(null, "my-module", null, null, "jar");
  *
  * // Get string representations
  * String ga = jar.toGA();           // "org.junit.jupiter:junit-jupiter"
@@ -49,7 +54,7 @@ import java.util.function.Predicate;
  * @param type the artifact type/extension (defaults to "jar" if null)
  * @since 0.3.0
  */
-public record Artifact(String groupId, String artifactId, String version, String classifier, String type) {
+public record Coordinates(String groupId, String artifactId, String version, String classifier, String type) {
 
     /**
      * Compact constructor with validation.
@@ -57,7 +62,7 @@ public record Artifact(String groupId, String artifactId, String version, String
      * <p>Note: groupId and version can be null to support Maven 4's inference mechanism.
      * Only artifactId is strictly required.</p>
      */
-    public Artifact {
+    public Coordinates {
         requireNonNull(artifactId, "artifactId cannot be null");
         if (artifactId.trim().isEmpty()) {
             throw new IllegalArgumentException("artifactId cannot be empty");
@@ -81,29 +86,29 @@ public record Artifact(String groupId, String artifactId, String version, String
     }
 
     /**
-     * Creates an artifact with groupId, artifactId, and version (JAR type, no classifier).
+     * Creates a Coordinates with groupId, artifactId, and version (JAR type, no classifier).
      *
      * @param groupId the Maven groupId
      * @param artifactId the Maven artifactId
      * @param version the artifact version
-     * @return a new Artifact instance
+     * @return a new Coordinates instance
      */
-    public static Artifact of(String groupId, String artifactId, String version) {
-        return new Artifact(groupId, artifactId, version, null, "jar");
+    public static Coordinates of(String groupId, String artifactId, String version) {
+        return new Coordinates(groupId, artifactId, version, null, "jar");
     }
 
     /**
-     * Creates an artifact with groupId, artifactId, version, classifier, and type.
+     * Creates a Coordinates with groupId, artifactId, version, classifier, and type.
      *
      * @param groupId the Maven groupId
      * @param artifactId the Maven artifactId
      * @param version the artifact version
      * @param classifier the artifact classifier (can be null)
      * @param type the artifact type (can be null, defaults to "jar")
-     * @return a new Artifact instance
+     * @return a new Coordinates instance
      */
-    public static Artifact of(String groupId, String artifactId, String version, String classifier, String type) {
-        return new Artifact(groupId, artifactId, version, classifier, type);
+    public static Coordinates of(String groupId, String artifactId, String version, String classifier, String type) {
+        return new Coordinates(groupId, artifactId, version, classifier, type);
     }
 
     /**
@@ -140,7 +145,7 @@ public record Artifact(String groupId, String artifactId, String version, String
     /**
      * Returns the full string representation: groupId:artifactId:type[:classifier]:version.
      *
-     * @return full artifact string
+     * @return full coordinates string
      */
     public String toFullString() {
         if (classifier != null) {
@@ -151,23 +156,23 @@ public record Artifact(String groupId, String artifactId, String version, String
     }
 
     /**
-     * Returns a new Artifact with the same coordinates but different version.
+     * Returns a new Coordinates with the same coordinates but different version.
      *
      * @param newVersion the new version
-     * @return a new Artifact instance with updated version
+     * @return a new Coordinates instance with updated version
      */
-    public Artifact withVersion(String newVersion) {
-        return new Artifact(groupId, artifactId, newVersion, classifier, type);
+    public Coordinates withVersion(String newVersion) {
+        return new Coordinates(groupId, artifactId, newVersion, classifier, type);
     }
 
     /**
-     * Returns a new Artifact with the same coordinates but different type.
+     * Returns a new Coordinates with the same coordinates but different type.
      *
      * @param newType the new type
-     * @return a new Artifact instance with updated type
+     * @return a new Coordinates instance with updated type
      */
-    public Artifact withType(String newType) {
-        return new Artifact(groupId, artifactId, version, classifier, newType);
+    public Coordinates withType(String newType) {
+        return new Coordinates(groupId, artifactId, version, classifier, newType);
     }
 
     // ========== PREDICATE FACTORY METHODS ==========
@@ -177,7 +182,7 @@ public record Artifact(String groupId, String artifactId, String version, String
      *
      * <p>This is useful for filtering streams of elements to find matching artifacts:</p>
      * <pre>{@code
-     * Artifact junit = Artifact.of("junit", "junit", "4.13.2");
+     * Coordinates junit = Coordinates.of("junit", "junit", "4.13.2");
      * dependencies.children("dependency")
      *     .filter(junit.predicateGA())
      *     .findFirst();
@@ -199,7 +204,7 @@ public record Artifact(String groupId, String artifactId, String version, String
      * <p>Maven plugins default to groupId "org.apache.maven.plugins" if not specified.
      * This predicate handles that convention:</p>
      * <pre>{@code
-     * Artifact compiler = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * Coordinates compiler = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
      * plugins.children("plugin")
      *     .filter(compiler.predicatePluginGA())
      *     .findFirst();
@@ -220,7 +225,7 @@ public record Artifact(String groupId, String artifactId, String version, String
      *
      * <p>This is useful for filtering dependencies or artifacts with specific types and classifiers:</p>
      * <pre>{@code
-     * Artifact sources = Artifact.of("org.example", "my-lib", "1.0.0", "sources", "jar");
+     * Coordinates sources = Coordinates.of("org.example", "my-lib", "1.0.0", "sources", "jar");
      * dependencies.children("dependency")
      *     .filter(sources.predicateGATC())
      *     .findFirst();
@@ -239,27 +244,27 @@ public record Artifact(String groupId, String artifactId, String version, String
     // ========== FACTORY METHODS ==========
 
     /**
-     * Creates a POM Artifact from a POM file by reading its GAV coordinates.
+     * Creates a POM Coordinates from a POM file by reading its GAV coordinates.
      *
      * <p>This method reads the groupId, artifactId, and version from the POM file.
      * If groupId or version are not present in the project element, it looks for them
      * in the parent element. With Maven 4's inference mechanism, groupId and version
      * may be inferred from the reactor and not present in the POM - in such cases,
-     * the returned Artifact will have null values for these fields.</p>
+     * the returned Coordinates will have null values for these fields.</p>
      *
      * <h4>Example:</h4>
      * <pre>{@code
      * Path pomFile = Paths.get("pom.xml");
-     * Artifact project = Artifact.fromPom(pomFile);
+     * Coordinates project = Coordinates.fromPom(pomFile);
      * System.out.println("Project: " + project.toGAV());
      * }</pre>
      *
      * @param pomPath the path to the POM file
-     * @return a new Artifact instance representing the POM (groupId and version may be null)
+     * @return a new Coordinates instance representing the POM (groupId and version may be null)
      * @throws IllegalArgumentException if artifactId is missing
      * @since 0.3.0
      */
-    public static Artifact fromPom(Path pomPath) {
+    public static Coordinates fromPom(Path pomPath) {
         requireNonNull(pomPath);
         PomEditor pomEditor = new PomEditor(Document.of(pomPath));
         Element root = pomEditor.root();
@@ -287,6 +292,6 @@ public record Artifact(String groupId, String artifactId, String version, String
             // Note: We don't throw if groupId or version is still null - Maven 4 can infer these
         }
 
-        return Artifact.of(groupId, artifactId, version, null, "pom");
+        return Coordinates.of(groupId, artifactId, version, null, "pom");
     }
 }

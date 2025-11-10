@@ -196,14 +196,14 @@ public class ExtensionsEditor extends AbstractMavenEditor {
     // ========== HIGH-LEVEL EXTENSION MANAGEMENT ==========
 
     /**
-     * Lists all extensions as Artifact objects.
+     * Lists all extensions as Coordinates objects.
      *
-     * <p>Extensions are always JAR artifacts without classifiers.</p>
+     * <p>Extensions are always JARs without classifiers.</p>
      *
-     * @return list of Artifact objects representing the extensions
+     * @return list of Coordinates objects representing the extensions
      */
-    public List<Artifact> listExtensions() {
-        return root().children(EXTENSION).map(this::toJarArtifact).toList();
+    public List<Coordinates> listExtensions() {
+        return root().children(EXTENSION).map(this::toJarCoordinates).toList();
     }
 
     /**
@@ -213,22 +213,22 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * are JAR artifacts without classifiers.</p>
      *
      * @param upsert whether to insert the extension if it doesn't exist
-     * @param artifact the extension artifact
+     * @param coordinates the extension coordinates
      * @return true if the extension was updated or inserted, false otherwise
      */
-    public boolean updateExtension(boolean upsert, Artifact artifact) {
+    public boolean updateExtension(boolean upsert, Coordinates coordinates) {
         List<Element> matched =
-                root().children(EXTENSION).filter(artifact.predicateGA()).toList();
+                root().children(EXTENSION).filter(coordinates.predicateGA()).toList();
         if (matched.isEmpty()) {
             if (upsert) {
-                addExtension(root(), artifact.groupId(), artifact.artifactId(), artifact.version());
+                addExtension(root(), coordinates.groupId(), coordinates.artifactId(), coordinates.version());
                 return true;
             } else {
                 return false;
             }
         } else {
             Element element = matched.get(0);
-            findChildElement(element, VERSION).textContent(artifact.version());
+            findChildElement(element, VERSION).textContent(coordinates.version());
             if (matched.size() > 1) {
                 // Multiple matches found - this shouldn't happen but we handle it gracefully
                 System.err.println("Warning: More than one matching extension found: " + matched.size());
@@ -243,13 +243,13 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * <p>Existence is checked by GA (groupId:artifactId) matching only, as extensions
      * are JAR artifacts without classifiers.</p>
      *
-     * @param artifact the extension artifact to remove
+     * @param coordinates the extension artifact to remove
      * @return true if the extension was removed, false if it didn't exist
      */
-    public boolean deleteExtension(Artifact artifact) {
+    public boolean deleteExtension(Coordinates coordinates) {
         AtomicInteger counter = new AtomicInteger(0);
         root().children(EXTENSION)
-                .filter(artifact.predicateGA())
+                .filter(coordinates.predicateGA())
                 .peek(e -> counter.incrementAndGet())
                 .forEach(this::removeElement);
         return counter.get() != 0;

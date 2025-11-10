@@ -421,17 +421,17 @@ public class PomEditor extends AbstractMavenEditor {
     /**
      * Sets {@code project/parent} to the given artifact coordinates.
      *
-     * @param artifact the parent artifact (groupId, artifactId, version)
+     * @param coordinates the parent artifact (groupId, artifactId, version)
      * @throws DomTripException if an error occurs during editing
      */
-    public void setParent(Artifact artifact) throws DomTripException {
+    public void setParent(Coordinates coordinates) throws DomTripException {
         Element parent = findChildElement(root(), PARENT);
         if (parent == null) {
             parent = insertMavenElement(root(), PARENT);
         }
-        insertMavenElement(parent, GROUP_ID, artifact.groupId());
-        insertMavenElement(parent, ARTIFACT_ID, artifact.artifactId());
-        insertMavenElement(parent, VERSION, artifact.version());
+        insertMavenElement(parent, GROUP_ID, coordinates.groupId());
+        insertMavenElement(parent, ARTIFACT_ID, coordinates.artifactId());
+        insertMavenElement(parent, VERSION, coordinates.version());
     }
 
     /**
@@ -569,17 +569,17 @@ public class PomEditor extends AbstractMavenEditor {
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
-     * Artifact junit = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
      * editor.updateManagedDependency(true, junit);
      * }</pre>
      *
      * @param upsert whether to create the dependency if it doesn't exist
-     * @param artifact the artifact coordinates
+     * @param coordinates the artifact coordinates
      * @return true if the dependency was updated or created, false otherwise
      * @throws DomTripException if an error occurs during editing
      * @since 0.3.0
      */
-    public boolean updateManagedDependency(boolean upsert, Artifact artifact) throws DomTripException {
+    public boolean updateManagedDependency(boolean upsert, Coordinates coordinates) throws DomTripException {
         Element root = root();
         Element dependencyManagement = findChildElement(root, DEPENDENCY_MANAGEMENT);
         if (dependencyManagement == null && upsert) {
@@ -593,24 +593,24 @@ public class PomEditor extends AbstractMavenEditor {
             if (dependencies != null) {
                 Element dependency = dependencies
                         .children(DEPENDENCY)
-                        .filter(artifact.predicateGATC())
+                        .filter(coordinates.predicateGATC())
                         .findFirst()
                         .orElse(null);
                 if (dependency == null && upsert) {
-                    dependency =
-                            addDependency(dependencies, artifact.groupId(), artifact.artifactId(), artifact.version());
+                    dependency = addDependency(
+                            dependencies, coordinates.groupId(), coordinates.artifactId(), coordinates.version());
                     // Add type if not default "jar"
-                    if (artifact.type() != null && !"jar".equals(artifact.type())) {
-                        insertMavenElement(dependency, TYPE, artifact.type());
+                    if (coordinates.type() != null && !"jar".equals(coordinates.type())) {
+                        insertMavenElement(dependency, TYPE, coordinates.type());
                     }
                     // Add classifier if present
-                    if (artifact.classifier() != null) {
-                        insertMavenElement(dependency, CLASSIFIER, artifact.classifier());
+                    if (coordinates.classifier() != null) {
+                        insertMavenElement(dependency, CLASSIFIER, coordinates.classifier());
                     }
                     return true;
                 }
                 if (dependency != null) {
-                    return updateVersionElement(dependency, artifact.version());
+                    return updateVersionElement(dependency, coordinates.version());
                 }
             }
         }
@@ -623,22 +623,22 @@ public class PomEditor extends AbstractMavenEditor {
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
-     * Artifact junit = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
      * editor.deleteManagedDependency(junit);
      * }</pre>
      *
-     * @param artifact the artifact to remove (matched by GATC)
+     * @param coordinates the artifact to remove (matched by GATC)
      * @return true if the dependency was removed, false if it didn't exist
      * @since 0.3.0
      */
-    public boolean deleteManagedDependency(Artifact artifact) {
+    public boolean deleteManagedDependency(Coordinates coordinates) {
         Element dependencyManagement = findChildElement(root(), DEPENDENCY_MANAGEMENT);
         if (dependencyManagement != null) {
             Element dependencies = findChildElement(dependencyManagement, DEPENDENCIES);
             if (dependencies != null) {
                 Element dependency = dependencies
                         .children(DEPENDENCY)
-                        .filter(artifact.predicateGATC())
+                        .filter(coordinates.predicateGATC())
                         .findFirst()
                         .orElse(null);
                 if (dependency != null) {
@@ -660,17 +660,17 @@ public class PomEditor extends AbstractMavenEditor {
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
-     * Artifact junit = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
      * editor.updateDependency(true, junit);
      * }</pre>
      *
      * @param upsert whether to create the dependency if it doesn't exist
-     * @param artifact the artifact coordinates
+     * @param coordinates the artifact coordinates
      * @return true if the dependency was updated or created, false otherwise
      * @throws DomTripException if an error occurs during editing
      * @since 0.3.0
      */
-    public boolean updateDependency(boolean upsert, Artifact artifact) throws DomTripException {
+    public boolean updateDependency(boolean upsert, Coordinates coordinates) throws DomTripException {
         Element dependencies = findChildElement(root(), DEPENDENCIES);
         if (dependencies == null && upsert) {
             dependencies = insertMavenElement(root(), DEPENDENCIES);
@@ -678,27 +678,28 @@ public class PomEditor extends AbstractMavenEditor {
         if (dependencies != null) {
             Element dependency = dependencies
                     .children(DEPENDENCY)
-                    .filter(artifact.predicateGATC())
+                    .filter(coordinates.predicateGATC())
                     .findFirst()
                     .orElse(null);
             if (dependency == null && upsert) {
-                dependency = addDependency(dependencies, artifact.groupId(), artifact.artifactId(), artifact.version());
+                dependency = addDependency(
+                        dependencies, coordinates.groupId(), coordinates.artifactId(), coordinates.version());
                 // Add type if not default "jar"
-                if (artifact.type() != null && !"jar".equals(artifact.type())) {
-                    insertMavenElement(dependency, TYPE, artifact.type());
+                if (coordinates.type() != null && !"jar".equals(coordinates.type())) {
+                    insertMavenElement(dependency, TYPE, coordinates.type());
                 }
                 // Add classifier if present
-                if (artifact.classifier() != null) {
-                    insertMavenElement(dependency, CLASSIFIER, artifact.classifier());
+                if (coordinates.classifier() != null) {
+                    insertMavenElement(dependency, CLASSIFIER, coordinates.classifier());
                 }
                 return true;
             }
             if (dependency != null) {
                 java.util.Optional<Element> version = dependency.child(VERSION);
                 if (version.isPresent()) {
-                    return updateVersionElement(dependency, artifact.version());
+                    return updateVersionElement(dependency, coordinates.version());
                 } else {
-                    return updateManagedDependency(false, artifact);
+                    return updateManagedDependency(false, coordinates);
                 }
             }
         }
@@ -711,20 +712,20 @@ public class PomEditor extends AbstractMavenEditor {
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
-     * Artifact junit = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
      * editor.deleteDependency(junit);
      * }</pre>
      *
-     * @param artifact the artifact to remove (matched by GATC)
+     * @param coordinates the Coordinates to remove (matched by GATC)
      * @return true if the dependency was removed, false if it didn't exist
      * @since 0.3.0
      */
-    public boolean deleteDependency(Artifact artifact) {
+    public boolean deleteDependency(Coordinates coordinates) {
         Element dependencies = findChildElement(root(), DEPENDENCIES);
         if (dependencies != null) {
             Element dependency = dependencies
                     .children(DEPENDENCY)
-                    .filter(artifact.predicateGATC())
+                    .filter(coordinates.predicateGATC())
                     .findFirst()
                     .orElse(null);
             if (dependency != null) {
@@ -907,15 +908,15 @@ public class PomEditor extends AbstractMavenEditor {
      * Finds a plugin element by artifact coordinates.
      *
      * @param plugins the plugins container element
-     * @param artifact the artifact to find
+     * @param coordinates the artifact to find
      * @return the plugin element, or null if not found
      */
-    private Element findPlugin(Element plugins, Artifact artifact) {
+    private Element findPlugin(Element plugins, Coordinates coordinates) {
         if (plugins == null) {
             return null;
         }
         return plugins.children(PLUGIN)
-                .filter(artifact.predicateGA())
+                .filter(coordinates.predicateGA())
                 .findFirst()
                 .orElse(null);
     }
@@ -930,26 +931,26 @@ public class PomEditor extends AbstractMavenEditor {
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
-     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
      * editor.updateManagedPlugin(true, compilerPlugin);
      * }</pre>
      *
      * @param upsert whether to create the plugin if it doesn't exist
-     * @param artifact the artifact coordinates
+     * @param coordinates the artifact coordinates
      * @return true if the plugin was updated or created, false otherwise
      * @throws DomTripException if an error occurs during editing
      * @since 0.3.0
      */
-    public boolean updateManagedPlugin(boolean upsert, Artifact artifact) throws DomTripException {
+    public boolean updateManagedPlugin(boolean upsert, Coordinates coordinates) throws DomTripException {
         Element plugins = findOrCreateManagedPlugins(upsert);
         if (plugins != null) {
-            Element plugin = findPlugin(plugins, artifact);
+            Element plugin = findPlugin(plugins, coordinates);
             if (plugin == null && upsert) {
-                addPlugin(plugins, artifact.groupId(), artifact.artifactId(), artifact.version());
+                addPlugin(plugins, coordinates.groupId(), coordinates.artifactId(), coordinates.version());
                 return true;
             }
             if (plugin != null) {
-                return updateVersionElement(plugin, artifact.version());
+                return updateVersionElement(plugin, coordinates.version());
             }
         }
         return false;
@@ -961,18 +962,18 @@ public class PomEditor extends AbstractMavenEditor {
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
-     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
      * editor.deleteManagedPlugin(compilerPlugin);
      * }</pre>
      *
-     * @param artifact the artifact to remove (matched by GA)
+     * @param coordinates the artifact to remove (matched by GA)
      * @return true if the plugin was removed, false if it didn't exist
      * @since 0.3.0
      */
-    public boolean deleteManagedPlugin(Artifact artifact) {
+    public boolean deleteManagedPlugin(Coordinates coordinates) {
         try {
             Element plugins = findOrCreateManagedPlugins(false);
-            Element plugin = findPlugin(plugins, artifact);
+            Element plugin = findPlugin(plugins, coordinates);
             if (plugin != null) {
                 return removeElement(plugin);
             }
@@ -994,30 +995,30 @@ public class PomEditor extends AbstractMavenEditor {
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
-     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
      * editor.updatePlugin(true, compilerPlugin);
      * }</pre>
      *
      * @param upsert whether to create the plugin if it doesn't exist
-     * @param artifact the artifact coordinates
+     * @param coordinates the artifact coordinates
      * @return true if the plugin was updated or created, false otherwise
      * @throws DomTripException if an error occurs during editing
      * @since 0.3.0
      */
-    public boolean updatePlugin(boolean upsert, Artifact artifact) throws DomTripException {
+    public boolean updatePlugin(boolean upsert, Coordinates coordinates) throws DomTripException {
         Element plugins = findOrCreatePlugins(upsert);
         if (plugins != null) {
-            Element plugin = findPlugin(plugins, artifact);
+            Element plugin = findPlugin(plugins, coordinates);
             if (plugin == null && upsert) {
-                addPlugin(plugins, artifact.groupId(), artifact.artifactId(), artifact.version());
+                addPlugin(plugins, coordinates.groupId(), coordinates.artifactId(), coordinates.version());
                 return true;
             }
             if (plugin != null) {
                 java.util.Optional<Element> version = plugin.child(VERSION);
                 if (version.isPresent()) {
-                    return updateVersionElement(plugin, artifact.version());
+                    return updateVersionElement(plugin, coordinates.version());
                 } else {
-                    return updateManagedPlugin(false, artifact);
+                    return updateManagedPlugin(false, coordinates);
                 }
             }
         }
@@ -1030,18 +1031,18 @@ public class PomEditor extends AbstractMavenEditor {
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
-     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
      * editor.deletePlugin(compilerPlugin);
      * }</pre>
      *
-     * @param artifact the artifact to remove (matched by GA)
+     * @param coordinates the artifact to remove (matched by GA)
      * @return true if the plugin was removed, false if it didn't exist
      * @since 0.3.0
      */
-    public boolean deletePlugin(Artifact artifact) {
+    public boolean deletePlugin(Coordinates coordinates) {
         try {
             Element plugins = findOrCreatePlugins(false);
-            Element plugin = findPlugin(plugins, artifact);
+            Element plugin = findPlugin(plugins, coordinates);
             if (plugin != null) {
                 return removeElement(plugin);
             }

@@ -314,7 +314,7 @@ class PomEditorTest {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Create new managed plugin with upsert=true
         boolean result = editor.updateManagedPlugin(true, compilerPlugin);
@@ -365,7 +365,7 @@ class PomEditorTest {
         Document doc = Document.of(pomXml);
         PomEditor editor = new PomEditor(doc);
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Update existing plugin
         boolean result = editor.updateManagedPlugin(false, compilerPlugin);
@@ -414,7 +414,7 @@ class PomEditorTest {
         Document doc = Document.of(pomXml);
         PomEditor editor = new PomEditor(doc);
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Update plugin with property reference - should update property value
         boolean result = editor.updateManagedPlugin(false, compilerPlugin);
@@ -442,7 +442,7 @@ class PomEditorTest {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Try to update non-existent plugin with upsert=false
         boolean result = editor.updateManagedPlugin(false, compilerPlugin);
@@ -486,7 +486,7 @@ class PomEditorTest {
         Document doc = Document.of(pomXml);
         PomEditor editor = new PomEditor(doc);
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Delete the plugin
         boolean result = editor.deleteManagedPlugin(compilerPlugin);
@@ -504,7 +504,7 @@ class PomEditorTest {
         assertNull(plugin);
 
         // Verify other plugin still exists
-        Artifact surefirePlugin = Artifact.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
+        Coordinates surefirePlugin = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
         Element surefire = plugins.children(PLUGIN)
                 .filter(surefirePlugin.predicateGA())
                 .findFirst()
@@ -517,7 +517,7 @@ class PomEditorTest {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Try to delete non-existent plugin
         boolean result = editor.deleteManagedPlugin(compilerPlugin);
@@ -529,7 +529,7 @@ class PomEditorTest {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Create new plugin with upsert=true
         boolean result = editor.updatePlugin(true, compilerPlugin);
@@ -576,7 +576,7 @@ class PomEditorTest {
         Document doc = Document.of(pomXml);
         PomEditor editor = new PomEditor(doc);
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Update existing plugin
         boolean result = editor.updatePlugin(false, compilerPlugin);
@@ -627,7 +627,7 @@ class PomEditorTest {
         Document doc = Document.of(pomXml);
         PomEditor editor = new PomEditor(doc);
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Update plugin without version - should update managed plugin instead
         boolean result = editor.updatePlugin(false, compilerPlugin);
@@ -686,7 +686,7 @@ class PomEditorTest {
         Document doc = Document.of(pomXml);
         PomEditor editor = new PomEditor(doc);
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Delete the plugin
         boolean result = editor.deletePlugin(compilerPlugin);
@@ -703,7 +703,7 @@ class PomEditorTest {
         assertNull(plugin);
 
         // Verify other plugin still exists
-        Artifact surefirePlugin = Artifact.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
+        Coordinates surefirePlugin = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
         Element surefire = plugins.children(PLUGIN)
                 .filter(surefirePlugin.predicateGA())
                 .findFirst()
@@ -716,7 +716,7 @@ class PomEditorTest {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
 
-        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Try to delete non-existent plugin
         boolean result = editor.deletePlugin(compilerPlugin);

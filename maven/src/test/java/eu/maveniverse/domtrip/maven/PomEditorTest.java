@@ -11,6 +11,7 @@ import static eu.maveniverse.domtrip.maven.MavenPomElements.Elements.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import org.junit.jupiter.api.Test;
 
@@ -221,5 +222,504 @@ class PomEditorTest {
         assertTrue(artifactIdIndex < versionIndex);
         assertTrue(versionIndex < nameIndex);
         assertTrue(nameIndex < descriptionIndex);
+    }
+
+    @Test
+    void testHasChildElement() throws DomTripException {
+        PomEditor editor = new PomEditor();
+        editor.createMavenDocument("project");
+        Element root = editor.root();
+
+        // Initially no children
+        assertFalse(editor.hasChildElement(root, "name"));
+        assertFalse(editor.hasChildElement(root, "description"));
+
+        // Add a child
+        editor.insertMavenElement(root, "name", "Test Project");
+        assertTrue(editor.hasChildElement(root, "name"));
+        assertFalse(editor.hasChildElement(root, "description"));
+
+        // Add another child
+        editor.insertMavenElement(root, "description", "A test project");
+        assertTrue(editor.hasChildElement(root, "name"));
+        assertTrue(editor.hasChildElement(root, "description"));
+    }
+
+    @Test
+    void testGetChildElementText() throws DomTripException {
+        PomEditor editor = new PomEditor();
+        editor.createMavenDocument("project");
+        Element root = editor.root();
+
+        // Non-existent child returns null
+        assertNull(editor.getChildElementText(root, "name"));
+        assertNull(editor.getChildElementText(root, "description"));
+
+        // Add children with content
+        editor.insertMavenElement(root, "name", "Test Project");
+        editor.insertMavenElement(root, "description", "A test project");
+
+        // Verify content retrieval
+        assertEquals("Test Project", editor.getChildElementText(root, "name"));
+        assertEquals("A test project", editor.getChildElementText(root, "description"));
+        assertNull(editor.getChildElementText(root, "nonexistent"));
+    }
+
+    @Test
+    void testUpdateOrCreateChildElement() throws DomTripException {
+        PomEditor editor = new PomEditor();
+        editor.createMavenDocument("project");
+        Element root = editor.root();
+
+        // Create new element
+        Element name = editor.updateOrCreateChildElement(root, "name", "Test Project");
+        assertNotNull(name);
+        assertEquals("Test Project", name.textContent());
+        assertTrue(editor.hasChildElement(root, "name"));
+
+        // Update existing element
+        Element updatedName = editor.updateOrCreateChildElement(root, "name", "Updated Project");
+        assertNotNull(updatedName);
+        assertEquals("Updated Project", updatedName.textContent());
+        assertEquals("Updated Project", editor.getChildElementText(root, "name"));
+
+        // Verify it is the same element (updated, not recreated)
+        assertEquals(name, updatedName);
+    }
+
+    @Test
+    void testUpdateOrCreateChildElementWithOrdering() throws DomTripException {
+        PomEditor editor = new PomEditor();
+        editor.createMavenDocument("project");
+        Element root = editor.root();
+
+        // Add elements in reverse order - they should be properly ordered
+        editor.updateOrCreateChildElement(root, "description", "A test project");
+        editor.updateOrCreateChildElement(root, "name", "Test Project");
+        editor.updateOrCreateChildElement(root, "groupId", "com.example");
+
+        String result = editor.toXml();
+
+        // Verify proper ordering: groupId comes before name, name comes before description
+        int groupIdIndex = result.indexOf("<groupId>");
+        int nameIndex = result.indexOf("<name>");
+        int descriptionIndex = result.indexOf("<description>");
+
+        assertTrue(groupIdIndex < nameIndex);
+        assertTrue(nameIndex < descriptionIndex);
+    }
+
+    @Test
+    void testUpdateManagedPluginCreate() throws DomTripException {
+        PomEditor editor = new PomEditor();
+        editor.createMavenDocument("project");
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Create new managed plugin with upsert=true
+        boolean result = editor.updateManagedPlugin(true, compilerPlugin);
+        assertTrue(result);
+
+        // Verify structure was created
+        Element root = editor.root();
+        Element build = editor.findChildElement(root, BUILD);
+        assertNotNull(build);
+        Element pluginManagement = editor.findChildElement(build, PLUGIN_MANAGEMENT);
+        assertNotNull(pluginManagement);
+        Element plugins = editor.findChildElement(pluginManagement, PLUGINS);
+        assertNotNull(plugins);
+
+        // Verify plugin was added
+        Element plugin = plugins.children(PLUGIN)
+                .filter(compilerPlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNotNull(plugin);
+        assertEquals("3.11.0", plugin.child(VERSION).orElseThrow().textContent());
+    }
+
+    @Test
+    void testUpdateManagedPluginUpdate() throws DomTripException {
+        String pomXml =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <build>
+                <pluginManagement>
+                  <plugins>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <version>3.10.0</version>
+                    </plugin>
+                  </plugins>
+                </pluginManagement>
+              </build>
+            </project>
+            """;
+
+        Document doc = Document.of(pomXml);
+        PomEditor editor = new PomEditor(doc);
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Update existing plugin
+        boolean result = editor.updateManagedPlugin(false, compilerPlugin);
+        assertTrue(result);
+
+        // Verify version was updated
+        Element root = editor.root();
+        Element build = editor.findChildElement(root, BUILD);
+        Element pluginManagement = editor.findChildElement(build, PLUGIN_MANAGEMENT);
+        Element plugins = editor.findChildElement(pluginManagement, PLUGINS);
+        Element plugin = plugins.children(PLUGIN)
+                .filter(compilerPlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNotNull(plugin);
+        assertEquals("3.11.0", plugin.child(VERSION).orElseThrow().textContent());
+    }
+
+    @Test
+    void testUpdateManagedPluginWithProperty() throws DomTripException {
+        String pomXml =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <properties>
+                <compiler.version>3.10.0</compiler.version>
+              </properties>
+              <build>
+                <pluginManagement>
+                  <plugins>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <version>${compiler.version}</version>
+                    </plugin>
+                  </plugins>
+                </pluginManagement>
+              </build>
+            </project>
+            """;
+
+        Document doc = Document.of(pomXml);
+        PomEditor editor = new PomEditor(doc);
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Update plugin with property reference - should update property value
+        boolean result = editor.updateManagedPlugin(false, compilerPlugin);
+        assertTrue(result);
+
+        // Verify property was updated, not the version element
+        Element root = editor.root();
+        Element properties = editor.findChildElement(root, PROPERTIES);
+        Element compilerVersion = editor.findChildElement(properties, "compiler.version");
+        assertEquals("3.11.0", compilerVersion.textContent());
+
+        // Version element should still reference property
+        Element build = editor.findChildElement(root, BUILD);
+        Element pluginManagement = editor.findChildElement(build, PLUGIN_MANAGEMENT);
+        Element plugins = editor.findChildElement(pluginManagement, PLUGINS);
+        Element plugin = plugins.children(PLUGIN)
+                .filter(compilerPlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertEquals("${compiler.version}", plugin.child(VERSION).orElseThrow().textContent());
+    }
+
+    @Test
+    void testUpdateManagedPluginNoUpsert() throws DomTripException {
+        PomEditor editor = new PomEditor();
+        editor.createMavenDocument("project");
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Try to update non-existent plugin with upsert=false
+        boolean result = editor.updateManagedPlugin(false, compilerPlugin);
+        assertFalse(result);
+
+        // Verify nothing was created
+        Element root = editor.root();
+        Element build = editor.findChildElement(root, BUILD);
+        assertNull(build);
+    }
+
+    @Test
+    void testDeleteManagedPlugin() throws DomTripException {
+        String pomXml =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <build>
+                <pluginManagement>
+                  <plugins>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <version>3.10.0</version>
+                    </plugin>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-surefire-plugin</artifactId>
+                      <version>3.0.0</version>
+                    </plugin>
+                  </plugins>
+                </pluginManagement>
+              </build>
+            </project>
+            """;
+
+        Document doc = Document.of(pomXml);
+        PomEditor editor = new PomEditor(doc);
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Delete the plugin
+        boolean result = editor.deleteManagedPlugin(compilerPlugin);
+        assertTrue(result);
+
+        // Verify plugin was removed
+        Element root = editor.root();
+        Element build = editor.findChildElement(root, BUILD);
+        Element pluginManagement = editor.findChildElement(build, PLUGIN_MANAGEMENT);
+        Element plugins = editor.findChildElement(pluginManagement, PLUGINS);
+        Element plugin = plugins.children(PLUGIN)
+                .filter(compilerPlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNull(plugin);
+
+        // Verify other plugin still exists
+        Artifact surefirePlugin = Artifact.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
+        Element surefire = plugins.children(PLUGIN)
+                .filter(surefirePlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNotNull(surefire);
+    }
+
+    @Test
+    void testDeleteManagedPluginNotFound() throws DomTripException {
+        PomEditor editor = new PomEditor();
+        editor.createMavenDocument("project");
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Try to delete non-existent plugin
+        boolean result = editor.deleteManagedPlugin(compilerPlugin);
+        assertFalse(result);
+    }
+
+    @Test
+    void testUpdatePluginCreate() throws DomTripException {
+        PomEditor editor = new PomEditor();
+        editor.createMavenDocument("project");
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Create new plugin with upsert=true
+        boolean result = editor.updatePlugin(true, compilerPlugin);
+        assertTrue(result);
+
+        // Verify structure was created
+        Element root = editor.root();
+        Element build = editor.findChildElement(root, BUILD);
+        assertNotNull(build);
+        Element plugins = editor.findChildElement(build, PLUGINS);
+        assertNotNull(plugins);
+
+        // Verify plugin was added
+        Element plugin = plugins.children(PLUGIN)
+                .filter(compilerPlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNotNull(plugin);
+        assertEquals("3.11.0", plugin.child(VERSION).orElseThrow().textContent());
+    }
+
+    @Test
+    void testUpdatePluginUpdate() throws DomTripException {
+        String pomXml =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <build>
+                <plugins>
+                  <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.10.0</version>
+                  </plugin>
+                </plugins>
+              </build>
+            </project>
+            """;
+
+        Document doc = Document.of(pomXml);
+        PomEditor editor = new PomEditor(doc);
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Update existing plugin
+        boolean result = editor.updatePlugin(false, compilerPlugin);
+        assertTrue(result);
+
+        // Verify version was updated
+        Element root = editor.root();
+        Element build = editor.findChildElement(root, BUILD);
+        Element plugins = editor.findChildElement(build, PLUGINS);
+        Element plugin = plugins.children(PLUGIN)
+                .filter(compilerPlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNotNull(plugin);
+        assertEquals("3.11.0", plugin.child(VERSION).orElseThrow().textContent());
+    }
+
+    @Test
+    void testUpdatePluginWithoutVersionUpdatesManagedPlugin() throws DomTripException {
+        String pomXml =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <build>
+                <pluginManagement>
+                  <plugins>
+                    <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <version>3.10.0</version>
+                    </plugin>
+                  </plugins>
+                </pluginManagement>
+                <plugins>
+                  <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                  </plugin>
+                </plugins>
+              </build>
+            </project>
+            """;
+
+        Document doc = Document.of(pomXml);
+        PomEditor editor = new PomEditor(doc);
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Update plugin without version - should update managed plugin instead
+        boolean result = editor.updatePlugin(false, compilerPlugin);
+        assertTrue(result);
+
+        // Verify managed plugin version was updated
+        Element root = editor.root();
+        Element build = editor.findChildElement(root, BUILD);
+        Element pluginManagement = editor.findChildElement(build, PLUGIN_MANAGEMENT);
+        Element managedPlugins = editor.findChildElement(pluginManagement, PLUGINS);
+        Element managedPlugin = managedPlugins
+                .children(PLUGIN)
+                .filter(compilerPlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNotNull(managedPlugin);
+        assertEquals("3.11.0", managedPlugin.child(VERSION).orElseThrow().textContent());
+
+        // Verify plugin still has no version
+        Element plugins = editor.findChildElement(build, PLUGINS);
+        Element plugin = plugins.children(PLUGIN)
+                .filter(compilerPlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNotNull(plugin);
+        assertFalse(plugin.child(VERSION).isPresent());
+    }
+
+    @Test
+    void testDeletePlugin() throws DomTripException {
+        String pomXml =
+                """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <build>
+                <plugins>
+                  <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.10.0</version>
+                  </plugin>
+                  <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0</version>
+                  </plugin>
+                </plugins>
+              </build>
+            </project>
+            """;
+
+        Document doc = Document.of(pomXml);
+        PomEditor editor = new PomEditor(doc);
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Delete the plugin
+        boolean result = editor.deletePlugin(compilerPlugin);
+        assertTrue(result);
+
+        // Verify plugin was removed
+        Element root = editor.root();
+        Element build = editor.findChildElement(root, BUILD);
+        Element plugins = editor.findChildElement(build, PLUGINS);
+        Element plugin = plugins.children(PLUGIN)
+                .filter(compilerPlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNull(plugin);
+
+        // Verify other plugin still exists
+        Artifact surefirePlugin = Artifact.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
+        Element surefire = plugins.children(PLUGIN)
+                .filter(surefirePlugin.predicateGA())
+                .findFirst()
+                .orElse(null);
+        assertNotNull(surefire);
+    }
+
+    @Test
+    void testDeletePluginNotFound() throws DomTripException {
+        PomEditor editor = new PomEditor();
+        editor.createMavenDocument("project");
+
+        Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+
+        // Try to delete non-existent plugin
+        boolean result = editor.deletePlugin(compilerPlugin);
+        assertFalse(result);
     }
 }

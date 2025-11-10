@@ -774,8 +774,26 @@ public class Element extends ContainerNode {
      * @return the text content with leading and trailing whitespace removed
      * @see #textContent()
      * @see #textPreservingWhitespace(String)
+     * @deprecated Use {@link #textContentTrimmed()} instead. This method will be removed in version 0.4.0.
+     *             The new name follows a more consistent naming convention where the adjective comes after the noun.
      */
+    @Deprecated
     public String trimmedTextContent() {
+        return textContentTrimmed();
+    }
+
+    /**
+     * Gets the text content with leading and trailing whitespace removed.
+     *
+     * <p>This is a convenience method that returns the trimmed text content
+     * without modifying the original content. Useful for getting clean content
+     * for processing while preserving the original formatting.</p>
+     *
+     * @return the text content with leading and trailing whitespace removed
+     * @see #textContent()
+     * @see #textPreservingWhitespace(String)
+     */
+    public String textContentTrimmed() {
         String content = textContent();
         return content != null ? content.trim() : "";
     }
@@ -951,6 +969,39 @@ public class Element extends ContainerNode {
      */
     public String childTextOr(String childName, String defaultValue) {
         return child(childName).map(e -> e.textContentOr(defaultValue)).orElse(defaultValue);
+    }
+
+    /**
+     * Gets the text content of a child element, or returns null if not found.
+     *
+     * <p>This is a convenience method that provides a simple way to get child
+     * element text content with null fallback instead of handling Optional.</p>
+     *
+     * @param childName the child element name
+     * @return the text content of the child element, or null if not found
+     * @see #child(String)
+     * @see #childTextOr(String, String)
+     * @see #childTextTrimmed(String)
+     */
+    public String childText(String childName) {
+        return child(childName).map(Element::textContent).orElse(null);
+    }
+
+    /**
+     * Gets the trimmed text content of a child element, or returns null if not found.
+     *
+     * <p>This is a convenience method that provides a simple way to get trimmed child
+     * element text content with null fallback instead of handling Optional.</p>
+     *
+     * @param childName the child element name
+     * @return the trimmed text content of the child element, or null if not found
+     * @see #child(String)
+     * @see #childTextOr(String, String)
+     * @see #childText(String)
+     * @see #textContentTrimmed()
+     */
+    public String childTextTrimmed(String childName) {
+        return child(childName).map(Element::textContentTrimmed).orElse(null);
     }
 
     /**
@@ -1263,12 +1314,7 @@ public class Element extends ContainerNode {
      * @return a new Element with text content and attributes
      */
     public static Element withTextAndAttributes(String name, String content, Map<String, String> attributes) {
-        Element element = new Element(name);
-        if (attributes != null) {
-            for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                element.attribute(entry.getKey(), entry.getValue());
-            }
-        }
+        Element element = withAttributes(name, attributes);
         if (content != null && !content.isEmpty()) {
             element.addNode(new Text(content));
         }

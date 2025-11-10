@@ -40,6 +40,8 @@ public final class MavenPomElements {
         public static final String MODEL_VERSION_4_0_0 = "4.0.0";
         /** Maven 4.1.0 model version */
         public static final String MODEL_VERSION_4_1_0 = "4.1.0";
+        /** Maven 4.2.0 model version */
+        public static final String MODEL_VERSION_4_2_0 = "4.2.0";
 
         private ModelVersions() {
             // Utility class
@@ -81,9 +83,11 @@ public final class MavenPomElements {
         public static final String EXTENSIONS = "extensions";
         public static final String EXTENSION = "extension";
         public static final String EXECUTIONS = "executions";
+        public static final String EXECUTION = "execution";
         public static final String GOALS = "goals";
         public static final String INHERITED = "inherited";
         public static final String CONFIGURATION = "configuration";
+        public static final String PHASE = "phase";
 
         // Module elements
         public static final String MODULES = "modules";
@@ -163,6 +167,8 @@ public final class MavenPomElements {
         public static final String MAVEN_4_0_0_NAMESPACE = "http://maven.apache.org/POM/4.0.0";
         /** Maven 4.1.0 namespace URI */
         public static final String MAVEN_4_1_0_NAMESPACE = "http://maven.apache.org/POM/4.1.0";
+        /** Maven 4.2.0 namespace URI */
+        public static final String MAVEN_4_2_0_NAMESPACE = "http://maven.apache.org/POM/4.2.0";
 
         private Namespaces() {
             // Utility class
@@ -179,6 +185,9 @@ public final class MavenPomElements {
         /** Schema location for 4.1.0 models */
         public static final String MAVEN_4_1_0_SCHEMA_LOCATION =
                 Namespaces.MAVEN_4_1_0_NAMESPACE + " https://maven.apache.org/xsd/maven-4.1.0.xsd";
+        /** Schema location for 4.2.0 models */
+        public static final String MAVEN_4_2_0_SCHEMA_LOCATION =
+                Namespaces.MAVEN_4_2_0_NAMESPACE + " https://maven.apache.org/xsd/maven-4.2.0.xsd";
 
         private SchemaLocations() {
             // Utility class

@@ -733,6 +733,96 @@ public class PomEditor extends AbstractMavenEditor {
         }
         return false;
     }
+    // ========== CONVENIENCE UTILITY METHODS ==========
+
+    /**
+     * Checks if an element exists as a child of the given parent.
+     *
+     * <p>This is a convenience method that provides a simple boolean check
+     * for child element existence without needing to handle Optional.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Element root = editor.root();
+     * if (editor.hasChildElement(root, "properties")) {
+     *     // Properties section exists
+     * }
+     * }</pre>
+     *
+     * @param parent the parent element
+     * @param childName the child element name to check
+     * @return true if the child element exists, false otherwise
+     * @see #findChildElement(Element, String)
+     * @see #getChildElementText(Element, String)
+     * @since 0.3.0
+     */
+    public boolean hasChildElement(Element parent, String childName) {
+        return parent.child(childName).isPresent();
+    }
+
+    /**
+     * Gets the text content of a child element, or returns null if not found.
+     *
+     * <p>This is a convenience method that provides a simple way to get child
+     * element text content with null fallback instead of handling Optional.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Element dependency = // ... get dependency element
+     * String version = editor.getChildElementText(dependency, "version");
+     * if (version != null) {
+     *     // Process version
+     * }
+     * }</pre>
+     *
+     * @param parent the parent element
+     * @param childName the child element name
+     * @return the text content of the child element, or null if not found
+     * @see #findChildElement(Element, String)
+     * @see #hasChildElement(Element, String)
+     * @see #updateOrCreateChildElement(Element, String, String)
+     * @since 0.3.0
+     */
+    public String getChildElementText(Element parent, String childName) {
+        return parent.child(childName).map(Element::textContent).orElse(null);
+    }
+
+    /**
+     * Updates or creates a child element with the given content.
+     *
+     * <p>If the child element exists, updates its text content. If it doesn't exist,
+     * creates it with the specified content using proper Maven element ordering.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Element root = editor.root();
+     * // This will update existing description or create new one
+     * editor.updateOrCreateChildElement(root, "description", "My project description");
+     * }</pre>
+     *
+     * @param parent the parent element
+     * @param childName the child element name
+     * @param content the content to set
+     * @return the updated or created element
+     * @throws DomTripException if an error occurs during editing
+     * @see #findChildElement(Element, String)
+     * @see #insertMavenElement(Element, String, String)
+     * @see #getChildElementText(Element, String)
+     * @since 0.3.0
+     */
+    public Element updateOrCreateChildElement(Element parent, String childName, String content)
+            throws DomTripException {
+        Element child = findChildElement(parent, childName);
+        if (child != null) {
+            child.textContent(content);
+            return child;
+        } else {
+            return insertMavenElement(parent, childName, content);
+        }
+    }
 
     /**
      * Updates a version element, handling property references intelligently.
@@ -756,6 +846,208 @@ public class PomEditor extends AbstractMavenEditor {
                 version.orElseThrow().textContent(newVersion);
                 return true;
             }
+        }
+        return false;
+    }
+
+    // ========== HIGH-LEVEL PLUGIN MANAGEMENT ==========
+
+    /**
+     * Finds or creates the managed plugins container element.
+     *
+     * @param upsert whether to create the structure if it doesn't exist
+     * @return the plugins element, or null if not found and upsert is false
+     * @throws DomTripException if an error occurs during creation
+     */
+    private Element findOrCreateManagedPlugins(boolean upsert) throws DomTripException {
+        Element root = root();
+        Element build = findChildElement(root, BUILD);
+        if (build == null && upsert) {
+            build = insertMavenElement(root, BUILD);
+        }
+        if (build != null) {
+            Element pluginManagement = findChildElement(build, PLUGIN_MANAGEMENT);
+            if (pluginManagement == null && upsert) {
+                pluginManagement = insertMavenElement(build, PLUGIN_MANAGEMENT);
+            }
+            if (pluginManagement != null) {
+                Element plugins = findChildElement(pluginManagement, PLUGINS);
+                if (plugins == null && upsert) {
+                    plugins = insertMavenElement(pluginManagement, PLUGINS);
+                }
+                return plugins;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Finds or creates the plugins container element.
+     *
+     * @param upsert whether to create the structure if it doesn't exist
+     * @return the plugins element, or null if not found and upsert is false
+     * @throws DomTripException if an error occurs during creation
+     */
+    private Element findOrCreatePlugins(boolean upsert) throws DomTripException {
+        Element build = findChildElement(root(), BUILD);
+        if (build == null && upsert) {
+            build = insertMavenElement(root(), BUILD);
+        }
+        if (build != null) {
+            Element plugins = findChildElement(build, PLUGINS);
+            if (plugins == null && upsert) {
+                plugins = insertMavenElement(build, PLUGINS);
+            }
+            return plugins;
+        }
+        return null;
+    }
+
+    /**
+     * Finds a plugin element by artifact coordinates.
+     *
+     * @param plugins the plugins container element
+     * @param artifact the artifact to find
+     * @return the plugin element, or null if not found
+     */
+    private Element findPlugin(Element plugins, Artifact artifact) {
+        if (plugins == null) {
+            return null;
+        }
+        return plugins.children(PLUGIN)
+                .filter(artifact.predicateGA())
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Updates or inserts a managed plugin in {@code project/build/pluginManagement/plugins/plugin[]}.
+     *
+     * <p>If the plugin exists (matched by GA), its version is updated. If the version is a property
+     * reference (${...}), the property value is updated instead. If {@code upsert} is true and the plugin
+     * doesn't exist, it will be created.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * editor.updateManagedPlugin(true, compilerPlugin);
+     * }</pre>
+     *
+     * @param upsert whether to create the plugin if it doesn't exist
+     * @param artifact the artifact coordinates
+     * @return true if the plugin was updated or created, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     * @since 0.3.0
+     */
+    public boolean updateManagedPlugin(boolean upsert, Artifact artifact) throws DomTripException {
+        Element plugins = findOrCreateManagedPlugins(upsert);
+        if (plugins != null) {
+            Element plugin = findPlugin(plugins, artifact);
+            if (plugin == null && upsert) {
+                addPlugin(plugins, artifact.groupId(), artifact.artifactId(), artifact.version());
+                return true;
+            }
+            if (plugin != null) {
+                return updateVersionElement(plugin, artifact.version());
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes a managed plugin from {@code project/build/pluginManagement/plugins/plugin[]}.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * editor.deleteManagedPlugin(compilerPlugin);
+     * }</pre>
+     *
+     * @param artifact the artifact to remove (matched by GA)
+     * @return true if the plugin was removed, false if it didn't exist
+     * @since 0.3.0
+     */
+    public boolean deleteManagedPlugin(Artifact artifact) {
+        try {
+            Element plugins = findOrCreateManagedPlugins(false);
+            Element plugin = findPlugin(plugins, artifact);
+            if (plugin != null) {
+                return removeElement(plugin);
+            }
+        } catch (DomTripException e) {
+            // Should not happen with upsert=false
+            return false;
+        }
+        return false;
+    }
+
+    /**
+     * Updates or inserts a plugin in {@code project/build/plugins/plugin[]}.
+     *
+     * <p>If the plugin exists (matched by GA), its version is updated. If the version is a property
+     * reference (${...}), the property value is updated instead. If the plugin has no version element,
+     * the managed plugin is updated instead. If {@code upsert} is true and the plugin doesn't exist,
+     * it will be created.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * editor.updatePlugin(true, compilerPlugin);
+     * }</pre>
+     *
+     * @param upsert whether to create the plugin if it doesn't exist
+     * @param artifact the artifact coordinates
+     * @return true if the plugin was updated or created, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     * @since 0.3.0
+     */
+    public boolean updatePlugin(boolean upsert, Artifact artifact) throws DomTripException {
+        Element plugins = findOrCreatePlugins(upsert);
+        if (plugins != null) {
+            Element plugin = findPlugin(plugins, artifact);
+            if (plugin == null && upsert) {
+                addPlugin(plugins, artifact.groupId(), artifact.artifactId(), artifact.version());
+                return true;
+            }
+            if (plugin != null) {
+                java.util.Optional<Element> version = plugin.child(VERSION);
+                if (version.isPresent()) {
+                    return updateVersionElement(plugin, artifact.version());
+                } else {
+                    return updateManagedPlugin(false, artifact);
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes a plugin from {@code project/build/plugins/plugin[]}.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Artifact compilerPlugin = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * editor.deletePlugin(compilerPlugin);
+     * }</pre>
+     *
+     * @param artifact the artifact to remove (matched by GA)
+     * @return true if the plugin was removed, false if it didn't exist
+     * @since 0.3.0
+     */
+    public boolean deletePlugin(Artifact artifact) {
+        try {
+            Element plugins = findOrCreatePlugins(false);
+            Element plugin = findPlugin(plugins, artifact);
+            if (plugin != null) {
+                return removeElement(plugin);
+            }
+        } catch (DomTripException e) {
+            // Should not happen with upsert=false
+            return false;
         }
         return false;
     }

@@ -753,6 +753,38 @@ public class PomEditor extends AbstractMavenEditor {
         }
         return false;
     }
+
+    /**
+     * Removes a dependency version from {@code project/dependencies/dependency[]}. This call is usually combined
+     * with adding dependency management for same dependency.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * editor.deleteDependencyVersion(junit);
+     * editor.updateManagedDependency(true, junit);
+     * }</pre>
+     *
+     * @param coordinates the Coordinates to remove (matched by GATC)
+     * @return true if the dependency was removed, false if it didn't exist
+     * @since 0.3.1
+     */
+    public boolean deleteDependencyVersion(Coordinates coordinates) {
+        Element dependencies = findChildElement(root(), DEPENDENCIES);
+        if (dependencies != null) {
+            Element dependency = dependencies
+                    .children(DEPENDENCY)
+                    .filter(coordinates.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (dependency != null) {
+                return dependency.child(VERSION).map(this::removeElement).isPresent();
+            }
+        }
+        return false;
+    }
+
     // ========== CONVENIENCE UTILITY METHODS ==========
 
     /**
@@ -967,7 +999,7 @@ public class PomEditor extends AbstractMavenEditor {
      *
      * @param extensions the extensions container element
      * @param coordinates the artifact to find
-     * @return the plugin element, or null if not found
+     * @return the extension element, or null if not found
      */
     private Element findExtension(Element extensions, Coordinates coordinates) {
         if (extensions == null) {
@@ -1114,13 +1146,14 @@ public class PomEditor extends AbstractMavenEditor {
 
     /**
      * Removes a plugin version element from {@code project/build/plugins/plugin[]}. This is usually combined with
-     * adding plugin management.
+     * adding plugin management for same plugin.
      *
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
      * Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
      * editor.deletePluginVersion(compilerPlugin);
+     * editor.updateManagedPlugin(true, compilerPlugin);
      * }</pre>
      *
      * @param coordinates the artifact to remove (matched by GA)

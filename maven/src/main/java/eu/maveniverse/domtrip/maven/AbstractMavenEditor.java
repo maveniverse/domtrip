@@ -297,27 +297,27 @@ public abstract class AbstractMavenEditor extends Editor {
     }
 
     /**
-     * Creates an Artifact from an element with the specified extension/type.
+     * Creates a coordinates from an element with the specified extension/type.
      *
      * <p>With Maven 4's inference mechanism, groupId and version might not be present
      * in the build POM. This method uses null for missing coordinates, allowing the
-     * Artifact record to be created but with incomplete information. The caller should
+     * Coordinates record to be created but with incomplete information. The caller should
      * handle null values appropriately.</p>
      *
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
      * Element dependency = ...;
-     * Artifact artifact = editor.toArtifact(dependency, "jar");
+     * Coordinates coordinates = editor.toCoordinates(dependency, "jar");
      * }</pre>
      *
      * @param element the element containing groupId, artifactId, and version children
      * @param extension the artifact extension/type
-     * @return a new Artifact instance (may have null groupId or version)
+     * @return a new Coordinates instance (may have null groupId or version)
      * @throws IllegalArgumentException if artifactId is missing (always required)
      * @since 0.3.0
      */
-    public Artifact toArtifact(Element element, String extension) {
+    public Coordinates toCoordinates(Element element, String extension) {
         requireNonNull(element);
         String groupId = element.childTextOr(MavenPomElements.Elements.GROUP_ID, null);
         String artifactId = element.childTextOr(MavenPomElements.Elements.ARTIFACT_ID, null);
@@ -329,42 +329,42 @@ public abstract class AbstractMavenEditor extends Editor {
             throw new IllegalArgumentException("artifactId is required but not found in element");
         }
 
-        return Artifact.of(groupId, artifactId, version, classifier, extension);
+        return Coordinates.of(groupId, artifactId, version, classifier, extension);
     }
 
     /**
-     * Creates a JAR Artifact from an element.
+     * Creates a JAR Coordinates from an element.
      *
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
      * Element dependency = ...;
-     * Artifact artifact = editor.toJarArtifact(dependency);
+     * Coordinates artifact = editor.toJarCoordinates(dependency);
      * }</pre>
      *
      * @param element the element containing artifact coordinates
-     * @return a new Artifact instance with JAR type
+     * @return a new Coordinates instance with JAR type
      * @since 0.3.0
      */
-    public Artifact toJarArtifact(Element element) {
-        return toArtifact(element, "jar");
+    public Coordinates toJarCoordinates(Element element) {
+        return toCoordinates(element, "jar");
     }
 
     /**
-     * Creates a POM Artifact from an element.
+     * Creates a POM Coordinates from an element.
      *
      * <h4>Example:</h4>
      * <pre>{@code
      * PomEditor editor = new PomEditor(document);
      * Element parent = editor.root().child("parent").orElseThrow();
-     * Artifact parentArtifact = editor.toPomArtifact(parent);
+     * Coordinates parentArtifact = editor.toPomCoordinates(parent);
      * }</pre>
      *
      * @param element the element containing artifact coordinates
-     * @return a new Artifact instance with POM type
+     * @return a new Coordinates instance with POM type
      * @since 0.3.0
      */
-    public Artifact toPomArtifact(Element element) {
-        return toArtifact(element, "pom");
+    public Coordinates toPomCoordinates(Element element) {
+        return toCoordinates(element, "pom");
     }
 }

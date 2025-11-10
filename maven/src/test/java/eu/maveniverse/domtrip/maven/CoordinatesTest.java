@@ -13,86 +13,86 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * Tests for Artifact class methods.
  */
-class ArtifactTest {
+class CoordinatesTest {
 
     @Test
     void testPredicateGA_matches() {
-        Artifact artifact = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
+        Coordinates coordinates = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element element = Element.of("dependency");
         element.addNode(Element.text("groupId", "org.junit.jupiter"));
         element.addNode(Element.text("artifactId", "junit-jupiter"));
         element.addNode(Element.text("version", "5.9.2"));
 
-        Predicate<Element> predicate = artifact.predicateGA();
+        Predicate<Element> predicate = coordinates.predicateGA();
         assertTrue(predicate.test(element));
     }
 
     @Test
     void testPredicateGA_doesNotMatch() {
-        Artifact artifact = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
+        Coordinates coordinates = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element element = Element.of("dependency");
         element.addNode(Element.text("groupId", "junit"));
         element.addNode(Element.text("artifactId", "junit"));
 
-        Predicate<Element> predicate = artifact.predicateGA();
+        Predicate<Element> predicate = coordinates.predicateGA();
         assertFalse(predicate.test(element));
     }
 
     @Test
     void testPredicateGA_ignoresVersion() {
-        Artifact artifact = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
+        Coordinates coordinates = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element element = Element.of("dependency");
         element.addNode(Element.text("groupId", "org.junit.jupiter"));
         element.addNode(Element.text("artifactId", "junit-jupiter"));
         element.addNode(Element.text("version", "5.10.0")); // Different version
 
-        Predicate<Element> predicate = artifact.predicateGA();
+        Predicate<Element> predicate = coordinates.predicateGA();
         assertTrue(predicate.test(element)); // Should still match on GA
     }
 
     @Test
     void testPredicatePluginGA_withDefaultGroupId() {
-        Artifact artifact = Artifact.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Coordinates coordinates = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Plugin element without groupId (defaults to org.apache.maven.plugins)
         Element element = Element.of("plugin");
         element.addNode(Element.text("artifactId", "maven-compiler-plugin"));
 
-        Predicate<Element> predicate = artifact.predicatePluginGA();
+        Predicate<Element> predicate = coordinates.predicatePluginGA();
         assertTrue(predicate.test(element));
     }
 
     @Test
     void testPredicatePluginGA_withExplicitGroupId() {
-        Artifact artifact = Artifact.of("org.codehaus.mojo", "build-helper-maven-plugin", "3.3.0");
+        Coordinates coordinates = Coordinates.of("org.codehaus.mojo", "build-helper-maven-plugin", "3.3.0");
 
         Element element = Element.of("plugin");
         element.addNode(Element.text("groupId", "org.codehaus.mojo"));
         element.addNode(Element.text("artifactId", "build-helper-maven-plugin"));
 
-        Predicate<Element> predicate = artifact.predicatePluginGA();
+        Predicate<Element> predicate = coordinates.predicatePluginGA();
         assertTrue(predicate.test(element));
     }
 
     @Test
     void testPredicateGATC_matchesWithType() {
-        Artifact artifact = Artifact.of("org.example", "my-lib", "1.0.0", null, "jar");
+        Coordinates coordinates = Coordinates.of("org.example", "my-lib", "1.0.0", null, "jar");
 
         Element element = Element.of("dependency");
         element.addNode(Element.text("groupId", "org.example"));
         element.addNode(Element.text("artifactId", "my-lib"));
         element.addNode(Element.text("type", "jar"));
 
-        Predicate<Element> predicate = artifact.predicateGATC();
+        Predicate<Element> predicate = coordinates.predicateGATC();
         assertTrue(predicate.test(element));
     }
 
     @Test
     void testPredicateGATC_matchesWithClassifier() {
-        Artifact artifact = Artifact.of("org.example", "my-lib", "1.0.0", "sources", "jar");
+        Coordinates coordinates = Coordinates.of("org.example", "my-lib", "1.0.0", "sources", "jar");
 
         Element element = Element.of("dependency");
         element.addNode(Element.text("groupId", "org.example"));
@@ -100,20 +100,20 @@ class ArtifactTest {
         element.addNode(Element.text("type", "jar"));
         element.addNode(Element.text("classifier", "sources"));
 
-        Predicate<Element> predicate = artifact.predicateGATC();
+        Predicate<Element> predicate = coordinates.predicateGATC();
         assertTrue(predicate.test(element));
     }
 
     @Test
     void testPredicateGATC_doesNotMatchDifferentType() {
-        Artifact artifact = Artifact.of("org.example", "my-lib", "1.0.0", null, "war");
+        Coordinates coordinates = Coordinates.of("org.example", "my-lib", "1.0.0", null, "war");
 
         Element element = Element.of("dependency");
         element.addNode(Element.text("groupId", "org.example"));
         element.addNode(Element.text("artifactId", "my-lib"));
         element.addNode(Element.text("type", "jar"));
 
-        Predicate<Element> predicate = artifact.predicateGATC();
+        Predicate<Element> predicate = coordinates.predicateGATC();
         assertFalse(predicate.test(element));
     }
 
@@ -132,13 +132,13 @@ class ArtifactTest {
         Path pomFile = tempDir.resolve("pom.xml");
         Files.writeString(pomFile, pomContent);
 
-        Artifact artifact = Artifact.fromPom(pomFile);
+        Coordinates coordinates = Coordinates.fromPom(pomFile);
 
-        assertEquals("org.example", artifact.groupId());
-        assertEquals("my-app", artifact.artifactId());
-        assertEquals("1.0.0", artifact.version());
-        assertNull(artifact.classifier());
-        assertEquals("pom", artifact.type());
+        assertEquals("org.example", coordinates.groupId());
+        assertEquals("my-app", coordinates.artifactId());
+        assertEquals("1.0.0", coordinates.version());
+        assertNull(coordinates.classifier());
+        assertEquals("pom", coordinates.type());
     }
 
     @Test
@@ -159,12 +159,12 @@ class ArtifactTest {
         Path pomFile = tempDir.resolve("pom.xml");
         Files.writeString(pomFile, pomContent);
 
-        Artifact artifact = Artifact.fromPom(pomFile);
+        Coordinates coordinates = Coordinates.fromPom(pomFile);
 
-        assertEquals("org.example", artifact.groupId()); // Inherited from parent
-        assertEquals("my-app", artifact.artifactId());
-        assertEquals("1.0.0", artifact.version()); // Inherited from parent
-        assertEquals("pom", artifact.type());
+        assertEquals("org.example", coordinates.groupId()); // Inherited from parent
+        assertEquals("my-app", coordinates.artifactId());
+        assertEquals("1.0.0", coordinates.version()); // Inherited from parent
+        assertEquals("pom", coordinates.type());
     }
 
     @Test
@@ -181,12 +181,12 @@ class ArtifactTest {
         Path pomFile = tempDir.resolve("pom.xml");
         Files.writeString(pomFile, pomContent);
 
-        Artifact artifact = Artifact.fromPom(pomFile);
+        Coordinates coordinates = Coordinates.fromPom(pomFile);
 
-        assertNull(artifact.groupId()); // Not present, Maven 4 will infer
-        assertEquals("my-module", artifact.artifactId());
-        assertNull(artifact.version()); // Not present, Maven 4 will infer
-        assertEquals("pom", artifact.type());
+        assertNull(coordinates.groupId()); // Not present, Maven 4 will infer
+        assertEquals("my-module", coordinates.artifactId());
+        assertNull(coordinates.version()); // Not present, Maven 4 will infer
+        assertEquals("pom", coordinates.type());
     }
 
     @Test
@@ -204,7 +204,7 @@ class ArtifactTest {
         Files.writeString(pomFile, pomContent);
 
         // ArtifactId is always required
-        assertThrows(IllegalArgumentException.class, () -> Artifact.fromPom(pomFile));
+        assertThrows(IllegalArgumentException.class, () -> Coordinates.fromPom(pomFile));
     }
 
     @Test
@@ -213,12 +213,12 @@ class ArtifactTest {
         // Note: Artifact.toGA() returns "null:my-module" (string concat with null)
         // while AbstractMavenEditor.toGA() returns null when groupId is missing
         // So they won't match - this is expected behavior
-        Artifact artifact = Artifact.of(null, "my-module", null, null, "jar");
+        Coordinates coordinates = Coordinates.of(null, "my-module", null, null, "jar");
 
         Element element = Element.of("dependency");
         element.addNode(Element.text("artifactId", "my-module"));
 
-        Predicate<Element> predicate = artifact.predicateGA();
+        Predicate<Element> predicate = coordinates.predicateGA();
         // artifact.toGA() = "null:my-module", AbstractMavenEditor.toGA(element) = null
         // They don't match
         assertFalse(predicate.test(element));
@@ -226,7 +226,7 @@ class ArtifactTest {
 
     @Test
     void testPredicateFiltering() {
-        Artifact junit = Artifact.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
+        Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element deps = Element.of("dependencies");
         deps.addNode(createDependency("org.junit.jupiter", "junit-jupiter", "5.9.2"));

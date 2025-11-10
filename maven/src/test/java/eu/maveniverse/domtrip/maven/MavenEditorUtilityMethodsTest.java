@@ -104,13 +104,13 @@ class MavenEditorUtilityMethodsTest {
         PomEditor editor = new PomEditor();
         Element element = createDependency("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
-        Artifact artifact = editor.toArtifact(element, "jar");
+        Coordinates coordinates = editor.toCoordinates(element, "jar");
 
-        assertEquals("org.junit.jupiter", artifact.groupId());
-        assertEquals("junit-jupiter", artifact.artifactId());
-        assertEquals("5.9.2", artifact.version());
-        assertNull(artifact.classifier());
-        assertEquals("jar", artifact.type());
+        assertEquals("org.junit.jupiter", coordinates.groupId());
+        assertEquals("junit-jupiter", coordinates.artifactId());
+        assertEquals("5.9.2", coordinates.version());
+        assertNull(coordinates.classifier());
+        assertEquals("jar", coordinates.type());
     }
 
     @Test
@@ -119,9 +119,9 @@ class MavenEditorUtilityMethodsTest {
         Element element = createDependency("org.example", "my-lib", "1.0.0");
         element.addNode(Element.text("classifier", "sources"));
 
-        Artifact artifact = editor.toArtifact(element, "jar");
+        Coordinates coordinates = editor.toCoordinates(element, "jar");
 
-        assertEquals("sources", artifact.classifier());
+        assertEquals("sources", coordinates.classifier());
     }
 
     @Test
@@ -131,11 +131,11 @@ class MavenEditorUtilityMethodsTest {
         element.addNode(Element.text("artifactId", "my-module"));
         // No groupId or version - Maven 4 inference
 
-        Artifact artifact = editor.toArtifact(element, "jar");
+        Coordinates coordinates = editor.toCoordinates(element, "jar");
 
-        assertNull(artifact.groupId());
-        assertEquals("my-module", artifact.artifactId());
-        assertNull(artifact.version());
+        assertNull(coordinates.groupId());
+        assertEquals("my-module", coordinates.artifactId());
+        assertNull(coordinates.version());
     }
 
     @Test
@@ -145,7 +145,7 @@ class MavenEditorUtilityMethodsTest {
         element.addNode(Element.text("groupId", "org.example"));
 
         // ArtifactId is always required
-        assertThrows(IllegalArgumentException.class, () -> editor.toArtifact(element, "jar"));
+        assertThrows(IllegalArgumentException.class, () -> editor.toCoordinates(element, "jar"));
     }
 
     @Test
@@ -153,9 +153,9 @@ class MavenEditorUtilityMethodsTest {
         PomEditor editor = new PomEditor();
         Element element = createDependency("junit", "junit", "4.13.2");
 
-        Artifact artifact = editor.toJarArtifact(element);
+        Coordinates coordinates = editor.toJarCoordinates(element);
 
-        assertEquals("jar", artifact.type());
+        assertEquals("jar", coordinates.type());
     }
 
     @Test
@@ -163,9 +163,9 @@ class MavenEditorUtilityMethodsTest {
         PomEditor editor = new PomEditor();
         Element element = createDependency("org.example", "parent", "1.0.0");
 
-        Artifact artifact = editor.toPomArtifact(element);
+        Coordinates coordinates = editor.toPomCoordinates(element);
 
-        assertEquals("pom", artifact.type());
+        assertEquals("pom", coordinates.type());
     }
 
     private Element createDependency(String groupId, String artifactId, String version) {

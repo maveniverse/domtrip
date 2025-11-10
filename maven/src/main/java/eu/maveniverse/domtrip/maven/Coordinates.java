@@ -51,7 +51,7 @@ import java.util.function.Predicate;
  * @param artifactId the Maven artifactId (required)
  * @param version the artifact version (can be null for dependency management or Maven 4 inference)
  * @param classifier the artifact classifier (can be null)
- * @param type the artifact type/extension (defaults to "jar" if null)
+ * @param type the artifact/dependency type/extension (defaults to "jar" if null)
  * @since 0.3.0
  */
 public record Coordinates(String groupId, String artifactId, String version, String classifier, String type) {

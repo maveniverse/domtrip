@@ -63,10 +63,10 @@ class ElementWhitespaceTest {
         Element empty = doc.root().descendant("empty").orElseThrow();
         Element whitespace = doc.root().descendant("whitespace").orElseThrow();
 
-        assertEquals("value with spaces", item.trimmedTextContent());
-        assertEquals("no spaces", clean.trimmedTextContent());
-        assertEquals("", empty.trimmedTextContent());
-        assertEquals("", whitespace.trimmedTextContent());
+        assertEquals("value with spaces", item.textContentTrimmed());
+        assertEquals("no spaces", clean.textContentTrimmed());
+        assertEquals("", empty.textContentTrimmed());
+        assertEquals("", whitespace.textContentTrimmed());
 
         // Verify original content is unchanged
         assertEquals("   value with spaces   ", item.textContent());
@@ -120,7 +120,7 @@ class ElementWhitespaceTest {
         Element description = doc.root().descendant("description").orElseThrow();
 
         String originalContent = description.textContent();
-        String trimmedContent = description.trimmedTextContent();
+        String trimmedContent = description.textContentTrimmed();
 
         // The actual indentation in the XML has 8 spaces (2 levels of 4-space indentation)
         assertEquals("Multi-line description\n        with indentation", trimmedContent);
@@ -128,7 +128,7 @@ class ElementWhitespaceTest {
         // Preserve the complex whitespace pattern
         description.textPreservingWhitespace("New description\nwith new content");
 
-        String newTrimmed = description.trimmedTextContent();
+        String newTrimmed = description.textContentTrimmed();
         assertEquals("New description\nwith new content", newTrimmed);
 
         // Verify the content was updated successfully
@@ -173,7 +173,7 @@ class ElementWhitespaceTest {
 
         // Element has whitespace text nodes around the child element
         // getTrimmedTextContent() returns the trimmed concatenation of all text
-        assertEquals("", parent.trimmedTextContent());
+        assertEquals("", parent.textContentTrimmed());
 
         // Adding text content to element with existing whitespace
         parent.textPreservingWhitespace("new text");
@@ -190,7 +190,7 @@ class ElementWhitespaceTest {
         Text cdata = new Text("   <script>alert('test');</script>   ", true);
         element.addNode(cdata);
 
-        assertEquals("<script>alert('test');</script>", element.trimmedTextContent());
+        assertEquals("<script>alert('test');</script>", element.textContentTrimmed());
 
         // Preserve whitespace in CDATA
         element.textPreservingWhitespace("<script>console.log('hello');</script>");
@@ -210,7 +210,7 @@ class ElementWhitespaceTest {
         Element message = doc.root();
 
         // DomTrip unescapes entities when parsing, so &amp; becomes &
-        assertEquals("Hello & welcome", message.trimmedTextContent());
+        assertEquals("Hello & welcome", message.textContentTrimmed());
 
         message.textPreservingWhitespace("Goodbye <world>");
         assertEquals("   Goodbye <world>   ", message.textContent());
@@ -247,10 +247,10 @@ class ElementWhitespaceTest {
         Element level = doc.root().descendant("level").orElseThrow();
 
         // Verify trimmed content
-        assertEquals("localhost", host.trimmedTextContent());
-        assertEquals("5432", port.trimmedTextContent());
-        assertEquals("myapp_dev", name.trimmedTextContent());
-        assertEquals("DEBUG", level.trimmedTextContent());
+        assertEquals("localhost", host.textContentTrimmed());
+        assertEquals("5432", port.textContentTrimmed());
+        assertEquals("myapp_dev", name.textContentTrimmed());
+        assertEquals("DEBUG", level.textContentTrimmed());
 
         // Update to production settings preserving formatting
         host.textPreservingWhitespace("prod.example.com");
@@ -315,7 +315,7 @@ class ElementWhitespaceTest {
 
         // getTrimmedTextContent should not mark as modified
         assertFalse(item.isModified());
-        item.trimmedTextContent();
+        item.textContentTrimmed();
         assertFalse(item.isModified());
 
         // setTextContentPreservingWhitespace should mark as modified

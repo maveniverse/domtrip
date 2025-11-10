@@ -14,7 +14,7 @@
   <parent>
     <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.3.0</version>
   </parent>
 
   <artifactId>domtrip-maven</artifactId>

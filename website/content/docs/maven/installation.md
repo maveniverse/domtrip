@@ -58,8 +58,8 @@ The Maven extension works with POM files from:
 To verify the installation, create a simple test:
 
 ```java
-import org.maveniverse.domtrip.maven.PomEditor;
-import org.maveniverse.domtrip.maven.MavenPomElements;
+import eu.maveniverse.domtrip.maven.PomEditor;
+import eu.maveniverse.domtrip.maven.MavenPomElements;
 
 public class InstallationTest {
     public static void main(String[] args) {

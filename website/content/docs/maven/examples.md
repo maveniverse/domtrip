@@ -13,7 +13,7 @@ This page provides practical examples of using the DomTrip Maven extension for c
 Create a complete Maven project POM from scratch:
 
 ```java
-import org.maveniverse.domtrip.maven.PomEditor;
+import eu.maveniverse.domtrip.maven.PomEditor;
 import eu.maveniverse.domtrip.Element;
 import static org.maveniverse.domtrip.maven.MavenPomElements.Elements.*;
 

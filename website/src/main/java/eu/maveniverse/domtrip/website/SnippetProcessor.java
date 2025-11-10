@@ -175,10 +175,10 @@ public class SnippetProcessor {
             },
             // Maven module snippets
             {
-                "../maven/src/test/java/org/maveniverse/domtrip/maven/snippets", // From website directory
-                "../../maven/src/test/java/org/maveniverse/domtrip/maven/snippets", // From website/target
-                "maven/src/test/java/org/maveniverse/domtrip/maven/snippets", // From project root
-                "./maven/src/test/java/org/maveniverse/domtrip/maven/snippets" // Alternative
+                "../maven/src/test/java/eu/maveniverse/domtrip/maven/snippets", // From website directory
+                "../../maven/src/test/java/eu/maveniverse/domtrip/maven/snippets", // From website/target
+                "maven/src/test/java/eu/maveniverse/domtrip/maven/snippets", // From project root
+                "./maven/src/test/java/eu/maveniverse/domtrip/maven/snippets" // Alternative
             }
         };
 

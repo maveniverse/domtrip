@@ -11,7 +11,7 @@ The DomTrip Maven extension provides specialized functionality for working with 
 ## Quick Overview
 
 ```java
-import org.maveniverse.domtrip.maven.PomEditor;
+import eu.maveniverse.domtrip.maven.PomEditor;
 import eu.maveniverse.domtrip.Element;
 import static org.maveniverse.domtrip.maven.MavenPomElements.Elements.*;
 

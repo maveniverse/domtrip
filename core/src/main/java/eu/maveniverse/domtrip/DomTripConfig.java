@@ -63,6 +63,7 @@ public class DomTripConfig {
     private String indentString = "    ";
     private String lineEnding = "\n";
     private boolean omitXmlDeclaration = false;
+    private boolean ignoreInvalidEncoding = true;
 
     private DomTripConfig() {}
 
@@ -149,6 +150,11 @@ public class DomTripConfig {
         return this;
     }
 
+    public DomTripConfig withIgnoreInvalidEncoding(boolean ignoreInvalidEncoding) {
+        this.ignoreInvalidEncoding = ignoreInvalidEncoding;
+        return this;
+    }
+
     /**
      * Automatically detects and configures the empty element style based on existing
      * empty elements in the provided document.
@@ -197,5 +203,9 @@ public class DomTripConfig {
 
     public boolean isOmitXmlDeclaration() {
         return omitXmlDeclaration;
+    }
+
+    public boolean isIgnoreInvalidEncoding() {
+        return ignoreInvalidEncoding;
     }
 }

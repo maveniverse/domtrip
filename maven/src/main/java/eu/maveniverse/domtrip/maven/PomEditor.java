@@ -1062,15 +1062,10 @@ public class PomEditor extends AbstractMavenEditor {
      * @since 0.3.0
      */
     public boolean deleteManagedPlugin(Coordinates coordinates) {
-        try {
-            Element plugins = findOrCreateManagedPlugins(false);
-            Element plugin = findPlugin(plugins, coordinates);
-            if (plugin != null) {
-                return removeElement(plugin);
-            }
-        } catch (DomTripException e) {
-            // Should not happen with upsert=false
-            return false;
+        Element plugins = findOrCreateManagedPlugins(false); // upsert=false; will not throw
+        Element plugin = findPlugin(plugins, coordinates);
+        if (plugin != null) {
+            return removeElement(plugin);
         }
         return false;
     }
@@ -1131,15 +1126,10 @@ public class PomEditor extends AbstractMavenEditor {
      * @since 0.3.0
      */
     public boolean deletePlugin(Coordinates coordinates) {
-        try {
-            Element plugins = findOrCreatePlugins(false);
-            Element plugin = findPlugin(plugins, coordinates);
-            if (plugin != null) {
-                return removeElement(plugin);
-            }
-        } catch (DomTripException e) {
-            // Should not happen with upsert=false
-            return false;
+        Element plugins = findOrCreatePlugins(false); // upsert=false; will not throw
+        Element plugin = findPlugin(plugins, coordinates);
+        if (plugin != null) {
+            return removeElement(plugin);
         }
         return false;
     }
@@ -1161,15 +1151,10 @@ public class PomEditor extends AbstractMavenEditor {
      * @since 0.3.1
      */
     public boolean deletePluginVersion(Coordinates coordinates) {
-        try {
-            Element plugins = findOrCreatePlugins(false);
-            Element plugin = findPlugin(plugins, coordinates);
-            if (plugin != null) {
-                return plugin.child(VERSION).filter(plugin::removeNode).isPresent();
-            }
-        } catch (DomTripException e) {
-            // Should not happen with upsert=false
-            return false;
+        Element plugins = findOrCreatePlugins(false); // upsert=false; will not throw
+        Element plugin = findPlugin(plugins, coordinates);
+        if (plugin != null) {
+            return plugin.child(VERSION).filter(plugin::removeNode).isPresent();
         }
         return false;
     }
@@ -1194,7 +1179,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @throws DomTripException if an error occurs during editing
      * @since 0.3.1
      */
-    public boolean updateExtension(boolean upsert, Coordinates coordinates) {
+    public boolean updateExtension(boolean upsert, Coordinates coordinates) throws DomTripException {
         Element extensions = findOrCreateExtensions(upsert);
         if (extensions != null) {
             Element extension = findExtension(extensions, coordinates);
@@ -1227,15 +1212,10 @@ public class PomEditor extends AbstractMavenEditor {
      * @since 0.3.1
      */
     public boolean deleteExtension(Coordinates coordinates) {
-        try {
-            Element extensions = findOrCreateExtensions(false);
-            Element extension = findExtension(extensions, coordinates);
-            if (extension != null) {
-                return removeElement(extension);
-            }
-        } catch (DomTripException e) {
-            // Should not happen with upsert=false
-            return false;
+        Element extensions = findOrCreateExtensions(false); // upsert=false; will not throw
+        Element extension = findExtension(extensions, coordinates);
+        if (extension != null) {
+            return removeElement(extension);
         }
         return false;
     }
@@ -1249,7 +1229,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @throws DomTripException if an error occurs during editing
      * @since 0.3.1
      */
-    public boolean updateParent(boolean upsert, Coordinates coordinates) {
+    public boolean updateParent(boolean upsert, Coordinates coordinates) throws DomTripException {
         Element parent = findChildElement(root(), MavenPomElements.Elements.PARENT);
         if (parent == null && upsert) {
             parent = insertMavenElement(root(), MavenPomElements.Elements.PARENT);
@@ -1271,7 +1251,6 @@ public class PomEditor extends AbstractMavenEditor {
      * Removes parent.  It goes for {@code project/parent} and removes entry if present.
      *
      * @return true if the parent was updated or created, false otherwise
-     * @throws DomTripException if an error occurs during editing
      * @since 0.3.1
      */
     public boolean deleteParent() {

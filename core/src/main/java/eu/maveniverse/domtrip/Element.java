@@ -781,6 +781,23 @@ public class Element extends ContainerNode {
     }
 
     /**
+     * Gets the text content with leading and trailing whitespace removed if non-empty
+     * and non-null, otherwise returns the default value.
+     *
+     * <p>This is a convenience method that returns the trimmed text content
+     * without modifying the original content. Useful for getting clean content
+     * for processing while preserving the original formatting.</p>
+     *
+     * @return the text content with leading and trailing whitespace removed or default value
+     * @see #textContentOr(String)
+     * @since 0.3.1
+     */
+    public String textContentTrimmedOr(String defaultValue) {
+        String content = textContent();
+        return content == null || content.trim().isBlank() ? defaultValue : content.trim();
+    }
+
+    /**
      * Gets the first Text child node, if any.
      *
      * @return the first Text child, or null if none exists

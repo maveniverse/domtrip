@@ -341,6 +341,25 @@ public class PomEditor extends AbstractMavenEditor {
     }
 
     /**
+     * Adds a extension element with the specified coordinates.
+     *
+     * @param extensionsElement the extensions container element
+     * @param groupId the extension groupId
+     * @param artifactId the extension artifactId
+     * @param version the extension version
+     * @return the newly created extension element
+     * @throws DomTripException if the plugin cannot be added
+     */
+    public Element addExtension(Element extensionsElement, String groupId, String artifactId, String version)
+            throws DomTripException {
+        Element extension = insertMavenElement(extensionsElement, EXTENSION);
+        insertMavenElement(extension, GROUP_ID, groupId);
+        insertMavenElement(extension, ARTIFACT_ID, artifactId);
+        insertMavenElement(extension, VERSION, version);
+        return extension;
+    }
+
+    /**
      * Adds a module to the modules section.
      *
      * @param modulesElement the modules container element
@@ -734,6 +753,38 @@ public class PomEditor extends AbstractMavenEditor {
         }
         return false;
     }
+
+    /**
+     * Removes a dependency version from {@code project/dependencies/dependency[]}. This call is usually combined
+     * with adding dependency management for same dependency.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+     * editor.deleteDependencyVersion(junit);
+     * editor.updateManagedDependency(true, junit);
+     * }</pre>
+     *
+     * @param coordinates the Coordinates to remove (matched by GATC)
+     * @return true if the dependency was removed, false if it didn't exist
+     * @since 0.3.1
+     */
+    public boolean deleteDependencyVersion(Coordinates coordinates) {
+        Element dependencies = findChildElement(root(), DEPENDENCIES);
+        if (dependencies != null) {
+            Element dependency = dependencies
+                    .children(DEPENDENCY)
+                    .filter(coordinates.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (dependency != null) {
+                return dependency.child(VERSION).map(this::removeElement).isPresent();
+            }
+        }
+        return false;
+    }
+
     // ========== CONVENIENCE UTILITY METHODS ==========
 
     /**
@@ -922,6 +973,46 @@ public class PomEditor extends AbstractMavenEditor {
     }
 
     /**
+     * Finds or creates the extensions container element.
+     *
+     * @param upsert whether to create the structure if it doesn't exist
+     * @return the extensions element, or null if not found and upsert is false
+     * @throws DomTripException if an error occurs during creation
+     */
+    private Element findOrCreateExtensions(boolean upsert) throws DomTripException {
+        Element build = findChildElement(root(), BUILD);
+        if (build == null && upsert) {
+            build = insertMavenElement(root(), BUILD);
+        }
+        if (build != null) {
+            Element extensions = findChildElement(build, EXTENSIONS);
+            if (extensions == null && upsert) {
+                extensions = insertMavenElement(build, EXTENSIONS);
+            }
+            return extensions;
+        }
+        return null;
+    }
+
+    /**
+     * Finds an extension element by artifact coordinates.
+     *
+     * @param extensions the extensions container element
+     * @param coordinates the artifact to find
+     * @return the extension element, or null if not found
+     */
+    private Element findExtension(Element extensions, Coordinates coordinates) {
+        if (extensions == null) {
+            return null;
+        }
+        return extensions
+                .children(EXTENSION)
+                .filter(coordinates.predicateGA())
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
      * Updates or inserts a managed plugin in {@code project/build/pluginManagement/plugins/plugin[]}.
      *
      * <p>If the plugin exists (matched by GA), its version is updated. If the version is a property
@@ -971,15 +1062,10 @@ public class PomEditor extends AbstractMavenEditor {
      * @since 0.3.0
      */
     public boolean deleteManagedPlugin(Coordinates coordinates) {
-        try {
-            Element plugins = findOrCreateManagedPlugins(false);
-            Element plugin = findPlugin(plugins, coordinates);
-            if (plugin != null) {
-                return removeElement(plugin);
-            }
-        } catch (DomTripException e) {
-            // Should not happen with upsert=false
-            return false;
+        Element plugins = findOrCreateManagedPlugins(false); // upsert=false; will not throw
+        Element plugin = findPlugin(plugins, coordinates);
+        if (plugin != null) {
+            return removeElement(plugin);
         }
         return false;
     }
@@ -1040,16 +1126,135 @@ public class PomEditor extends AbstractMavenEditor {
      * @since 0.3.0
      */
     public boolean deletePlugin(Coordinates coordinates) {
-        try {
-            Element plugins = findOrCreatePlugins(false);
-            Element plugin = findPlugin(plugins, coordinates);
-            if (plugin != null) {
-                return removeElement(plugin);
-            }
-        } catch (DomTripException e) {
-            // Should not happen with upsert=false
-            return false;
+        Element plugins = findOrCreatePlugins(false); // upsert=false; will not throw
+        Element plugin = findPlugin(plugins, coordinates);
+        if (plugin != null) {
+            return removeElement(plugin);
         }
         return false;
+    }
+
+    /**
+     * Removes a plugin version element from {@code project/build/plugins/plugin[]}. This is usually combined with
+     * adding plugin management for same plugin.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+     * editor.deletePluginVersion(compilerPlugin);
+     * editor.updateManagedPlugin(true, compilerPlugin);
+     * }</pre>
+     *
+     * @param coordinates the artifact to remove (matched by GA)
+     * @return true if the plugin version was removed, false if it didn't exist
+     * @since 0.3.1
+     */
+    public boolean deletePluginVersion(Coordinates coordinates) {
+        Element plugins = findOrCreatePlugins(false); // upsert=false; will not throw
+        Element plugin = findPlugin(plugins, coordinates);
+        if (plugin != null) {
+            return plugin.child(VERSION).filter(plugin::removeNode).isPresent();
+        }
+        return false;
+    }
+
+    /**
+     * Updates or inserts an extension in {@code project/build/extensions/extension[]}.
+     *
+     * <p>If the extension exists (matched by GA), its version is updated. If the version is a property
+     * reference (${...}), the property value is updated instead. If {@code upsert} is true and the plugin doesn't exist,
+     * it will be created.</p>
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Coordinates myExtension = Coordinates.of("org.apache.maven.extensions", "some-extension", "1.11.0");
+     * editor.updateExtension(true, myExtension);
+     * }</pre>
+     *
+     * @param upsert whether to create the extension if it doesn't exist
+     * @param coordinates the artifact coordinates
+     * @return true if the extension was updated or created, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     * @since 0.3.1
+     */
+    public boolean updateExtension(boolean upsert, Coordinates coordinates) throws DomTripException {
+        Element extensions = findOrCreateExtensions(upsert);
+        if (extensions != null) {
+            Element extension = findExtension(extensions, coordinates);
+            if (extension == null && upsert) {
+                addExtension(extensions, coordinates.groupId(), coordinates.artifactId(), coordinates.version());
+                return true;
+            }
+            if (extension != null) {
+                java.util.Optional<Element> version = extension.child(VERSION);
+                if (version.isPresent()) {
+                    return updateVersionElement(extension, coordinates.version());
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes an extension from {@code project/build/extensions/extension[]}.
+     *
+     * <h4>Example:</h4>
+     * <pre>{@code
+     * PomEditor editor = new PomEditor(document);
+     * Coordinates myExtension = Coordinates.of("org.apache.maven.extension", "my-extension", "1.11.0");
+     * editor.deleteExtension(myExtension);
+     * }</pre>
+     *
+     * @param coordinates the artifact to remove (matched by GA)
+     * @return true if the extension was removed, false if it didn't exist
+     * @since 0.3.1
+     */
+    public boolean deleteExtension(Coordinates coordinates) {
+        Element extensions = findOrCreateExtensions(false); // upsert=false; will not throw
+        Element extension = findExtension(extensions, coordinates);
+        if (extension != null) {
+            return removeElement(extension);
+        }
+        return false;
+    }
+
+    /**
+     * Updates/insert parent. It goes for {@code project/parent} and rewrites it according to passed in coordinates.
+     *
+     * @param upsert whether to create the parent if it doesn't exist
+     * @param coordinates the parent coordinates
+     * @return true if the parent was updated or created, false otherwise
+     * @throws DomTripException if an error occurs during editing
+     * @since 0.3.1
+     */
+    public boolean updateParent(boolean upsert, Coordinates coordinates) throws DomTripException {
+        Element parent = findChildElement(root(), MavenPomElements.Elements.PARENT);
+        if (parent == null && upsert) {
+            parent = insertMavenElement(root(), MavenPomElements.Elements.PARENT);
+        }
+        if (parent != null) {
+            if (coordinates.groupId() != null && !coordinates.groupId().trim().isEmpty()) {
+                insertMavenElement(parent, MavenPomElements.Elements.GROUP_ID, coordinates.groupId());
+            }
+            insertMavenElement(parent, MavenPomElements.Elements.ARTIFACT_ID, coordinates.artifactId());
+            if (coordinates.version() != null && !coordinates.version().trim().isEmpty()) {
+                insertMavenElement(parent, MavenPomElements.Elements.VERSION, coordinates.version());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Removes parent.  It goes for {@code project/parent} and removes entry if present.
+     *
+     * @return true if the parent was updated or created, false otherwise
+     * @since 0.3.1
+     */
+    public boolean deleteParent() {
+        Element parent = findChildElement(root(), MavenPomElements.Elements.PARENT);
+        return parent != null && removeElement(parent);
     }
 }

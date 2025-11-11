@@ -68,6 +68,11 @@ class ElementWhitespaceTest {
         assertEquals("", empty.textContentTrimmed());
         assertEquals("", whitespace.textContentTrimmed());
 
+        assertEquals("value with spaces", item.textContentTrimmedOr("default"));
+        assertEquals("no spaces", clean.textContentTrimmedOr("default"));
+        assertEquals("default", empty.textContentTrimmedOr("default"));
+        assertEquals("default", whitespace.textContentTrimmedOr("default"));
+
         // Verify original content is unchanged
         assertEquals("   value with spaces   ", item.textContent());
         assertEquals("no spaces", clean.textContent());

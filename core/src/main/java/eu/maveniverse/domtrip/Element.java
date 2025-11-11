@@ -795,7 +795,7 @@ public class Element extends ContainerNode {
      */
     public String textContentTrimmedOr(String defaultValue) {
         String content = textContent();
-        return content == null || content.trim().isBlank() ? defaultValue : content.trim();
+        return content == null || content.trim().isEmpty() ? defaultValue : content.trim();
     }
 
     /**

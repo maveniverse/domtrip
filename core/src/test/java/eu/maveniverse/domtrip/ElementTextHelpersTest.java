@@ -10,32 +10,32 @@ import org.junit.jupiter.api.Test;
 class ElementTextHelpersTest {
 
     @Test
-    void testTextContentOr_withContent() {
+    void testTextContentOr_withContent() throws DomTripException {
         Element element = Element.text("version", "1.0.0");
         assertEquals("1.0.0", element.textContentOr("default"));
     }
 
     @Test
-    void testTextContentOr_withEmptyContent() {
+    void testTextContentOr_withEmptyContent() throws DomTripException {
         Element element = Element.of("empty");
         assertEquals("default", element.textContentOr("default"));
     }
 
     @Test
-    void testTextContentOr_withNullDefault() {
+    void testTextContentOr_withNullDefault() throws DomTripException {
         Element element = Element.of("empty");
         assertNull(element.textContentOr(null));
     }
 
     @Test
-    void testTextContentOr_withWhitespaceOnly() {
+    void testTextContentOr_withWhitespaceOnly() throws DomTripException {
         Element element = Element.of("whitespace");
         element.addNode(Text.of("   "));
         assertEquals("   ", element.textContentOr("default"));
     }
 
     @Test
-    void testChildTextOr_withExistingChild() {
+    void testChildTextOr_withExistingChild() throws DomTripException {
         Element parent = Element.of("dependency");
         parent.addNode(Element.text("groupId", "org.junit.jupiter"));
         parent.addNode(Element.text("artifactId", "junit-jupiter"));
@@ -45,7 +45,7 @@ class ElementTextHelpersTest {
     }
 
     @Test
-    void testChildTextOr_withMissingChild() {
+    void testChildTextOr_withMissingChild() throws DomTripException {
         Element parent = Element.of("dependency");
         parent.addNode(Element.text("artifactId", "junit-jupiter"));
 
@@ -53,13 +53,13 @@ class ElementTextHelpersTest {
     }
 
     @Test
-    void testChildTextOr_withNullDefault() {
+    void testChildTextOr_withNullDefault() throws DomTripException {
         Element parent = Element.of("dependency");
         assertNull(parent.childTextOr("missing", null));
     }
 
     @Test
-    void testChildTextOr_withEmptyChildContent() {
+    void testChildTextOr_withEmptyChildContent() throws DomTripException {
         Element parent = Element.of("dependency");
         parent.addNode(Element.of("scope")); // Empty element
 
@@ -68,7 +68,7 @@ class ElementTextHelpersTest {
     }
 
     @Test
-    void testChildTextRequired_withExistingChild() {
+    void testChildTextRequired_withExistingChild() throws DomTripException {
         Element parent = Element.of("dependency");
         parent.addNode(Element.text("groupId", "org.junit.jupiter"));
 
@@ -76,18 +76,17 @@ class ElementTextHelpersTest {
     }
 
     @Test
-    void testChildTextRequired_withMissingChild() {
+    void testChildTextRequired_withMissingChild() throws DomTripException {
         Element parent = Element.of("dependency");
 
-        IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> parent.childTextRequired("groupId"));
+        DomTripException exception = assertThrows(DomTripException.class, () -> parent.childTextRequired("groupId"));
 
         assertTrue(exception.getMessage().contains("groupId"));
         assertTrue(exception.getMessage().contains("dependency"));
     }
 
     @Test
-    void testChildTextRequired_withEmptyChild() {
+    void testChildTextRequired_withEmptyChild() throws DomTripException {
         Element parent = Element.of("dependency");
         parent.addNode(Element.of("groupId")); // Empty element
 
@@ -96,7 +95,7 @@ class ElementTextHelpersTest {
     }
 
     @Test
-    void testChildTextOr_withMultipleChildren() {
+    void testChildTextOr_withMultipleChildren() throws DomTripException {
         Element parent = Element.of("project");
         parent.addNode(Element.text("groupId", "org.example"));
         parent.addNode(Element.text("artifactId", "my-app"));
@@ -109,7 +108,7 @@ class ElementTextHelpersTest {
     }
 
     @Test
-    void testChainedUsage() {
+    void testChainedUsage() throws DomTripException {
         Element project = Element.of("project");
         Element dependencies = Element.of("dependencies");
         Element dependency = Element.of("dependency");
@@ -128,7 +127,7 @@ class ElementTextHelpersTest {
     }
 
     @Test
-    void testTextContentOr_preservesWhitespace() {
+    void testTextContentOr_preservesWhitespace() throws DomTripException {
         Element element = Element.of("description");
         element.addNode(Text.of("  Some text with spaces  "));
 
@@ -137,7 +136,7 @@ class ElementTextHelpersTest {
     }
 
     @Test
-    void testChildTextOr_withMultipleTextNodes() {
+    void testChildTextOr_withMultipleTextNodes() throws DomTripException {
         Element parent = Element.of("parent");
         Element child = Element.of("child");
         child.addNode(Text.of("Hello "));

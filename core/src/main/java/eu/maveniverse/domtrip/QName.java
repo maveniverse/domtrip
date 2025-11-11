@@ -50,11 +50,11 @@ public final class QName {
      * @param namespaceURI the namespace URI, or null/empty for no namespace
      * @param localName the local name, must not be null or empty
      * @param prefix the namespace prefix, or null for no prefix
-     * @throws IllegalArgumentException if localName is null or empty
+     * @throws DomTripException if localName is null or empty
      */
-    private QName(String namespaceURI, String localName, String prefix) {
+    private QName(String namespaceURI, String localName, String prefix) throws DomTripException {
         if (localName == null || localName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Local name cannot be null or empty");
+            throw new DomTripException("Local name cannot be null or empty");
         }
 
         this.namespaceURI = namespaceURI != null ? namespaceURI : NO_NAMESPACE;
@@ -67,9 +67,9 @@ public final class QName {
      *
      * @param localName the local name
      * @return a new QName with no namespace
-     * @throws IllegalArgumentException if localName is null or empty
+     * @throws DomTripException if localName is null or empty
      */
-    public static QName of(String localName) {
+    public static QName of(String localName) throws DomTripException {
         return new QName(NO_NAMESPACE, localName, null);
     }
 
@@ -79,9 +79,9 @@ public final class QName {
      * @param namespaceURI the namespace URI
      * @param localName the local name
      * @return a new QName
-     * @throws IllegalArgumentException if localName is null or empty
+     * @throws DomTripException if localName is null or empty
      */
-    public static QName of(String namespaceURI, String localName) {
+    public static QName of(String namespaceURI, String localName) throws DomTripException {
         return new QName(namespaceURI, localName, null);
     }
 
@@ -92,9 +92,9 @@ public final class QName {
      * @param localName the local name
      * @param prefix the preferred namespace prefix
      * @return a new QName
-     * @throws IllegalArgumentException if localName is null or empty
+     * @throws DomTripException if localName is null or empty
      */
-    public static QName of(String namespaceURI, String localName, String prefix) {
+    public static QName of(String namespaceURI, String localName, String prefix) throws DomTripException {
         return new QName(namespaceURI, localName, prefix);
     }
 
@@ -112,11 +112,11 @@ public final class QName {
      *
      * @param qualifiedName the qualified name to parse
      * @return a new QName with the parsed prefix and local name
-     * @throws IllegalArgumentException if qualifiedName is null, empty, or invalid
+     * @throws DomTripException if qualifiedName is null, empty, or invalid
      */
-    public static QName parse(String qualifiedName) {
+    public static QName parse(String qualifiedName) throws DomTripException {
         if (qualifiedName == null || qualifiedName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Qualified name cannot be null or empty");
+            throw new DomTripException("Qualified name cannot be null or empty");
         }
 
         String trimmed = qualifiedName.trim();
@@ -127,7 +127,7 @@ public final class QName {
             return new QName(NO_NAMESPACE, trimmed, null);
         } else if (colonIndex == 0 || colonIndex == trimmed.length() - 1) {
             // Invalid: starts or ends with colon
-            throw new IllegalArgumentException("Invalid qualified name: " + qualifiedName);
+            throw new DomTripException("Invalid qualified name: " + qualifiedName);
         } else {
             // Has prefix
             String prefix = trimmed.substring(0, colonIndex);
@@ -196,7 +196,7 @@ public final class QName {
      * @param newNamespaceURI the new namespace URI
      * @return a new QName with the updated namespace URI
      */
-    public QName withNamespaceURI(String newNamespaceURI) {
+    public QName withNamespaceURI(String newNamespaceURI) throws DomTripException {
         return new QName(newNamespaceURI, localName, prefix);
     }
 
@@ -206,7 +206,7 @@ public final class QName {
      * @param newPrefix the new prefix
      * @return a new QName with the updated prefix
      */
-    public QName withPrefix(String newPrefix) {
+    public QName withPrefix(String newPrefix) throws DomTripException {
         return new QName(namespaceURI, localName, newPrefix);
     }
 

@@ -2,6 +2,7 @@ package eu.maveniverse.domtrip.maven;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,7 +17,7 @@ import org.junit.jupiter.api.io.TempDir;
 class CoordinatesTest {
 
     @Test
-    void testPredicateGA_matches() {
+    void testPredicateGA_matches() throws DomTripException {
         Coordinates coordinates = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element element = Element.of("dependency");
@@ -29,7 +30,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testPredicateGA_doesNotMatch() {
+    void testPredicateGA_doesNotMatch() throws DomTripException {
         Coordinates coordinates = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element element = Element.of("dependency");
@@ -41,7 +42,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testPredicateGA_ignoresVersion() {
+    void testPredicateGA_ignoresVersion() throws DomTripException {
         Coordinates coordinates = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element element = Element.of("dependency");
@@ -54,7 +55,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testPredicatePluginGA_withDefaultGroupId() {
+    void testPredicatePluginGA_withDefaultGroupId() throws DomTripException {
         Coordinates coordinates = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Plugin element without groupId (defaults to org.apache.maven.plugins)
@@ -66,7 +67,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testPredicatePluginGA_withExplicitGroupId() {
+    void testPredicatePluginGA_withExplicitGroupId() throws DomTripException {
         Coordinates coordinates = Coordinates.of("org.codehaus.mojo", "build-helper-maven-plugin", "3.3.0");
 
         Element element = Element.of("plugin");
@@ -78,7 +79,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testPredicateGATC_matchesWithType() {
+    void testPredicateGATC_matchesWithType() throws DomTripException {
         Coordinates coordinates = Coordinates.of("org.example", "my-lib", "1.0.0", null, "jar");
 
         Element element = Element.of("dependency");
@@ -91,7 +92,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testPredicateGATC_matchesWithClassifier() {
+    void testPredicateGATC_matchesWithClassifier() throws DomTripException {
         Coordinates coordinates = Coordinates.of("org.example", "my-lib", "1.0.0", "sources", "jar");
 
         Element element = Element.of("dependency");
@@ -105,7 +106,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testPredicateGATC_doesNotMatchDifferentType() {
+    void testPredicateGATC_doesNotMatchDifferentType() throws DomTripException {
         Coordinates coordinates = Coordinates.of("org.example", "my-lib", "1.0.0", null, "war");
 
         Element element = Element.of("dependency");
@@ -118,7 +119,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testFromPom_simple(@TempDir Path tempDir) throws IOException {
+    void testFromPom_simple(@TempDir Path tempDir) throws DomTripException, IOException {
         String pomContent =
                 """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -142,7 +143,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testFromPom_withParent(@TempDir Path tempDir) throws IOException {
+    void testFromPom_withParent(@TempDir Path tempDir) throws DomTripException, IOException {
         String pomContent =
                 """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -168,7 +169,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testFromPom_maven4Inference(@TempDir Path tempDir) throws IOException {
+    void testFromPom_maven4Inference(@TempDir Path tempDir) throws DomTripException, IOException {
         // Maven 4 can infer groupId and version from reactor
         String pomContent =
                 """
@@ -204,11 +205,11 @@ class CoordinatesTest {
         Files.writeString(pomFile, pomContent);
 
         // ArtifactId is always required
-        assertThrows(IllegalArgumentException.class, () -> Coordinates.fromPom(pomFile));
+        assertThrows(DomTripException.class, () -> Coordinates.fromPom(pomFile));
     }
 
     @Test
-    void testPredicateGA_withNullGroupId() {
+    void testPredicateGA_withNullGroupId() throws DomTripException {
         // Maven 4 inference - artifact with null groupId
         // Note: Artifact.toGA() returns "null:my-module" (string concat with null)
         // while AbstractMavenEditor.toGA() returns null when groupId is missing
@@ -225,7 +226,7 @@ class CoordinatesTest {
     }
 
     @Test
-    void testPredicateFiltering() {
+    void testPredicateFiltering() throws DomTripException {
         Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element deps = Element.of("dependencies");
@@ -237,7 +238,7 @@ class CoordinatesTest {
         assertEquals(1, count);
     }
 
-    private Element createDependency(String groupId, String artifactId, String version) {
+    private Element createDependency(String groupId, String artifactId, String version) throws DomTripException {
         Element dep = Element.of("dependency");
         dep.addNode(Element.text("groupId", groupId));
         dep.addNode(Element.text("artifactId", artifactId));

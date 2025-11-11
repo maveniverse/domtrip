@@ -3,6 +3,7 @@ package eu.maveniverse.domtrip.demos;
 import eu.maveniverse.domtrip.Attribute;
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.QuoteStyle;
@@ -12,7 +13,7 @@ import eu.maveniverse.domtrip.QuoteStyle;
  */
 public class ConfigurationDemo {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DomTripException {
         System.out.println("=== Configuration and Serialization Demo ===\n");
 
         String sampleXml = createSampleXml();
@@ -58,7 +59,7 @@ public class ConfigurationDemo {
             """;
     }
 
-    private static void demonstrateConfigurations(String xml) {
+    private static void demonstrateConfigurations(String xml) throws DomTripException {
         System.out.println("1. Configuration Options Demo:");
 
         // Default configuration
@@ -85,7 +86,7 @@ public class ConfigurationDemo {
         System.out.println();
     }
 
-    private static void demonstrateSerializationOptions(String xml) {
+    private static void demonstrateSerializationOptions(String xml) throws DomTripException {
         System.out.println("2. Serialization Options Demo:");
 
         Editor editor = new Editor(Document.of(xml));
@@ -136,7 +137,7 @@ public class ConfigurationDemo {
         System.out.println();
     }
 
-    private static void demonstrateQuoteStylePreservation() {
+    private static void demonstrateQuoteStylePreservation() throws DomTripException {
         System.out.println("3. Quote Style Preservation Demo:");
 
         // Create XML with mixed quote styles

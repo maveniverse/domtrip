@@ -109,6 +109,7 @@ public class Serializer {
     private boolean omitXmlDeclaration;
     private String lineEnding;
     private EmptyElementStyle emptyElementStyle;
+    private boolean ignoreInvalidEncoding;
 
     /**
      * Creates a new Serializer with default settings.
@@ -124,6 +125,7 @@ public class Serializer {
         this.omitXmlDeclaration = false;
         this.lineEnding = "\n";
         this.emptyElementStyle = EmptyElementStyle.SELF_CLOSING;
+        this.ignoreInvalidEncoding = true;
     }
 
     /**
@@ -139,6 +141,7 @@ public class Serializer {
         this.omitXmlDeclaration = config.isOmitXmlDeclaration();
         this.lineEnding = config.lineEnding();
         this.emptyElementStyle = config.emptyElementStyle();
+        this.ignoreInvalidEncoding = config.isIgnoreInvalidEncoding();
     }
 
     /**
@@ -306,7 +309,11 @@ public class Serializer {
             try {
                 charset = Charset.forName(encodingName);
             } catch (Exception e) {
-                charset = StandardCharsets.UTF_8;
+                if (ignoreInvalidEncoding) {
+                    charset = StandardCharsets.UTF_8;
+                } else {
+                    throw new DomTripException("Invalid encoding: " + encodingName, e);
+                }
             }
         }
 

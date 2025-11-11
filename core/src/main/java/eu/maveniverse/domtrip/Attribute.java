@@ -84,12 +84,13 @@ public class Attribute {
     }
 
     // Legacy constructor for backward compatibility
-    public Attribute(String name, String value, char quoteChar, String precedingWhitespace) {
+    public Attribute(String name, String value, char quoteChar, String precedingWhitespace) throws DomTripException {
         this(name, value, QuoteStyle.fromChar(quoteChar), precedingWhitespace);
     }
 
     // Legacy constructor for backward compatibility
-    public Attribute(String name, String value, char quoteChar, String precedingWhitespace, String rawValue) {
+    public Attribute(String name, String value, char quoteChar, String precedingWhitespace, String rawValue)
+            throws DomTripException {
         this(name, value, QuoteStyle.fromChar(quoteChar), precedingWhitespace, rawValue);
     }
 
@@ -293,11 +294,11 @@ public class Attribute {
      * @param qname the QName for the attribute
      * @param value the attribute value
      * @return a new Attribute
-     * @throws IllegalArgumentException if qname is null
+     * @throws DomTripException if qname is null
      */
-    public static Attribute of(QName qname, String value) {
+    public static Attribute of(QName qname, String value) throws DomTripException {
         if (qname == null) {
-            throw new IllegalArgumentException("QName cannot be null");
+            throw new DomTripException("QName cannot be null");
         }
         return new Attribute(qname.qualifiedName(), value);
     }

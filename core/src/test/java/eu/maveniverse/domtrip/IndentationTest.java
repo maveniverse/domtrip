@@ -19,7 +19,7 @@ public class IndentationTest {
     }
 
     @Test
-    void testIndentationInference() {
+    void testIndentationInference() throws DomTripException {
         String xml = "<root>\n" + "    <existing>content</existing>\n" + "</root>";
 
         Document doc = Document.of(xml);
@@ -35,7 +35,7 @@ public class IndentationTest {
     }
 
     @Test
-    void testTabIndentation() {
+    void testTabIndentation() throws DomTripException {
         String xml = "<root>\n" + "\t<existing>content</existing>\n" + "</root>";
 
         Document doc = Document.of(xml);
@@ -51,7 +51,7 @@ public class IndentationTest {
     }
 
     @Test
-    void testNestedIndentation() {
+    void testNestedIndentation() throws DomTripException {
         String xml =
                 """
             <root>
@@ -80,7 +80,7 @@ public class IndentationTest {
     }
 
     @Test
-    void testMixedWhitespace() {
+    void testMixedWhitespace() throws DomTripException {
         String xml = "<root>\n" + "  <element1>content1</element1>\n"
                 + "\n"
                 + "  <element2>content2</element2>\n"
@@ -100,7 +100,7 @@ public class IndentationTest {
     }
 
     @Test
-    void testCommentIndentation() {
+    void testCommentIndentation() throws DomTripException {
         String xml = "<root>\n" + "  <element>content</element>\n" + "</root>";
 
         Document doc = Document.of(xml);
@@ -117,7 +117,7 @@ public class IndentationTest {
     }
 
     @Test
-    void testEmptyElementIndentation() {
+    void testEmptyElementIndentation() throws DomTripException {
         String xml = "<root>\n" + "  <existing/>\n" + "</root>";
 
         Document doc = Document.of(xml);
@@ -133,7 +133,7 @@ public class IndentationTest {
     }
 
     @Test
-    void testDocumentCreationIndentation() {
+    void testDocumentCreationIndentation() throws DomTripException {
         editor.createDocument("root");
         Element root = editor.root();
 
@@ -168,7 +168,7 @@ public class IndentationTest {
     }
 
     @Test
-    void testRecursiveIndentationFix() {
+    void testRecursiveIndentationFix() throws DomTripException {
         // Create a target document with 2-space indentation
         String targetXml = """
             <target>

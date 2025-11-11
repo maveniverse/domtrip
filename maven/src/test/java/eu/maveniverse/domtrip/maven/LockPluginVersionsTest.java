@@ -11,6 +11,7 @@ import static eu.maveniverse.domtrip.maven.MavenPomElements.Elements.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class LockPluginVersionsTest {
 
     @Test
-    void testLockPluginVersionsBasic() {
+    void testLockPluginVersionsBasic() throws DomTripException {
         // Starting POM - simple project with some plugins but no pluginManagement
         String startingPom =
                 """
@@ -147,7 +148,7 @@ class LockPluginVersionsTest {
     }
 
     @Test
-    void testLockPluginVersionsWithExistingPluginManagement() {
+    void testLockPluginVersionsWithExistingPluginManagement() throws DomTripException {
         // Starting POM with existing pluginManagement
         String startingPom =
                 """
@@ -261,7 +262,7 @@ class LockPluginVersionsTest {
      * Helper method to implement "lock plugin versions" functionality.
      * This adds a pluginManagement section with current plugin versions.
      */
-    private void lockPluginVersions(PomEditor editor, Element buildElement) {
+    private void lockPluginVersions(PomEditor editor, Element buildElement) throws DomTripException {
         // Find existing plugins
         Element pluginsElement = editor.findChildElement(buildElement, PLUGINS);
         if (pluginsElement == null) {
@@ -314,7 +315,7 @@ class LockPluginVersionsTest {
     }
 
     @Test
-    void testSimpleFormattingIssue() {
+    void testSimpleFormattingIssue() throws DomTripException {
         // Simple test to isolate the formatting issue
         String simpleXml =
                 """

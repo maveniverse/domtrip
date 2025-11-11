@@ -10,6 +10,7 @@ package eu.maveniverse.domtrip.maven.snippets;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.maven.ToolchainsEditor;
 import org.junit.jupiter.api.Test;
@@ -20,14 +21,14 @@ import org.junit.jupiter.api.Test;
 public class ToolchainsEditorSnippets {
 
     @Test
-    void testSnippets() {
+    void testSnippets() throws DomTripException {
         // All snippets should compile and run
         basicToolchainsCreation();
         addingJdkToolchains();
         addingVariousToolchains();
     }
 
-    void basicToolchainsCreation() {
+    void basicToolchainsCreation() throws DomTripException {
         // START: basic-toolchains-creation
         // Create a new toolchains document
         ToolchainsEditor editor = new ToolchainsEditor();
@@ -45,7 +46,7 @@ public class ToolchainsEditorSnippets {
         assertTrue(result.contains("<toolchains"));
     }
 
-    void addingJdkToolchains() {
+    void addingJdkToolchains() throws DomTripException {
         // START: adding-jdk-toolchains
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
@@ -63,7 +64,7 @@ public class ToolchainsEditorSnippets {
         assertTrue(result.contains("<toolchain>"));
     }
 
-    void addingVariousToolchains() {
+    void addingVariousToolchains() throws DomTripException {
         // START: adding-various-toolchains
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();

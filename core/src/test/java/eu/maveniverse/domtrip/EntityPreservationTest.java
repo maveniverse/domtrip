@@ -19,7 +19,7 @@ public class EntityPreservationTest {
     }
 
     @Test
-    void testEntityPreservation() {
+    void testEntityPreservation() throws DomTripException {
         String xmlWithEntities = "<root>\n" + "  <content>Text with &lt;entities&gt; &amp; symbols</content>\n"
                 + "  <mixed>More &lt;content&gt; with &quot;quotes&quot;</mixed>\n"
                 + "</root>";
@@ -37,7 +37,7 @@ public class EntityPreservationTest {
     }
 
     @Test
-    void testAttributeQuotePreservation() {
+    void testAttributeQuotePreservation() throws DomTripException {
         String xmlWithMixedQuotes = "<root attr1='single quotes' attr2=\"double quotes\">\n"
                 + "  <element other=\"normal\"/>\n" + "</root>";
 
@@ -55,7 +55,7 @@ public class EntityPreservationTest {
     }
 
     @Test
-    void testNewAttributeQuoteStyle() {
+    void testNewAttributeQuoteStyle() throws DomTripException {
         String xml = "<root existing='value'/>";
 
         Document doc = Document.of(xml);
@@ -74,7 +74,7 @@ public class EntityPreservationTest {
     }
 
     @Test
-    void testEntityInNewContent() {
+    void testEntityInNewContent() throws DomTripException {
         String xml = "<root/>";
 
         Document doc = Document.of(xml);
@@ -91,7 +91,7 @@ public class EntityPreservationTest {
     }
 
     @Test
-    void testCDataPreservation() {
+    void testCDataPreservation() throws DomTripException {
         String xmlWithCData =
                 "<root>\n" + "  <script><![CDATA[function() { return x < y && z > 0; }]]></script>\n" + "</root>";
 
@@ -107,7 +107,7 @@ public class EntityPreservationTest {
     }
 
     @Test
-    void testComplexEntityMix() {
+    void testComplexEntityMix() throws DomTripException {
         String complexXml = "<config version='1.0' encoding=\"UTF-8\">\n"
                 + "  <database url='jdbc:mysql://localhost/db?user=admin&amp;password=secret'/>\n"
                 + "  <message>Welcome &lt;user&gt;! Your balance is &gt; $100.</message>\n"
@@ -131,7 +131,7 @@ public class EntityPreservationTest {
     }
 
     @Test
-    void testModificationPreservesUnchangedParts() {
+    void testModificationPreservesUnchangedParts() throws DomTripException {
         String xml = "<root attr1='keep' attr2=\"also keep\">\n" + "  <keep>Text with &lt;entities&gt;</keep>\n"
                 + "  <modify>old content</modify>\n"
                 + "</root>";

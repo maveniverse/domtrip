@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import org.junit.jupiter.api.Assertions;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Test;
 public class LosslessParsingSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateLosslessRoundTrip() {
+    public void demonstrateLosslessRoundTrip() throws DomTripException {
         // START: lossless-round-trip
         String originalXml =
                 """
@@ -37,7 +38,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEntityPreservation() {
+    public void demonstrateEntityPreservation() throws DomTripException {
         // START: entity-preservation
         String xmlWithEntities = """
             <message>Hello &amp; goodbye &lt;world&gt;</message>
@@ -65,7 +66,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWhitespacePreservation() {
+    public void demonstrateWhitespacePreservation() throws DomTripException {
         // START: whitespace-preservation
         String xmlWithWhitespace =
                 """
@@ -90,7 +91,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentPreservation() {
+    public void demonstrateCommentPreservation() throws DomTripException {
         // START: comment-preservation
         // START: comments-preservation
         String xmlWithComments =
@@ -116,7 +117,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeQuotePreservation() {
+    public void demonstrateAttributeQuotePreservation() throws DomTripException {
         // START: attribute-quote-preservation
         String xmlWithMixedQuotes =
                 """
@@ -134,7 +135,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespacePreservation() {
+    public void demonstrateNamespacePreservation() throws DomTripException {
         // START: namespace-preservation
         String xmlWithNamespaces =
                 """
@@ -159,7 +160,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateProcessingInstructionPreservation() {
+    public void demonstrateProcessingInstructionPreservation() throws DomTripException {
         // START: processing-instruction-preservation
         String xmlWithPI =
                 """
@@ -184,7 +185,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCDataPreservation() {
+    public void demonstrateCDataPreservation() throws DomTripException {
         // START: cdata-preservation
         String xmlWithCData =
                 """
@@ -212,7 +213,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentTypePreservation() {
+    public void demonstrateDocumentTypePreservation() throws DomTripException {
         // START: document-type-preservation
         String xmlWithDoctype =
                 """
@@ -234,7 +235,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMinimalModification() {
+    public void demonstrateMinimalModification() throws DomTripException {
         // START: minimal-modification
         String originalXml =
                 """
@@ -266,7 +267,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEncodingPreservation() {
+    public void demonstrateEncodingPreservation() throws DomTripException {
         // START: encoding-preservation
         String xmlWithEncoding =
                 """
@@ -288,7 +289,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateComplexStructurePreservation() {
+    public void demonstrateComplexStructurePreservation() throws DomTripException {
         // START: complex-structure-preservation
         String complexXml =
                 """
@@ -330,7 +331,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateProcessingInstructionsWithData() {
+    public void demonstrateProcessingInstructionsWithData() throws DomTripException {
         // START: processing-instructions-with-data
         String xml =
                 """
@@ -385,7 +386,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBestPracticesForEditing() {
+    public void demonstrateBestPracticesForEditing() throws DomTripException {
         // START: best-practices-editing
         // ✅ Perfect for editing existing files
         String existingConfigXml = createConfigXml();
@@ -404,7 +405,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateLargeFileHandling() {
+    public void demonstrateLargeFileHandling() throws DomTripException {
         // START: large-file-handling
         // ✅ For large files, consider streaming or chunking
         String xmlContent = createConfigXml();

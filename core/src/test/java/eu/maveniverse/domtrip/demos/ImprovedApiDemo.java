@@ -3,6 +3,7 @@ package eu.maveniverse.domtrip.demos;
 import eu.maveniverse.domtrip.Attribute;
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.QuoteStyle;
@@ -13,7 +14,7 @@ import java.util.Map;
  */
 public class ImprovedApiDemo {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DomTripException {
         System.out.println("=== DomTrip Improved API Demo ===\n");
 
         // Demo 1: Using factory methods
@@ -34,7 +35,7 @@ public class ImprovedApiDemo {
         System.out.println("\n=== Demo Complete ===");
     }
 
-    private static void demonstrateFactoryMethods() {
+    private static void demonstrateFactoryMethods() throws DomTripException {
         System.out.println("1. Factory Methods Demo:");
 
         // Create document using factory
@@ -62,7 +63,7 @@ public class ImprovedApiDemo {
         System.out.println();
     }
 
-    private static void demonstrateFluentBuilders() {
+    private static void demonstrateFluentBuilders() throws DomTripException {
         System.out.println("2. Fluent Builders Demo:");
 
         // Create editor with configuration
@@ -110,7 +111,7 @@ public class ImprovedApiDemo {
         System.out.println();
     }
 
-    private static void demonstrateConfigurationOptions() {
+    private static void demonstrateConfigurationOptions() throws DomTripException {
         System.out.println("3. Configuration Options Demo:");
 
         String xml = "<root><element attr=\"value\">content</element></root>";
@@ -125,7 +126,7 @@ public class ImprovedApiDemo {
         System.out.println();
     }
 
-    private static void demonstrateEnhancedNavigation() {
+    private static void demonstrateEnhancedNavigation() throws DomTripException {
         System.out.println("4. Enhanced Navigation Demo:");
 
         String xml =
@@ -176,7 +177,7 @@ public class ImprovedApiDemo {
         System.out.println();
     }
 
-    private static void demonstrateSerializationOptions() {
+    private static void demonstrateSerializationOptions() throws DomTripException {
         System.out.println("5. Serialization Options Demo:");
 
         String xml = "<?xml version=\"1.0\"?>\n<!-- Comment -->\n<root attr=\"value\">content</root>";

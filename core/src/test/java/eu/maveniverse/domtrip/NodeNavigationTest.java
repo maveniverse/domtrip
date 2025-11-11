@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class NodeNavigationTest {
 
     @Test
-    void testGetParentReturnsContainerNode() {
+    void testGetParentReturnsContainerNode() throws DomTripException {
         Document doc = new Document();
         Element root = new Element("root");
         Element child = new Element("child");
@@ -44,7 +44,7 @@ class NodeNavigationTest {
     }
 
     @Test
-    void testGetParentElement() {
+    void testGetParentElement() throws DomTripException {
         Document doc = new Document();
         Element root = new Element("root");
         Element child = new Element("child");
@@ -76,7 +76,7 @@ class NodeNavigationTest {
     }
 
     @Test
-    void testGetDocument() {
+    void testGetDocument() throws DomTripException {
         Document doc = new Document();
         Element root = new Element("root");
         Element child = new Element("child");
@@ -99,7 +99,7 @@ class NodeNavigationTest {
     }
 
     @Test
-    void testGetDocumentFromAllNodes() {
+    void testGetDocumentFromAllNodes() throws DomTripException {
         Document doc = new Document();
         Element root = new Element("root");
         Element child = new Element("child");
@@ -122,7 +122,7 @@ class NodeNavigationTest {
     }
 
     @Test
-    void testNavigationWithFragmentRoot() {
+    void testNavigationWithFragmentRoot() throws DomTripException {
         // Test case where root is an Element (fragment), not Document
         Element fragmentRoot = new Element("fragment");
         Element child = new Element("child");

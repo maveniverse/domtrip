@@ -14,7 +14,7 @@ public class SerializationModesTest {
     private String originalXml;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws DomTripException {
         originalXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 + "<!-- Document comment -->\n"
                 + "<root xmlns=\"http://example.com\">\n"
@@ -80,7 +80,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testRawMode() {
+    void testRawMode() throws DomTripException {
         // Create a document without whitespace content for raw mode testing
         String compactXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<!-- Document comment -->"
@@ -118,7 +118,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testRawModeWithConfig() {
+    void testRawModeWithConfig() throws DomTripException {
         // Create a document without whitespace content for raw mode testing
         String compactXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
                 + "<root xmlns=\"http://example.com\">"
@@ -146,7 +146,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testModifiedDocumentBehavior() {
+    void testModifiedDocumentBehavior() throws DomTripException {
         // When document is modified, formatting behavior should change
         Editor editor = new Editor(document);
         Element root = editor.root();
@@ -214,7 +214,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testSingleElementRawMode() {
+    void testSingleElementRawMode() throws DomTripException {
         Element element = new Element("test");
         element.attribute("attr", "value");
         element.textContent("content");
@@ -233,7 +233,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testEmptyIndentAndLineEndingPreservesContent() {
+    void testEmptyIndentAndLineEndingPreservesContent() throws DomTripException {
         // Ensure that empty indent and line ending don't affect content
         String xmlWithSpaces = "<root><element>  content with spaces  </element></root>";
         Document doc = Document.of(xmlWithSpaces);
@@ -252,7 +252,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testRawConfigMethod() {
+    void testRawConfigMethod() throws DomTripException {
         // Test the convenience raw() method in DomTripConfig
         String compactXml = "<?xml version=\"1.0\"?><root><child>content</child></root>";
         Document doc = Document.of(compactXml);
@@ -266,7 +266,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testRawModeVsPrettyPrintComparison() {
+    void testRawModeVsPrettyPrintComparison() throws DomTripException {
         // Create a document and compare different serialization modes
         String xml = "<root><child attr=\"value\">content</child><another>text</another></root>";
         Document doc = Document.of(xml);
@@ -296,7 +296,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testRawFormattingDetectionAndPreservation() {
+    void testRawFormattingDetectionAndPreservation() throws DomTripException {
         // Test the key question: when parsing raw XML and adding nodes,
         // does the system detect and preserve the raw formatting?
         String rawXml = "<root><existing>content</existing></root>";
@@ -319,7 +319,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testEmptyDocumentUsesConfigDefault() {
+    void testEmptyDocumentUsesConfigDefault() throws DomTripException {
         // Test that empty documents use config default, not raw formatting
         Document emptyDoc = new Document();
         Editor editor = new Editor(
@@ -338,7 +338,7 @@ public class SerializationModesTest {
     }
 
     @Test
-    void testFormattingDetectionScenarios() {
+    void testFormattingDetectionScenarios() throws DomTripException {
         // Test various scenarios to ensure correct formatting detection
 
         // Scenario 1: Raw XML (no formatting)

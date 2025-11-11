@@ -3,6 +3,7 @@ package eu.maveniverse.domtrip.snippets;
 import eu.maveniverse.domtrip.Comment;
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.io.IOException;
@@ -145,7 +146,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateGracefulParsing() {
+    public void demonstrateGracefulParsing() throws DomTripException {
         // START: graceful-parsing
         String xml = "<root><child>content</child></root>";
         Document result = parseWithRecovery(xml);
@@ -154,7 +155,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(result);
     }
 
-    public Document parseWithRecovery(String xml) {
+    public Document parseWithRecovery(String xml) throws DomTripException {
         try {
             return Document.of(xml);
         } catch (Exception e) {
@@ -173,7 +174,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         }
     }
 
-    private Document extractValidFragments(String xml) {
+    private Document extractValidFragments(String xml) throws DomTripException {
         // Implementation to extract valid XML fragments
         // and create a document with available content
         Document doc = Document.withRootElement("recovered");
@@ -192,7 +193,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateValidationWithFallbacks() {
+    public void demonstrateValidationWithFallbacks() throws DomTripException {
         // START: validation-with-fallbacks
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -234,12 +235,12 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(result);
     }
 
-    public Document parseWithCleanup(InputStream inputStream) {
+    public Document parseWithCleanup(InputStream inputStream) throws DomTripException {
         try {
             return Document.of(inputStream);
-        } catch (Exception e) {
+        } catch (DomTripException e) {
             System.err.println("Parse failed: " + e.getMessage());
-            throw new RuntimeException(e);
+            throw e;
         } finally {
             // Ensure resources are cleaned up
             try {
@@ -253,7 +254,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateInputValidation() {
+    public void demonstrateInputValidation() throws DomTripException {
         // START: input-validation
         String xml = createTestXml("root");
         Document result = safeParse(xml);
@@ -262,15 +263,15 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(result);
     }
 
-    public Document safeParse(String xml) {
+    public Document safeParse(String xml) throws DomTripException {
         // Pre-validation
         if (xml == null || xml.trim().isEmpty()) {
-            throw new IllegalArgumentException("XML content cannot be null or empty");
+            throw new DomTripException("XML content cannot be null or empty");
         }
 
         // Basic structure check
         if (!xml.trim().startsWith("<")) {
-            throw new IllegalArgumentException("Content does not appear to be XML");
+            throw new DomTripException("Content does not appear to be XML");
         }
 
         // Check for obvious issues
@@ -285,7 +286,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSafeElementAccess() {
+    public void demonstrateSafeElementAccess() throws DomTripException {
         // START: safe-element-access
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -307,11 +308,11 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         }
     }
 
-    public void safeSetAttribute(Element element, String name, String value) {
+    public void safeSetAttribute(Element element, String name, String value) throws DomTripException {
         try {
             // Validate attribute name
             if (!isValidXmlName(name)) {
-                throw new IllegalArgumentException("Invalid attribute name: " + name);
+                throw new DomTripException("Invalid attribute name: " + name);
             }
 
             element.attribute(name, value);
@@ -333,7 +334,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             Document document = Document.of(xml);
             Editor editor = new Editor(document);
             // ... complex operations
-        } catch (Exception e) {
+        } catch (DomTripException e) {
             // Get detailed context (conceptual - actual API may vary)
             String context = e.getMessage();
             System.err.println("Error context: " + context);
@@ -355,7 +356,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             Document document = Document.of(xml);
             Editor editor = new Editor(document);
             // Operations will provide detailed validation
-        } catch (Exception e) {
+        } catch (DomTripException e) {
             // Detailed validation errors
             System.err.println("Validation details: " + e.getMessage());
         }
@@ -391,16 +392,15 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             System.err.println("ERROR: " + String.format(message.replace("{}", "%s"), args));
         }
 
-        public Document processXml(String xml) {
+        public Document processXml(String xml) throws DomTripException {
             try {
                 logDebug("Parsing XML document, length: {}", xml.length());
                 Document doc = Document.of(xml);
                 logInfo("Successfully parsed XML document");
                 return doc;
-
-            } catch (Exception e) {
+            } catch (DomTripException e) {
                 logError("DomTrip processing error: {}", e.getMessage());
-                throw new RuntimeException(e);
+                throw e;
             }
         }
     }

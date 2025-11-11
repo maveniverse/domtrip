@@ -244,7 +244,7 @@ public class TextNodeTest {
     }
 
     @Test
-    void testTextInDocument() {
+    void testTextInDocument() throws DomTripException {
         String xml = "<root>Simple text content</root>";
 
         Document doc = Document.of(xml);
@@ -257,7 +257,7 @@ public class TextNodeTest {
     }
 
     @Test
-    void testCDataInDocument() {
+    void testCDataInDocument() throws DomTripException {
         String xml = "<root><![CDATA[function() { return x < y; }]]></root>";
 
         Document doc = Document.of(xml);
@@ -270,7 +270,7 @@ public class TextNodeTest {
     }
 
     @Test
-    void testMixedTextAndCData() {
+    void testMixedTextAndCData() throws DomTripException {
         String xml = "<root>Text before <![CDATA[CDATA content]]> text after</root>";
 
         Document doc = Document.of(xml);
@@ -283,7 +283,7 @@ public class TextNodeTest {
     }
 
     @Test
-    void testTextWithEntities() {
+    void testTextWithEntities() throws DomTripException {
         String xml = "<root>Text with &lt;entities&gt; &amp; symbols</root>";
 
         Document doc = Document.of(xml);

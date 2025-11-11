@@ -49,7 +49,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testAutoDetectionWithSelfClosingElements() {
+    void testAutoDetectionWithSelfClosingElements() throws DomTripException {
         String xml =
                 """
             <root>
@@ -66,7 +66,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testAutoDetectionWithSelfClosingSpacedElements() {
+    void testAutoDetectionWithSelfClosingSpacedElements() throws DomTripException {
         String xml =
                 """
             <root>
@@ -83,7 +83,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testAutoDetectionWithExpandedElements() {
+    void testAutoDetectionWithExpandedElements() throws DomTripException {
         String xml =
                 """
             <root>
@@ -100,7 +100,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testAutoDetectionWithMixedStyles() {
+    void testAutoDetectionWithMixedStyles() throws DomTripException {
         // When there's a tie or mixed styles, should default to SELF_CLOSING
         String xml =
                 """
@@ -117,7 +117,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testAutoDetectionWithNoEmptyElements() {
+    void testAutoDetectionWithNoEmptyElements() throws DomTripException {
         String xml =
                 """
             <root>
@@ -155,7 +155,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testDomTripConfigAutoDetection() {
+    void testDomTripConfigAutoDetection() throws DomTripException {
         String xml =
                 """
             <root>
@@ -189,7 +189,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testPrettyPrintSerializationWithExpandedStyle() {
+    void testPrettyPrintSerializationWithExpandedStyle() throws DomTripException {
         Document doc = Document.withRootElement("root");
         Element root = doc.root();
 
@@ -210,7 +210,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testPrettyPrintSerializationWithSelfClosingStyle() {
+    void testPrettyPrintSerializationWithSelfClosingStyle() throws DomTripException {
         Document doc = Document.withRootElement("root");
         Element root = doc.root();
 
@@ -231,7 +231,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testPrettyPrintSerializationWithSelfClosingSpacedStyle() {
+    void testPrettyPrintSerializationWithSelfClosingSpacedStyle() throws DomTripException {
         Document doc = Document.withRootElement("root");
         Element root = doc.root();
 
@@ -253,7 +253,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testEmptyElementWithAttributes() {
+    void testEmptyElementWithAttributes() throws DomTripException {
         Document doc = Document.withRootElement("root");
         Element root = doc.root();
 
@@ -280,7 +280,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testNonPrettyPrintPreservesOriginalFormatting() {
+    void testNonPrettyPrintPreservesOriginalFormatting() throws DomTripException {
         // Test that empty element style configuration doesn't affect existing formatting
         // when pretty print is disabled
         String originalXml =
@@ -321,7 +321,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testNonPrettyPrintPreservesOriginalFormattingAfterModification() {
+    void testNonPrettyPrintPreservesOriginalFormattingAfterModification() throws DomTripException {
         // Test that only modified elements use the empty element style configuration
         String originalXml =
                 """
@@ -352,7 +352,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testNonPrettyPrintWithMixedOriginalStyles() {
+    void testNonPrettyPrintWithMixedOriginalStyles() throws DomTripException {
         // Test preservation of various original empty element styles
         String originalXml =
                 """
@@ -412,7 +412,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testNonEmptyElementsUnaffected() {
+    void testNonEmptyElementsUnaffected() throws DomTripException {
         Document doc = Document.withRootElement("root");
         Element root = doc.root();
 
@@ -433,7 +433,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testNestedEmptyElements() {
+    void testNestedEmptyElements() throws DomTripException {
         Document doc = Document.withRootElement("root");
         Element root = doc.root();
 
@@ -463,7 +463,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testAutoDetectionWithNestedEmptyElements() {
+    void testAutoDetectionWithNestedEmptyElements() throws DomTripException {
         String xml =
                 """
             <root>
@@ -482,7 +482,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testRoundTripPreservation() {
+    void testRoundTripPreservation() throws DomTripException {
         // Test that parsing and re-serializing preserves the detected style
         String originalXml =
                 """
@@ -509,7 +509,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testEditorIntegration() {
+    void testEditorIntegration() throws DomTripException {
         // Test that Editor respects empty element style configuration
         Document doc = Document.withRootElement("root");
         DomTripConfig config = DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.EXPANDED);
@@ -526,7 +526,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testMixedContentWithEmptyElements() {
+    void testMixedContentWithEmptyElements() throws DomTripException {
         Document doc = Document.withRootElement("root");
         Element root = doc.root();
 
@@ -551,7 +551,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testEmptyElementStyleOnlyAffectsPrettyPrint() {
+    void testEmptyElementStyleOnlyAffectsPrettyPrint() throws DomTripException {
         // Verify that empty element style configuration only affects pretty print mode
         String originalXml =
                 """
@@ -587,7 +587,7 @@ public class EmptyElementStyleTest {
     }
 
     @Test
-    void testOriginalFormattingPreservedWithEditor() {
+    void testOriginalFormattingPreservedWithEditor() throws DomTripException {
         // Test that Editor preserves original formatting for unmodified elements
         String originalXml =
                 """

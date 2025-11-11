@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.Optional;
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class IntroductionSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateRoundTripPreservation() {
+    public void demonstrateRoundTripPreservation() throws DomTripException {
         // START: round-trip-preservation
         String originalXml = createTestXml("root");
         Document doc = Document.of(originalXml);
@@ -27,7 +28,7 @@ public class IntroductionSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateIntelligentEditing() {
+    public void demonstrateIntelligentEditing() throws DomTripException {
         // START: intelligent-editing
         // Add new elements while preserving original formatting
         String xml = createMavenPomXml();
@@ -43,7 +44,7 @@ public class IntroductionSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateModernJavaAPI() {
+    public void demonstrateModernJavaAPI() throws DomTripException {
         // START: modern-java-api
         // Fluent builders and Stream-based navigation
         Element element = Element.of("dependency").attribute("scope", "test");
@@ -63,7 +64,7 @@ public class IntroductionSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateQuickExample() {
+    public void demonstrateQuickExample() throws DomTripException {
         // START: quick-example
         // Parse XML while preserving all formatting
         Document doc = Document.of(

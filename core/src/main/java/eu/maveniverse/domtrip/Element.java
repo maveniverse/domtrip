@@ -91,12 +91,12 @@ public class Element extends ContainerNode {
      * preserved using a LinkedHashMap.</p>
      *
      * @param name the element name (tag name)
-     * @throws IllegalArgumentException if name is null or empty
+     * @throws DomTripException if name is null or empty
      */
-    public Element(String name) {
+    public Element(String name) throws DomTripException {
         super();
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Element name cannot be null or empty");
+            throw new DomTripException("Element name cannot be null or empty");
         }
         this.name = name.trim();
         this.attributes = new LinkedHashMap<>(); // Preserve attribute order
@@ -260,7 +260,8 @@ public class Element extends ContainerNode {
     /**
      * Sets attribute without marking as modified (for use during parsing)
      */
-    void attributeInternal(String name, String value, char quoteChar, String precedingWhitespace, String rawValue) {
+    void attributeInternal(String name, String value, char quoteChar, String precedingWhitespace, String rawValue)
+            throws DomTripException {
         attributes.put(name, new Attribute(name, value, quoteChar, precedingWhitespace, rawValue));
         // Don't call markModified() here
     }
@@ -1019,13 +1020,13 @@ public class Element extends ContainerNode {
      *
      * @param childName the name of the child element
      * @return the text content of the child
-     * @throws IllegalArgumentException if the child element is not found
+     * @throws DomTripException if the child element is not found
      * @since 0.3.0
      */
     public String childTextRequired(String childName) {
         return child(childName)
                 .map(Element::textContent)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new DomTripException(
                         "Required child element '" + childName + "' not found in element '" + name + "'"));
     }
 
@@ -1221,7 +1222,7 @@ public class Element extends ContainerNode {
      * @param name the element name
      * @return a new Element
      */
-    public static Element of(String name) {
+    public static Element of(String name) throws DomTripException {
         return new Element(name);
     }
 
@@ -1230,11 +1231,11 @@ public class Element extends ContainerNode {
      *
      * @param qname the QName for the element
      * @return a new Element with namespace configuration
-     * @throws IllegalArgumentException if qname is null
+     * @throws DomTripException if qname is null
      */
-    public static Element of(QName qname) {
+    public static Element of(QName qname) throws DomTripException {
         if (qname == null) {
-            throw new IllegalArgumentException("QName cannot be null");
+            throw new DomTripException("QName cannot be null");
         }
 
         Element element = new Element(qname.qualifiedName());
@@ -1261,7 +1262,7 @@ public class Element extends ContainerNode {
      * @param content the text content to add
      * @return a new Element with text content
      */
-    public static Element text(String name, String content) {
+    public static Element text(String name, String content) throws DomTripException {
         Element element = new Element(name);
         if (content != null && !content.isEmpty()) {
             element.addNode(new Text(content));
@@ -1278,7 +1279,7 @@ public class Element extends ContainerNode {
      * @param name the element name
      * @return a new self-closing Element
      */
-    public static Element selfClosing(String name) {
+    public static Element selfClosing(String name) throws DomTripException {
         return new Element(name).selfClosing(true);
     }
 
@@ -1292,7 +1293,7 @@ public class Element extends ContainerNode {
      * @param attributes a map of attribute names to values
      * @return a new Element with attributes
      */
-    public static Element withAttributes(String name, Map<String, String> attributes) {
+    public static Element withAttributes(String name, Map<String, String> attributes) throws DomTripException {
         Element element = new Element(name);
         if (attributes != null) {
             for (Map.Entry<String, String> entry : attributes.entrySet()) {
@@ -1313,7 +1314,8 @@ public class Element extends ContainerNode {
      * @param attributes a map of attribute names to values
      * @return a new Element with text content and attributes
      */
-    public static Element withTextAndAttributes(String name, String content, Map<String, String> attributes) {
+    public static Element withTextAndAttributes(String name, String content, Map<String, String> attributes)
+            throws DomTripException {
         Element element = withAttributes(name, attributes);
         if (content != null && !content.isEmpty()) {
             element.addNode(new Text(content));
@@ -1332,7 +1334,7 @@ public class Element extends ContainerNode {
      * @param content the CDATA content to add
      * @return a new Element with CDATA content
      */
-    public static Element cdata(String name, String content) {
+    public static Element cdata(String name, String content) throws DomTripException {
         Element element = new Element(name);
         if (content != null) {
             element.addNode(new Text(content, true));
@@ -1348,9 +1350,9 @@ public class Element extends ContainerNode {
      * @param qname the QName for the element
      * @param content the text content to add
      * @return a new Element with namespace configuration and text content
-     * @throws IllegalArgumentException if qname is null
+     * @throws DomTripException if qname is null
      */
-    public static Element text(QName qname, String content) {
+    public static Element text(QName qname, String content) throws DomTripException {
         Element element = of(qname);
         if (content != null && !content.isEmpty()) {
             element.addNode(new Text(content));

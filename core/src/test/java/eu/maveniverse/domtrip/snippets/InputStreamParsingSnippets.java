@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.io.BufferedInputStream;
@@ -249,7 +250,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMemoryManagement() throws Exception {
+    public void demonstrateMemoryManagement() throws DomTripException {
         // START: memory-management
         // For very large files, consider processing in sections
         // Path hugefile = Path.of("huge-dataset.xml");
@@ -270,7 +271,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfigurationFiles() throws Exception {
+    public void demonstrateConfigurationFiles() throws DomTripException {
         // START: configuration-files
         // Load application configuration
         // Path configPath = Path.of("app-config.xml");
@@ -332,7 +333,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBatchProcessing() throws Exception {
+    public void demonstrateBatchProcessing() throws DomTripException {
         // START: batch-processing
         // Process multiple XML files
         // List<Path> xmlFiles = Files.list(Path.of("xml-data"))
@@ -384,7 +385,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
         Assertions.assertTrue(true);
     }
 
-    private void processXmlDocument(Editor editor) {
+    private void processXmlDocument(Editor editor) throws DomTripException {
         // Simulate document processing
         editor.setAttribute(editor.root(), "processed", "true");
     }

@@ -4,6 +4,7 @@ import eu.maveniverse.domtrip.Attribute;
 import eu.maveniverse.domtrip.Comment;
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.QName;
@@ -16,7 +17,7 @@ import java.util.Map;
  */
 public class BuilderPatternsDemo {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DomTripException {
         System.out.println("=== Builder Patterns Demo ===\n");
 
         demonstrateAttributeFactory();
@@ -47,7 +48,7 @@ public class BuilderPatternsDemo {
         System.out.println();
     }
 
-    private static void demonstrateElementFactory() {
+    private static void demonstrateElementFactory() throws DomTripException {
         System.out.println("2. Element Factory Demo:");
 
         // Various element creation patterns
@@ -78,7 +79,7 @@ public class BuilderPatternsDemo {
         System.out.println();
     }
 
-    private static void demonstrateDocumentBuilder() {
+    private static void demonstrateDocumentBuilder() throws DomTripException {
         System.out.println("3. Document Builder Demo:");
 
         // Simple document
@@ -119,7 +120,7 @@ public class BuilderPatternsDemo {
         System.out.println();
     }
 
-    private static void demonstrateFluentEditorApi() {
+    private static void demonstrateFluentEditorApi() throws DomTripException {
         System.out.println("4. Fluent Editor API Demo:");
 
         // Create editor with configuration

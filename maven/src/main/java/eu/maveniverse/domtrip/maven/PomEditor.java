@@ -423,7 +423,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @param key the property name
      * @return true if the property was removed, false if it didn't exist
      */
-    public boolean deleteProperty(String key) {
+    public boolean deleteProperty(String key) throws DomTripException {
         Element properties = root().child(PROPERTIES).orElse(null);
         if (properties != null) {
             Element property = properties.child(key).orElse(null);
@@ -457,9 +457,9 @@ public class PomEditor extends AbstractMavenEditor {
      * Sets {@code project/version} or {@code project/parent/version} (if project version doesn't exist).
      *
      * @param value the version value
-     * @throws IllegalArgumentException if no version element can be found
+     * @throws DomTripException if no version element can be found
      */
-    public void setVersion(String value) {
+    public void setVersion(String value) throws DomTripException {
         Element version = findChildElement(root(), VERSION);
         if (version == null) {
             Element parent = findChildElement(root(), PARENT);
@@ -471,7 +471,7 @@ public class PomEditor extends AbstractMavenEditor {
             version.textContent(value);
             return;
         }
-        throw new IllegalArgumentException("Could not set version");
+        throw new DomTripException("Could not set version");
     }
 
     /**
@@ -518,7 +518,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @param moduleName the module name/path
      * @return true if the module was removed, false if it didn't exist
      */
-    public boolean removeSubProject(String moduleName) {
+    public boolean removeSubProject(String moduleName) throws DomTripException {
         Element modules = findChildElement(root(), MODULES);
         if (modules == null) {
             return false;
@@ -650,7 +650,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @return true if the dependency was removed, false if it didn't exist
      * @since 0.3.0
      */
-    public boolean deleteManagedDependency(Coordinates coordinates) {
+    public boolean deleteManagedDependency(Coordinates coordinates) throws DomTripException {
         Element dependencyManagement = findChildElement(root(), DEPENDENCY_MANAGEMENT);
         if (dependencyManagement != null) {
             Element dependencies = findChildElement(dependencyManagement, DEPENDENCIES);
@@ -739,7 +739,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @return true if the dependency was removed, false if it didn't exist
      * @since 0.3.0
      */
-    public boolean deleteDependency(Coordinates coordinates) {
+    public boolean deleteDependency(Coordinates coordinates) throws DomTripException {
         Element dependencies = findChildElement(root(), DEPENDENCIES);
         if (dependencies != null) {
             Element dependency = dependencies
@@ -770,7 +770,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @return true if the dependency was removed, false if it didn't exist
      * @since 0.3.1
      */
-    public boolean deleteDependencyVersion(Coordinates coordinates) {
+    public boolean deleteDependencyVersion(Coordinates coordinates) throws DomTripException {
         Element dependencies = findChildElement(root(), DEPENDENCIES);
         if (dependencies != null) {
             Element dependency = dependencies
@@ -1061,7 +1061,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @return true if the plugin was removed, false if it didn't exist
      * @since 0.3.0
      */
-    public boolean deleteManagedPlugin(Coordinates coordinates) {
+    public boolean deleteManagedPlugin(Coordinates coordinates) throws DomTripException {
         Element plugins = findOrCreateManagedPlugins(false); // upsert=false; will not throw
         Element plugin = findPlugin(plugins, coordinates);
         if (plugin != null) {
@@ -1125,7 +1125,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @return true if the plugin was removed, false if it didn't exist
      * @since 0.3.0
      */
-    public boolean deletePlugin(Coordinates coordinates) {
+    public boolean deletePlugin(Coordinates coordinates) throws DomTripException {
         Element plugins = findOrCreatePlugins(false); // upsert=false; will not throw
         Element plugin = findPlugin(plugins, coordinates);
         if (plugin != null) {
@@ -1150,7 +1150,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @return true if the plugin version was removed, false if it didn't exist
      * @since 0.3.1
      */
-    public boolean deletePluginVersion(Coordinates coordinates) {
+    public boolean deletePluginVersion(Coordinates coordinates) throws DomTripException {
         Element plugins = findOrCreatePlugins(false); // upsert=false; will not throw
         Element plugin = findPlugin(plugins, coordinates);
         if (plugin != null) {
@@ -1211,7 +1211,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @return true if the extension was removed, false if it didn't exist
      * @since 0.3.1
      */
-    public boolean deleteExtension(Coordinates coordinates) {
+    public boolean deleteExtension(Coordinates coordinates) throws DomTripException {
         Element extensions = findOrCreateExtensions(false); // upsert=false; will not throw
         Element extension = findExtension(extensions, coordinates);
         if (extension != null) {
@@ -1253,7 +1253,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @return true if the parent was updated or created, false otherwise
      * @since 0.3.1
      */
-    public boolean deleteParent() {
+    public boolean deleteParent() throws DomTripException {
         Element parent = findChildElement(root(), MavenPomElements.Elements.PARENT);
         return parent != null && removeElement(parent);
     }

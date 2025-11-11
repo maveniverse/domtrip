@@ -21,7 +21,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testBasicRoundTrip() {
+    void testBasicRoundTrip() throws DomTripException {
         String originalXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<root>\n"
                 + "  <child attr=\"value\">text content</child>\n"
                 + "  <!-- comment -->\n"
@@ -36,7 +36,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testWhitespacePreservation() {
+    void testWhitespacePreservation() throws DomTripException {
         String originalXml = "<root>\n" + "    <element   attr1=\"val1\"   attr2=\"val2\"  >\n"
                 + "        <nested>  content with spaces  </nested>\n"
                 + "    </element>\n"
@@ -50,7 +50,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testCommentPreservation() {
+    void testCommentPreservation() throws DomTripException {
         String originalXml = "<!-- Header comment -->\n" + "<root>\n"
                 + "  <!-- Inline comment -->\n"
                 + "  <element>content</element>\n"
@@ -67,7 +67,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testCDataPreservation() {
+    void testCDataPreservation() throws DomTripException {
         String originalXml = "<root>\n" + "  <script><![CDATA[\n"
                 + "    function test() {\n"
                 + "      if (x < y && y > z) {\n"
@@ -85,7 +85,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testAddElementPreservesFormatting() {
+    void testAddElementPreservesFormatting() throws DomTripException {
         String originalXml = "<root>\n" + "  <existing>content</existing>\n" + "</root>";
 
         Document doc = Document.of(originalXml);
@@ -102,7 +102,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testModifyAttributePreservesOtherFormatting() {
+    void testModifyAttributePreservesOtherFormatting() throws DomTripException {
         String originalXml = "<root>\n" + "  <element   attr1=\"original\"   attr2=\"value2\"  >\n"
                 + "    <child>content</child>\n"
                 + "  </element>\n"
@@ -122,7 +122,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testRemoveElementPreservesFormatting() {
+    void testRemoveElementPreservesFormatting() throws DomTripException {
         String originalXml = "<root>\n" + "  <keep>content1</keep>\n"
                 + "  <remove>content2</remove>\n"
                 + "  <keep>content3</keep>\n"
@@ -142,7 +142,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testComplexDocumentModification() {
+    void testComplexDocumentModification() throws DomTripException {
         String originalXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!-- Document comment -->\n"
                 + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n"
                 + "  <groupId>com.example</groupId>\n"
@@ -192,7 +192,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testSelfClosingTagPreservation() {
+    void testSelfClosingTagPreservation() throws DomTripException {
         String originalXml =
                 "<root>\n" + "  <self-closing attr=\"value\"/>\n" + "  <normal>content</normal>\n" + "</root>";
 
@@ -204,7 +204,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testEntityPreservation() {
+    void testEntityPreservation() throws DomTripException {
         String originalXml = "<root>\n" + "  <content>Text with &lt;entities&gt; &amp; symbols</content>\n"
                 + "  <attr value=\"&quot;quoted&quot; &amp; escaped\"/>\n"
                 + "</root>";
@@ -220,7 +220,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testDocumentCreation() {
+    void testDocumentCreation() throws DomTripException {
         editor.createDocument("newRoot");
         Element root = editor.root();
 
@@ -237,7 +237,7 @@ public class XmlRoundTripTest {
     }
 
     @Test
-    void testDocumentStats() {
+    void testDocumentStats() throws DomTripException {
         String xml = "<root>\n" + "  <element>text</element>\n" + "  <!-- comment -->\n" + "  <another/>\n" + "</root>";
 
         Document doc = Document.of(xml);

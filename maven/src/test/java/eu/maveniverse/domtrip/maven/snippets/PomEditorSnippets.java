@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.maven.PomEditor;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ import org.junit.jupiter.api.Test;
 public class PomEditorSnippets {
 
     @Test
-    void testSnippets() {
+    void testSnippets() throws DomTripException {
         // All snippets should compile and run
         basicPomCreation();
         addingDependencies();
@@ -31,7 +32,7 @@ public class PomEditorSnippets {
         editingExistingPom();
     }
 
-    void basicPomCreation() {
+    void basicPomCreation() throws DomTripException {
         // START: basic-pom-creation
         // Create a new POM with Maven-aware ordering
         PomEditor editor = new PomEditor();
@@ -52,7 +53,7 @@ public class PomEditorSnippets {
         assertTrue(result.contains("<project"));
     }
 
-    void addingDependencies() {
+    void addingDependencies() throws DomTripException {
         // START: adding-dependencies
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
@@ -72,7 +73,7 @@ public class PomEditorSnippets {
         assertTrue(result.contains("<dependency>"));
     }
 
-    void addingPlugins() {
+    void addingPlugins() throws DomTripException {
         // START: adding-plugins
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
@@ -94,7 +95,7 @@ public class PomEditorSnippets {
         assertTrue(result.contains("<plugin>"));
     }
 
-    void multiModuleProject() {
+    void multiModuleProject() throws DomTripException {
         // START: multi-module-project
         // Create parent POM
         PomEditor parentEditor = new PomEditor();
@@ -121,7 +122,7 @@ public class PomEditorSnippets {
         assertTrue(parentPom.contains("<modules>"));
     }
 
-    void editingExistingPom() {
+    void editingExistingPom() throws DomTripException {
         // START: editing-existing-pom
         String existingPom =
                 """

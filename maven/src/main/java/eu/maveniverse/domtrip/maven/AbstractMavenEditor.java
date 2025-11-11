@@ -314,7 +314,7 @@ public abstract class AbstractMavenEditor extends Editor {
      * @param element the element containing groupId, artifactId, and version children
      * @param extension the artifact extension/type
      * @return a new Coordinates instance (may have null groupId or version)
-     * @throws IllegalArgumentException if artifactId is missing (always required)
+     * @throws DomTripException if artifactId is missing (always required)
      * @since 0.3.0
      */
     public Coordinates toCoordinates(Element element, String extension) {
@@ -326,7 +326,7 @@ public abstract class AbstractMavenEditor extends Editor {
 
         // ArtifactId is the only truly required field - even in Maven 4
         if (artifactId == null) {
-            throw new IllegalArgumentException("artifactId is required but not found in element");
+            throw new DomTripException("artifactId is required but not found in element");
         }
 
         return Coordinates.of(groupId, artifactId, version, classifier, extension);

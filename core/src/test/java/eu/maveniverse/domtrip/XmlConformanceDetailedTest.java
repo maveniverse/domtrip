@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 public class XmlConformanceDetailedTest {
 
     @Test
-    void testDoctypeRoundTrip() {
+    void testDoctypeRoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root SYSTEM \"example.dtd\">\n" + "<root/>";
 
         Document doc = Document.of(xml);
@@ -32,7 +32,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testDoctypeWithInternalSubsetRoundTrip() {
+    void testDoctypeWithInternalSubsetRoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root [\n"
                 + "  <!ELEMENT root (child*)>\n"
                 + "  <!ELEMENT child (#PCDATA)>\n"
@@ -50,7 +50,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testDoctypeWithPublicIdRoundTrip() {
+    void testDoctypeWithPublicIdRoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n"
                 + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
                 + "<html/>";
@@ -64,7 +64,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testCustomEntityDefinitionRoundTrip() {
+    void testCustomEntityDefinitionRoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root [\n"
                 + "  <!ENTITY custom \"Custom Value\">\n"
                 + "]>\n"
@@ -80,7 +80,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testNumericCharacterReferencesRoundTrip() {
+    void testNumericCharacterReferencesRoundTrip() throws DomTripException {
         String xml = "<root>\n" + "  <hex>&#x3C;&#x3E;&#x26;</hex>\n"
                 + "  <decimal>&#60;&#62;&#38;</decimal>\n"
                 + "  <unicode>&#x1F600;&#x2764;</unicode>\n"
@@ -103,7 +103,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testEncodingDeclarationRoundTrip() throws Exception {
+    void testEncodingDeclarationRoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>Test</root>";
 
         Document doc = Document.of(xml);
@@ -115,7 +115,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testEncodingWithSpecialCharactersRoundTrip() throws Exception {
+    void testEncodingWithSpecialCharactersRoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>Spëcîål çhàrś: àáâãäå</root>";
 
         Document doc = Document.of(xml);
@@ -126,7 +126,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testEncodingWithByteStreamRoundTrip() throws Exception {
+    void testEncodingWithByteStreamRoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>Test: àáâãäå</root>";
 
         // Convert to bytes and parse from InputStream
@@ -144,7 +144,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testXmlDeclarationStandaloneRoundTrip() {
+    void testXmlDeclarationStandaloneRoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
 
         Document doc = Document.of(xml);
@@ -156,7 +156,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testXmlVersion11RoundTrip() {
+    void testXmlVersion11RoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.1\"?>\n<root/>";
 
         Document doc = Document.of(xml);
@@ -168,7 +168,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testProcessingInstructionRoundTrip() {
+    void testProcessingInstructionRoundTrip() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n"
                 + "<root>\n"
                 + "  <?target instruction data?>\n"
@@ -183,7 +183,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testCDataWithSpecialContentRoundTrip() {
+    void testCDataWithSpecialContentRoundTrip() throws DomTripException {
         String xml = "<root>\n" + "  <data><![CDATA[<?xml version=\"1.0\"?>]]></data>\n"
                 + "  <comment><![CDATA[<!-- not a comment -->]]></comment>\n"
                 + "  <entity><![CDATA[&lt;&gt;&amp;]]></entity>\n"
@@ -205,7 +205,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testAttributeWithSpecialCharactersRoundTrip() {
+    void testAttributeWithSpecialCharactersRoundTrip() throws DomTripException {
         String xml = "<root\n" + "  attr1=\"value with &lt;brackets&gt;\"\n"
                 + "  attr2='value with &quot;quotes&quot;'\n"
                 + "  attr3=\"value with &amp; ampersand\"\n"
@@ -222,7 +222,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testEmptyAttributeRoundTrip() {
+    void testEmptyAttributeRoundTrip() throws DomTripException {
         String xml = "<root attr1=\"\" attr2='' attr3=\"value\"/>";
 
         Document doc = Document.of(xml);
@@ -236,7 +236,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testNamespaceDeclarationRoundTrip() {
+    void testNamespaceDeclarationRoundTrip() throws DomTripException {
         String xml = "<root xmlns=\"http://example.com/default\" xmlns:ns=\"http://example.com/ns\">\n"
                 + "  <element>default namespace</element>\n"
                 + "  <ns:element>namespaced</ns:element>\n"
@@ -252,7 +252,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testDefaultNamespaceOverridingRoundTrip() {
+    void testDefaultNamespaceOverridingRoundTrip() throws DomTripException {
         String xml = "<root xmlns=\"http://default1.example.com\">\n"
                 + "  <child xmlns=\"http://default2.example.com\">\n"
                 + "    <grandchild/>\n"
@@ -272,7 +272,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testWhitespaceInTextContentRoundTrip() {
+    void testWhitespaceInTextContentRoundTrip() throws DomTripException {
         String xml = "<root>\n" + "  <element>  content with spaces  </element>\n"
                 + "  <tabs>text\t\twith\t\t\ttabs</tabs>\n"
                 + "  <newlines>line1\n\n\nline2</newlines>\n"
@@ -294,7 +294,7 @@ public class XmlConformanceDetailedTest {
     }
 
     @Test
-    void testCommentRoundTrip() {
+    void testCommentRoundTrip() throws DomTripException {
         String xml = "<!-- Document comment -->\n" + "<root>\n"
                 + "  <!-- Element comment -->\n"
                 + "  <element>content</element>\n"

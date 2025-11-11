@@ -23,7 +23,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testElementNameChange() {
+    void testElementNameChange() throws DomTripException {
         String xml = "<root><oldName>content</oldName></root>";
 
         Document doc = Document.of(xml);
@@ -40,7 +40,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testElementNameChangeNull() {
+    void testElementNameChangeNull() throws DomTripException {
         Element element = new Element("test");
 
         // Implementation may handle null gracefully
@@ -50,7 +50,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testRemoveAttribute() {
+    void testRemoveAttribute() throws DomTripException {
         String xml = "<root attr1=\"value1\" attr2=\"value2\" attr3=\"value3\"/>";
 
         Document doc = Document.of(xml);
@@ -66,7 +66,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testRemoveNonExistentAttribute() {
+    void testRemoveNonExistentAttribute() throws DomTripException {
         String xml = "<root attr=\"value\"/>";
 
         Document doc = Document.of(xml);
@@ -80,7 +80,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testGetAttributeNames() {
+    void testGetAttributeNames() throws DomTripException {
         String xml = "<root attr1=\"value1\" attr2=\"value2\" attr3=\"value3\"/>";
 
         Document doc = Document.of(xml);
@@ -97,7 +97,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testHasAttribute() {
+    void testHasAttribute() throws DomTripException {
         String xml = "<root attr=\"value\"/>";
 
         Document doc = Document.of(xml);
@@ -109,7 +109,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testGetAttributeQuote() {
+    void testGetAttributeQuote() throws DomTripException {
         String xml = "<root attr1='single' attr2=\"double\"/>";
 
         Document doc = Document.of(xml);
@@ -122,7 +122,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testSetAttributeWithQuote() {
+    void testSetAttributeWithQuote() throws DomTripException {
         String xml = "<root/>";
 
         Document doc = Document.of(xml);
@@ -138,7 +138,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testSelfClosingBehavior() {
+    void testSelfClosingBehavior() throws DomTripException {
         String xml = "<root><empty/><normal>content</normal></root>";
 
         Document doc = Document.of(xml);
@@ -152,7 +152,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testSelfClosingToNormalConversion() {
+    void testSelfClosingToNormalConversion() throws DomTripException {
         String xml = "<root><empty/></root>";
 
         Document doc = Document.of(xml);
@@ -169,7 +169,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testNormalToSelfClosingConversion() {
+    void testNormalToSelfClosingConversion() throws DomTripException {
         String xml = "<root><element>content</element></root>";
 
         Document doc = Document.of(xml);
@@ -186,7 +186,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testFindChildElement() {
+    void testFindChildElement() throws DomTripException {
         String xml = "<root>\n" + "  <child1>content1</child1>\n"
                 + "  <child2>content2</child2>\n"
                 + "  <child1>content3</child1>\n"
@@ -203,7 +203,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testFindChildElementNotFound() {
+    void testFindChildElementNotFound() throws DomTripException {
         String xml = "<root><child>content</child></root>";
 
         Document doc = Document.of(xml);
@@ -215,7 +215,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testGetChildCount() {
+    void testGetChildCount() throws DomTripException {
         String xml = "<root>\n" + "  <child1/>\n"
                 + "  text content\n"
                 + "  <child2/>\n"
@@ -230,7 +230,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testGetChild() {
+    void testGetChild() throws DomTripException {
         String xml = "<root><first/><second/></root>";
 
         Document doc = Document.of(xml);
@@ -243,7 +243,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testGetChildOutOfBounds() {
+    void testGetChildOutOfBounds() throws DomTripException {
         String xml = "<root><child/></root>";
 
         Document doc = Document.of(xml);
@@ -258,7 +258,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testGetChildren() {
+    void testGetChildren() throws DomTripException {
         String xml = "<root><child1/><child2/></root>";
 
         Document doc = Document.of(xml);
@@ -271,7 +271,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testAddChildAtPosition() {
+    void testAddChildAtPosition() throws DomTripException {
         String xml = "<root><first/><third/></root>";
 
         Document doc = Document.of(xml);
@@ -292,7 +292,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testRemoveChild() {
+    void testRemoveChild() throws DomTripException {
         String xml = "<root><keep1/><remove/><keep2/></root>";
 
         Document doc = Document.of(xml);
@@ -309,7 +309,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testRemoveChildByIndex() {
+    void testRemoveChildByIndex() throws DomTripException {
         String xml = "<root><first/><second/><third/></root>";
 
         Document doc = Document.of(xml);
@@ -326,7 +326,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testClearChildren() {
+    void testClearChildren() throws DomTripException {
         String xml = "<root><child1/><child2/>text content</root>";
 
         Document doc = Document.of(xml);
@@ -344,7 +344,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testElementToString() {
+    void testElementToString() throws DomTripException {
         Element element = new Element("testElement");
         element.attribute("attr1", "value1");
         element.attribute("attr2", "value2");
@@ -359,7 +359,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testComplexElementStructure() {
+    void testComplexElementStructure() throws DomTripException {
         String xml = "<root xmlns=\"http://example.com\" xmlns:ns=\"http://ns.example.com\">\n"
                 + "  <ns:element attr=\"value\">\n"
                 + "    <nested>content</nested>\n"
@@ -377,7 +377,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testElementWithMixedContent() {
+    void testElementWithMixedContent() throws DomTripException {
         String xml = "<root>Text before <element>element content</element> text after</root>";
 
         Document doc = Document.of(xml);
@@ -392,7 +392,7 @@ public class ElementAdvancedTest {
     }
 
     @Test
-    void testElementModificationTracking() {
+    void testElementModificationTracking() throws DomTripException {
         String xml = "<root attr=\"value\"><child/></root>";
 
         Document doc = Document.of(xml);

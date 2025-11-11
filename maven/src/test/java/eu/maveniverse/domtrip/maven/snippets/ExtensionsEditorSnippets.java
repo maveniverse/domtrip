@@ -10,6 +10,7 @@ package eu.maveniverse.domtrip.maven.snippets;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.maven.ExtensionsEditor;
 import org.junit.jupiter.api.Test;
@@ -20,13 +21,13 @@ import org.junit.jupiter.api.Test;
 public class ExtensionsEditorSnippets {
 
     @Test
-    void testSnippets() {
+    void testSnippets() throws DomTripException {
         // All snippets should compile and run
         basicExtensionsCreation();
         addingExtensions();
     }
 
-    void basicExtensionsCreation() {
+    void basicExtensionsCreation() throws DomTripException {
         // START: basic-extensions-creation
         // Create a new extensions document
         ExtensionsEditor editor = new ExtensionsEditor();
@@ -44,7 +45,7 @@ public class ExtensionsEditorSnippets {
         assertTrue(result.contains("<extensions"));
     }
 
-    void addingExtensions() {
+    void addingExtensions() throws DomTripException {
         // START: adding-extensions
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();

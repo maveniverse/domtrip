@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class ElementCloneTest {
 
     @Test
-    void testElementClone() {
+    void testElementClone() throws DomTripException {
         // Create an element with attributes and children
         Element original = Element.of("parent").attribute("id", "test").attribute("class", "example");
 
@@ -67,7 +67,7 @@ public class ElementCloneTest {
     }
 
     @Test
-    void testParentRemovalOnAddNode() {
+    void testParentRemovalOnAddNode() throws DomTripException {
         Element parent1 = Element.of("parent1");
         Element parent2 = Element.of("parent2");
         Element child = Element.of("child");
@@ -86,7 +86,7 @@ public class ElementCloneTest {
     }
 
     @Test
-    void testParentRemovalOnInsertNode() {
+    void testParentRemovalOnInsertNode() throws DomTripException {
         Element parent1 = Element.of("parent1");
         Element parent2 = Element.of("parent2");
         Element child = Element.of("child");
@@ -110,7 +110,7 @@ public class ElementCloneTest {
     }
 
     @Test
-    void testCloneWithWhitespacePreservation() {
+    void testCloneWithWhitespacePreservation() throws DomTripException {
         Element original = Element.of("test");
         original.precedingWhitespace("  ");
         original.openTagWhitespace(" ");
@@ -128,7 +128,7 @@ public class ElementCloneTest {
     }
 
     @Test
-    void testCloneWithCDataAndProcessingInstruction() {
+    void testCloneWithCDataAndProcessingInstruction() throws DomTripException {
         Element original = Element.of("root");
         original.addNode(Text.cdata("<script>alert('test');</script>"));
         original.addNode(ProcessingInstruction.of("xml-stylesheet", "type=\"text/css\""));
@@ -145,7 +145,7 @@ public class ElementCloneTest {
     }
 
     @Test
-    void testDocumentClone() {
+    void testDocumentClone() throws DomTripException {
         Document original = Document.withXmlDeclaration("1.1", "ISO-8859-1")
                 .standalone(true)
                 .doctype("<!DOCTYPE html>")

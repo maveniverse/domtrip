@@ -69,7 +69,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testSetDocumentElement() {
+    void testSetDocumentElement() throws DomTripException {
         Element root = new Element("root");
         document.root(root);
 
@@ -79,7 +79,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testSetDocumentElementNull() {
+    void testSetDocumentElementNull() throws DomTripException {
         Element root = new Element("root");
         document.root(root);
         document.root(null);
@@ -156,7 +156,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentToXml() {
+    void testDocumentToXml() throws DomTripException {
         document.xmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
         root.addNode(new Text("content"));
@@ -169,7 +169,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentToXmlStringBuilder() {
+    void testDocumentToXmlStringBuilder() throws DomTripException {
         document.xmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
         document.root(root);
@@ -213,7 +213,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentFindElement() {
+    void testDocumentFindElement() throws DomTripException {
         String xml = "<root>\n" + "  <child1>\n"
                 + "    <grandchild>content</grandchild>\n"
                 + "  </child1>\n"
@@ -230,7 +230,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentFindElementNotFound() {
+    void testDocumentFindElementNotFound() throws DomTripException {
         String xml = "<root><child/></root>";
 
         Document doc = Document.of(xml);
@@ -241,7 +241,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentFindElementWithNullName() {
+    void testDocumentFindElementWithNullName() throws DomTripException {
         String xml = "<root><child/></root>";
 
         Document doc = Document.of(xml);
@@ -254,7 +254,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentStats() {
+    void testDocumentStats() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!-- Comment -->\n"
                 + "<root>\n"
                 + "  <child1>text</child1>\n"
@@ -279,7 +279,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentWithWhitespace() {
+    void testDocumentWithWhitespace() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n\n" + "<root>\n" + "  \n" + "  <child/>\n" + "  \n" + "</root>\n\n";
 
         Document doc = Document.of(xml);
@@ -291,7 +291,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentModificationTracking() {
+    void testDocumentModificationTracking() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
@@ -305,7 +305,7 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentWithMixedContent() {
+    void testDocumentWithMixedContent() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!-- Header -->\n"
                 + "<?stylesheet href=\"style.css\"?>\n"
                 + "<root>\n"

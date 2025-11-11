@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class FactoryMethodsSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicElementCreation() {
+    public void demonstrateBasicElementCreation() throws DomTripException {
         // START: basic-element-creation
         // Simple elements
         Element version = Element.of("version");
@@ -36,7 +36,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAdvancedElementCreation() {
+    public void demonstrateAdvancedElementCreation() throws DomTripException {
         // START: advanced-element-creation
         // Element with complex structure using fluent API
         Element project = Element.of("project").attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
@@ -58,7 +58,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespacedElements() {
+    public void demonstrateNamespacedElements() throws DomTripException {
         // START: namespaced-elements
         // Namespaced element using QName
         QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
@@ -75,7 +75,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentCreation() {
+    public void demonstrateDocumentCreation() throws DomTripException {
         // START: document-creation
         // Basic document with root element
         Document doc = Document.withRootElement("project");
@@ -119,7 +119,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFluentElementAddition() {
+    public void demonstrateFluentElementAddition() throws DomTripException {
         // START: fluent-element-addition
         Document doc = Document.withRootElement("project");
         Editor editor = new Editor(doc);
@@ -150,7 +150,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeCreation() {
+    public void demonstrateAttributeCreation() throws DomTripException {
         // START: attribute-creation
         // Simple attribute
         Attribute attr = Attribute.of("class", "important");
@@ -171,7 +171,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateComplexStructureCreation() {
+    public void demonstrateComplexStructureCreation() throws DomTripException {
         // START: complex-structure-creation
         // Create a complete Maven dependency structure
         Element dependency = Element.of("dependency");
@@ -201,7 +201,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFactoryMethodBestPractices() {
+    public void demonstrateFactoryMethodBestPractices() throws DomTripException {
         // START: factory-method-best-practices
         // ✅ Good - clean and direct
         Element version = Element.text("version", "1.0.0");
@@ -227,7 +227,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateReusableFactoryMethods() {
+    public void demonstrateReusableFactoryMethods() throws DomTripException {
         // START: reusable-factory-methods
         // Extract complex structures to methods for reusability
         Element junitDep = createDependency("junit", "junit", "4.13.2");
@@ -247,7 +247,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
 
     // Helper method for the reusable factory methods example
     @Test
-    public void demonstrateSimpleDocumentCreation() {
+    public void demonstrateSimpleDocumentCreation() throws DomTripException {
         // START: simple-document-creation
         // Basic document
         Document doc = Document.withRootElement("project");
@@ -287,7 +287,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAdvancedDocumentCreation() {
+    public void demonstrateAdvancedDocumentCreation() throws DomTripException {
         // START: advanced-document-creation
         // Document with processing instructions
         Document doc = Document.withXmlDeclaration("1.0", "UTF-8");
@@ -353,7 +353,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFluentChaining() {
+    public void demonstrateFluentChaining() throws DomTripException {
         // START: fluent-chaining
         // ✅ Good - readable fluent chain
         Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
@@ -367,7 +367,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePerformanceOptimizations() {
+    public void demonstratePerformanceOptimizations() throws DomTripException {
         // START: performance-optimizations
         // Efficient - direct object creation and modification
         Element element = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
@@ -380,7 +380,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         Assertions.assertEquals("test", element.attribute("scope"));
     }
 
-    private Element createDependency(String groupId, String artifactId, String version) {
+    private Element createDependency(String groupId, String artifactId, String version) throws DomTripException {
         Element dependency = Element.of("dependency");
         dependency.addNode(Element.text("groupId", groupId));
         dependency.addNode(Element.text("artifactId", artifactId));

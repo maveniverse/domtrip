@@ -12,6 +12,7 @@ import static eu.maveniverse.domtrip.maven.MavenExtensionsElements.Namespaces.*;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.Arrays;
@@ -99,7 +100,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * <p>This method creates a new document with the extensions root element and sets up
      * the appropriate Maven extensions namespace.</p>
      */
-    public void createExtensionsDocument() {
+    public void createExtensionsDocument() throws DomTripException {
         createDocument(EXTENSIONS);
         Element root = root();
         root.attribute("xmlns", EXTENSIONS_1_2_0_NAMESPACE);
@@ -117,7 +118,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @param elementName the name of the element to insert
      * @return the newly created element
      */
-    public Element insertExtensionsElement(Element parent, String elementName) {
+    public Element insertExtensionsElement(Element parent, String elementName) throws DomTripException {
         return insertExtensionsElement(parent, elementName, null);
     }
 
@@ -129,7 +130,8 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @param textContent the text content for the element (can be null)
      * @return the newly created element
      */
-    public Element insertExtensionsElement(Element parent, String elementName, String textContent) {
+    public Element insertExtensionsElement(Element parent, String elementName, String textContent)
+            throws DomTripException {
         return insertElementAtCorrectPosition(parent, elementName, textContent);
     }
 
@@ -142,7 +144,8 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @param version the extension version
      * @return the newly created extension element
      */
-    public Element addExtension(Element extensionsElement, String groupId, String artifactId, String version) {
+    public Element addExtension(Element extensionsElement, String groupId, String artifactId, String version)
+            throws DomTripException {
         return addExtension(extensionsElement, groupId, artifactId, version, null, null);
     }
 
@@ -163,7 +166,8 @@ public class ExtensionsEditor extends AbstractMavenEditor {
             String artifactId,
             String version,
             String classifier,
-            String type) {
+            String type)
+            throws DomTripException {
         Element extension = addElement(extensionsElement, EXTENSION);
 
         insertElementAtCorrectPosition(extension, GROUP_ID, groupId);
@@ -202,7 +206,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      *
      * @return list of Coordinates objects representing the extensions
      */
-    public List<Coordinates> listExtensions() {
+    public List<Coordinates> listExtensions() throws DomTripException {
         return root().children(EXTENSION).map(this::toJarCoordinates).toList();
     }
 
@@ -216,7 +220,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @param coordinates the extension coordinates
      * @return true if the extension was updated or inserted, false otherwise
      */
-    public boolean updateExtension(boolean upsert, Coordinates coordinates) {
+    public boolean updateExtension(boolean upsert, Coordinates coordinates) throws DomTripException {
         List<Element> matched =
                 root().children(EXTENSION).filter(coordinates.predicateGA()).toList();
         if (matched.isEmpty()) {
@@ -246,7 +250,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @param coordinates the extension artifact to remove
      * @return true if the extension was removed, false if it didn't exist
      */
-    public boolean deleteExtension(Coordinates coordinates) {
+    public boolean deleteExtension(Coordinates coordinates) throws DomTripException {
         AtomicInteger counter = new AtomicInteger(0);
         root().children(EXTENSION)
                 .filter(coordinates.predicateGA())

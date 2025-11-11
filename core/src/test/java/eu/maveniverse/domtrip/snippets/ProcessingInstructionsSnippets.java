@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.ProcessingInstruction;
 import java.util.List;
@@ -30,7 +31,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateParsingDocumentsWithPIs() {
+    public void demonstrateParsingDocumentsWithPIs() throws DomTripException {
         // START: parsing-documents-with-pis
         String xml =
                 """
@@ -55,7 +56,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFindingProcessingInstructions() {
+    public void demonstrateFindingProcessingInstructions() throws DomTripException {
         // START: finding-processing-instructions
         String xmlWithPIs =
                 """
@@ -103,7 +104,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSpecialCharacters() {
+    public void demonstrateSpecialCharacters() throws DomTripException {
         // START: special-characters
         String xml =
                 """
@@ -123,7 +124,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePositionAndWhitespace() {
+    public void demonstratePositionAndWhitespace() throws DomTripException {
         // START: position-whitespace-preservation
         String xml =
                 """
@@ -152,7 +153,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateXmlStylesheetDeclaration() {
+    public void demonstrateXmlStylesheetDeclaration() throws DomTripException {
         // START: xml-stylesheet-declaration
         // Add stylesheet PI to document
         Document doc = Document.withRootElement("html");
@@ -171,7 +172,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePhpProcessingInstructions() {
+    public void demonstratePhpProcessingInstructions() throws DomTripException {
         // START: php-processing-instructions
         String phpXml =
                 """
@@ -196,7 +197,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateApplicationSpecificInstructions() {
+    public void demonstrateApplicationSpecificInstructions() throws DomTripException {
         // START: application-specific-instructions
         // Custom processing instructions for application logic
         ProcessingInstruction sortOrder = ProcessingInstruction.of("sort-order", "alpha-ascending");
@@ -215,7 +216,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEditorIntegration() {
+    public void demonstrateEditorIntegration() throws DomTripException {
         // START: editor-integration
         String xmlWithPIs =
                 """

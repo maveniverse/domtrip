@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class WhitespaceCaptureTest {
 
     @Test
-    void testNodePrecedingAndFollowingWhitespace() {
+    void testNodePrecedingAndFollowingWhitespace() throws DomTripException {
         String xml =
                 """
             <root>
@@ -43,7 +43,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testElementOpenTagWhitespace() {
+    void testElementOpenTagWhitespace() throws DomTripException {
         // Test whitespace inside opening tags
         String xml = "<element   attr='value'   >";
 
@@ -59,7 +59,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testElementCloseTagWhitespace() {
+    void testElementCloseTagWhitespace() throws DomTripException {
         // Test whitespace inside closing tags
         String xml = "<element>content</   element   >";
 
@@ -75,7 +75,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testAttributeWhitespaceAroundEquals() {
+    void testAttributeWhitespaceAroundEquals() throws DomTripException {
         // Test whitespace around '=' in attributes
         String xml = "<element attr1  =  'value1' attr2='value2' attr3   =   \"value3\">";
 
@@ -100,7 +100,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testAttributePrecedingWhitespace() {
+    void testAttributePrecedingWhitespace() throws DomTripException {
         // Test various patterns of whitespace before attributes
         String xml = "<element  attr1='value1'   attr2=\"value2\"\n    attr3='value3'>";
 
@@ -135,7 +135,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testComplexWhitespaceScenario() {
+    void testComplexWhitespaceScenario() throws DomTripException {
         // Test a complex scenario with multiple types of whitespace
         String xml =
                 """
@@ -183,7 +183,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testWhitespaceRoundTrip() {
+    void testWhitespaceRoundTrip() throws DomTripException {
         // Test that whitespace is preserved in round-trip parsing
         String originalXml =
                 """
@@ -208,7 +208,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testSelfClosingElementWhitespace() {
+    void testSelfClosingElementWhitespace() throws DomTripException {
         // Test whitespace in self-closing elements
         String xml = "<element   attr='value'   />";
 
@@ -228,7 +228,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testMinimalWhitespace() {
+    void testMinimalWhitespace() throws DomTripException {
         // Test elements with minimal whitespace
         String xml = "<root><element attr='value'>content</element></root>";
 
@@ -248,7 +248,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testCurrentWhitespaceCapabilities() {
+    void testCurrentWhitespaceCapabilities() throws DomTripException {
         // This test documents what whitespace features are currently working vs. not implemented
         String xml = "<root   attr1  =  'value1'   attr2='value2'   >\n" + "    <child   >content</   child   >\n"
                 + "</root>";
@@ -288,7 +288,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testWhitespaceModificationBehavior() {
+    void testWhitespaceModificationBehavior() throws DomTripException {
         // Test that whitespace can be modified and is used during serialization
         String xml = "<element   attr='value'   >content</element>";
 
@@ -318,7 +318,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testProgrammaticElementCreation() {
+    void testProgrammaticElementCreation() throws DomTripException {
         // Test creating elements programmatically and setting whitespace
         Document doc = Document.of("<root></root>");
         Element root = doc.root();
@@ -350,7 +350,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testWhitespacePreservationAfterModification() {
+    void testWhitespacePreservationAfterModification() throws DomTripException {
         // Test that modifying an element causes it to use whitespace fields instead of original tags
         String xml = "<element   attr='value'   >content</   element   >";
 
@@ -376,7 +376,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testWhitespaceFieldsUsedWhenModified() {
+    void testWhitespaceFieldsUsedWhenModified() throws DomTripException {
         // Test that when an element is modified, the whitespace fields are actually used
         String xml = "<element>content</element>";
 
@@ -399,7 +399,7 @@ class WhitespaceCaptureTest {
     }
 
     @Test
-    void testWhitespaceSetterBugs() {
+    void testWhitespaceSetterBugs() throws DomTripException {
         // Test that verifies whitespace setter methods now correctly mark as modified
         Element element = new Element("test");
 

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class SerializationModesDemo {
 
     @Test
-    void demonstrateSerializationModes() {
+    void demonstrateSerializationModes() throws DomTripException {
         // Create a sample document
         String originalXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 + "<!-- Document comment -->\n"
@@ -98,7 +98,7 @@ public class SerializationModesDemo {
     }
 
     @Test
-    void demonstrateRawModeUseCases() {
+    void demonstrateRawModeUseCases() throws DomTripException {
         System.out.println("=== RAW MODE USE CASES ===");
 
         // Use case 1: Minimizing file size

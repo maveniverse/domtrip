@@ -145,7 +145,7 @@ public class EncodingSerializationTest {
     }
 
     @Test
-    void testSerializeWithNullOutputStream() {
+    void testSerializeWithNullOutputStream() throws DomTripException {
         Document doc = Document.of("<root/>");
         Serializer serializer = new Serializer();
 
@@ -169,7 +169,7 @@ public class EncodingSerializationTest {
     }
 
     @Test
-    void testSerializeWithInvalidEncoding() {
+    void testSerializeWithInvalidEncoding() throws DomTripException {
         Document doc = Document.of("<root/>");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Serializer serializer = new Serializer();
@@ -318,7 +318,7 @@ public class EncodingSerializationTest {
     }
 
     @Test
-    void testInvalidCharsetHandling() {
+    void testInvalidCharsetHandling() throws DomTripException {
         Document doc = Document.of("<root/>");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Serializer serializer = new Serializer();

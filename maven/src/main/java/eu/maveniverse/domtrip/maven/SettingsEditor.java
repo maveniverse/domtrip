@@ -12,6 +12,7 @@ import static eu.maveniverse.domtrip.maven.MavenSettingsElements.Namespaces.*;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.Arrays;
@@ -141,7 +142,7 @@ public class SettingsEditor extends AbstractMavenEditor {
      * <p>This method creates a new document with the settings root element and sets up
      * the appropriate Maven settings namespace.</p>
      */
-    public void createSettingsDocument() {
+    public void createSettingsDocument() throws DomTripException {
         createDocument(SETTINGS);
         Element root = root();
         root.attribute("xmlns", SETTINGS_1_2_0_NAMESPACE);
@@ -159,7 +160,7 @@ public class SettingsEditor extends AbstractMavenEditor {
      * @param elementName the name of the element to insert
      * @return the newly created element
      */
-    public Element insertSettingsElement(Element parent, String elementName) {
+    public Element insertSettingsElement(Element parent, String elementName) throws DomTripException {
         return insertSettingsElement(parent, elementName, null);
     }
 
@@ -171,7 +172,8 @@ public class SettingsEditor extends AbstractMavenEditor {
      * @param textContent the text content for the element (can be null)
      * @return the newly created element
      */
-    public Element insertSettingsElement(Element parent, String elementName, String textContent) {
+    public Element insertSettingsElement(Element parent, String elementName, String textContent)
+            throws DomTripException {
         return insertElementAtCorrectPosition(parent, elementName, textContent);
     }
 
@@ -184,7 +186,8 @@ public class SettingsEditor extends AbstractMavenEditor {
      * @param password the password (can be null)
      * @return the newly created server element
      */
-    public Element addServer(Element serversElement, String id, String username, String password) {
+    public Element addServer(Element serversElement, String id, String username, String password)
+            throws DomTripException {
         Element server = addElement(serversElement, SERVER);
         insertElementAtCorrectPosition(server, ID, id);
         if (username != null) {
@@ -206,7 +209,8 @@ public class SettingsEditor extends AbstractMavenEditor {
      * @param mirrorOf the repositories this mirror serves
      * @return the newly created mirror element
      */
-    public Element addMirror(Element mirrorsElement, String id, String name, String url, String mirrorOf) {
+    public Element addMirror(Element mirrorsElement, String id, String name, String url, String mirrorOf)
+            throws DomTripException {
         Element mirror = addElement(mirrorsElement, MIRROR);
         insertElementAtCorrectPosition(mirror, ID, id);
         insertElementAtCorrectPosition(mirror, NAME, name);
@@ -225,7 +229,8 @@ public class SettingsEditor extends AbstractMavenEditor {
      * @param port the proxy port
      * @return the newly created proxy element
      */
-    public Element addProxy(Element proxiesElement, String id, String protocol, String host, int port) {
+    public Element addProxy(Element proxiesElement, String id, String protocol, String host, int port)
+            throws DomTripException {
         Element proxy = addElement(proxiesElement, PROXY);
         insertElementAtCorrectPosition(proxy, ID, id);
         insertElementAtCorrectPosition(proxy, PROTOCOL, protocol);
@@ -241,7 +246,7 @@ public class SettingsEditor extends AbstractMavenEditor {
      * @param id the profile ID
      * @return the newly created profile element
      */
-    public Element addProfile(Element profilesElement, String id) {
+    public Element addProfile(Element profilesElement, String id) throws DomTripException {
         Element profile = addElement(profilesElement, PROFILE);
         insertElementAtCorrectPosition(profile, ID, id);
         return profile;
@@ -255,7 +260,8 @@ public class SettingsEditor extends AbstractMavenEditor {
      * @param propertyValue the property value
      * @return the newly created property element
      */
-    public Element addProperty(Element propertiesElement, String propertyName, String propertyValue) {
+    public Element addProperty(Element propertiesElement, String propertyName, String propertyValue)
+            throws DomTripException {
         return addElement(propertiesElement, propertyName, propertyValue);
     }
 

@@ -13,6 +13,7 @@ import static eu.maveniverse.domtrip.maven.MavenToolchainsElements.ToolchainType
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.Arrays;
@@ -98,7 +99,7 @@ public class ToolchainsEditor extends AbstractMavenEditor {
      * <p>This method creates a new document with the toolchains root element and sets up
      * the appropriate Maven toolchains namespace.</p>
      */
-    public void createToolchainsDocument() {
+    public void createToolchainsDocument() throws DomTripException {
         createDocument(TOOLCHAINS);
         Element root = root();
         root.attribute("xmlns", TOOLCHAINS_1_1_0_NAMESPACE);
@@ -116,7 +117,7 @@ public class ToolchainsEditor extends AbstractMavenEditor {
      * @param elementName the name of the element to insert
      * @return the newly created element
      */
-    public Element insertToolchainsElement(Element parent, String elementName) {
+    public Element insertToolchainsElement(Element parent, String elementName) throws DomTripException {
         return insertToolchainsElement(parent, elementName, null);
     }
 
@@ -128,7 +129,8 @@ public class ToolchainsEditor extends AbstractMavenEditor {
      * @param textContent the text content for the element (can be null)
      * @return the newly created element
      */
-    public Element insertToolchainsElement(Element parent, String elementName, String textContent) {
+    public Element insertToolchainsElement(Element parent, String elementName, String textContent)
+            throws DomTripException {
         return insertElementAtCorrectPosition(parent, elementName, textContent);
     }
 
@@ -141,7 +143,8 @@ public class ToolchainsEditor extends AbstractMavenEditor {
      * @param jdkHome the path to the JDK installation
      * @return the newly created toolchain element
      */
-    public Element addJdkToolchain(Element toolchainsElement, String version, String vendor, String jdkHome) {
+    public Element addJdkToolchain(Element toolchainsElement, String version, String vendor, String jdkHome)
+            throws DomTripException {
         Element toolchain = addElement(toolchainsElement, TOOLCHAIN);
 
         // Add type
@@ -166,7 +169,7 @@ public class ToolchainsEditor extends AbstractMavenEditor {
      * @param type the toolchain type (e.g., "jdk", "netbeans", "protobuf")
      * @return the newly created toolchain element
      */
-    public Element addToolchain(Element toolchainsElement, String type) {
+    public Element addToolchain(Element toolchainsElement, String type) throws DomTripException {
         Element toolchain = addElement(toolchainsElement, TOOLCHAIN);
         insertElementAtCorrectPosition(toolchain, TYPE, type);
         return toolchain;
@@ -180,7 +183,8 @@ public class ToolchainsEditor extends AbstractMavenEditor {
      * @param installDir the path to the NetBeans installation
      * @return the newly created toolchain element
      */
-    public Element addNetBeansToolchain(Element toolchainsElement, String version, String installDir) {
+    public Element addNetBeansToolchain(Element toolchainsElement, String version, String installDir)
+            throws DomTripException {
         Element toolchain = addElement(toolchainsElement, TOOLCHAIN);
 
         // Add type
@@ -205,7 +209,7 @@ public class ToolchainsEditor extends AbstractMavenEditor {
      * @param value the provides value
      * @return the provides element (created if it doesn't exist)
      */
-    public Element addProvides(Element toolchainElement, String key, String value) {
+    public Element addProvides(Element toolchainElement, String key, String value) throws DomTripException {
         Element provides = findChildElement(toolchainElement, PROVIDES);
         if (provides == null) {
             provides = insertElementAtCorrectPosition(toolchainElement, PROVIDES, null);
@@ -222,7 +226,7 @@ public class ToolchainsEditor extends AbstractMavenEditor {
      * @param value the configuration value
      * @return the configuration element (created if it doesn't exist)
      */
-    public Element addConfiguration(Element toolchainElement, String key, String value) {
+    public Element addConfiguration(Element toolchainElement, String key, String value) throws DomTripException {
         Element configuration = findChildElement(toolchainElement, CONFIGURATION);
         if (configuration == null) {
             configuration = insertElementAtCorrectPosition(toolchainElement, CONFIGURATION, null);

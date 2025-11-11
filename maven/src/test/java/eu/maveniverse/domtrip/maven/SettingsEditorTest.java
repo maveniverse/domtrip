@@ -11,6 +11,7 @@ import static eu.maveniverse.domtrip.maven.MavenSettingsElements.Elements.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.Test;
 class SettingsEditorTest {
 
     @Test
-    void testCreateSettingsDocument() {
+    void testCreateSettingsDocument() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
 
@@ -32,7 +33,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testInsertSettingsElement() {
+    void testInsertSettingsElement() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -43,7 +44,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testElementOrdering() {
+    void testElementOrdering() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -59,7 +60,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testAddServer() {
+    void testAddServer() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -74,7 +75,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testAddServerWithNullCredentials() {
+    void testAddServerWithNullCredentials() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -89,7 +90,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testAddMirror() {
+    void testAddMirror() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -108,7 +109,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testAddProxy() {
+    void testAddProxy() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -124,7 +125,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testAddProfile() {
+    void testAddProfile() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -137,7 +138,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testAddProperty() {
+    void testAddProperty() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -152,7 +153,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testFindChildElement() {
+    void testFindChildElement() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -169,7 +170,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testCompleteSettingsExample() {
+    void testCompleteSettingsExample() throws DomTripException {
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
         Element root = editor.root();
@@ -205,7 +206,7 @@ class SettingsEditorTest {
     }
 
     @Test
-    void testEditExistingSettings() {
+    void testEditExistingSettings() throws DomTripException {
         String existingSettings =
                 """
                 <?xml version="1.0" encoding="UTF-8"?>

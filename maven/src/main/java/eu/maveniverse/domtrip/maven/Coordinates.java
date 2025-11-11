@@ -62,19 +62,21 @@ public record Coordinates(String groupId, String artifactId, String version, Str
      *
      * <p>Note: groupId and version can be null to support Maven 4's inference mechanism.
      * Only artifactId is strictly required.</p>
+     *
+     * @throws DomTripException if requirements are not fulfilled.
      */
     public Coordinates {
         requireNonNull(artifactId, "artifactId cannot be null");
         if (artifactId.trim().isEmpty()) {
-            throw new IllegalArgumentException("artifactId cannot be empty");
+            throw new DomTripException("artifactId cannot be empty");
         }
         // Validate groupId if present
         if (groupId != null && groupId.trim().isEmpty()) {
-            throw new IllegalArgumentException("groupId cannot be empty (but can be null)");
+            throw new DomTripException("groupId cannot be empty (but can be null)");
         }
         // Validate version if present
         if (version != null && version.trim().isEmpty()) {
-            throw new IllegalArgumentException("version cannot be empty (but can be null)");
+            throw new DomTripException("version cannot be empty (but can be null)");
         }
         // Normalize type to "jar" if null or empty
         if (type == null || type.trim().isEmpty()) {

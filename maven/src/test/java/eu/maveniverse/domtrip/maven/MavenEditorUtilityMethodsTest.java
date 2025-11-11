@@ -146,7 +146,7 @@ class MavenEditorUtilityMethodsTest {
         element.addNode(Element.text("groupId", "org.example"));
 
         // ArtifactId is always required
-        assertThrows(IllegalArgumentException.class, () -> editor.toCoordinates(element, "jar"));
+        assertThrows(DomTripException.class, () -> editor.toCoordinates(element, "jar"));
     }
 
     @Test

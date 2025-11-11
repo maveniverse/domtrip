@@ -136,8 +136,7 @@ public class Editor {
      * editor.addElement(root, "version", "1.0");
      * }</pre>
      *
-     * @param document the existing Document to edit, must not be null
-     * @throws IllegalArgumentException if document is null
+     * @param document the existing Document to edit, may be null
      * @see #Editor(Document, DomTripConfig)
      * @see Document
      */
@@ -166,9 +165,8 @@ public class Editor {
      * Editor editor = new Editor(doc, DomTripConfig.minimal());
      * }</pre>
      *
-     * @param document the existing Document to edit, must not be null
+     * @param document the existing Document to edit, may be null
      * @param config the configuration to use, or null for default configuration
-     * @throws IllegalArgumentException if document is null
      * @see #Editor(Document)
      * @see DomTripConfig
      */

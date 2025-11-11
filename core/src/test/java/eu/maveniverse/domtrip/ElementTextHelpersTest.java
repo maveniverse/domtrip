@@ -79,8 +79,7 @@ class ElementTextHelpersTest {
     void testChildTextRequired_withMissingChild() throws DomTripException {
         Element parent = Element.of("dependency");
 
-        IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> parent.childTextRequired("groupId"));
+        DomTripException exception = assertThrows(DomTripException.class, () -> parent.childTextRequired("groupId"));
 
         assertTrue(exception.getMessage().contains("groupId"));
         assertTrue(exception.getMessage().contains("dependency"));

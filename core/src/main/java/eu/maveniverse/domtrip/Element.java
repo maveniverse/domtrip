@@ -1020,13 +1020,13 @@ public class Element extends ContainerNode {
      *
      * @param childName the name of the child element
      * @return the text content of the child
-     * @throws IllegalArgumentException if the child element is not found
+     * @throws DomTripException if the child element is not found
      * @since 0.3.0
      */
     public String childTextRequired(String childName) {
         return child(childName)
                 .map(Element::textContent)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new DomTripException(
                         "Required child element '" + childName + "' not found in element '" + name + "'"));
     }
 
@@ -1350,7 +1350,7 @@ public class Element extends ContainerNode {
      * @param qname the QName for the element
      * @param content the text content to add
      * @return a new Element with namespace configuration and text content
-     * @throws IllegalArgumentException if qname is null
+     * @throws DomTripException if qname is null
      */
     public static Element text(QName qname, String content) throws DomTripException {
         Element element = of(qname);

@@ -235,12 +235,12 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(result);
     }
 
-    public Document parseWithCleanup(InputStream inputStream) {
+    public Document parseWithCleanup(InputStream inputStream) throws DomTripException {
         try {
             return Document.of(inputStream);
-        } catch (Exception e) {
+        } catch (DomTripException e) {
             System.err.println("Parse failed: " + e.getMessage());
-            throw new RuntimeException(e);
+            throw e;
         } finally {
             // Ensure resources are cleaned up
             try {
@@ -266,12 +266,12 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     public Document safeParse(String xml) throws DomTripException {
         // Pre-validation
         if (xml == null || xml.trim().isEmpty()) {
-            throw new IllegalArgumentException("XML content cannot be null or empty");
+            throw new DomTripException("XML content cannot be null or empty");
         }
 
         // Basic structure check
         if (!xml.trim().startsWith("<")) {
-            throw new IllegalArgumentException("Content does not appear to be XML");
+            throw new DomTripException("Content does not appear to be XML");
         }
 
         // Check for obvious issues
@@ -308,11 +308,11 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         }
     }
 
-    public void safeSetAttribute(Element element, String name, String value) {
+    public void safeSetAttribute(Element element, String name, String value) throws DomTripException {
         try {
             // Validate attribute name
             if (!isValidXmlName(name)) {
-                throw new IllegalArgumentException("Invalid attribute name: " + name);
+                throw new DomTripException("Invalid attribute name: " + name);
             }
 
             element.attribute(name, value);
@@ -334,7 +334,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             Document document = Document.of(xml);
             Editor editor = new Editor(document);
             // ... complex operations
-        } catch (Exception e) {
+        } catch (DomTripException e) {
             // Get detailed context (conceptual - actual API may vary)
             String context = e.getMessage();
             System.err.println("Error context: " + context);
@@ -356,7 +356,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             Document document = Document.of(xml);
             Editor editor = new Editor(document);
             // Operations will provide detailed validation
-        } catch (Exception e) {
+        } catch (DomTripException e) {
             // Detailed validation errors
             System.err.println("Validation details: " + e.getMessage());
         }
@@ -392,16 +392,15 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             System.err.println("ERROR: " + String.format(message.replace("{}", "%s"), args));
         }
 
-        public Document processXml(String xml) {
+        public Document processXml(String xml) throws DomTripException {
             try {
                 logDebug("Parsing XML document, length: {}", xml.length());
                 Document doc = Document.of(xml);
                 logInfo("Successfully parsed XML document");
                 return doc;
-
-            } catch (Exception e) {
+            } catch (DomTripException e) {
                 logError("DomTrip processing error: {}", e.getMessage());
-                throw new RuntimeException(e);
+                throw e;
             }
         }
     }

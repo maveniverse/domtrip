@@ -457,7 +457,7 @@ public class PomEditor extends AbstractMavenEditor {
      * Sets {@code project/version} or {@code project/parent/version} (if project version doesn't exist).
      *
      * @param value the version value
-     * @throws IllegalArgumentException if no version element can be found
+     * @throws DomTripException if no version element can be found
      */
     public void setVersion(String value) throws DomTripException {
         Element version = findChildElement(root(), VERSION);
@@ -471,7 +471,7 @@ public class PomEditor extends AbstractMavenEditor {
             version.textContent(value);
             return;
         }
-        throw new IllegalArgumentException("Could not set version");
+        throw new DomTripException("Could not set version");
     }
 
     /**

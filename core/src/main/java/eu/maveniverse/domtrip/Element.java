@@ -661,6 +661,7 @@ public class Element extends ContainerNode {
     /**
      * Gets the text content of this element (concatenates all text children)
      */
+    @Override
     public String textContent() {
         StringBuilder sb = new StringBuilder();
         for (Node child : nodes) {

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 public class EditorApiSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicEditorUsage() {
+    public void demonstrateBasicEditorUsage() throws DomTripException {
         // START: basic-editor-usage
         // Create new editor
         Editor editor = new Editor();
@@ -38,7 +38,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSerializationOptions() {
+    public void demonstrateSerializationOptions() throws DomTripException {
         // START: serialization-options
         String xml = "<root><child>value</child></root>";
         Editor editor = new Editor(Document.of(xml));
@@ -59,7 +59,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementFinding() {
+    public void demonstrateElementFinding() throws DomTripException {
         // START: element-finding
         String xml = "<project><version>1.0</version><dependency><version>2.0</version></dependency></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -78,7 +78,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementAddition() {
+    public void demonstrateElementAddition() throws DomTripException {
         // START: element-addition
         String xml = "<project></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -97,7 +97,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBatchElementCreation() {
+    public void demonstrateBatchElementCreation() throws DomTripException {
         // START: batch-element-creation
         String xml = "<project></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -118,7 +118,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementRemoval() {
+    public void demonstrateElementRemoval() throws DomTripException {
         // START: element-removal
         String xml = "<project><deprecated>old</deprecated><version>1.0</version></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -137,7 +137,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateTextContentOperations() {
+    public void demonstrateTextContentOperations() throws DomTripException {
         // START: text-content-operations
         String xml = "<project><version>1.0</version></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -157,7 +157,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeOperations() {
+    public void demonstrateAttributeOperations() throws DomTripException {
         // START: attribute-operations
         String xml = "<dependency scope='test'></dependency>";
         Editor editor = new Editor(Document.of(xml));
@@ -179,7 +179,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBatchAttributeOperations() {
+    public void demonstrateBatchAttributeOperations() throws DomTripException {
         // START: batch-attribute-operations
         String xml = "<dependency></dependency>";
         Editor editor = new Editor(Document.of(xml));
@@ -197,7 +197,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAdvancedAttributeFormatting() {
+    public void demonstrateAdvancedAttributeFormatting() throws DomTripException {
         // START: advanced-attribute-formatting
         String xml = "<element attr1='existing'></element>";
         Editor editor = new Editor(Document.of(xml));
@@ -219,7 +219,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentOperations() {
+    public void demonstrateCommentOperations() throws DomTripException {
         // START: comment-operations
         String xml = "<project><version>1.0</version></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -239,7 +239,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFluentBuilderApi() {
+    public void demonstrateFluentBuilderApi() throws DomTripException {
         // START: fluent-builder-api
         String xml = "<project></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -280,7 +280,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSafeNavigation() {
+    public void demonstrateSafeNavigation() throws DomTripException {
         // START: safe-navigation
         String xml = "<project><version>1.0</version></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -302,7 +302,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBestPractices() {
+    public void demonstrateBestPractices() throws DomTripException {
         // START: best-practices
         String xml = "<project></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -326,7 +326,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateThreadSafetyPattern() {
+    public void demonstrateThreadSafetyPattern() throws DomTripException {
         // START: thread-safety-pattern
         String xml = "<project></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -362,7 +362,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBasicConstructors() {
+    public void demonstrateBasicConstructors() throws DomTripException {
         // START: basic-constructors
         // Default constructor
         Editor editor = new Editor();
@@ -387,7 +387,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAdvancedConstructorExamples() {
+    public void demonstrateAdvancedConstructorExamples() throws DomTripException {
         // START: advanced-constructor-examples
         // Working with an existing document
         String xmlString = "<project><version>1.0</version></project>";
@@ -410,7 +410,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBasicOperations() {
+    public void demonstrateBasicOperations() throws DomTripException {
         // START: basic-operations
         // Get document
         Editor editor = new Editor();
@@ -438,7 +438,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementOperations() {
+    public void demonstrateElementOperations() throws DomTripException {
         // START: element-operations
         String xml = "<project><version>1.0</version><dependency><version>2.0</version></dependency></project>";
         Editor editor = new Editor(Document.of(xml));
@@ -470,7 +470,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeManagement() {
+    public void demonstrateAttributeManagement() throws DomTripException {
         // START: attribute-management
         String xml = "<dependency scope='test'></dependency>";
         Editor editor = new Editor(Document.of(xml));
@@ -503,7 +503,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentManagement() {
+    public void demonstrateCommentManagement() throws DomTripException {
         // START: comment-management
         String xml = "<project><version>1.0</version></project>";
         Editor editor = new Editor(Document.of(xml));

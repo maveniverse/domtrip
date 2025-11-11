@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class WhitespaceCaptureParsingTest {
 
     @Test
-    void testOpenTagWhitespaceCapture() {
+    void testOpenTagWhitespaceCapture() throws DomTripException {
         String xml = "<element   attr='value'   >content</element>";
 
         Document doc = Document.of(xml);
@@ -20,7 +20,7 @@ class WhitespaceCaptureParsingTest {
     }
 
     @Test
-    void testCloseTagWhitespaceCapture() {
+    void testCloseTagWhitespaceCapture() throws DomTripException {
         String xml = "<element>content</   element   >";
 
         Document doc = Document.of(xml);
@@ -31,7 +31,7 @@ class WhitespaceCaptureParsingTest {
     }
 
     @Test
-    void testNodePrecedingWhitespaceCapture() {
+    void testNodePrecedingWhitespaceCapture() throws DomTripException {
         String xml = "<root>\n    <child>content</child>\n</root>";
 
         Document doc = Document.of(xml);
@@ -42,7 +42,7 @@ class WhitespaceCaptureParsingTest {
     }
 
     @Test
-    void testNodeFollowingWhitespaceCapture() {
+    void testNodeFollowingWhitespaceCapture() throws DomTripException {
         String xml = "<root>\n    <child>content</child>\n</root>";
 
         Document doc = Document.of(xml);
@@ -53,7 +53,7 @@ class WhitespaceCaptureParsingTest {
     }
 
     @Test
-    void testComplexWhitespaceCapture() {
+    void testComplexWhitespaceCapture() throws DomTripException {
         String xml = "<root>\n  <parent   attr='value'   >\n    <child>content</   child   >\n  </parent>\n</root>";
 
         Document doc = Document.of(xml);
@@ -69,7 +69,7 @@ class WhitespaceCaptureParsingTest {
     }
 
     @Test
-    void testWhitespacePreservationAfterCapture() {
+    void testWhitespacePreservationAfterCapture() throws DomTripException {
         String xml = "<root>\n  <element   attr='value'   >content</   element   >\n</root>";
 
         Document doc = Document.of(xml);

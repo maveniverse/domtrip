@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import org.junit.jupiter.api.Assertions;
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test;
 public class ExamplesSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateSimpleElementModification() {
+    public void demonstrateSimpleElementModification() throws DomTripException {
         // START: simple-element-modification
         String xml =
                 """
@@ -46,7 +47,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAddingNewElements() {
+    public void demonstrateAddingNewElements() throws DomTripException {
         // START: adding-new-elements
         Document doc = Document.of("<project></project>");
         Editor editor = new Editor(doc);
@@ -72,7 +73,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMavenPomEditing() {
+    public void demonstrateMavenPomEditing() throws DomTripException {
         // START: maven-pom-adding-dependencies
         String pomXml =
                 """
@@ -109,7 +110,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateUpdatingVersion() {
+    public void demonstrateUpdatingVersion() throws DomTripException {
         // START: maven-pom-updating-version
         String pomContent = createMavenPomXml();
         Document doc = Document.of(pomContent);
@@ -136,7 +137,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeManipulation() {
+    public void demonstrateAttributeManipulation() throws DomTripException {
         // START: attribute-manipulation
         String xmlContent = createConfigXml();
         Document doc = Document.of(xmlContent);
@@ -190,7 +191,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBestPracticesOptional() {
+    public void demonstrateBestPracticesOptional() throws DomTripException {
         // START: best-practices-optional
         String xml = createMavenPomXml();
         Document doc = Document.of(xml);
@@ -211,7 +212,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePreserveFormatting() {
+    public void demonstratePreserveFormatting() throws DomTripException {
         // START: best-practices-preserve-formatting
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -226,7 +227,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSpringConfiguration() {
+    public void demonstrateSpringConfiguration() throws DomTripException {
         // START: spring-configuration
         String springConfig =
                 """
@@ -271,7 +272,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWorkingWithNamespaces() {
+    public void demonstrateWorkingWithNamespaces() throws DomTripException {
         // START: working-with-namespaces
         String xmlWithNamespaces =
                 """
@@ -303,7 +304,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBuilderPatterns() {
+    public void demonstrateBuilderPatterns() throws DomTripException {
         // START: using-builder-patterns
         // Create elements using factory methods (simplified builder pattern)
         Element dependency = Element.of("dependency");

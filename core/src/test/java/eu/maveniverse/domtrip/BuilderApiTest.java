@@ -53,7 +53,7 @@ public class BuilderApiTest {
     }
 
     @Test
-    void testElementsFactory() {
+    void testElementsFactory() throws DomTripException {
         // Test text element
         Element textEl = Element.text("name", "content");
         assertEquals("name", textEl.name());
@@ -78,7 +78,7 @@ public class BuilderApiTest {
     }
 
     @Test
-    void testElementsFluentApi() {
+    void testElementsFluentApi() throws DomTripException {
         Element element = Element.of("complex")
                 .attribute("attr1", "value1")
                 .attribute("attr2", "value2")
@@ -97,7 +97,7 @@ public class BuilderApiTest {
     }
 
     @Test
-    void testDocumentsFactory() {
+    void testDocumentsFactory() throws DomTripException {
         // Test empty document
         Document empty = Document.of();
         assertNotNull(empty);
@@ -123,7 +123,7 @@ public class BuilderApiTest {
     }
 
     @Test
-    void testDocumentsBuilder() {
+    void testDocumentsBuilder() throws DomTripException {
         Document doc = Document.of()
                 .version("1.1")
                 .encoding("ISO-8859-1")
@@ -142,7 +142,7 @@ public class BuilderApiTest {
     }
 
     @Test
-    void testEditorFluentBuilder() {
+    void testEditorFluentBuilder() throws DomTripException {
         editor.createDocument("root");
         Element root = editor.root();
 
@@ -188,35 +188,25 @@ public class BuilderApiTest {
     }
 
     @Test
-    void testEditorBuilderRequiresParent() {
+    void testEditorBuilderRequiresParent() throws DomTripException {
         editor.createDocument("root");
 
         // Element builder should require parent
-        assertThrows(IllegalStateException.class, () -> {
-            try {
-                editor.add().element("test").build();
-            } catch (DomTripException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        assertThrows(DomTripException.class, () -> editor.add().element("test").build());
 
         // Comment builder should require parent
-        assertThrows(IllegalStateException.class, () -> {
-            try {
-                editor.add().comment().withContent("test").build();
-            } catch (DomTripException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        assertThrows(
+                DomTripException.class,
+                () -> editor.add().comment().withContent("test").build());
 
         // Text builder should require parent
-        assertThrows(IllegalStateException.class, () -> {
-            editor.add().text().withContent("test").build();
-        });
+        assertThrows(
+                DomTripException.class,
+                () -> editor.add().text().withContent("test").build());
     }
 
     @Test
-    void testEditorBuilderSelfClosing() {
+    void testEditorBuilderSelfClosing() throws DomTripException {
         editor.createDocument("root");
         Element root = editor.root();
 
@@ -232,7 +222,7 @@ public class BuilderApiTest {
     }
 
     @Test
-    void testEditorBuilderWithMultipleAttributes() {
+    void testEditorBuilderWithMultipleAttributes() throws DomTripException {
         editor.createDocument("root");
         Element root = editor.root();
 
@@ -255,7 +245,7 @@ public class BuilderApiTest {
     }
 
     @Test
-    void testBuilderIntegrationWithSerialization() {
+    void testBuilderIntegrationWithSerialization() throws DomTripException {
         // Create a complex document using builders
         Document doc = Document.of()
                 .version("1.0")

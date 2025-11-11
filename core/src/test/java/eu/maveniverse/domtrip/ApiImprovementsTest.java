@@ -22,7 +22,7 @@ public class ApiImprovementsTest {
     }
 
     @Test
-    void testQNameCreation() {
+    void testQNameCreation() throws DomTripException {
         // Test basic QName creation
         QName simple = QName.of("version");
         assertEquals("version", simple.localName());
@@ -48,7 +48,7 @@ public class ApiImprovementsTest {
     }
 
     @Test
-    void testQNameParsing() {
+    void testQNameParsing() throws DomTripException {
         // Test parsing simple name
         QName simple = QName.parse("version");
         assertEquals("version", simple.localName());
@@ -61,14 +61,14 @@ public class ApiImprovementsTest {
         assertEquals("soap:Envelope", prefixed.qualifiedName());
 
         // Test invalid names
-        assertThrows(IllegalArgumentException.class, () -> QName.parse(null));
-        assertThrows(IllegalArgumentException.class, () -> QName.parse(""));
-        assertThrows(IllegalArgumentException.class, () -> QName.parse(":invalid"));
-        assertThrows(IllegalArgumentException.class, () -> QName.parse("invalid:"));
+        assertThrows(DomTripException.class, () -> QName.parse(null));
+        assertThrows(DomTripException.class, () -> QName.parse(""));
+        assertThrows(DomTripException.class, () -> QName.parse(":invalid"));
+        assertThrows(DomTripException.class, () -> QName.parse("invalid:"));
     }
 
     @Test
-    void testQNameMatching() {
+    void testQNameMatching() throws DomTripException {
         QName qname1 = QName.of("http://example.com", "test");
         QName qname2 = QName.of("http://example.com", "test", "ex");
         QName qname3 = QName.of("http://other.com", "test");
@@ -220,7 +220,7 @@ public class ApiImprovementsTest {
     }
 
     @Test
-    void testQNameElementBuilder() {
+    void testQNameElementBuilder() throws DomTripException {
         // Test QName-based element creation
         QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
         Element envelope = Element.of(soapEnvelope);

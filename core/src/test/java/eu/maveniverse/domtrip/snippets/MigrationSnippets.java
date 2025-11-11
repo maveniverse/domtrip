@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.List;
@@ -19,7 +20,7 @@ import org.junit.jupiter.api.Test;
 public class MigrationSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateDOM4JDocumentLoading() {
+    public void demonstrateDOM4JDocumentLoading() throws DomTripException {
         // START: dom4j-document-loading
         // DOM4J
         // SAXReader reader = new SAXReader();
@@ -36,7 +37,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDOM4JElementNavigation() {
+    public void demonstrateDOM4JElementNavigation() throws DomTripException {
         // START: dom4j-element-navigation
         // DOM4J
         // Element root = document.getDocumentElement();
@@ -58,7 +59,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDOM4JAddingElements() {
+    public void demonstrateDOM4JAddingElements() throws DomTripException {
         // START: dom4j-adding-elements
         // DOM4J
         // Element parent = root.element("dependencies");
@@ -82,7 +83,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDOM4JAttributeHandling() {
+    public void demonstrateDOM4JAttributeHandling() throws DomTripException {
         // START: dom4j-attribute-handling
         // DOM4J
         // element.addAttribute("scope", "test");
@@ -101,7 +102,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDOM4JSerialization() {
+    public void demonstrateDOM4JSerialization() throws DomTripException {
         // START: dom4j-serialization
         // DOM4J
         // OutputFormat format = OutputFormat.createPrettyPrint();
@@ -121,7 +122,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateJDOMDocumentLoading() {
+    public void demonstrateJDOMDocumentLoading() throws DomTripException {
         // START: jdom-document-loading
         // JDOM
         // SAXBuilder builder = new SAXBuilder();
@@ -138,7 +139,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateJDOMElementOperations() {
+    public void demonstrateJDOMElementOperations() throws DomTripException {
         // START: jdom-element-operations
         // JDOM
         // Element root = document.getDocumentElement();
@@ -170,7 +171,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateJDOMTextContent() {
+    public void demonstrateJDOMTextContent() throws DomTripException {
         // START: jdom-text-content
         // JDOM
         // element.setText("new content");
@@ -189,7 +190,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateJavaDOMDocumentLoading() {
+    public void demonstrateJavaDOMDocumentLoading() throws DomTripException {
         // START: java-dom-document-loading
         // Java DOM
         // DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -207,7 +208,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateJavaDOMElementNavigation() {
+    public void demonstrateJavaDOMElementNavigation() throws DomTripException {
         // START: java-dom-element-navigation
         // Java DOM
         // Element root = document.getDocumentElement();
@@ -227,7 +228,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateJavaDOMCreatingElements() {
+    public void demonstrateJavaDOMCreatingElements() throws DomTripException {
         // START: java-dom-creating-elements
         // Java DOM
         // Element newElement = document.createElement("newChild");
@@ -247,7 +248,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateJavaDOMAttributes() {
+    public void demonstrateJavaDOMAttributes() throws DomTripException {
         // START: java-dom-attributes
         // Java DOM
         // element.setAttribute("scope", "test");
@@ -266,7 +267,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateJacksonXMLSimpleParsing() {
+    public void demonstrateJacksonXMLSimpleParsing() throws DomTripException {
         // START: jackson-xml-simple-parsing
         // Jackson XML
         // XmlMapper mapper = new XmlMapper();
@@ -286,7 +287,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateJacksonXMLObjectMapping() {
+    public void demonstrateJacksonXMLObjectMapping() throws DomTripException {
         // START: jackson-xml-object-mapping
         // Jackson XML (object mapping)
         // @JacksonXmlRootElement(localName = "dependency")
@@ -351,7 +352,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceHandling() {
+    public void demonstrateNamespaceHandling() throws DomTripException {
         // START: migration-namespace-handling
         // DOM4J
         // Namespace ns = Namespace.get("soap", "http://schemas.xmlsoap.org/soap/envelope/");
@@ -370,7 +371,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateXPathQueries() {
+    public void demonstrateXPathQueries() throws DomTripException {
         // START: migration-xpath-queries
         // DOM4J (XPath support)
         // List<Element> nodes = document.selectNodes("//dependency[scope='test']");
@@ -390,7 +391,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMemoryUsage() {
+    public void demonstrateMemoryUsage() throws DomTripException {
         // START: migration-memory-usage
         // Old approach (minimal memory)
         // Document doc = parser.parse(xml);
@@ -408,7 +409,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateGradualMigrationPhase1() {
+    public void demonstrateGradualMigrationPhase1() throws DomTripException {
         // START: gradual-migration-phase1
         // New features use DomTrip
         // public void addDependency(String pomPath, Dependency dep) {
@@ -429,7 +430,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateGradualMigrationPhase2() {
+    public void demonstrateGradualMigrationPhase2() throws DomTripException {
         // START: gradual-migration-phase2
         // Configuration file editing (formatting critical)
         // public void updateConfig(String configPath, Map<String, String> updates) {
@@ -451,7 +452,7 @@ public class MigrationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateGradualMigrationPhase3() {
+    public void demonstrateGradualMigrationPhase3() throws DomTripException {
         // START: gradual-migration-phase3
         // Data extraction (formatting less critical)
         // public List<String> extractValues(String xml) {

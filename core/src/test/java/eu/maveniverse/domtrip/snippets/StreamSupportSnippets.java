@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.List;
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test;
 public class StreamSupportSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicStreamNavigation() {
+    public void demonstrateBasicStreamNavigation() throws DomTripException {
         // START: basic-stream-navigation
         Document doc = Document.of(
                 """
@@ -54,7 +55,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFilteringStreams() {
+    public void demonstrateFilteringStreams() throws DomTripException {
         // START: filtering-streams
         Document doc = Document.of(
                 """
@@ -98,7 +99,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDescendantStreams() {
+    public void demonstrateDescendantStreams() throws DomTripException {
         // START: descendant-streams
         Document doc = Document.of(
                 """
@@ -136,7 +137,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamTransformations() {
+    public void demonstrateStreamTransformations() throws DomTripException {
         // START: stream-transformations
         Document doc = Document.of(
                 """
@@ -177,7 +178,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamAggregation() {
+    public void demonstrateStreamAggregation() throws DomTripException {
         // START: stream-aggregation
         Document doc = Document.of(
                 """
@@ -219,7 +220,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamModification() {
+    public void demonstrateStreamModification() throws DomTripException {
         // START: stream-modification
         Document doc = Document.of(
                 """
@@ -262,7 +263,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateComplexStreamQueries() {
+    public void demonstrateComplexStreamQueries() throws DomTripException {
         // START: complex-stream-queries
         Document doc = Document.of(
                 """
@@ -320,7 +321,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamWithOptionals() {
+    public void demonstrateStreamWithOptionals() throws DomTripException {
         // START: stream-with-optionals
         Document doc = Document.of(
                 """
@@ -368,7 +369,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateParallelStreams() {
+    public void demonstrateParallelStreams() throws DomTripException {
         // START: parallel-streams
         Document doc = Document.of(
                 """
@@ -406,7 +407,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamChaining() {
+    public void demonstrateStreamChaining() throws DomTripException {
         // START: stream-chaining
         Document doc = Document.of(
                 """

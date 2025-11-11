@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class NumericCharRefDebugTest {
 
     @Test
-    void debugNumericCharacterReferences() {
+    void debugNumericCharacterReferences() throws DomTripException {
         String xml = "<root attr=\"line1&#10;line2\"/>";
         Document doc = Document.of(xml);
 
@@ -26,7 +26,7 @@ public class NumericCharRefDebugTest {
     }
 
     @Test
-    void debugHexNumericCharacterReferences() {
+    void debugHexNumericCharacterReferences() throws DomTripException {
         String xml = "<root attr=\"&#x3C;test&#x3E;\"/>";
         Document doc = Document.of(xml);
 

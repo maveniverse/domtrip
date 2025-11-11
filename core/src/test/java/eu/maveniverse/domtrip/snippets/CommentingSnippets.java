@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class CommentingSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateCommentOutSingleElement() {
+    public void demonstrateCommentOutSingleElement() throws DomTripException {
         // START: comment-out-single-element
         Document doc = Document.of(
                 """
@@ -43,7 +43,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentOutMultipleElements() {
+    public void demonstrateCommentOutMultipleElements() throws DomTripException {
         // START: comment-out-multiple-elements
         Document doc = Document.of(
                 """
@@ -76,7 +76,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateUncommentElement() {
+    public void demonstrateUncommentElement() throws DomTripException {
         // START: uncomment-element
         Document doc = Document.of(
                 """
@@ -108,7 +108,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWhitespacePreservation() {
+    public void demonstrateWhitespacePreservation() throws DomTripException {
         Document doc = Document.of(
                 """
             <project>
@@ -135,7 +135,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRoundTripOperations() {
+    public void demonstrateRoundTripOperations() throws DomTripException {
         Document doc = Document.of(
                 """
             <project>
@@ -165,7 +165,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorHandling() {
+    public void demonstrateErrorHandling() throws DomTripException {
         Document doc = Document.of("<project><child1/></project>");
         Editor editor = new Editor(doc);
 
@@ -189,7 +189,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateIntegrationWithOtherFeatures() {
+    public void demonstrateIntegrationWithOtherFeatures() throws DomTripException {
         Document doc = Document.of(
                 """
             <project>

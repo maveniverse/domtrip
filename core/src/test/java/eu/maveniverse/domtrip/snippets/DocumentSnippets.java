@@ -3,6 +3,7 @@ package eu.maveniverse.domtrip.snippets;
 import eu.maveniverse.domtrip.Comment;
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.Node;
@@ -21,7 +22,7 @@ import org.junit.jupiter.api.Test;
 public class DocumentSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateDocumentCreation() {
+    public void demonstrateDocumentCreation() throws DomTripException {
         // START: document-creation
         // Create empty document
         Document doc = Document.of();
@@ -44,7 +45,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFluentAPI() {
+    public void demonstrateFluentAPI() throws DomTripException {
         // START: fluent-api
         // Build document using fluent API
         Document doc = Document.withXmlDeclaration("1.1", "UTF-8");
@@ -108,7 +109,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRootElementManagement() {
+    public void demonstrateRootElementManagement() throws DomTripException {
         // START: root-element-management
         Document doc = Document.of();
 
@@ -124,7 +125,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRootElementWithNamespaces() {
+    public void demonstrateRootElementWithNamespaces() throws DomTripException {
         // START: root-element-namespaces
         Document doc = Document.of();
 
@@ -141,7 +142,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAddingTopLevelNodes() {
+    public void demonstrateAddingTopLevelNodes() throws DomTripException {
         // START: adding-top-level-nodes
         Document doc = Document.withRootElement("html");
 
@@ -161,7 +162,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentTraversal() {
+    public void demonstrateDocumentTraversal() throws DomTripException {
         // START: document-traversal
         String xml =
                 """
@@ -211,7 +212,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDoctypePreservation() {
+    public void demonstrateDoctypePreservation() throws DomTripException {
         // START: doctype-preservation
         String xmlWithDoctype =
                 """
@@ -231,7 +232,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNodeCounting() {
+    public void demonstrateNodeCounting() throws DomTripException {
         // START: node-counting
         String complexXml =
                 """
@@ -259,7 +260,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBasicSerialization() {
+    public void demonstrateBasicSerialization() throws DomTripException {
         // START: basic-serialization
         Document doc = Document.withRootElement("root");
 
@@ -271,7 +272,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCustomSerialization() {
+    public void demonstrateCustomSerialization() throws DomTripException {
         // START: custom-serialization
         Document doc = Document.withRootElement("root");
 
@@ -287,7 +288,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentCloning() {
+    public void demonstrateDocumentCloning() throws DomTripException {
         // START: document-cloning
         String xmlString = "<root><child>value</child></root>";
         Document original = Document.of(xmlString);
@@ -302,7 +303,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentValidation() {
+    public void demonstrateDocumentValidation() throws DomTripException {
         // START: document-validation
         Document doc = Document.withRootElement("root");
 
@@ -320,7 +321,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEditorIntegration() {
+    public void demonstrateEditorIntegration() throws DomTripException {
         // START: editor-integration
         // Create document and edit
         Document doc = Document.withRootElement("config");

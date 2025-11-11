@@ -11,6 +11,7 @@ import static eu.maveniverse.domtrip.maven.MavenSettingsElements.Elements.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.maven.SettingsEditor;
 import org.junit.jupiter.api.Test;
@@ -21,7 +22,7 @@ import org.junit.jupiter.api.Test;
 public class SettingsEditorSnippets {
 
     @Test
-    void testSnippets() {
+    void testSnippets() throws DomTripException {
         // All snippets should compile and run
         basicSettingsCreation();
         addingServers();
@@ -29,7 +30,7 @@ public class SettingsEditorSnippets {
         addingProfiles();
     }
 
-    void basicSettingsCreation() {
+    void basicSettingsCreation() throws DomTripException {
         // START: basic-settings-creation
         // Create a new settings document
         SettingsEditor editor = new SettingsEditor();
@@ -47,7 +48,7 @@ public class SettingsEditorSnippets {
         assertTrue(result.contains("<settings"));
     }
 
-    void addingServers() {
+    void addingServers() throws DomTripException {
         // START: adding-servers
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
@@ -65,7 +66,7 @@ public class SettingsEditorSnippets {
         assertTrue(result.contains("<server>"));
     }
 
-    void addingMirrors() {
+    void addingMirrors() throws DomTripException {
         // START: adding-mirrors
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();
@@ -84,7 +85,7 @@ public class SettingsEditorSnippets {
         assertTrue(result.contains("<mirror>"));
     }
 
-    void addingProfiles() {
+    void addingProfiles() throws DomTripException {
         // START: adding-profiles
         SettingsEditor editor = new SettingsEditor();
         editor.createSettingsDocument();

@@ -13,7 +13,7 @@ public class XmlConformanceLimitationsTest {
     // ========== PREVIOUSLY PROBLEMATIC CASES - NOW FIXED! ==========
 
     @Test
-    void testNumericCharacterReferencesInAttributesNowFixed() {
+    void testNumericCharacterReferencesInAttributesNowFixed() throws DomTripException {
         // FIXED: Numeric character references in attributes are now properly decoded AND preserved
         String xml = "<root attr=\"line1&#10;line2\"/>";
         Document doc = Document.of(xml);
@@ -31,7 +31,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testDoctypeNowPreservedPerfectly() {
+    void testDoctypeNowPreservedPerfectly() throws DomTripException {
         // FIXED: DOCTYPE now round-trips perfectly without extra newline
         String xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE root SYSTEM \"example.dtd\">\n<root/>";
         Document doc = Document.of(xml);
@@ -43,7 +43,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testAttributeQuotePreservationNowFixed() {
+    void testAttributeQuotePreservationNowFixed() throws DomTripException {
         // FIXED: &quot; in single-quoted attributes is now preserved
         String xml = "<root attr='value with &quot;quotes&quot;'/>";
         Document doc = Document.of(xml);
@@ -59,7 +59,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testXmlDeclarationAttributesParsedNowFixed() {
+    void testXmlDeclarationAttributesParsedNowFixed() throws DomTripException {
         // FIXED: XML declaration attributes are now parsed correctly
         String xml = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
         Document doc = Document.of(xml);
@@ -75,7 +75,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testProcessingInstructionsPreserved() {
+    void testProcessingInstructionsPreserved() throws DomTripException {
         // XML declaration and other PIs are preserved
         String xml = "<?xml version=\"1.0\"?>\n<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n<root/>";
         Document doc = Document.of(xml);
@@ -89,7 +89,7 @@ public class XmlConformanceLimitationsTest {
     // ========== WHAT WORKS PERFECTLY ==========
 
     @Test
-    void testStandardEntitiesPreserved() {
+    void testStandardEntitiesPreserved() throws DomTripException {
         String xml = "<root>&lt;&gt;&amp;&quot;&apos;</root>";
         Document doc = Document.of(xml);
         String result = doc.toXml();
@@ -98,7 +98,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testCDataPreserved() {
+    void testCDataPreserved() throws DomTripException {
         String xml = "<root><![CDATA[<tag> & special]]></root>";
         Document doc = Document.of(xml);
         String result = doc.toXml();
@@ -107,7 +107,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testCommentsPreserved() {
+    void testCommentsPreserved() throws DomTripException {
         String xml = "<!-- comment -->\n<root/>";
         Document doc = Document.of(xml);
         String result = doc.toXml();
@@ -116,7 +116,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testWhitespacePreserved() {
+    void testWhitespacePreserved() throws DomTripException {
         String xml = "<root>  text with   spaces  </root>";
         Document doc = Document.of(xml);
         String result = doc.toXml();
@@ -125,7 +125,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testNamespacesPreserved() {
+    void testNamespacesPreserved() throws DomTripException {
         String xml =
                 "<root xmlns=\"http://example.com\" xmlns:ns=\"http://ns.com\">\n" + "  <ns:element/>\n" + "</root>";
         Document doc = Document.of(xml);
@@ -135,7 +135,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testAttributeOrderPreserved() {
+    void testAttributeOrderPreserved() throws DomTripException {
         String xml = "<root z=\"3\" a=\"1\" m=\"2\"/>";
         Document doc = Document.of(xml);
         String result = doc.toXml();
@@ -144,7 +144,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testAttributeQuoteStylePreserved() {
+    void testAttributeQuoteStylePreserved() throws DomTripException {
         String xml = "<root attr1='single' attr2=\"double\"/>";
         Document doc = Document.of(xml);
         String result = doc.toXml();
@@ -153,7 +153,7 @@ public class XmlConformanceLimitationsTest {
     }
 
     @Test
-    void testEmptyAttributesPreserved() {
+    void testEmptyAttributesPreserved() throws DomTripException {
         String xml = "<root attr=\"\"/>";
         Document doc = Document.of(xml);
         String result = doc.toXml();

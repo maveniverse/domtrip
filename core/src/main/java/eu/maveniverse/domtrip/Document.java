@@ -691,7 +691,7 @@ public class Document extends ContainerNode {
      * @param rootElementName the name of the root element
      * @return a new Document with XML declaration and root element
      */
-    public static Document withRootElement(String rootElementName) {
+    public static Document withRootElement(String rootElementName) throws DomTripException {
         return new Document()
                 .version("1.0")
                 .encoding("UTF-8")
@@ -727,7 +727,7 @@ public class Document extends ContainerNode {
      * @param rootElementName the name of the root element
      * @return a new minimal Document with only a root element
      */
-    public static Document minimal(String rootElementName) {
+    public static Document minimal(String rootElementName) throws DomTripException {
         return new Document().root(new Element(rootElementName));
     }
 

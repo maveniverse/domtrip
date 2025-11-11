@@ -257,7 +257,7 @@ class EditorInsertRemoveTest {
     }
 
     @Test
-    void testRemoveElementNullHandling() {
+    void testRemoveElementNullHandling() throws DomTripException {
         // Test null element
         assertFalse(editor.removeElement(null));
 
@@ -267,7 +267,7 @@ class EditorInsertRemoveTest {
     }
 
     @Test
-    void testAddElementNullHandling() {
+    void testAddElementNullHandling() throws DomTripException {
         // Test null parent
         assertThrows(DomTripException.class, () -> editor.addElement(null, "test"));
 

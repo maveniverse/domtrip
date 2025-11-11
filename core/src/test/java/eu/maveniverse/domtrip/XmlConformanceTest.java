@@ -20,7 +20,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testWellFormedXml() {
+    void testWellFormedXml() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<root>\n"
                 + "  <element attr=\"value\">content</element>\n"
                 + "</root>";
@@ -37,7 +37,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testEmptyElements() {
+    void testEmptyElements() throws DomTripException {
         String xml = "<root>\n" + "  <empty/>\n" + "  <also-empty></also-empty>\n" + "</root>";
 
         Document doc = Document.of(xml);
@@ -50,7 +50,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testAttributeVariations() {
+    void testAttributeVariations() throws DomTripException {
         String xml = "<root\n" + "  attr1='single'\n"
                 + "  attr2=\"double\"\n"
                 + "  attr3=  'spaced'\n"
@@ -73,7 +73,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testEntityHandling() {
+    void testEntityHandling() throws DomTripException {
         String xml =
                 "<root>\n" + "  <text>&lt;tag&gt; &amp; &quot;quotes&quot; &apos;apostrophe&apos;</text>\n" + "</root>";
 
@@ -96,7 +96,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testCDataSections() {
+    void testCDataSections() throws DomTripException {
         String xml = "<root>\n" + "  <script><![CDATA[function() { return x < y && z > 0; }]]></script>\n"
                 + "  <mixed>Text <![CDATA[and CDATA]]> together</mixed>\n"
                 + "</root>";
@@ -111,7 +111,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testComments() {
+    void testComments() throws DomTripException {
         String xml = "<!-- Document comment -->\n" + "<root>\n"
                 + "  <!-- Element comment -->\n"
                 + "  <element>content</element>\n"
@@ -130,7 +130,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testWhitespaceHandling() {
+    void testWhitespaceHandling() throws DomTripException {
         String xml = "<root>\n" + "    <element>  content with spaces  </element>\n"
                 + "    <preserve xml:space=\"preserve\">  preserve this  </preserve>\n"
                 + "</root>";
@@ -155,7 +155,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testNamespaces() {
+    void testNamespaces() throws DomTripException {
         String xml = "<root xmlns=\"http://example.com/default\" xmlns:ns=\"http://example.com/ns\">\n"
                 + "  <element>default namespace</element>\n"
                 + "  <ns:element>namespaced</ns:element>\n"
@@ -172,7 +172,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testProcessingInstructions() {
+    void testProcessingInstructions() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n"
                 + "<root>\n"
                 + "  <?target instruction data?>\n"
@@ -188,7 +188,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testMixedContent() {
+    void testMixedContent() throws DomTripException {
         String xml = "<root>\n" + "  Text before <element>element content</element> text after\n"
                 + "  <another>more content</another> and more text\n"
                 + "</root>";
@@ -207,7 +207,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testDocumentStats() {
+    void testDocumentStats() throws DomTripException {
         String xml = "<root>\n" + "  <element>text</element>\n" + "  <!-- comment -->\n" + "  <another/>\n" + "</root>";
 
         Document doc = Document.of(xml);
@@ -220,7 +220,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testMultipleCDataSections() {
+    void testMultipleCDataSections() throws DomTripException {
         String xml = "<root>\n" + "  <data><![CDATA[first]]><![CDATA[second]]><![CDATA[third]]></data>\n" + "</root>";
 
         Document doc = Document.of(xml);
@@ -234,7 +234,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testCDataEdgeCases() {
+    void testCDataEdgeCases() throws DomTripException {
         String xml = "<root>\n" + "  <empty><![CDATA[]]></empty>\n"
                 + "  <special><![CDATA[<![CDATA[nested-like]]]]></special>\n"
                 + "  <brackets><![CDATA[]]]]></brackets>\n"
@@ -251,7 +251,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testNumericCharacterReferences() {
+    void testNumericCharacterReferences() throws DomTripException {
         String xml = "<root>\n" + "  <hex>&#x3C;&#x3E;&#x26;</hex>\n" + "  <decimal>&#60;&#62;&#38;</decimal>\n"
                 + "  <unicode>&#x1F600;&#x2764;</unicode>\n"
                 + "</root>";
@@ -268,7 +268,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testEncodingDeclarations() {
+    void testEncodingDeclarations() throws DomTripException {
         String[] encodings = {"UTF-8", "UTF-16", "ISO-8859-1", "windows-1252"};
 
         for (String encoding : encodings) {
@@ -285,7 +285,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testAttributeSpecialCharacters() {
+    void testAttributeSpecialCharacters() throws DomTripException {
         String xml = "<root\n" + "  attr1=\"value with &lt;brackets&gt;\"\n"
                 + "  attr2='value with &quot;quotes&quot;'\n"
                 + "  attr3=\"value with &amp; ampersand\"\n"
@@ -308,7 +308,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testElementNamesWithSpecialCharacters() {
+    void testElementNamesWithSpecialCharacters() throws DomTripException {
         String xml = "<root>\n" + "  <element-with-dash/>\n"
                 + "  <element_with_underscore/>\n"
                 + "  <element.with.dot/>\n"
@@ -327,7 +327,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testLongAttributeValues() {
+    void testLongAttributeValues() throws DomTripException {
         StringBuilder longValue = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
             longValue.append("word").append(i).append(" ");
@@ -348,7 +348,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testLongTextContent() {
+    void testLongTextContent() throws DomTripException {
         StringBuilder longText = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
             longText.append("This is line ").append(i).append(".\n");
@@ -367,7 +367,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testMultipleNamespaceDeclarations() {
+    void testMultipleNamespaceDeclarations() throws DomTripException {
         String xml = "<root\n" + "  xmlns=\"http://default.example.com\"\n"
                 + "  xmlns:ns1=\"http://ns1.example.com\"\n"
                 + "  xmlns:ns2=\"http://ns2.example.com\"\n"
@@ -390,7 +390,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testDefaultNamespaceOverriding() {
+    void testDefaultNamespaceOverriding() throws DomTripException {
         String xml = "<root xmlns=\"http://default1.example.com\">\n"
                 + "  <child xmlns=\"http://default2.example.com\">\n"
                 + "    <grandchild/>\n"
@@ -407,7 +407,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testXmlDeclarationVariations() {
+    void testXmlDeclarationVariations() throws DomTripException {
         String[] declarations = {
             "<?xml version=\"1.0\"?>",
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
@@ -431,7 +431,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testDoctypeDeclaration() {
+    void testDoctypeDeclaration() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root SYSTEM \"example.dtd\">\n" + "<root/>";
 
         Document doc = Document.of(xml);
@@ -445,7 +445,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testDoctypeWithInternalSubset() {
+    void testDoctypeWithInternalSubset() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root [\n"
                 + "  <!ELEMENT root (child*)>\n"
                 + "  <!ELEMENT child (#PCDATA)>\n"
@@ -463,7 +463,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testEmptyAttributeValue() {
+    void testEmptyAttributeValue() throws DomTripException {
         String xml = "<root attr1=\"\" attr2='' attr3=\"value\"/>";
 
         Document doc = Document.of(xml);
@@ -481,7 +481,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testConsecutiveWhitespaceVariations() {
+    void testConsecutiveWhitespaceVariations() throws DomTripException {
         String xml = "<root>\n" + "  <element>text  with   multiple    spaces</element>\n"
                 + "  <tabs>text\t\twith\t\t\ttabs</tabs>\n"
                 + "  <mixed>text \t \t with \t mixed</mixed>\n"
@@ -511,7 +511,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testCDataWithSpecialXmlCharacters() {
+    void testCDataWithSpecialXmlCharacters() throws DomTripException {
         String xml = "<root>\n" + "  <data><![CDATA[<?xml version=\"1.0\"?>]]></data>\n"
                 + "  <comment><![CDATA[<!-- not a comment -->]]></comment>\n"
                 + "  <entity><![CDATA[&lt;&gt;&amp;]]></entity>\n"
@@ -528,7 +528,7 @@ public class XmlConformanceTest {
     }
 
     @Test
-    void testMixedContentWithWhitespace() {
+    void testMixedContentWithWhitespace() throws DomTripException {
         String xml = "<root>  \n" + "  text1  \n"
                 + "  <element>content</element>  \n"
                 + "  text2  \n"

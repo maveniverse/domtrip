@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 public class ElementApiSnippets {
 
     @Test
-    public void demonstrateElementCreation() {
+    public void demonstrateElementCreation() throws DomTripException {
         // START: element-creation
         // Create elements using factory methods
         Element simple = Element.of("dependency");
@@ -29,7 +29,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateElementBuilder() {
+    public void demonstrateElementBuilder() throws DomTripException {
         // START: element-builder
         // Build complex elements with fluent API
         Element dependency = Element.of("dependency")
@@ -50,7 +50,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateBasicAttributes() {
+    public void demonstrateBasicAttributes() throws DomTripException {
         Element element = Element.of("dependency");
 
         // START: basic-attributes
@@ -77,7 +77,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateTextContent() {
+    public void demonstrateTextContent() throws DomTripException {
         Element element = Element.of("description");
 
         // START: text-content
@@ -96,7 +96,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateWhitespacePreservingText() {
+    public void demonstrateWhitespacePreservingText() throws DomTripException {
         String xml = "<item>   old value   </item>";
         Document doc = Document.of(xml);
         Element item = doc.root();
@@ -117,7 +117,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateNodeWhitespace() {
+    public void demonstrateNodeWhitespace() throws DomTripException {
         String xml = "    <element>content</element>\n";
         Document doc = Document.of(xml);
         Element element = doc.root();
@@ -134,7 +134,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateElementTagWhitespace() {
+    public void demonstrateElementTagWhitespace() throws DomTripException {
         String xml = "<element  >content</  element>";
         Document doc = Document.of(xml);
         Element element = doc.root();
@@ -156,7 +156,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateInnerElementWhitespace() {
+    public void demonstrateInnerElementWhitespace() throws DomTripException {
         String xml = "<parent>\n    \n</parent>";
         Document doc = Document.of(xml);
         Element parent = doc.root();
@@ -173,7 +173,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateChildNavigation() {
+    public void demonstrateChildNavigation() throws DomTripException {
         Document doc = Document.of(
                 """
             <project>
@@ -202,7 +202,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateElementStreams() {
+    public void demonstrateElementStreams() throws DomTripException {
         Document doc = Document.of(
                 """
             <dependencies>
@@ -236,7 +236,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateAttributeFormatting() {
+    public void demonstrateAttributeFormatting() throws DomTripException {
         // snippet:attribute-formatting
         Element element = Element.of("dependency");
 
@@ -260,7 +260,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateNamespaceOperations() {
+    public void demonstrateNamespaceOperations() throws DomTripException {
         // snippet:namespace-operations
         // Create element with namespace
         QName qname = QName.of("http://maven.apache.org/POM/4.0.0", "project");
@@ -281,7 +281,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateQnameSupport() {
+    public void demonstrateQnameSupport() throws DomTripException {
         // snippet:qname-support
         // Create QName with namespace
         QName projectQName = QName.of("http://maven.apache.org/POM/4.0.0", "project");
@@ -302,7 +302,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateAddingChildren() {
+    public void demonstrateAddingChildren() throws DomTripException {
         // START: adding-children
         Element parent = Element.of("dependencies");
 
@@ -325,7 +325,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateRemovingElements() {
+    public void demonstrateRemovingElements() throws DomTripException {
         Document doc = Document.of(
                 """
             <project>
@@ -357,7 +357,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateElementCloning() {
+    public void demonstrateElementCloning() throws DomTripException {
         // START: element-cloning
         Element original = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
         original.addNode(Element.of("groupId").textContent("junit"));
@@ -378,7 +378,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateModificationTracking() {
+    public void demonstrateModificationTracking() throws DomTripException {
         String xml = "<element attr='value'>content</element>";
         Document doc = Document.of(xml);
         Element element = doc.root();
@@ -403,7 +403,7 @@ public class ElementApiSnippets {
     }
 
     @Test
-    public void demonstrateElementEditorIntegration() {
+    public void demonstrateElementEditorIntegration() throws DomTripException {
         String xml = "<project></project>";
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);

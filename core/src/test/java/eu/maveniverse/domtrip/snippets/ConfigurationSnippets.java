@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 public class ConfigurationSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicConfiguration() {
+    public void demonstrateBasicConfiguration() throws DomTripException {
         // START: basic-configuration
         // Use preset configurations
         DomTripConfig defaults = DomTripConfig.defaults();
@@ -191,7 +191,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEnvironmentSpecificConfigurations() {
+    public void demonstrateEnvironmentSpecificConfigurations() throws DomTripException {
         // START: environment-specific-configurations
         // Different configurations for different environments
         DomTripConfig devConfig = forDevelopment();
@@ -281,7 +281,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEmptyElementAutoDetection() {
+    public void demonstrateEmptyElementAutoDetection() throws DomTripException {
         // START: empty-element-auto-detection
         // XML with self-closing spaced empty elements
         String xml =
@@ -314,7 +314,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEmptyElementStyleComparison() {
+    public void demonstrateEmptyElementStyleComparison() throws DomTripException {
         // START: empty-element-style-comparison
         Document doc = Document.withRootElement("root");
         Element empty = Element.of("empty");

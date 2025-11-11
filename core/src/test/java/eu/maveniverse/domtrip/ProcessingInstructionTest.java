@@ -21,7 +21,7 @@ public class ProcessingInstructionTest {
     }
 
     @Test
-    void testBasicProcessingInstruction() {
+    void testBasicProcessingInstruction() throws DomTripException {
         String xml =
                 "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n" + "<root/>";
 
@@ -87,7 +87,7 @@ public class ProcessingInstructionTest {
     }
 
     @Test
-    void testMultipleProcessingInstructions() {
+    void testMultipleProcessingInstructions() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n"
                 + "<?custom-pi data=\"value\"?>\n"
                 + "<root>\n"
@@ -106,7 +106,7 @@ public class ProcessingInstructionTest {
     }
 
     @Test
-    void testProcessingInstructionInDocument() {
+    void testProcessingInstructionInDocument() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet href=\"style.css\"?>\n" + "<root/>";
 
         Document doc = Document.of(xml);
@@ -129,7 +129,7 @@ public class ProcessingInstructionTest {
     }
 
     @Test
-    void testProcessingInstructionModification() {
+    void testProcessingInstructionModification() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?custom-pi original=\"data\"?>\n" + "<root/>";
 
         Document doc = Document.of(xml);
@@ -153,7 +153,7 @@ public class ProcessingInstructionTest {
     }
 
     @Test
-    void testProcessingInstructionWithSpecialCharacters() {
+    void testProcessingInstructionWithSpecialCharacters() throws DomTripException {
         String xml = "<?target data with <special> &amp; characters?>\n<root/>";
 
         Document doc = Document.of(xml);
@@ -186,7 +186,7 @@ public class ProcessingInstructionTest {
     }
 
     @Test
-    void testProcessingInstructionInElementContent() {
+    void testProcessingInstructionInElementContent() throws DomTripException {
         String xml = "<root>\n" + "  <element>text content</element>\n"
                 + "  <?processing instruction?>\n"
                 + "  <another>more content</another>\n"
@@ -201,7 +201,7 @@ public class ProcessingInstructionTest {
     }
 
     @Test
-    void testProcessingInstructionWithoutTarget() {
+    void testProcessingInstructionWithoutTarget() throws DomTripException {
         // Test malformed PI (should still be handled)
         String xml = "<?no-target-just-data?>\n<root/>";
 
@@ -213,7 +213,7 @@ public class ProcessingInstructionTest {
     }
 
     @Test
-    void testXmlDeclarationAsProcessingInstruction() {
+    void testXmlDeclarationAsProcessingInstruction() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
 
         Document doc = Document.of(xml);

@@ -1007,13 +1007,13 @@ public class Editor {
      * @return the root element of the document
      * @throws IllegalStateException if no document is loaded or document has no root element
      */
-    public Element root() {
+    public Element root() throws DomTripException {
         if (document == null) {
-            throw new IllegalStateException("No document loaded");
+            throw new DomTripException("No document loaded");
         }
         Element root = document.root();
         if (root == null) {
-            throw new IllegalStateException("Document has no root element");
+            throw new DomTripException("Document has no root element");
         }
         return root;
     }
@@ -1132,13 +1132,7 @@ public class Editor {
      */
     public void addQNameElements(Element parent, Map<QName, String> qnameValuePairs) throws DomTripException {
         if (parent != null && qnameValuePairs != null) {
-            qnameValuePairs.forEach((qname, value) -> {
-                try {
-                    addElement(parent, qname, value);
-                } catch (DomTripException e) {
-                    throw new RuntimeException("Failed to add element: " + qname, e);
-                }
-            });
+            qnameValuePairs.forEach((qname, value) -> addElement(parent, qname, value));
         }
     }
 
@@ -1195,7 +1189,7 @@ public class Editor {
          * @param name the element name
          * @return a new EditorElementBuilder for fluent element construction
          */
-        public EditorElementBuilder element(String name) {
+        public EditorElementBuilder element(String name) throws DomTripException {
             return new EditorElementBuilder(editor, name);
         }
 
@@ -1205,7 +1199,7 @@ public class Editor {
          * @param qname the element QName
          * @return a new EditorElementBuilder for fluent element construction
          */
-        public EditorElementBuilder element(QName qname) {
+        public EditorElementBuilder element(QName qname) throws DomTripException {
             return new EditorElementBuilder(editor, qname);
         }
 
@@ -1240,12 +1234,12 @@ public class Editor {
         private final Element element;
         private ContainerNode parent;
 
-        private EditorElementBuilder(Editor editor, String name) {
+        private EditorElementBuilder(Editor editor, String name) throws DomTripException {
             this.editor = editor;
             this.element = new Element(name);
         }
 
-        private EditorElementBuilder(Editor editor, QName qname) {
+        private EditorElementBuilder(Editor editor, QName qname) throws DomTripException {
             this.editor = editor;
             this.element = Element.of(qname);
         }
@@ -1350,7 +1344,7 @@ public class Editor {
          */
         public Element build() throws DomTripException {
             if (parent == null) {
-                throw new IllegalStateException("Parent node must be specified");
+                throw new DomTripException("Parent node must be specified");
             }
 
             // Use Editor's whitespace management
@@ -1411,7 +1405,7 @@ public class Editor {
          */
         public Comment build() throws DomTripException {
             if (parent == null) {
-                throw new IllegalStateException("Parent node must be specified");
+                throw new DomTripException("Parent node must be specified");
             }
 
             // Use Editor's whitespace management
@@ -1479,9 +1473,9 @@ public class Editor {
          *
          * @return the created and added text node
          */
-        public Text build() {
+        public Text build() throws DomTripException {
             if (parent == null) {
-                throw new IllegalStateException("Parent node must be specified");
+                throw new DomTripException("Parent node must be specified");
             }
 
             parent.addNode(text);

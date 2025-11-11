@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class AttributeFormattingPreservationTest {
 
     @Test
-    void testSetAttributePreservesQuoteStyle() {
+    void testSetAttributePreservesQuoteStyle() throws DomTripException {
         // Original XML with mixed quote styles
         String xml = "<root attr1='single' attr2=\"double\"/>";
 
@@ -34,7 +34,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testSetAttributePreservesWhitespace() {
+    void testSetAttributePreservesWhitespace() throws DomTripException {
         // Original XML with custom whitespace
         String xml = "<root  attr1=\"value1\"   attr2=\"value2\"/>";
 
@@ -56,7 +56,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testSetAttributeWithQuoteCharPreservesWhitespace() {
+    void testSetAttributeWithQuoteCharPreservesWhitespace() throws DomTripException {
         // Original XML with custom whitespace
         String xml = "<root   attr1='value1'    attr2=\"value2\"/>";
 
@@ -80,7 +80,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testNewAttributesUseDefaults() {
+    void testNewAttributesUseDefaults() throws DomTripException {
         String xml = "<root existing='value'/>";
 
         Document doc = Document.of(xml);
@@ -102,7 +102,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testMavenCombineAttributeExample() {
+    void testMavenCombineAttributeExample() throws DomTripException {
         // Real-world Maven POM example with combine.children attribute
         String xml = "<configuration   combine.children='append'   combine.self=\"override\">\n" + "  <items>\n"
                 + "    <item>value</item>\n"
@@ -124,7 +124,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testComplexAttributeFormatting() {
+    void testComplexAttributeFormatting() throws DomTripException {
         // XML with various formatting patterns
         String xml = "<element\n" + "    attr1=\"value1\"\n" + "  attr2='value2'\n" + "     attr3=\"value3\"/>";
 
@@ -155,7 +155,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testRawValueIsCleared() {
+    void testRawValueIsCleared() throws DomTripException {
         // Create element with raw value
         Element element = new Element("test");
         Attribute attr = new Attribute("attr", "decoded", '"', " ", "&quot;raw&quot;");
@@ -173,7 +173,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testBackwardCompatibility() {
+    void testBackwardCompatibility() throws DomTripException {
         // Test that the new behavior doesn't break existing code patterns
         Element element = new Element("test");
 
@@ -188,7 +188,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testNullAndEmptyValues() {
+    void testNullAndEmptyValues() throws DomTripException {
         String xml = "<root attr='existing'/>";
 
         Document doc = Document.of(xml);
@@ -207,7 +207,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testEditorSetAttributeInfersQuoteStyle() {
+    void testEditorSetAttributeInfersQuoteStyle() throws DomTripException {
         // XML with predominantly single quotes
         String xml = "<root attr1='value1' attr2='value2' attr3=\"value3\"/>";
 
@@ -223,7 +223,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testEditorSetAttributeInfersDoubleQuotes() {
+    void testEditorSetAttributeInfersDoubleQuotes() throws DomTripException {
         // XML with predominantly double quotes
         String xml = "<root attr1=\"value1\" attr2=\"value2\" attr3='value3'/>";
 
@@ -239,7 +239,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testEditorSetAttributeInfersCustomWhitespace() {
+    void testEditorSetAttributeInfersCustomWhitespace() throws DomTripException {
         // XML with custom spacing
         String xml = "<root  attr1=\"value1\"   attr2=\"value2\"/>";
 
@@ -261,7 +261,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testEditorSetAttributeInfersMultiLineAlignment() {
+    void testEditorSetAttributeInfersMultiLineAlignment() throws DomTripException {
         // XML with multi-line attribute alignment - exact example from documentation
         String xml = "<element attr1=\"value1\"\n" + "         attr2=\"value2\"/>";
 
@@ -310,7 +310,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testEditorSetAttributeDocumentationExample() {
+    void testEditorSetAttributeDocumentationExample() throws DomTripException {
         // Exact example from documentation comments
         String xml = "<element attr1=\"value1\"\n" + "         attr2=\"value2\"/>";
 
@@ -351,7 +351,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testEditorSetAttributeWithNoExistingAttributes() {
+    void testEditorSetAttributeWithNoExistingAttributes() throws DomTripException {
         String xml = "<root/>";
 
         Document doc = Document.of(xml);
@@ -368,7 +368,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testEditorSetAttributePreservesExistingFormatting() {
+    void testEditorSetAttributePreservesExistingFormatting() throws DomTripException {
         String xml = "<root attr1='existing'/>";
 
         Document doc = Document.of(xml);
@@ -383,7 +383,7 @@ public class AttributeFormattingPreservationTest {
     }
 
     @Test
-    void testComplexMultiLineAttributeInference() {
+    void testComplexMultiLineAttributeInference() throws DomTripException {
         // Complex Maven-style XML with aligned attributes
         String xml = "<plugin>\n" + "  <groupId>org.apache.maven.plugins</groupId>\n"
                 + "  <artifactId>maven-compiler-plugin</artifactId>\n"

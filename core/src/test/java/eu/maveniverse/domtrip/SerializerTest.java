@@ -45,7 +45,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeDocumentWithDoctype() {
+    void testSerializeDocumentWithDoctype() throws DomTripException {
         Document doc = new Document();
         doc.xmlDeclaration("<?xml version=\"1.0\"?>");
         doc.doctype("<!DOCTYPE root SYSTEM \"root.dtd\">");
@@ -59,7 +59,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeElementWithNoChildren() {
+    void testSerializeElementWithNoChildren() throws DomTripException {
         Element element = new Element("empty");
 
         String result = element.toXml();
@@ -68,7 +68,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeElementWithAttributes() {
+    void testSerializeElementWithAttributes() throws DomTripException {
         Element element = new Element("test");
         element.attribute("attr1", "value1");
         element.attribute("attr2", "value2");
@@ -79,7 +79,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeElementWithSpecialCharactersInAttributes() {
+    void testSerializeElementWithSpecialCharactersInAttributes() throws DomTripException {
         Element element = new Element("test");
         element.attribute("attr", "value with <tags> & \"quotes\"");
 
@@ -90,7 +90,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeElementWithMixedQuotes() {
+    void testSerializeElementWithMixedQuotes() throws DomTripException {
         Element element = new Element("test");
         element.attribute("single", "value", QuoteStyle.SINGLE);
         element.attribute("double", "value", QuoteStyle.DOUBLE);
@@ -144,7 +144,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeComplexDocument() {
+    void testSerializeComplexDocument() throws DomTripException {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!-- Document comment -->\n"
                 + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n"
                 + "<root xmlns=\"http://example.com\">\n"
@@ -166,7 +166,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeWithWhitespacePreservation() {
+    void testSerializeWithWhitespacePreservation() throws DomTripException {
         String xml = "<root>\n" + "    <element   attr=\"value\"   >\n"
                 + "        content with spaces\n"
                 + "    </element>\n"
@@ -180,7 +180,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeModifiedElement() {
+    void testSerializeModifiedElement() throws DomTripException {
         String xml = "<root><element attr=\"original\">original content</element></root>";
 
         Document doc = Document.of(xml);
@@ -199,7 +199,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeWithEntityPreservation() {
+    void testSerializeWithEntityPreservation() throws DomTripException {
         String xml = "<root>\n" + "  <content>Text with &lt;entities&gt; &amp; symbols</content>\n"
                 + "  <attr value=\"&quot;quoted&quot; &amp; escaped\"/>\n"
                 + "</root>";
@@ -216,7 +216,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeLargeDocument() {
+    void testSerializeLargeDocument() throws DomTripException {
         // Create a large document
         Document doc = new Document();
         doc.xmlDeclaration("<?xml version=\"1.0\"?>");
@@ -243,7 +243,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeDeeplyNestedDocument() {
+    void testSerializeDeeplyNestedDocument() throws DomTripException {
         // Create deeply nested structure
         Document doc = new Document();
         Element root = new Element("root");
@@ -267,7 +267,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeWithNamespaces() {
+    void testSerializeWithNamespaces() throws DomTripException {
         String xml = "<root xmlns=\"http://default.ns\" xmlns:ns=\"http://custom.ns\">\n"
                 + "  <element>default namespace</element>\n"
                 + "  <ns:element>custom namespace</ns:element>\n"
@@ -281,7 +281,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeStringBuilderMethod() {
+    void testSerializeStringBuilderMethod() throws DomTripException {
         String xml = "<root><child>content</child></root>";
 
         Document doc = Document.of(xml);
@@ -294,7 +294,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeEmptyElements() {
+    void testSerializeEmptyElements() throws DomTripException {
         String xml = "<root>\n" + "  <self-closing/>\n"
                 + "  <empty></empty>\n"
                 + "  <with-content>content</with-content>\n"
@@ -312,7 +312,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializeWithMultipleTextNodes() {
+    void testSerializeWithMultipleTextNodes() throws DomTripException {
         String xml = "<root>Text 1<element/>Text 2<another/>Text 3</root>";
 
         Document doc = Document.of(xml);
@@ -323,7 +323,7 @@ public class SerializerTest {
     }
 
     @Test
-    void testSerializePerformance() {
+    void testSerializePerformance() throws DomTripException {
         // Create a moderately complex document
         Document doc = new Document();
         doc.xmlDeclaration("<?xml version=\"1.0\"?>");

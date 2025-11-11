@@ -12,6 +12,7 @@ import static eu.maveniverse.domtrip.maven.MavenToolchainsElements.ToolchainType
 import static org.junit.jupiter.api.Assertions.*;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ import org.junit.jupiter.api.Test;
 class ToolchainsEditorTest {
 
     @Test
-    void testCreateToolchainsDocument() {
+    void testCreateToolchainsDocument() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
 
@@ -33,7 +34,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testInsertToolchainsElement() {
+    void testInsertToolchainsElement() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -43,7 +44,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testAddJdkToolchain() {
+    void testAddJdkToolchain() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -63,7 +64,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testAddGenericToolchain() {
+    void testAddGenericToolchain() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -77,7 +78,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testAddNetBeansToolchain() {
+    void testAddNetBeansToolchain() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -97,7 +98,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testAddProvides() {
+    void testAddProvides() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -112,7 +113,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testAddConfiguration() {
+    void testAddConfiguration() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -129,7 +130,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testElementOrdering() {
+    void testElementOrdering() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -148,7 +149,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testFindChildElement() {
+    void testFindChildElement() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -170,7 +171,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testMultipleToolchains() {
+    void testMultipleToolchains() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -210,7 +211,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testCompleteToolchainsExample() {
+    void testCompleteToolchainsExample() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
         Element root = editor.root();
@@ -235,7 +236,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testEditExistingToolchains() {
+    void testEditExistingToolchains() throws DomTripException {
         String existingToolchains =
                 """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -268,7 +269,7 @@ class ToolchainsEditorTest {
     }
 
     @Test
-    void testEmptyToolchainsDocument() {
+    void testEmptyToolchainsDocument() throws DomTripException {
         ToolchainsEditor editor = new ToolchainsEditor();
         editor.createToolchainsDocument();
 

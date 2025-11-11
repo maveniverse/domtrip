@@ -11,6 +11,7 @@ import static eu.maveniverse.domtrip.maven.MavenExtensionsElements.Elements.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,7 @@ import org.junit.jupiter.api.Test;
 class ExtensionsEditorTest {
 
     @Test
-    void testCreateExtensionsDocument() {
+    void testCreateExtensionsDocument() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
 
@@ -32,7 +33,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testInsertExtensionsElement() {
+    void testInsertExtensionsElement() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
         Element root = editor.root();
@@ -42,7 +43,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testAddExtensionBasic() {
+    void testAddExtensionBasic() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
         Element root = editor.root();
@@ -60,7 +61,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testAddExtensionWithClassifierAndType() {
+    void testAddExtensionWithClassifierAndType() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
         Element root = editor.root();
@@ -79,7 +80,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testAddExtensionWithNullClassifierAndType() {
+    void testAddExtensionWithNullClassifierAndType() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
         Element root = editor.root();
@@ -96,7 +97,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testElementOrdering() {
+    void testElementOrdering() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
         Element root = editor.root();
@@ -117,7 +118,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testFindChildElement() {
+    void testFindChildElement() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
         Element root = editor.root();
@@ -134,7 +135,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testMultipleExtensions() {
+    void testMultipleExtensions() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
         Element root = editor.root();
@@ -167,7 +168,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testCompleteExtensionsExample() {
+    void testCompleteExtensionsExample() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
         Element root = editor.root();
@@ -188,7 +189,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testEditExistingExtensions() {
+    void testEditExistingExtensions() throws DomTripException {
         String existingExtensions =
                 """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -216,7 +217,7 @@ class ExtensionsEditorTest {
     }
 
     @Test
-    void testEmptyExtensionsDocument() {
+    void testEmptyExtensionsDocument() throws DomTripException {
         ExtensionsEditor editor = new ExtensionsEditor();
         editor.createExtensionsDocument();
 

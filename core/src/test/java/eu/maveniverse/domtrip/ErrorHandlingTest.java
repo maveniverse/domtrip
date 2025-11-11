@@ -57,7 +57,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testParseInvalidCharacters() {
+    void testParseInvalidCharacters() throws DomTripException {
         // Test with invalid XML characters
         String invalidXml = "<root>Invalid \u0000 character</root>";
         // Should not throw - parser should handle gracefully
@@ -171,7 +171,7 @@ public class ErrorHandlingTest {
     }
 
     @Test
-    void testFindElementInEmptyDocument() {
+    void testFindElementInEmptyDocument() throws DomTripException {
         // Don't load any XML
         Document doc = Document.of("<root/>");
         Optional<Element> result = doc.root().descendant("nonexistent");

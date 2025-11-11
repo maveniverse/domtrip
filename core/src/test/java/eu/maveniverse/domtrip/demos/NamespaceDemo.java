@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.demos;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.NamespaceContext;
@@ -11,7 +12,7 @@ import eu.maveniverse.domtrip.QName;
  */
 public class NamespaceDemo {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DomTripException {
         System.out.println("=== DomTrip Namespace Handling Demo ===\n");
 
         demonstrateBasicNamespaceCreation();
@@ -23,7 +24,7 @@ public class NamespaceDemo {
         System.out.println("\n=== Demo Complete ===");
     }
 
-    private static void demonstrateBasicNamespaceCreation() {
+    private static void demonstrateBasicNamespaceCreation() throws DomTripException {
         System.out.println("1. Basic Namespace Creation:");
 
         // Create elements with different namespace patterns using QName
@@ -39,7 +40,7 @@ public class NamespaceDemo {
         System.out.println();
     }
 
-    private static void demonstrateNamespaceResolution() {
+    private static void demonstrateNamespaceResolution() throws DomTripException {
         System.out.println("2. Namespace Resolution:");
 
         // Create a document with nested namespaces
@@ -85,7 +86,7 @@ public class NamespaceDemo {
         System.out.println();
     }
 
-    private static void demonstrateNamespaceNavigation() {
+    private static void demonstrateNamespaceNavigation() throws DomTripException {
         System.out.println("3. Namespace-Aware Navigation:");
 
         // Create a document with multiple elements in different namespaces
@@ -120,7 +121,7 @@ public class NamespaceDemo {
         System.out.println();
     }
 
-    private static void demonstrateNamespaceContext() {
+    private static void demonstrateNamespaceContext() throws DomTripException {
         System.out.println("4. Namespace Context:");
 
         String xml =
@@ -172,7 +173,7 @@ public class NamespaceDemo {
         System.out.println();
     }
 
-    private static void demonstrateComplexNamespaceDocument() {
+    private static void demonstrateComplexNamespaceDocument() throws DomTripException {
         System.out.println("5. Complex Namespace Document Creation:");
 
         // Create a complex document using builder pattern with namespaces

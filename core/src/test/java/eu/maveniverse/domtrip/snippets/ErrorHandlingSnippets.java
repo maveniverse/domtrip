@@ -3,6 +3,7 @@ package eu.maveniverse.domtrip.snippets;
 import eu.maveniverse.domtrip.Comment;
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.io.IOException;
@@ -145,7 +146,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateGracefulParsing() {
+    public void demonstrateGracefulParsing() throws DomTripException {
         // START: graceful-parsing
         String xml = "<root><child>content</child></root>";
         Document result = parseWithRecovery(xml);
@@ -154,7 +155,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(result);
     }
 
-    public Document parseWithRecovery(String xml) {
+    public Document parseWithRecovery(String xml) throws DomTripException {
         try {
             return Document.of(xml);
         } catch (Exception e) {
@@ -173,7 +174,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         }
     }
 
-    private Document extractValidFragments(String xml) {
+    private Document extractValidFragments(String xml) throws DomTripException {
         // Implementation to extract valid XML fragments
         // and create a document with available content
         Document doc = Document.withRootElement("recovered");
@@ -192,7 +193,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateValidationWithFallbacks() {
+    public void demonstrateValidationWithFallbacks() throws DomTripException {
         // START: validation-with-fallbacks
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -253,7 +254,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateInputValidation() {
+    public void demonstrateInputValidation() throws DomTripException {
         // START: input-validation
         String xml = createTestXml("root");
         Document result = safeParse(xml);
@@ -262,7 +263,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(result);
     }
 
-    public Document safeParse(String xml) {
+    public Document safeParse(String xml) throws DomTripException {
         // Pre-validation
         if (xml == null || xml.trim().isEmpty()) {
             throw new IllegalArgumentException("XML content cannot be null or empty");
@@ -285,7 +286,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSafeElementAccess() {
+    public void demonstrateSafeElementAccess() throws DomTripException {
         // START: safe-element-access
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);

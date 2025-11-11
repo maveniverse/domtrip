@@ -30,7 +30,7 @@ public class AttributeClassTest {
     }
 
     @Test
-    void testAttributeWithCustomQuote() {
+    void testAttributeWithCustomQuote() throws DomTripException {
         Attribute attr = new Attribute("name", "value", '\'', "  ");
 
         assertEquals("name", attr.name());
@@ -40,7 +40,7 @@ public class AttributeClassTest {
     }
 
     @Test
-    void testAttributeWithRawValue() {
+    void testAttributeWithRawValue() throws DomTripException {
         Attribute attr = new Attribute("name", "decoded value", '"', " ", "&quot;encoded&quot;");
 
         assertEquals("name", attr.name());
@@ -97,7 +97,7 @@ public class AttributeClassTest {
     }
 
     @Test
-    void testEscaping() {
+    void testEscaping() throws DomTripException {
         Attribute attr = new Attribute("test", "value with <tags> & \"quotes\"", '"', " ");
 
         String escaped = attr.getSerializationValue(false);
@@ -107,7 +107,7 @@ public class AttributeClassTest {
     }
 
     @Test
-    void testEscapingWithSingleQuotes() {
+    void testEscapingWithSingleQuotes() throws DomTripException {
         Attribute attr = new Attribute("test", "value with 'apostrophes' & \"quotes\"", '\'', " ");
 
         String escaped = attr.getSerializationValue(false);
@@ -127,7 +127,7 @@ public class AttributeClassTest {
     }
 
     @Test
-    void testToXmlWithCustomFormatting() {
+    void testToXmlWithCustomFormatting() throws DomTripException {
         Attribute attr = new Attribute("name", "value", '\'', "  ");
         StringBuilder sb = new StringBuilder();
         attr.toXml(sb, false);
@@ -137,7 +137,7 @@ public class AttributeClassTest {
     }
 
     @Test
-    void testToXmlWithRawValue() {
+    void testToXmlWithRawValue() throws DomTripException {
         Attribute attr = new Attribute("name", "decoded", '"', " ", "&quot;raw&quot;");
         StringBuilder sb = new StringBuilder();
 

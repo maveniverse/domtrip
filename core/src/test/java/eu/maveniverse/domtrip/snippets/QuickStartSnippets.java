@@ -2,6 +2,7 @@ package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.io.InputStream;
@@ -101,7 +102,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFindingElements() {
+    public void demonstrateFindingElements() throws DomTripException {
         // START: finding-elements-basic
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -123,7 +124,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAddingElements() {
+    public void demonstrateAddingElements() throws DomTripException {
         // START: adding-elements-simple
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -147,7 +148,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateModifyingContent() {
+    public void demonstrateModifyingContent() throws DomTripException {
         // START: modifying-content
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -172,7 +173,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfiguration() {
+    public void demonstrateConfiguration() throws DomTripException {
         // START: configuration-options
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -198,7 +199,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamBasedNavigation() {
+    public void demonstrateStreamBasedNavigation() throws DomTripException {
         // START: stream-based-navigation
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -216,7 +217,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementBuilders() {
+    public void demonstrateElementBuilders() throws DomTripException {
         // START: element-builders
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -235,7 +236,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRemovingElements() {
+    public void demonstrateRemovingElements() throws DomTripException {
         // START: removing-elements
         String xml = createConfigXml();
         Document doc = Document.of(xml);

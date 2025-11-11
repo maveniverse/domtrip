@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.demos;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public class NavigationDemo {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DomTripException {
         System.out.println("=== Enhanced Navigation Demo ===\n");
 
         // Create a complex XML structure for navigation
@@ -84,7 +85,7 @@ public class NavigationDemo {
             """;
     }
 
-    private static void demonstrateBasicNavigation(Editor editor) {
+    private static void demonstrateBasicNavigation(Editor editor) throws DomTripException {
         System.out.println("1. Basic Navigation Demo:");
 
         Element root = editor.root();
@@ -124,7 +125,7 @@ public class NavigationDemo {
         System.out.println();
     }
 
-    private static void demonstrateStreamNavigation(Editor editor) {
+    private static void demonstrateStreamNavigation(Editor editor) throws DomTripException {
         System.out.println("2. Stream-Based Navigation Demo:");
 
         Element root = editor.root();
@@ -176,7 +177,7 @@ public class NavigationDemo {
         System.out.println();
     }
 
-    private static void demonstrateRelationshipMethods(Editor editor) {
+    private static void demonstrateRelationshipMethods(Editor editor) throws DomTripException {
         System.out.println("3. Relationship Methods Demo:");
 
         Element root = editor.root();
@@ -214,7 +215,7 @@ public class NavigationDemo {
         System.out.println();
     }
 
-    private static void demonstrateAdvancedQueries(Editor editor) {
+    private static void demonstrateAdvancedQueries(Editor editor) throws DomTripException {
         System.out.println("4. Advanced Query Demo:");
 
         Element root = editor.root();

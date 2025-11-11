@@ -48,7 +48,7 @@ class EditorConstructorTest {
     }
 
     @Test
-    void testDocumentConstructor() {
+    void testDocumentConstructor() throws DomTripException {
         // Create a document programmatically
         Document doc = Document.of().root(new Element("project"));
 
@@ -60,7 +60,7 @@ class EditorConstructorTest {
     }
 
     @Test
-    void testDocumentWithConfigConstructor() {
+    void testDocumentWithConfigConstructor() throws DomTripException {
         // Create a document programmatically
         Document doc = Document.of().root(new Element("maven")).version("1.1").encoding("UTF-16");
 
@@ -104,7 +104,7 @@ class EditorConstructorTest {
     }
 
     @Test
-    void testBuilderCreatedDocumentWithEditor() {
+    void testBuilderCreatedDocumentWithEditor() throws DomTripException {
         // Create document with builder
         Document doc = Document.of()
                 .root(new Element("project"))

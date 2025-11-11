@@ -2,6 +2,7 @@ package eu.maveniverse.domtrip.maven;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import org.junit.jupiter.api.Test;
 
@@ -11,13 +12,13 @@ import org.junit.jupiter.api.Test;
 class MavenEditorUtilityMethodsTest {
 
     @Test
-    void testToGA_complete() {
+    void testToGA_complete() throws DomTripException {
         Element element = createDependency("org.junit.jupiter", "junit-jupiter", "5.9.2");
         assertEquals("org.junit.jupiter:junit-jupiter", AbstractMavenEditor.toGA(element));
     }
 
     @Test
-    void testToGA_missingGroupId() {
+    void testToGA_missingGroupId() throws DomTripException {
         Element element = Element.of("dependency");
         element.addNode(Element.text("artifactId", "my-module"));
 
@@ -25,7 +26,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToGA_missingArtifactId() {
+    void testToGA_missingArtifactId() throws DomTripException {
         Element element = Element.of("dependency");
         element.addNode(Element.text("groupId", "org.example"));
 
@@ -33,7 +34,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToPluginGA_withGroupId() {
+    void testToPluginGA_withGroupId() throws DomTripException {
         Element element = Element.of("plugin");
         element.addNode(Element.text("groupId", "org.codehaus.mojo"));
         element.addNode(Element.text("artifactId", "build-helper-maven-plugin"));
@@ -42,7 +43,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToPluginGA_withoutGroupId() {
+    void testToPluginGA_withoutGroupId() throws DomTripException {
         Element element = Element.of("plugin");
         element.addNode(Element.text("artifactId", "maven-compiler-plugin"));
 
@@ -51,7 +52,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToPluginGA_missingArtifactId() {
+    void testToPluginGA_missingArtifactId() throws DomTripException {
         Element element = Element.of("plugin");
         element.addNode(Element.text("groupId", "org.apache.maven.plugins"));
 
@@ -59,7 +60,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToGATC_jarType() {
+    void testToGATC_jarType() throws DomTripException {
         Element element = createDependency("org.junit.jupiter", "junit-jupiter", "5.9.2");
         element.addNode(Element.text("type", "jar"));
 
@@ -67,7 +68,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToGATC_defaultType() {
+    void testToGATC_defaultType() throws DomTripException {
         Element element = createDependency("org.junit.jupiter", "junit-jupiter", "5.9.2");
         // No type specified, should default to jar
 
@@ -75,7 +76,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToGATC_withClassifier() {
+    void testToGATC_withClassifier() throws DomTripException {
         Element element = createDependency("org.example", "my-lib", "1.0.0");
         element.addNode(Element.text("type", "jar"));
         element.addNode(Element.text("classifier", "sources"));
@@ -84,7 +85,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToGATC_warType() {
+    void testToGATC_warType() throws DomTripException {
         Element element = createDependency("org.example", "my-webapp", "1.0.0");
         element.addNode(Element.text("type", "war"));
 
@@ -92,7 +93,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToGATC_missingGA() {
+    void testToGATC_missingGA() throws DomTripException {
         Element element = Element.of("dependency");
         element.addNode(Element.text("type", "jar"));
 
@@ -100,7 +101,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToArtifact_complete() {
+    void testToArtifact_complete() throws DomTripException {
         PomEditor editor = new PomEditor();
         Element element = createDependency("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
@@ -114,7 +115,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToArtifact_withClassifier() {
+    void testToArtifact_withClassifier() throws DomTripException {
         PomEditor editor = new PomEditor();
         Element element = createDependency("org.example", "my-lib", "1.0.0");
         element.addNode(Element.text("classifier", "sources"));
@@ -125,7 +126,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToArtifact_maven4Inference() {
+    void testToArtifact_maven4Inference() throws DomTripException {
         PomEditor editor = new PomEditor();
         Element element = Element.of("dependency");
         element.addNode(Element.text("artifactId", "my-module"));
@@ -139,7 +140,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToArtifact_missingArtifactId() {
+    void testToArtifact_missingArtifactId() throws DomTripException {
         PomEditor editor = new PomEditor();
         Element element = Element.of("dependency");
         element.addNode(Element.text("groupId", "org.example"));
@@ -149,7 +150,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToJarArtifact() {
+    void testToJarArtifact() throws DomTripException {
         PomEditor editor = new PomEditor();
         Element element = createDependency("junit", "junit", "4.13.2");
 
@@ -159,7 +160,7 @@ class MavenEditorUtilityMethodsTest {
     }
 
     @Test
-    void testToPomArtifact() {
+    void testToPomArtifact() throws DomTripException {
         PomEditor editor = new PomEditor();
         Element element = createDependency("org.example", "parent", "1.0.0");
 
@@ -168,7 +169,7 @@ class MavenEditorUtilityMethodsTest {
         assertEquals("pom", coordinates.type());
     }
 
-    private Element createDependency(String groupId, String artifactId, String version) {
+    private Element createDependency(String groupId, String artifactId, String version) throws DomTripException {
         Element dep = Element.of("dependency");
         dep.addNode(Element.text("groupId", groupId));
         dep.addNode(Element.text("artifactId", artifactId));

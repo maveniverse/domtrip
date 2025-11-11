@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class ParserWhitespaceNormalizationTest {
 
     @Test
-    void testNoWhitespaceOnlyTextNodesCreated() {
+    void testNoWhitespaceOnlyTextNodesCreated() throws DomTripException {
         // XML with whitespace between elements
         String xml =
                 """
@@ -53,7 +53,7 @@ public class ParserWhitespaceNormalizationTest {
     }
 
     @Test
-    void testMixedContentPreservesBackwardCompatibility() {
+    void testMixedContentPreservesBackwardCompatibility() throws DomTripException {
         // XML with mixed content (text with leading/trailing whitespace)
         String xml = "<message>   Welcome to our application!   </message>";
 
@@ -74,7 +74,7 @@ public class ParserWhitespaceNormalizationTest {
     }
 
     @Test
-    void testComplexWhitespaceStructure() {
+    void testComplexWhitespaceStructure() throws DomTripException {
         // XML with complex whitespace patterns
         String xml =
                 """
@@ -109,7 +109,7 @@ public class ParserWhitespaceNormalizationTest {
     }
 
     @Test
-    void testEmptyElementsWithWhitespace() {
+    void testEmptyElementsWithWhitespace() throws DomTripException {
         // XML with empty elements and whitespace
         String xml =
                 """
@@ -149,7 +149,7 @@ public class ParserWhitespaceNormalizationTest {
     }
 
     @Test
-    void testDocumentLevelWhitespace() {
+    void testDocumentLevelWhitespace() throws DomTripException {
         // XML with whitespace at document level
         String xml = "\n  <root>content</root>\n  ";
 
@@ -173,7 +173,7 @@ public class ParserWhitespaceNormalizationTest {
     }
 
     @Test
-    void testWhitespaceAfterDocumentElementClosingTag() {
+    void testWhitespaceAfterDocumentElementClosingTag() throws DomTripException {
         // XML with various types of whitespace after the root element
         String xml1 = "<root>content</root>\n";
         String xml2 = "<root>content</root>\n\n";

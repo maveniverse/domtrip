@@ -2,6 +2,7 @@ package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import org.junit.jupiter.api.Assertions;
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class FormattingPreservationSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicFormatPreservation() {
+    public void demonstrateBasicFormatPreservation() throws DomTripException {
         // START: basic-format-preservation
         // Original XML with specific formatting
         String xml =
@@ -42,7 +43,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWhitespaceTracking() {
+    public void demonstrateWhitespaceTracking() throws DomTripException {
         String xml =
                 """
             <project>
@@ -65,7 +66,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementWhitespace() {
+    public void demonstrateElementWhitespace() throws DomTripException {
         String xml = "<project>  <groupId  >com.example</  groupId>  </project>";
 
         Document doc = Document.of(xml);
@@ -86,7 +87,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateInnerElementWhitespace() {
+    public void demonstrateInnerElementWhitespace() throws DomTripException {
         String xml = "<parent>\n    \n</parent>";
 
         Document doc = Document.of(xml);
@@ -106,7 +107,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateIntelligentInference() {
+    public void demonstrateIntelligentInference() throws DomTripException {
         // START: intelligent-inference
         // Existing structure:
         //   <dependencies>
@@ -141,7 +142,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfigurationControl() {
+    public void demonstrateConfigurationControl() throws DomTripException {
         String xml = "<project><groupId>com.example</groupId></project>";
 
         // START: configuration-control
@@ -164,7 +165,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateModificationTracking() {
+    public void demonstrateModificationTracking() throws DomTripException {
         String xml =
                 """
             <project>
@@ -189,7 +190,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeFormatting() {
+    public void demonstrateAttributeFormatting() throws DomTripException {
         String xml = "<dependency scope='test'  optional=\"true\" />";
 
         Document doc = Document.of(xml);
@@ -214,7 +215,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentPreservation() {
+    public void demonstrateCommentPreservation() throws DomTripException {
         // START: comment-preservation
         String xml =
                 """
@@ -242,7 +243,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMinimalChangeSerialization() {
+    public void demonstrateMinimalChangeSerialization() throws DomTripException {
         // START: minimal-change-serialization
         String originalXml =
                 """

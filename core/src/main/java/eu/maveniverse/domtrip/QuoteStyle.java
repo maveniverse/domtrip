@@ -73,15 +73,15 @@ public enum QuoteStyle {
      *
      * @param c the quote character to convert
      * @return the corresponding QuoteStyle
-     * @throws IllegalArgumentException if the character is not a valid quote character
+     * @throws DomTripException if the character is not a valid quote character
      */
-    public static QuoteStyle fromChar(char c) {
+    public static QuoteStyle fromChar(char c) throws DomTripException {
         for (QuoteStyle style : values()) {
             if (style.character == c) {
                 return style;
             }
         }
-        throw new IllegalArgumentException("Invalid quote character: " + c + ". Valid characters are '\"' and '\''");
+        throw new DomTripException("Invalid quote character: " + c + ". Valid characters are '\"' and '\''");
     }
 
     /**

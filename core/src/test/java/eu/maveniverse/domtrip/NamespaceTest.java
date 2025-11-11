@@ -24,7 +24,7 @@ public class NamespaceTest {
     }
 
     @Test
-    void testBasicNamespaceCreation() {
+    void testBasicNamespaceCreation() throws DomTripException {
         Element defaultNs = Element.of(QName.of("http://example.com/default", "root"));
         assertEquals("root", defaultNs.name());
         assertEquals("root", defaultNs.localName());
@@ -39,7 +39,7 @@ public class NamespaceTest {
     }
 
     @Test
-    void testNamespaceResolution() {
+    void testNamespaceResolution() throws DomTripException {
         String xml =
                 """
             <root xmlns="http://example.com/default" xmlns:ns="http://example.com/ns">
@@ -72,7 +72,7 @@ public class NamespaceTest {
     }
 
     @Test
-    void testNamespaceAwareNavigation() {
+    void testNamespaceAwareNavigation() throws DomTripException {
         String xml =
                 """
             <root xmlns="http://example.com/default" xmlns:meta="http://example.com/meta">
@@ -111,7 +111,7 @@ public class NamespaceTest {
     }
 
     @Test
-    void testNamespaceContext() {
+    void testNamespaceContext() throws DomTripException {
         String xml =
                 """
             <root xmlns="http://example.com/default" xmlns:a="http://example.com/a">
@@ -174,7 +174,7 @@ public class NamespaceTest {
     }
 
     @Test
-    void testBuiltInNamespaces() {
+    void testBuiltInNamespaces() throws DomTripException {
         Element element = new Element("test");
 
         // Test built-in XML namespace
@@ -191,7 +191,7 @@ public class NamespaceTest {
     }
 
     @Test
-    void testNamespaceDeclarationMethods() {
+    void testNamespaceDeclarationMethods() throws DomTripException {
         Element element = new Element("test");
 
         // Test setting namespace declarations
@@ -214,7 +214,7 @@ public class NamespaceTest {
     }
 
     @Test
-    void testElementsFluentApiWithNamespaces() {
+    void testElementsFluentApiWithNamespaces() throws DomTripException {
         Element element = Element.of("test")
                 .namespaceDeclaration("ex", "http://example.com/ns")
                 .namespaceDeclaration(null, "http://example.com/default");
@@ -226,7 +226,7 @@ public class NamespaceTest {
     }
 
     @Test
-    void testNamespaceFactoryMethods() {
+    void testNamespaceFactoryMethods() throws DomTripException {
         Element textInNs = Element.text(QName.of("http://example.com/ns", "title"), "My Title");
         assertEquals("title", textInNs.name());
         assertEquals("http://example.com/ns", textInNs.attribute("xmlns"));

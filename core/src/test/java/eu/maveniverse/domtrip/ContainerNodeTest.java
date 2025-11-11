@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 public class ContainerNodeTest {
 
     @Test
-    void testOnlyContainerNodesCanHaveChildren() {
+    void testOnlyContainerNodesCanHaveChildren() throws DomTripException {
         // Container nodes can have children
         Document document = new Document();
         Element element = new Element("test");
@@ -37,7 +37,7 @@ public class ContainerNodeTest {
     }
 
     @Test
-    void testContainerNodeChildManagement() {
+    void testContainerNodeChildManagement() throws DomTripException {
         Element parent = new Element("parent");
         Element child1 = new Element("child1");
         Element child2 = new Element("child2");
@@ -65,7 +65,7 @@ public class ContainerNodeTest {
     }
 
     @Test
-    void testElementSpecificNavigation() {
+    void testElementSpecificNavigation() throws DomTripException {
         Element root = new Element("root");
         Element child1 = new Element("child");
         Element child2 = new Element("child");
@@ -87,7 +87,7 @@ public class ContainerNodeTest {
     }
 
     @Test
-    void testNamespaceMethodsOnlyOnElement() {
+    void testNamespaceMethodsOnlyOnElement() throws DomTripException {
         Element element = new Element("ns:test");
 
         // These methods should only be available on Element
@@ -105,7 +105,7 @@ public class ContainerNodeTest {
     }
 
     @Test
-    void testMemoryEfficiency() {
+    void testMemoryEfficiency() throws DomTripException {
         // Leaf nodes should not have children list
         Text text = new Text("content");
         Comment comment = new Comment("comment");
@@ -130,7 +130,7 @@ public class ContainerNodeTest {
     }
 
     @Test
-    void testClearModifiedPropagation() {
+    void testClearModifiedPropagation() throws DomTripException {
         Element root = new Element("root");
         Element child = new Element("child");
         Text text = new Text("content");

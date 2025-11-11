@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 class PomEditorTest {
 
     @Test
-    void testCreateMavenDocument() throws Exception {
+    void testCreateMavenDocument() throws DomTripException {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
 
@@ -67,7 +67,7 @@ class PomEditorTest {
     }
 
     @Test
-    void testAddDependency() throws Exception {
+    void testAddDependency() throws DomTripException {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
         Element root = editor.root();
@@ -101,7 +101,7 @@ class PomEditorTest {
     }
 
     @Test
-    void testAddPlugin() throws Exception {
+    void testAddPlugin() throws DomTripException {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
         Element root = editor.root();
@@ -131,7 +131,7 @@ class PomEditorTest {
     }
 
     @Test
-    void testAddModule() throws Exception {
+    void testAddModule() throws DomTripException {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
         Element root = editor.root();
@@ -156,7 +156,7 @@ class PomEditorTest {
     }
 
     @Test
-    void testFindChildElement() throws Exception {
+    void testFindChildElement() throws DomTripException {
         String pomXml =
                 """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -194,7 +194,7 @@ class PomEditorTest {
     }
 
     @Test
-    void testElementOrdering() throws Exception {
+    void testElementOrdering() throws DomTripException {
         PomEditor editor = new PomEditor();
         editor.createMavenDocument("project");
         Element root = editor.root();

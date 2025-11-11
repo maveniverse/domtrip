@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class ElementInnerWhitespaceSerializationTest {
 
     @Test
-    public void testInnerWhitespaceSerializationInEmptyElement() {
+    public void testInnerWhitespaceSerializationInEmptyElement() throws DomTripException {
         // Create an element with inner whitespace but no children
         Element element = Element.of("parent");
         element.innerPrecedingWhitespace("\n  \n");
@@ -21,7 +21,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testInnerWhitespaceSerializationWithChildren() {
+    public void testInnerWhitespaceSerializationWithChildren() throws DomTripException {
         // Create an element with both inner whitespace and children
         Element parent = Element.of("parent");
         parent.innerPrecedingWhitespace("\n");
@@ -34,7 +34,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testInnerWhitespaceSerializationFromParsedXml() {
+    public void testInnerWhitespaceSerializationFromParsedXml() throws DomTripException {
         // Test that parsed XML with inner whitespace is properly serialized
         String originalXml = "<root>\n    \n</root>";
         Document doc = Document.of(originalXml);
@@ -49,7 +49,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testInnerWhitespaceSerializationWithComplexWhitespace() {
+    public void testInnerWhitespaceSerializationWithComplexWhitespace() throws DomTripException {
         // Test with more complex whitespace patterns
         Element element = Element.of("config");
         element.addNode(Comment.of(" comment space ").precedingWhitespace("\n    "));
@@ -61,7 +61,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testInnerWhitespaceSerializationWithAttributes() {
+    public void testInnerWhitespaceSerializationWithAttributes() throws DomTripException {
         // Test that inner whitespace works correctly with attributes
         Element element = Element.of("item");
         element.attribute("id", "123");
@@ -73,7 +73,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testInnerWhitespaceSerializationWithSelfClosingElement() {
+    public void testInnerWhitespaceSerializationWithSelfClosingElement() throws DomTripException {
         // Test that inner whitespace is ignored for self-closing elements
         Element element = Element.of("br");
         element.selfClosing(true);
@@ -85,7 +85,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testInnerWhitespaceSerializationWithMixedContent() {
+    public void testInnerWhitespaceSerializationWithMixedContent() throws DomTripException {
         // Test inner whitespace with mixed text and element content
         Element parent = Element.of("paragraph");
         parent.innerPrecedingWhitespace("\n");
@@ -99,7 +99,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testInnerWhitespaceSerializationRoundTrip() {
+    public void testInnerWhitespaceSerializationRoundTrip() throws DomTripException {
         // Test that inner whitespace survives round-trip parsing and serialization
         String originalXml = """
             <project>
@@ -123,7 +123,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testInnerWhitespaceSerializationWithOriginalFormatting() {
+    public void testInnerWhitespaceSerializationWithOriginalFormatting() throws DomTripException {
         // Test that inner whitespace works with original formatting preservation
         String originalXml = "<config   >\n    \n</  config>";
         Document doc = Document.of(originalXml);
@@ -138,7 +138,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testInnerWhitespaceSerializationWithModification() {
+    public void testInnerWhitespaceSerializationWithModification() throws DomTripException {
         // Test that inner whitespace works correctly when element is modified
         Element element = Element.of("config");
         element.innerPrecedingWhitespace("\n    \n");
@@ -151,7 +151,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testEmptyInnerWhitespaceFields() {
+    public void testEmptyInnerWhitespaceFields() throws DomTripException {
         // Test that empty inner whitespace fields don't add unwanted content
         Element element = Element.of("empty");
         element.innerPrecedingWhitespace("");
@@ -161,7 +161,7 @@ public class ElementInnerWhitespaceSerializationTest {
     }
 
     @Test
-    public void testNullInnerWhitespaceFields() {
+    public void testNullInnerWhitespaceFields() throws DomTripException {
         // Test that null inner whitespace fields are handled gracefully
         Element element = Element.of("test");
         // Inner whitespace fields should default to empty strings

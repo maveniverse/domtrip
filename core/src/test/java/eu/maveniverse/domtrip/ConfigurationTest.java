@@ -90,14 +90,14 @@ public class ConfigurationTest {
     }
 
     @Test
-    void testQuoteStyleEnum() {
+    void testQuoteStyleEnum() throws DomTripException {
         assertEquals('"', QuoteStyle.DOUBLE.getCharacter());
         assertEquals('\'', QuoteStyle.SINGLE.getCharacter());
 
         assertEquals(QuoteStyle.DOUBLE, QuoteStyle.fromChar('"'));
         assertEquals(QuoteStyle.SINGLE, QuoteStyle.fromChar('\''));
 
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThrows(DomTripException.class, () -> {
             QuoteStyle.fromChar('x');
         });
 

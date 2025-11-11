@@ -14,12 +14,12 @@ public class PerformanceTest {
     private Editor editor;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws DomTripException {
         editor = new Editor(Document.of());
     }
 
     @Test
-    void testToXmlStringBuilderMethod() {
+    void testToXmlStringBuilderMethod() throws DomTripException {
         String xml = "<root>\n" + "  <child attr='value'>content</child>\n" + "</root>";
 
         Document doc = Document.of(xml);
@@ -36,7 +36,7 @@ public class PerformanceTest {
     }
 
     @Test
-    void testElementToXmlStringBuilder() {
+    void testElementToXmlStringBuilder() throws DomTripException {
         String xml = "<element attr1='value1' attr2=\"value2\">text content</element>";
 
         Document doc = Document.of(xml);
@@ -54,7 +54,7 @@ public class PerformanceTest {
     }
 
     @Test
-    void testTextNodeToXmlStringBuilder() {
+    void testTextNodeToXmlStringBuilder() throws DomTripException {
         String xml = "<root>Text with &lt;entities&gt;</root>";
 
         Document doc = Document.of(xml);
@@ -73,7 +73,7 @@ public class PerformanceTest {
     }
 
     @Test
-    void testCommentToXmlStringBuilder() {
+    void testCommentToXmlStringBuilder() throws DomTripException {
         String xml = "<root><!-- This is a comment --></root>";
 
         Document doc = Document.of(xml);
@@ -92,7 +92,7 @@ public class PerformanceTest {
     }
 
     @Test
-    void testLargeDocumentPerformance() {
+    void testLargeDocumentPerformance() throws DomTripException {
         // Create a moderately large document
         editor.createDocument("root");
         Element root = editor.root();
@@ -130,7 +130,7 @@ public class PerformanceTest {
     }
 
     @Test
-    void testNestedStringBuilderCalls() {
+    void testNestedStringBuilderCalls() throws DomTripException {
         String xml = "<root>\n" + "  <parent>\n" + "    <child>content</child>\n" + "  </parent>\n" + "</root>";
 
         Document doc = Document.of(xml);

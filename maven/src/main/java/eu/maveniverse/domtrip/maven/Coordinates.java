@@ -10,6 +10,7 @@ package eu.maveniverse.domtrip.maven;
 import static java.util.Objects.requireNonNull;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -261,10 +262,10 @@ public record Coordinates(String groupId, String artifactId, String version, Str
      *
      * @param pomPath the path to the POM file
      * @return a new Coordinates instance representing the POM (groupId and version may be null)
-     * @throws IllegalArgumentException if artifactId is missing
+     * @throws DomTripException if artifactId is missing
      * @since 0.3.0
      */
-    public static Coordinates fromPom(Path pomPath) {
+    public static Coordinates fromPom(Path pomPath) throws DomTripException {
         requireNonNull(pomPath);
         PomEditor pomEditor = new PomEditor(Document.of(pomPath));
         Element root = pomEditor.root();
@@ -275,7 +276,7 @@ public record Coordinates(String groupId, String artifactId, String version, Str
 
         // ArtifactId is always required
         if (artifactId == null) {
-            throw new IllegalArgumentException("Malformed POM: artifactId is required but not found");
+            throw new DomTripException("Malformed POM: artifactId is required but not found");
         }
 
         // Try to get groupId and version from parent if not present

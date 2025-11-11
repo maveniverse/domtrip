@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.demos;
 
 import eu.maveniverse.domtrip.Document;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 
@@ -10,7 +11,7 @@ import eu.maveniverse.domtrip.Element;
  */
 public class EditorDemo {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws DomTripException {
         // Sample XML with various formatting styles
         String originalXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!-- Sample XML document -->\n"
                 + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n"
@@ -102,7 +103,7 @@ public class EditorDemo {
         demonstrateKeyFeatures();
     }
 
-    private static void demonstrateKeyFeatures() {
+    private static void demonstrateKeyFeatures() throws DomTripException {
         System.out.println("\n=== Key Features Demonstration ===");
 
         // Feature 1: Whitespace preservation

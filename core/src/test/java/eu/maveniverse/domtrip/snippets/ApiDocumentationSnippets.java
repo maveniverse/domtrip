@@ -2,6 +2,7 @@ package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
+import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.io.OutputStream;
@@ -17,7 +18,7 @@ import org.junit.jupiter.api.Test;
 public class ApiDocumentationSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateElementBuilders() {
+    public void demonstrateElementBuilders() throws DomTripException {
         // START: fluent-element-builders
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -37,7 +38,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceSupport() {
+    public void demonstrateNamespaceSupport() throws DomTripException {
         // START: namespace-support
         // Create elements with namespaces
         Element soapEnvelope =
@@ -118,7 +119,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     // END: real-world-maven-example
 
     @Test
-    public void demonstrateWorkingWithExistingDocuments() {
+    public void demonstrateWorkingWithExistingDocuments() throws DomTripException {
         // START: working-with-existing-documents
         // Parse with Document directly
         String xmlString = createConfigXml();
@@ -141,7 +142,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateProgrammaticDocumentCreation() {
+    public void demonstrateProgrammaticDocumentCreation() throws DomTripException {
         // START: programmatic-document-creation
         // Create document programmatically
         Document doc = Document.withRootElement("project");
@@ -162,7 +163,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorHandling() {
+    public void demonstrateErrorHandling() throws DomTripException {
         // START: error-handling
         try {
             // Attempt to parse malformed XML

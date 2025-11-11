@@ -19,7 +19,7 @@ public class EnhancedNavigationTest {
     private Element root;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws DomTripException {
         String xml =
                 """
             <project>

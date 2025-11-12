@@ -1032,7 +1032,7 @@ public class PomEditor extends AbstractMavenEditor {
         return new Properties();
     }
 
-    class Parent {
+    public class Parent {
         /**
          * Sets {@code project/parent} to the given artifact coordinates.
          *

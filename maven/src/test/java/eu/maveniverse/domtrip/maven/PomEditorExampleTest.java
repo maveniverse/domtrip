@@ -40,13 +40,13 @@ class PomEditorExampleTest {
 
         // Add properties
         Element properties = editor.insertMavenElement(root, PROPERTIES);
-        editor.addProperty(properties, "maven.compiler.source", "17");
-        editor.addProperty(properties, "maven.compiler.target", "17");
-        editor.addProperty(properties, "project.build.sourceEncoding", "UTF-8");
+        editor.properties().addProperty(properties, "maven.compiler.source", "17");
+        editor.properties().addProperty(properties, "maven.compiler.target", "17");
+        editor.properties().addProperty(properties, "project.build.sourceEncoding", "UTF-8");
 
         // Add dependencies
         Element dependencies = editor.insertMavenElement(root, DEPENDENCIES);
-        editor.addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", "5.9.2");
+        editor.dependencies().addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element junitDep = editor.findChildElement(dependencies, DEPENDENCY);
         editor.insertMavenElement(junitDep, SCOPE, "test");
@@ -56,13 +56,13 @@ class PomEditorExampleTest {
         Element plugins = editor.insertMavenElement(build, PLUGINS);
 
         Element compilerPlugin =
-                editor.addPlugin(plugins, "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+                editor.plugins().addPlugin(plugins, "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
         Element compilerConfig = editor.insertMavenElement(compilerPlugin, CONFIGURATION);
         editor.addElement(compilerConfig, "source", "17");
         editor.addElement(compilerConfig, "target", "17");
 
         Element surefirePlugin =
-                editor.addPlugin(plugins, "org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
+                editor.plugins().addPlugin(plugins, "org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
 
         // Generate the XML
         String result = editor.toXml();
@@ -148,12 +148,12 @@ class PomEditorExampleTest {
 
         // Add properties
         Element properties = editor.insertMavenElement(root, PROPERTIES);
-        editor.addProperty(properties, "maven.compiler.source", "11");
-        editor.addProperty(properties, "maven.compiler.target", "11");
+        editor.properties().addProperty(properties, "maven.compiler.source", "11");
+        editor.properties().addProperty(properties, "maven.compiler.target", "11");
 
         // Add another dependency
         Element dependencies = editor.findChildElement(root, DEPENDENCIES);
-        editor.addDependency(dependencies, "org.mockito", "mockito-core", "4.6.1");
+        editor.dependencies().addDependency(dependencies, "org.mockito", "mockito-core", "4.6.1");
 
         Element mockitoDep =
                 dependencies.children(DEPENDENCY).skip(1).findFirst().orElseThrow(); // Second dependency

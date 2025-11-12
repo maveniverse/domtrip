@@ -61,7 +61,7 @@ public class PomEditorSnippets {
 
         // Add dependencies with proper structure
         Element dependencies = editor.insertMavenElement(root, DEPENDENCIES);
-        editor.addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", "5.9.2");
+        editor.dependencies().addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         // Add scope to the dependency
         Element junitDep = editor.findChildElement(dependencies, DEPENDENCY);
@@ -84,7 +84,7 @@ public class PomEditorSnippets {
         Element plugins = editor.insertMavenElement(build, PLUGINS);
 
         Element compilerPlugin =
-                editor.addPlugin(plugins, "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+                editor.plugins().addPlugin(plugins, "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
         Element config = editor.insertMavenElement(compilerPlugin, CONFIGURATION);
         editor.addElement(config, "source", "17");
         editor.addElement(config, "target", "17");
@@ -111,9 +111,9 @@ public class PomEditorSnippets {
 
         // Add modules
         Element modules = parentEditor.insertMavenElement(parentRoot, MODULES);
-        parentEditor.addModule(modules, "core");
-        parentEditor.addModule(modules, "web");
-        parentEditor.addModule(modules, "cli");
+        parentEditor.subprojects().addModule(modules, "core");
+        parentEditor.subprojects().addModule(modules, "web");
+        parentEditor.subprojects().addModule(modules, "cli");
 
         String parentPom = parentEditor.toXml();
         // END: multi-module-project

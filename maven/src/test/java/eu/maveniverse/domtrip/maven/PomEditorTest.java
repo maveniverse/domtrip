@@ -82,7 +82,8 @@ class PomEditorTest {
         Element dependencies = editor.insertMavenElement(root, DEPENDENCIES);
 
         // Add a dependency
-        Element dependency = editor.addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", "5.9.2");
+        Element dependency =
+                editor.dependencies().addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         assertNotNull(dependency);
         assertEquals("dependency", dependency.name());
@@ -117,7 +118,8 @@ class PomEditorTest {
         Element plugins = editor.insertMavenElement(build, PLUGINS);
 
         // Add a plugin
-        Element plugin = editor.addPlugin(plugins, "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+        Element plugin =
+                editor.plugins().addPlugin(plugins, "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         assertNotNull(plugin);
         assertEquals("plugin", plugin.name());
@@ -147,8 +149,8 @@ class PomEditorTest {
         Element modules = editor.insertMavenElement(root, MODULES);
 
         // Add modules
-        editor.addModule(modules, "module1");
-        editor.addModule(modules, "module2");
+        editor.subprojects().addModule(modules, "module1");
+        editor.subprojects().addModule(modules, "module2");
 
         String result = editor.toXml();
         assertTrue(result.contains("<module>module1</module>"));
@@ -317,7 +319,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Create new managed plugin with upsert=true
-        boolean result = editor.updateManagedPlugin(true, compilerPlugin);
+        boolean result = editor.plugins().updateManagedPlugin(true, compilerPlugin);
         assertTrue(result);
 
         // Verify structure was created
@@ -368,7 +370,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Update existing plugin
-        boolean result = editor.updateManagedPlugin(false, compilerPlugin);
+        boolean result = editor.plugins().updateManagedPlugin(false, compilerPlugin);
         assertTrue(result);
 
         // Verify version was updated
@@ -417,7 +419,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Update plugin with property reference - should update property value
-        boolean result = editor.updateManagedPlugin(false, compilerPlugin);
+        boolean result = editor.plugins().updateManagedPlugin(false, compilerPlugin);
         assertTrue(result);
 
         // Verify property was updated, not the version element
@@ -445,7 +447,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Try to update non-existent plugin with upsert=false
-        boolean result = editor.updateManagedPlugin(false, compilerPlugin);
+        boolean result = editor.plugins().updateManagedPlugin(false, compilerPlugin);
         assertFalse(result);
 
         // Verify nothing was created
@@ -489,7 +491,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Delete the plugin
-        boolean result = editor.deleteManagedPlugin(compilerPlugin);
+        boolean result = editor.plugins().deleteManagedPlugin(compilerPlugin);
         assertTrue(result);
 
         // Verify plugin was removed
@@ -520,7 +522,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Try to delete non-existent plugin
-        boolean result = editor.deleteManagedPlugin(compilerPlugin);
+        boolean result = editor.plugins().deleteManagedPlugin(compilerPlugin);
         assertFalse(result);
     }
 
@@ -532,7 +534,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Create new plugin with upsert=true
-        boolean result = editor.updatePlugin(true, compilerPlugin);
+        boolean result = editor.plugins().updatePlugin(true, compilerPlugin);
         assertTrue(result);
 
         // Verify structure was created
@@ -579,7 +581,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Update existing plugin
-        boolean result = editor.updatePlugin(false, compilerPlugin);
+        boolean result = editor.plugins().updatePlugin(false, compilerPlugin);
         assertTrue(result);
 
         // Verify version was updated
@@ -630,7 +632,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Update plugin without version - should update managed plugin instead
-        boolean result = editor.updatePlugin(false, compilerPlugin);
+        boolean result = editor.plugins().updatePlugin(false, compilerPlugin);
         assertTrue(result);
 
         // Verify managed plugin version was updated
@@ -689,7 +691,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Delete the plugin
-        boolean result = editor.deletePlugin(compilerPlugin);
+        boolean result = editor.plugins().deletePlugin(compilerPlugin);
         assertTrue(result);
 
         // Verify plugin was removed
@@ -719,7 +721,7 @@ class PomEditorTest {
         Coordinates compilerPlugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
 
         // Try to delete non-existent plugin
-        boolean result = editor.deletePlugin(compilerPlugin);
+        boolean result = editor.plugins().deletePlugin(compilerPlugin);
         assertFalse(result);
     }
 }

@@ -291,7 +291,7 @@ class LockPluginVersionsTest {
                 // Check if this plugin is already managed
                 if (!isPluginAlreadyManaged(managedPlugins, groupId, artifactId)) {
                     // Add to pluginManagement
-                    editor.addPlugin(managedPlugins, groupId, artifactId, version);
+                    editor.plugins().addPlugin(managedPlugins, groupId, artifactId, version);
                 }
             }
         }
@@ -342,7 +342,7 @@ class LockPluginVersionsTest {
         Element managedPlugins = editor.insertMavenElement(pluginManagement, PLUGINS);
 
         // Add a simple plugin
-        editor.addPlugin(managedPlugins, "org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
+        editor.plugins().addPlugin(managedPlugins, "org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
 
         String result = editor.toXml();
 

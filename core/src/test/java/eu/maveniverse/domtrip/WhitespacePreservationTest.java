@@ -14,8 +14,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentPreservesIndentation() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <config>
                 <database>
@@ -51,8 +50,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentWithMultilineValue() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <description>
                     Single line description
@@ -80,8 +78,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentPreservesLeadingAndTrailingWhitespace() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <item>   original content   </item>
             </root>
@@ -102,8 +99,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentWithSpecialCharacters() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <config>
                 <path>/usr/local/bin</path>
                 <command>echo "hello"</command>
@@ -134,8 +130,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentEmptyToNonEmpty() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <empty></empty>
                 <selfClosing/>
@@ -164,8 +159,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentNonEmptyToEmpty() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <hasContent>some text</hasContent>
                 <alsoHasContent>more text</alsoHasContent>
@@ -194,8 +188,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentPreservesComments() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <!-- Important comment -->
                 <value>old</value>
@@ -227,8 +220,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentWithXmlEntities() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <message>Hello &amp; welcome</message>
                 <data>&lt;test&gt;</data>
@@ -259,8 +251,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentInNestedStructure() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <project>
                 <dependencies>
                     <dependency>
@@ -296,8 +287,7 @@ class WhitespacePreservationTest {
 
     @Test
     void testSetTextContentRoundTrip() throws Exception {
-        String originalXml =
-                """
+        String originalXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <!-- Configuration file -->
             <config>

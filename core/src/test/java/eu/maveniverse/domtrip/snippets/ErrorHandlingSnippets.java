@@ -69,8 +69,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateMalformedXML() {
         // START: malformed-xml
-        String malformedXml =
-                """
+        String malformedXml = """
             <root>
                 <unclosed-tag>
                 <another>content</another>

@@ -190,8 +190,7 @@ class ExtensionsEditorTest {
 
     @Test
     void testEditExistingExtensions() throws DomTripException {
-        String existingExtensions =
-                """
+        String existingExtensions = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <extensions xmlns="http://maven.apache.org/EXTENSIONS/1.2.0">
                   <extension>

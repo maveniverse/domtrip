@@ -45,8 +45,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
                 Element.of("soap:Envelope").attribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
 
         // Namespace-aware navigation
-        String xml =
-                """
+        String xml = """
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
                     <content>Hello</content>

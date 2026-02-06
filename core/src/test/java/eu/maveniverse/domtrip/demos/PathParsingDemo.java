@@ -80,8 +80,7 @@ public class PathParsingDemo {
         System.out.println("3. Complex Document with Formatting Preservation:");
 
         try {
-            String xml =
-                    """
+            String xml = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <!-- Configuration file -->
                 <?xml-stylesheet type="text/xsl" href="style.xsl"?>

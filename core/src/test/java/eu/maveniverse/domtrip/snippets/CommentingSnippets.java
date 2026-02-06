@@ -16,8 +16,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateCommentOutSingleElement() throws DomTripException {
         // START: comment-out-single-element
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependency>
                     <groupId>junit</groupId>
@@ -45,8 +44,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateCommentOutMultipleElements() throws DomTripException {
         // START: comment-out-multiple-elements
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependency>
                     <groupId>junit</groupId>
@@ -78,8 +76,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateUncommentElement() throws DomTripException {
         // START: uncomment-element
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <!-- <dependency><groupId>junit</groupId><artifactId>junit</artifactId></dependency> -->
                 <other>content</other>
@@ -109,8 +106,7 @@ public class CommentingSnippets extends BaseSnippetTest {
 
     @Test
     public void demonstrateWhitespacePreservation() throws DomTripException {
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependency>
                     <groupId>junit</groupId>
@@ -136,8 +132,7 @@ public class CommentingSnippets extends BaseSnippetTest {
 
     @Test
     public void demonstrateRoundTripOperations() throws DomTripException {
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependency>
                     <groupId>junit</groupId>
@@ -190,8 +185,7 @@ public class CommentingSnippets extends BaseSnippetTest {
 
     @Test
     public void demonstrateIntegrationWithOtherFeatures() throws DomTripException {
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependency>
                     <groupId>junit</groupId>

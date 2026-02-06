@@ -17,8 +17,7 @@ public class ParserWhitespaceNormalizationTest {
     @Test
     void testNoWhitespaceOnlyTextNodesCreated() throws DomTripException {
         // XML with whitespace between elements
-        String xml =
-                """
+        String xml = """
             <root>
                 <child1>content1</child1>
                 <child2>content2</child2>
@@ -76,8 +75,7 @@ public class ParserWhitespaceNormalizationTest {
     @Test
     void testComplexWhitespaceStructure() throws DomTripException {
         // XML with complex whitespace patterns
-        String xml =
-                """
+        String xml = """
             <config>
                 <section name="database">
                     <host>localhost</host>
@@ -111,8 +109,7 @@ public class ParserWhitespaceNormalizationTest {
     @Test
     void testEmptyElementsWithWhitespace() throws DomTripException {
         // XML with empty elements and whitespace
-        String xml =
-                """
+        String xml = """
             <root>
                 <empty1/>
                 <empty2></empty2>

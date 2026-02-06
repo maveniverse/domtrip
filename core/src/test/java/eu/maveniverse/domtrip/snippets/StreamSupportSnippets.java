@@ -18,8 +18,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateBasicStreamNavigation() throws DomTripException {
         // START: basic-stream-navigation
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <dependencies>
                 <dependency>
                     <groupId>junit</groupId>
@@ -57,8 +56,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateFilteringStreams() throws DomTripException {
         // START: filtering-streams
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <dependencies>
                 <dependency>
                     <groupId>junit</groupId>
@@ -101,8 +99,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateDescendantStreams() throws DomTripException {
         // START: descendant-streams
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependencies>
                     <dependency>
@@ -139,8 +136,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateStreamTransformations() throws DomTripException {
         // START: stream-transformations
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <dependencies>
                 <dependency>
                     <groupId>junit</groupId>
@@ -180,8 +176,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateStreamAggregation() throws DomTripException {
         // START: stream-aggregation
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependencies>
                     <dependency><scope>test</scope></dependency>
@@ -222,8 +217,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateStreamModification() throws DomTripException {
         // START: stream-modification
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <dependencies>
                 <dependency>
                     <groupId>junit</groupId>
@@ -265,8 +259,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateComplexStreamQueries() throws DomTripException {
         // START: complex-stream-queries
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependencies>
                     <dependency>
@@ -323,8 +316,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateStreamWithOptionals() throws DomTripException {
         // START: stream-with-optionals
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <dependencies>
                 <dependency>
                     <groupId>junit</groupId>
@@ -371,8 +363,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateParallelStreams() throws DomTripException {
         // START: parallel-streams
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependencies>
                     <dependency><groupId>group1</groupId><artifactId>artifact1</artifactId></dependency>
@@ -409,8 +400,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateStreamChaining() throws DomTripException {
         // START: stream-chaining
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <profiles>
                     <profile>

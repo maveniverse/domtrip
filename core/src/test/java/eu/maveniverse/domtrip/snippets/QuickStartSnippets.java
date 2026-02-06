@@ -21,8 +21,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     public void demonstrateBasicUsage() throws Exception {
         // START: quick-start-basic
         // Parse XML while preserving all formatting
-        String originalXml =
-                """
+        String originalXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <!-- Configuration file -->
             <config>

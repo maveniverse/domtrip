@@ -16,8 +16,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateBasicNamespaceHandling() throws DomTripException {
         // START: basic-namespace-handling
-        String xml =
-                """
+        String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0">
                 <groupId>com.example</groupId>
                 <artifactId>my-app</artifactId>
@@ -43,8 +42,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstratePrefixedNamespaces() throws DomTripException {
         // START: prefixed-namespaces
-        String xml =
-                """
+        String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                 <groupId>com.example</groupId>
@@ -74,8 +72,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateNamespaceDeclarations() throws DomTripException {
         // START: namespace-declarations
-        String xml =
-                """
+        String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xmlns:custom="http://example.com/custom">
@@ -102,8 +99,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateAddingNamespaceDeclarations() throws DomTripException {
         // START: adding-namespace-declarations
-        String xml =
-                """
+        String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0">
                 <groupId>com.example</groupId>
             </project>
@@ -153,8 +149,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateNamespaceAwareNavigation() throws DomTripException {
         // START: namespace-aware-navigation
-        String xml =
-                """
+        String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
                      xmlns:custom="http://example.com/custom">
                 <groupId>com.example</groupId>
@@ -184,8 +179,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateNamespaceInheritance() throws DomTripException {
         // START: namespace-inheritance
-        String xml =
-                """
+        String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0">
                 <dependencies>
                     <dependency>
@@ -212,8 +206,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateNamespaceAttributeHandling() throws DomTripException {
         // START: namespace-attribute-handling
-        String xml =
-                """
+        String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 schema.xsd">
@@ -373,8 +366,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
         // Working with SOAP envelopes
         String soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/";
 
-        String soapXml =
-                """
+        String soapXml = """
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
                     <GetUserRequest>

@@ -124,8 +124,7 @@ public class PomEditorSnippets {
 
     void editingExistingPom() throws DomTripException {
         // START: editing-existing-pom
-        String existingPom =
-                """
+        String existingPom = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0">
                   <modelVersion>4.0.0</modelVersion>

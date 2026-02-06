@@ -16,8 +16,7 @@ class WhitespaceCaptureTest {
 
     @Test
     void testNodePrecedingAndFollowingWhitespace() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <!-- comment with spaces -->
                 <element>content</element>
@@ -137,8 +136,7 @@ class WhitespaceCaptureTest {
     @Test
     void testComplexWhitespaceScenario() throws DomTripException {
         // Test a complex scenario with multiple types of whitespace
-        String xml =
-                """
+        String xml = """
             <?xml version="1.0" encoding="UTF-8"?>
 
             <root   xmlns:ns="http://example.com"   >
@@ -185,8 +183,7 @@ class WhitespaceCaptureTest {
     @Test
     void testWhitespaceRoundTrip() throws DomTripException {
         // Test that whitespace is preserved in round-trip parsing
-        String originalXml =
-                """
+        String originalXml = """
             <root   attr1  =  'value1'   attr2="value2"   >
 
                 <element   >content</   element   >

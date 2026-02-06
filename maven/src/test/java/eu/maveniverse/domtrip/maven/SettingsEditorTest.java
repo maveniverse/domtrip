@@ -207,8 +207,7 @@ class SettingsEditorTest {
 
     @Test
     void testEditExistingSettings() throws DomTripException {
-        String existingSettings =
-                """
+        String existingSettings = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0">
                   <localRepository>/existing/repo</localRepository>

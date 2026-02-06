@@ -19,8 +19,7 @@ class EditorInsertRemoveTest {
 
     @Test
     void testRemoveFirstElement() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <first>content1</first>
                 <second>content2</second>
@@ -34,8 +33,7 @@ class EditorInsertRemoveTest {
         editor.removeElement(first);
         String result = editor.toXml();
 
-        String expected =
-                """
+        String expected = """
             <root>
                 <second>content2</second>
                 <third>content3</third>
@@ -46,8 +44,7 @@ class EditorInsertRemoveTest {
 
     @Test
     void testRemoveLastElement() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <first>content1</first>
                 <second>content2</second>
@@ -72,8 +69,7 @@ class EditorInsertRemoveTest {
 
     @Test
     void testRemoveMiddleElement() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <first>content1</first>
                 <second>content2</second>
@@ -87,8 +83,7 @@ class EditorInsertRemoveTest {
         editor.removeElement(second);
         String result = editor.toXml();
 
-        String expected =
-                """
+        String expected = """
             <root>
                 <first>content1</first>
                 <third>content3</third>
@@ -120,8 +115,7 @@ class EditorInsertRemoveTest {
 
     @Test
     void testRemoveElementWithBlankLines() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <first>content1</first>
 
@@ -137,8 +131,7 @@ class EditorInsertRemoveTest {
         editor.removeElement(second);
         String result = editor.toXml();
 
-        String expected =
-                """
+        String expected = """
             <root>
                 <first>content1</first>
 
@@ -163,8 +156,7 @@ class EditorInsertRemoveTest {
         editor.addBlankLineBefore(newElement);
         String result = editor.toXml();
 
-        String expected =
-                """
+        String expected = """
             <root>
                 <existing>content</existing>
 
@@ -189,8 +181,7 @@ class EditorInsertRemoveTest {
         editor.addBlankLineAfter(newElement);
         String result = editor.toXml();
 
-        String expected =
-                """
+        String expected = """
             <root>
                 <existing>content</existing>
                 <newElement>newContent</newElement>
@@ -216,8 +207,7 @@ class EditorInsertRemoveTest {
         editor.addBlankLineAfter(newElement);
         String result = editor.toXml();
 
-        String expected =
-                """
+        String expected = """
             <root>
                 <existing>content</existing>
 
@@ -230,8 +220,7 @@ class EditorInsertRemoveTest {
 
     @Test
     void testAddElementWithQNameAndBlankLines() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root xmlns:ns="http://example.com">
                 <existing>content</existing>
             </root>""";
@@ -245,8 +234,7 @@ class EditorInsertRemoveTest {
         editor.addBlankLineBefore(newElement);
         String result = editor.toXml();
 
-        String expected =
-                """
+        String expected = """
             <root xmlns:ns="http://example.com">
                 <existing>content</existing>
 
@@ -281,8 +269,7 @@ class EditorInsertRemoveTest {
 
     @Test
     void testComplexRemovalScenario() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>test</artifactId>
@@ -313,8 +300,7 @@ class EditorInsertRemoveTest {
         editor.removeElement(firstDep);
         String result = editor.toXml();
 
-        String expected =
-                """
+        String expected = """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>test</artifactId>

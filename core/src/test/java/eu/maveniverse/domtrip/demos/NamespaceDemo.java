@@ -44,8 +44,7 @@ public class NamespaceDemo {
         System.out.println("2. Namespace Resolution:");
 
         // Create a document with nested namespaces
-        String xml =
-                """
+        String xml = """
             <root xmlns="http://example.com/default" xmlns:ns1="http://example.com/ns1">
                 <child>
                     <ns1:element xmlns:ns2="http://example.com/ns2">
@@ -124,8 +123,7 @@ public class NamespaceDemo {
     private static void demonstrateNamespaceContext() throws DomTripException {
         System.out.println("4. Namespace Context:");
 
-        String xml =
-                """
+        String xml = """
             <root xmlns="http://example.com/default"
                   xmlns:a="http://example.com/a"
                   xmlns:b="http://example.com/b">

@@ -50,8 +50,7 @@ public class EmptyElementStyleTest {
 
     @Test
     void testAutoDetectionWithSelfClosingElements() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <empty1/>
                 <empty2/>
@@ -67,8 +66,7 @@ public class EmptyElementStyleTest {
 
     @Test
     void testAutoDetectionWithSelfClosingSpacedElements() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <empty1 />
                 <empty2 />
@@ -84,8 +82,7 @@ public class EmptyElementStyleTest {
 
     @Test
     void testAutoDetectionWithExpandedElements() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <empty1></empty1>
                 <empty2></empty2>
@@ -102,8 +99,7 @@ public class EmptyElementStyleTest {
     @Test
     void testAutoDetectionWithMixedStyles() throws DomTripException {
         // When there's a tie or mixed styles, should default to SELF_CLOSING
-        String xml =
-                """
+        String xml = """
             <root>
                 <empty1/>
                 <empty2></empty2>
@@ -118,8 +114,7 @@ public class EmptyElementStyleTest {
 
     @Test
     void testAutoDetectionWithNoEmptyElements() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <child1>content1</child1>
                 <child2>content2</child2>
@@ -156,8 +151,7 @@ public class EmptyElementStyleTest {
 
     @Test
     void testDomTripConfigAutoDetection() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <empty1 />
                 <empty2 />
@@ -283,8 +277,7 @@ public class EmptyElementStyleTest {
     void testNonPrettyPrintPreservesOriginalFormatting() throws DomTripException {
         // Test that empty element style configuration doesn't affect existing formatting
         // when pretty print is disabled
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <expanded></expanded>
                 <selfClosing/>
@@ -323,8 +316,7 @@ public class EmptyElementStyleTest {
     @Test
     void testNonPrettyPrintPreservesOriginalFormattingAfterModification() throws DomTripException {
         // Test that only modified elements use the empty element style configuration
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <existing/>
                 <another />
@@ -354,8 +346,7 @@ public class EmptyElementStyleTest {
     @Test
     void testNonPrettyPrintWithMixedOriginalStyles() throws DomTripException {
         // Test preservation of various original empty element styles
-        String originalXml =
-                """
+        String originalXml = """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>test</artifactId>
@@ -464,8 +455,7 @@ public class EmptyElementStyleTest {
 
     @Test
     void testAutoDetectionWithNestedEmptyElements() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <parent>
                     <empty1/>
@@ -484,8 +474,7 @@ public class EmptyElementStyleTest {
     @Test
     void testRoundTripPreservation() throws DomTripException {
         // Test that parsing and re-serializing preserves the detected style
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <empty1 />
                 <empty2 />
@@ -553,8 +542,7 @@ public class EmptyElementStyleTest {
     @Test
     void testEmptyElementStyleOnlyAffectsPrettyPrint() throws DomTripException {
         // Verify that empty element style configuration only affects pretty print mode
-        String originalXml =
-                """
+        String originalXml = """
             <root>
                 <empty1/>
                 <empty2 />
@@ -589,8 +577,7 @@ public class EmptyElementStyleTest {
     @Test
     void testOriginalFormattingPreservedWithEditor() throws DomTripException {
         // Test that Editor preserves original formatting for unmodified elements
-        String originalXml =
-                """
+        String originalXml = """
             <config>
                 <setting1/>
                 <setting2 />

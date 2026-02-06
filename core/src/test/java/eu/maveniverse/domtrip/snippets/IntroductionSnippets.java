@@ -67,8 +67,7 @@ public class IntroductionSnippets extends BaseSnippetTest {
     public void demonstrateQuickExample() throws DomTripException {
         // START: quick-example
         // Parse XML while preserving all formatting
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <?xml version="1.0" encoding="UTF-8"?>
             <!-- Project configuration -->
             <project xmlns="http://maven.apache.org/POM/4.0.0">

@@ -33,8 +33,7 @@ class PomEditorTest {
 
     @Test
     void testInsertMavenElementWithOrdering() throws Exception {
-        String pomXml =
-                """
+        String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0">
               <modelVersion>4.0.0</modelVersion>
@@ -159,8 +158,7 @@ class PomEditorTest {
 
     @Test
     void testFindChildElement() throws DomTripException {
-        String pomXml =
-                """
+        String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0">
               <modelVersion>4.0.0</modelVersion>
@@ -342,8 +340,7 @@ class PomEditorTest {
 
     @Test
     void testUpdateManagedPluginUpdate() throws DomTripException {
-        String pomXml =
-                """
+        String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0">
               <modelVersion>4.0.0</modelVersion>
@@ -388,8 +385,7 @@ class PomEditorTest {
 
     @Test
     void testUpdateManagedPluginWithProperty() throws DomTripException {
-        String pomXml =
-                """
+        String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0">
               <modelVersion>4.0.0</modelVersion>
@@ -458,8 +454,7 @@ class PomEditorTest {
 
     @Test
     void testDeleteManagedPlugin() throws DomTripException {
-        String pomXml =
-                """
+        String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0">
               <modelVersion>4.0.0</modelVersion>
@@ -555,8 +550,7 @@ class PomEditorTest {
 
     @Test
     void testUpdatePluginUpdate() throws DomTripException {
-        String pomXml =
-                """
+        String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0">
               <modelVersion>4.0.0</modelVersion>
@@ -598,8 +592,7 @@ class PomEditorTest {
 
     @Test
     void testUpdatePluginWithoutVersionUpdatesManagedPlugin() throws DomTripException {
-        String pomXml =
-                """
+        String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0">
               <modelVersion>4.0.0</modelVersion>
@@ -660,8 +653,7 @@ class PomEditorTest {
 
     @Test
     void testDeletePlugin() throws DomTripException {
-        String pomXml =
-                """
+        String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0">
               <modelVersion>4.0.0</modelVersion>

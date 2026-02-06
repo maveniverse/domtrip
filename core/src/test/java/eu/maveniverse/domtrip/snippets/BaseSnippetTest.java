@@ -19,13 +19,11 @@ public abstract class BaseSnippetTest {
      * Helper method to create test XML content for snippets.
      */
     protected String createTestXml(String rootElement) {
-        return String.format(
-                """
+        return String.format("""
             <?xml version="1.0" encoding="UTF-8"?>
             <%s>
             </%s>
-            """,
-                rootElement, rootElement);
+            """, rootElement, rootElement);
     }
 
     /**

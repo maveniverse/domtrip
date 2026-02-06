@@ -238,9 +238,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
         editor.add().comment().to(section).withContent(" End of configuration ").build();
 
         // Multi-line comments
-        editor.addComment(
-                root,
-                """
+        editor.addComment(root, """
                 This is a multi-line comment
                 that spans several lines
                 and provides detailed information

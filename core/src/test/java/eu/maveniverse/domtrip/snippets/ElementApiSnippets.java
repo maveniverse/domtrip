@@ -174,8 +174,7 @@ public class ElementApiSnippets {
 
     @Test
     public void demonstrateChildNavigation() throws DomTripException {
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>my-app</artifactId>
@@ -203,8 +202,7 @@ public class ElementApiSnippets {
 
     @Test
     public void demonstrateElementStreams() throws DomTripException {
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <dependencies>
                 <dependency scope="test">junit</dependency>
                 <dependency scope="compile">commons-lang</dependency>
@@ -326,8 +324,7 @@ public class ElementApiSnippets {
 
     @Test
     public void demonstrateRemovingElements() throws DomTripException {
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <project>
                 <dependency>junit</dependency>
                 <dependency>mockito</dependency>

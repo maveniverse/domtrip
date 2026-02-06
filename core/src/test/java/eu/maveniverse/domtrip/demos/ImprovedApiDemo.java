@@ -129,8 +129,7 @@ public class ImprovedApiDemo {
     private static void demonstrateEnhancedNavigation() throws DomTripException {
         System.out.println("4. Enhanced Navigation Demo:");
 
-        String xml =
-                """
+        String xml = """
             <project>
                 <dependencies>
                     <dependency>

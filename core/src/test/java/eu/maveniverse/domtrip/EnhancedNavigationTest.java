@@ -20,8 +20,7 @@ public class EnhancedNavigationTest {
 
     @BeforeEach
     void setUp() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>test-project</artifactId>

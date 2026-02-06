@@ -284,8 +284,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     public void demonstrateEmptyElementAutoDetection() throws DomTripException {
         // START: empty-element-auto-detection
         // XML with self-closing spaced empty elements
-        String xml =
-                """
+        String xml = """
             <root>
                 <empty1 />
                 <empty2 />

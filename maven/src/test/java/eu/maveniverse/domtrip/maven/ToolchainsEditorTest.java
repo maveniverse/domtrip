@@ -237,8 +237,7 @@ class ToolchainsEditorTest {
 
     @Test
     void testEditExistingToolchains() throws DomTripException {
-        String existingToolchains =
-                """
+        String existingToolchains = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <toolchains xmlns="http://maven.apache.org/TOOLCHAINS/1.1.0">
                   <toolchain>

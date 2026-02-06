@@ -40,8 +40,7 @@ public class NamespaceTest {
 
     @Test
     void testNamespaceResolution() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root xmlns="http://example.com/default" xmlns:ns="http://example.com/ns">
                 <child>content</child>
                 <ns:element>namespaced content</ns:element>
@@ -73,8 +72,7 @@ public class NamespaceTest {
 
     @Test
     void testNamespaceAwareNavigation() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root xmlns="http://example.com/default" xmlns:meta="http://example.com/meta">
                 <title>Default Title</title>
                 <meta:title>Meta Title</meta:title>
@@ -112,8 +110,7 @@ public class NamespaceTest {
 
     @Test
     void testNamespaceContext() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root xmlns="http://example.com/default" xmlns:a="http://example.com/a">
                 <child xmlns:b="http://example.com/b">
                     <a:element xmlns:c="http://example.com/c">

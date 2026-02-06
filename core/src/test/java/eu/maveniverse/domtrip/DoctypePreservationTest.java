@@ -11,8 +11,7 @@ class DoctypePreservationTest {
 
     @Test
     void testSimpleDoctype() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <!DOCTYPE html>
             <html>
@@ -34,8 +33,7 @@ class DoctypePreservationTest {
 
     @Test
     void testDoctypeWithPublicId() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <?xml version="1.0"?>
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
             <html xmlns="http://www.w3.org/1999/xhtml">
@@ -59,8 +57,7 @@ class DoctypePreservationTest {
 
     @Test
     void testDoctypeWithSystemId() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <!DOCTYPE note SYSTEM "note.dtd">
             <note>
                 <to>Tove</to>
@@ -83,8 +80,7 @@ class DoctypePreservationTest {
 
     @Test
     void testDoctypeWithInternalSubset() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <!DOCTYPE note [
                 <!ELEMENT note (to,from,heading,body)>
                 <!ELEMENT to (#PCDATA)>
@@ -118,8 +114,7 @@ class DoctypePreservationTest {
 
     @Test
     void testDoctypeWithMixedPublicAndInternal() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" [
                 <!ENTITY nbsp "&#160;">
@@ -150,8 +145,7 @@ class DoctypePreservationTest {
 
     @Test
     void testNoDoctypePreservation() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <?xml version="1.0"?>
             <root>
                 <child>Content</child>
@@ -171,8 +165,7 @@ class DoctypePreservationTest {
 
     @Test
     void testLosslessRoundTrip() throws DomTripException {
-        String originalXml =
-                """
+        String originalXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <!DOCTYPE bookstore [
                 <!ELEMENT bookstore (book+)>

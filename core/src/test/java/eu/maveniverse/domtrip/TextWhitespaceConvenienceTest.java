@@ -165,8 +165,7 @@ class TextWhitespaceConvenienceTest {
     @Test
     void testRealWorldXmlExample() throws Exception {
         // Test with realistic XML content
-        String xml =
-                """
+        String xml = """
             <config>
                 <message>   Welcome to our application!   </message>
                 <path>  /usr/local/bin  </path>

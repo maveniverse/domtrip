@@ -120,8 +120,7 @@ class CoordinatesTest {
 
     @Test
     void testFromPom_simple(@TempDir Path tempDir) throws DomTripException, IOException {
-        String pomContent =
-                """
+        String pomContent = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project>
                     <groupId>org.example</groupId>
@@ -144,8 +143,7 @@ class CoordinatesTest {
 
     @Test
     void testFromPom_withParent(@TempDir Path tempDir) throws DomTripException, IOException {
-        String pomContent =
-                """
+        String pomContent = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project>
                     <parent>
@@ -171,8 +169,7 @@ class CoordinatesTest {
     @Test
     void testFromPom_maven4Inference(@TempDir Path tempDir) throws DomTripException, IOException {
         // Maven 4 can infer groupId and version from reactor
-        String pomContent =
-                """
+        String pomContent = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project>
                     <artifactId>my-module</artifactId>
@@ -192,8 +189,7 @@ class CoordinatesTest {
 
     @Test
     void testFromPom_missingArtifactId(@TempDir Path tempDir) throws IOException {
-        String pomContent =
-                """
+        String pomContent = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project>
                     <groupId>org.example</groupId>

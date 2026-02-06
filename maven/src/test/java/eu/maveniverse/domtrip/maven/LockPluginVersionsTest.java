@@ -26,8 +26,7 @@ class LockPluginVersionsTest {
     @Test
     void testLockPluginVersionsBasic() throws DomTripException {
         // Starting POM - simple project with some plugins but no pluginManagement
-        String startingPom =
-                """
+        String startingPom = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -81,8 +80,7 @@ class LockPluginVersionsTest {
         String result = editor.toXml();
 
         // Expected result with proper formatting
-        String expected =
-                """
+        String expected = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0"
                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -150,8 +148,7 @@ class LockPluginVersionsTest {
     @Test
     void testLockPluginVersionsWithExistingPluginManagement() throws DomTripException {
         // Starting POM with existing pluginManagement
-        String startingPom =
-                """
+        String startingPom = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0">
                   <modelVersion>4.0.0</modelVersion>
@@ -199,8 +196,7 @@ class LockPluginVersionsTest {
         String result = editor.toXml();
 
         // Expected result with existing pluginManagement preserved and new plugins added
-        String expected =
-                """
+        String expected = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0">
                   <modelVersion>4.0.0</modelVersion>
@@ -317,8 +313,7 @@ class LockPluginVersionsTest {
     @Test
     void testSimpleFormattingIssue() throws DomTripException {
         // Simple test to isolate the formatting issue
-        String simpleXml =
-                """
+        String simpleXml = """
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project>
                   <build>

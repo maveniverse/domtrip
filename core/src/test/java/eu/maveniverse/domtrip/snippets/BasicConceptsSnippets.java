@@ -110,8 +110,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     public void demonstrateWhitespaceInference() throws DomTripException {
         // START: whitespace-inference
         // Existing structure with indentation
-        String xml =
-                """
+        String xml = """
             <dependencies>
                 <dependency>existing</dependency>
             </dependencies>
@@ -175,8 +174,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateStreamBasedNavigation() throws DomTripException {
         // START: stream-based-navigation
-        String xml =
-                """
+        String xml = """
             <root>
                 <dependency status="active"><artifactId>junit</artifactId></dependency>
                 <dependency status="inactive"><artifactId>mockito</artifactId></dependency>
@@ -204,8 +202,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateNamespaceAwareNavigation() throws DomTripException {
         // START: namespace-aware-navigation
-        String xml =
-                """
+        String xml = """
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap:Body>
                     <item xmlns="http://example.com/items">content</item>

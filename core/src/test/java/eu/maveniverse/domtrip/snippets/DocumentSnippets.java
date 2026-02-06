@@ -164,8 +164,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateDocumentTraversal() throws DomTripException {
         // START: document-traversal
-        String xml =
-                """
+        String xml = """
             <?xml version="1.0"?>
             <!-- Comment 1 -->
             <root>
@@ -214,8 +213,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateDoctypePreservation() throws DomTripException {
         // START: doctype-preservation
-        String xmlWithDoctype =
-                """
+        String xmlWithDoctype = """
             <?xml version="1.0"?>
             <!DOCTYPE root SYSTEM "example.dtd">
             <root>
@@ -234,8 +232,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateNodeCounting() throws DomTripException {
         // START: node-counting
-        String complexXml =
-                """
+        String complexXml = """
             <?xml version="1.0"?>
             <!-- Comment -->
             <root>

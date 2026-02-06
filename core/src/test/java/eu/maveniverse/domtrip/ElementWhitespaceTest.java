@@ -11,8 +11,7 @@ class ElementWhitespaceTest {
 
     @Test
     void testSetTextContentPreservingWhitespace() throws Exception {
-        String xml =
-                """
+        String xml = """
             <root>
                 <item>   original value   </item>
                 <path>  /usr/local/bin  </path>
@@ -46,8 +45,7 @@ class ElementWhitespaceTest {
 
     @Test
     void testGetTrimmedTextContent() throws Exception {
-        String xml =
-                """
+        String xml = """
             <root>
                 <item>   value with spaces   </item>
                 <clean>no spaces</clean>
@@ -82,8 +80,7 @@ class ElementWhitespaceTest {
 
     @Test
     void testSetTextContentVsPreservingWhitespace() throws Exception {
-        String xml =
-                """
+        String xml = """
             <root>
                 <test1>   original   </test1>
                 <test2>   original   </test2>
@@ -110,8 +107,7 @@ class ElementWhitespaceTest {
 
     @Test
     void testComplexWhitespacePatterns() throws Exception {
-        String xml =
-                """
+        String xml = """
             <config>
                 <description>
                     Multi-line description
@@ -163,8 +159,7 @@ class ElementWhitespaceTest {
 
     @Test
     void testWithNoTextContent() throws Exception {
-        String xml =
-                """
+        String xml = """
             <root>
                 <parent>
                     <child>content</child>
@@ -227,8 +222,7 @@ class ElementWhitespaceTest {
 
     @Test
     void testRealWorldConfigExample() throws Exception {
-        String configXml =
-                """
+        String configXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <configuration>
                 <database>
@@ -285,8 +279,7 @@ class ElementWhitespaceTest {
 
     @Test
     void testNullAndEmptyContent() throws Exception {
-        String xml =
-                """
+        String xml = """
             <root>
                 <item>   original   </item>
             </root>

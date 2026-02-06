@@ -17,8 +17,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     public void demonstrateBasicFormatPreservation() throws DomTripException {
         // START: basic-format-preservation
         // Original XML with specific formatting
-        String xml =
-                """
+        String xml = """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>my-app</artifactId>
@@ -44,8 +43,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
 
     @Test
     public void demonstrateWhitespaceTracking() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <project>
                 <groupId>com.example</groupId>
             </project>
@@ -113,8 +111,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
         //   <dependencies>
         //       <dependency>...</dependency>
         //   </dependencies>
-        Document doc = Document.of(
-                """
+        Document doc = Document.of("""
             <dependencies>
                 <dependency>
                     <groupId>junit</groupId>
@@ -166,8 +163,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
 
     @Test
     public void demonstrateModificationTracking() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <project>
                 <groupId>com.example</groupId>
                 <version>1.0.0</version>
@@ -217,8 +213,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateCommentPreservation() throws DomTripException {
         // START: comment-preservation
-        String xml =
-                """
+        String xml = """
             <project>
                 <!-- This is an important comment -->
                 <groupId>com.example</groupId>
@@ -245,8 +240,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateMinimalChangeSerialization() throws DomTripException {
         // START: minimal-change-serialization
-        String originalXml =
-                """
+        String originalXml = """
             <project>
                 <groupId>com.example</groupId>
                 <artifactId>my-app</artifactId>

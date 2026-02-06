@@ -18,8 +18,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateSimpleElementModification() throws DomTripException {
         // START: simple-element-modification
-        String xml =
-                """
+        String xml = """
             <config>
                 <database>
                     <host>localhost</host>
@@ -75,8 +74,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateMavenPomEditing() throws DomTripException {
         // START: maven-pom-adding-dependencies
-        String pomXml =
-                """
+        String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0">
                 <modelVersion>4.0.0</modelVersion>
@@ -229,8 +227,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateSpringConfiguration() throws DomTripException {
         // START: spring-configuration
-        String springConfig =
-                """
+        String springConfig = """
             <?xml version="1.0" encoding="UTF-8"?>
             <beans xmlns="http://www.springframework.org/schema/beans">
                 <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
@@ -274,8 +271,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateWorkingWithNamespaces() throws DomTripException {
         // START: working-with-namespaces
-        String xmlWithNamespaces =
-                """
+        String xmlWithNamespaces = """
             <?xml version="1.0" encoding="UTF-8"?>
             <project xmlns="http://maven.apache.org/POM/4.0.0"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

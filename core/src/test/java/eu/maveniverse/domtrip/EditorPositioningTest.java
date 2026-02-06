@@ -19,8 +19,7 @@ class EditorPositioningTest {
 
     @Test
     void testInsertElementAt() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <first>content1</first>
                 <third>content3</third>
@@ -49,8 +48,7 @@ class EditorPositioningTest {
 
         // Verify the complete XML structure
         String result = editor.toXml();
-        String expected =
-                """
+        String expected = """
             <root>
                 <first>content1</first>
                 <second></second>
@@ -66,8 +64,7 @@ class EditorPositioningTest {
                 <first/>
                 <third/>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <first/>
                 <second>content2</second>
@@ -90,14 +87,12 @@ class EditorPositioningTest {
 
     @Test
     void testInsertElementBefore() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <existing>content</existing>
                 <other>other</other>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <newElement></newElement>
                 <existing>content</existing>
@@ -125,8 +120,7 @@ class EditorPositioningTest {
             <root>
                 <existing/>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <newElement>new content</newElement>
                 <existing/>
@@ -148,14 +142,12 @@ class EditorPositioningTest {
 
     @Test
     void testInsertElementAfter() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <existing>content</existing>
                 <other>other</other>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <existing>content</existing>
                 <newElement></newElement>
@@ -183,8 +175,7 @@ class EditorPositioningTest {
             <root>
                 <existing/>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <existing/>
                 <newElement>new content</newElement>
@@ -253,14 +244,12 @@ class EditorPositioningTest {
 
     @Test
     void testInsertElementAtBeginning() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <second>content2</second>
                 <third>content3</third>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <first>content1</first>
                 <second>content2</second>
@@ -284,14 +273,12 @@ class EditorPositioningTest {
 
     @Test
     void testInsertElementAtEnd() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <first>content1</first>
                 <second>content2</second>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <first>content1</first>
                 <second>content2</second>
@@ -335,8 +322,7 @@ class EditorPositioningTest {
 
     @Test
     void testComplexPositioningScenario() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <dependencies>
                     <dependency>
@@ -345,8 +331,7 @@ class EditorPositioningTest {
                     </dependency>
                 </dependencies>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <dependencies>
                     <dependency>
@@ -385,8 +370,7 @@ class EditorPositioningTest {
 
     @Test
     void testSimpleAppendScenario() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <dependencies>
                     <dependency>
@@ -395,8 +379,7 @@ class EditorPositioningTest {
                     </dependency>
                 </dependencies>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <dependencies>
                     <dependency>

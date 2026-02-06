@@ -52,15 +52,13 @@ public class IndentationTest {
 
     @Test
     void testNestedIndentation() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
               <parent>
                 <child>content</child>
               </parent>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
               <parent>
                 <child>content</child>
@@ -205,8 +203,7 @@ public class IndentationTest {
                 result.contains("      <another>value</another>"), "Another element should have 6-space indentation");
 
         // Verify the overall structure is correct
-        String expected =
-                """
+        String expected = """
             <target>
               <existing>element</existing>
               <complex>

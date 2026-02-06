@@ -19,8 +19,7 @@ class EditorCommentingTest {
 
     @Test
     void testCommentOutSingleElement() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <dependency>
                     <groupId>junit</groupId>
@@ -28,8 +27,7 @@ class EditorCommentingTest {
                 </dependency>
                 <other>content</other>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <!-- <dependency>
                     <groupId>junit</groupId>
@@ -50,16 +48,14 @@ class EditorCommentingTest {
 
     @Test
     void testCommentOutMultipleElements() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <first>content1</first>
                 <second>content2</second>
                 <third>content3</third>
                 <keep>keep this</keep>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <!-- <first>content1</first>
                 <second>content2</second> -->
@@ -80,14 +76,12 @@ class EditorCommentingTest {
 
     @Test
     void testUncommentElement() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <!-- <dependency><groupId>junit</groupId><artifactId>junit</artifactId></dependency> -->
                 <other>content</other>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <dependency><groupId>junit</groupId><artifactId>junit</artifactId></dependency>
                 <other>content</other>
@@ -130,8 +124,7 @@ class EditorCommentingTest {
 
     @Test
     void testCommentOutElementsWithDifferentParents() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <parent1><child1/></parent1>
                 <parent2><child2/></parent2>
@@ -187,8 +180,7 @@ class EditorCommentingTest {
 
     @Test
     void testCommentOutPreservesWhitespace() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <dependency>
                     <groupId>junit</groupId>
@@ -208,8 +200,7 @@ class EditorCommentingTest {
 
     @Test
     void testRoundTripCommentUncomment() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <dependency scope="test">
                     <groupId>junit</groupId>
@@ -234,14 +225,12 @@ class EditorCommentingTest {
 
     @Test
     void testUncommentElementWithPrettyPrint() throws DomTripException {
-        String xml =
-                """
+        String xml = """
             <root>
                 <!-- <dependency><groupId>junit</groupId><artifactId>junit</artifactId></dependency> -->
                 <other>content</other>
             </root>""";
-        String expected =
-                """
+        String expected = """
             <root>
                 <dependency><groupId>junit</groupId><artifactId>junit</artifactId></dependency>
                 <other>content</other>

@@ -33,8 +33,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateParsingDocumentsWithPIs() throws DomTripException {
         // START: parsing-documents-with-pis
-        String xml =
-                """
+        String xml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <?xml-stylesheet type="text/xsl" href="transform.xsl"?>
             <?sort-order alpha-ascending?>
@@ -58,8 +57,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateFindingProcessingInstructions() throws DomTripException {
         // START: finding-processing-instructions
-        String xmlWithPIs =
-                """
+        String xmlWithPIs = """
             <?xml version="1.0"?>
             <?stylesheet type="text/xsl" href="style.xsl"?>
             <root>content</root>
@@ -106,8 +104,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateSpecialCharacters() throws DomTripException {
         // START: special-characters
-        String xml =
-                """
+        String xml = """
             <?target data with <special> &amp; characters?>
             <root/>
             """;
@@ -126,8 +123,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     @Test
     public void demonstratePositionAndWhitespace() throws DomTripException {
         // START: position-whitespace-preservation
-        String xml =
-                """
+        String xml = """
             <?xml version="1.0"?>
 
             <?stylesheet href="style.css"?>
@@ -174,8 +170,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     @Test
     public void demonstratePhpProcessingInstructions() throws DomTripException {
         // START: php-processing-instructions
-        String phpXml =
-                """
+        String phpXml = """
             <?xml version="1.0"?>
             <?php
                 $title = "Dynamic Title";
@@ -218,8 +213,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateEditorIntegration() throws DomTripException {
         // START: editor-integration
-        String xmlWithPIs =
-                """
+        String xmlWithPIs = """
             <?xml version="1.0"?>
             <?xml-stylesheet type="text/css" href="style.css"?>
             <root>

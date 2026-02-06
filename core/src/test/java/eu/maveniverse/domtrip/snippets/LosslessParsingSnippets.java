@@ -15,8 +15,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateLosslessRoundTrip() throws DomTripException {
         // START: lossless-round-trip
-        String originalXml =
-                """
+        String originalXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <!-- Project configuration -->
             <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -68,8 +67,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateWhitespacePreservation() throws DomTripException {
         // START: whitespace-preservation
-        String xmlWithWhitespace =
-                """
+        String xmlWithWhitespace = """
             <project>
 
                 <groupId>com.example</groupId>
@@ -94,8 +92,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     public void demonstrateCommentPreservation() throws DomTripException {
         // START: comment-preservation
         // START: comments-preservation
-        String xmlWithComments =
-                """
+        String xmlWithComments = """
             <project>
                 <!-- Main project coordinates -->
                 <groupId>com.example</groupId>
@@ -119,8 +116,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateAttributeQuotePreservation() throws DomTripException {
         // START: attribute-quote-preservation
-        String xmlWithMixedQuotes =
-                """
+        String xmlWithMixedQuotes = """
             <dependency scope='test' optional="true" classifier='sources'/>
             """;
 
@@ -137,8 +133,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateNamespacePreservation() throws DomTripException {
         // START: namespace-preservation
-        String xmlWithNamespaces =
-                """
+        String xmlWithNamespaces = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
@@ -162,8 +157,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateProcessingInstructionPreservation() throws DomTripException {
         // START: processing-instruction-preservation
-        String xmlWithPI =
-                """
+        String xmlWithPI = """
             <?xml version="1.0" encoding="UTF-8"?>
             <?xml-stylesheet type="text/xsl" href="style.xsl"?>
             <project>
@@ -187,8 +181,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateCDataPreservation() throws DomTripException {
         // START: cdata-preservation
-        String xmlWithCData =
-                """
+        String xmlWithCData = """
             <script>
                 <![CDATA[
                 function example() {
@@ -215,8 +208,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateDocumentTypePreservation() throws DomTripException {
         // START: document-type-preservation
-        String xmlWithDoctype =
-                """
+        String xmlWithDoctype = """
             <?xml version="1.0" encoding="UTF-8"?>
             <!DOCTYPE project SYSTEM "project.dtd">
             <project>
@@ -237,8 +229,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateMinimalModification() throws DomTripException {
         // START: minimal-modification
-        String originalXml =
-                """
+        String originalXml = """
             <project>
                 <!-- Keep this comment -->
                 <groupId>com.example</groupId>
@@ -269,8 +260,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateEncodingPreservation() throws DomTripException {
         // START: encoding-preservation
-        String xmlWithEncoding =
-                """
+        String xmlWithEncoding = """
             <?xml version="1.0" encoding="ISO-8859-1"?>
             <project>
                 <name>Café Application</name>
@@ -291,8 +281,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateComplexStructurePreservation() throws DomTripException {
         // START: complex-structure-preservation
-        String complexXml =
-                """
+        String complexXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <!-- Multi-line comment
                  with specific formatting -->
@@ -333,8 +322,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     @Test
     public void demonstrateProcessingInstructionsWithData() throws DomTripException {
         // START: processing-instructions-with-data
-        String xml =
-                """
+        String xml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <?xml-stylesheet type="text/xsl" href="style.xsl"?>
             <document>
@@ -358,8 +346,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     public void demonstrateRoundTripVerification() throws Exception {
         // START: round-trip-verification
         // Create a temporary file for testing
-        String complexXml =
-                """
+        String complexXml = """
             <?xml version="1.0" encoding="UTF-8"?>
             <!-- Configuration file -->
             <config>

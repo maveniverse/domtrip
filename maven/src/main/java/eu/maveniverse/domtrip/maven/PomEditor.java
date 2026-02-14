@@ -293,6 +293,8 @@ public class PomEditor extends AbstractMavenEditor {
         if ("project".equals(rootElementName)) {
             Element root = root();
             root.attribute("xmlns", MavenPomElements.Namespaces.MAVEN_4_0_0_NAMESPACE);
+            root.attribute("xmlns:xsi", MavenPomElements.Attributes.XSI_NAMESPACE_URI);
+            root.attribute("xsi:schemaLocation", MavenPomElements.SchemaLocations.MAVEN_4_0_0_SCHEMA_LOCATION);
         }
     }
 

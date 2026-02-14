@@ -29,6 +29,9 @@ class PomEditorTest {
         assertNotNull(root);
         assertEquals("project", root.name());
         assertEquals(MavenPomElements.Namespaces.MAVEN_4_0_0_NAMESPACE, root.attribute("xmlns"));
+        assertEquals(MavenPomElements.Attributes.XSI_NAMESPACE_URI, root.attribute("xmlns:xsi"));
+        assertEquals(
+                MavenPomElements.SchemaLocations.MAVEN_4_0_0_SCHEMA_LOCATION, root.attribute("xsi:schemaLocation"));
     }
 
     @Test

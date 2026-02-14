@@ -69,7 +69,9 @@ class PomEditorExampleTest {
 
         // Verify the structure
         assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
-        assertTrue(result.contains("<project xmlns=\"http://maven.apache.org/POM/4.0.0\">"));
+        assertTrue(
+                result.contains(
+                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\">"));
         assertTrue(result.contains("<modelVersion>4.0.0</modelVersion>"));
         assertTrue(result.contains("<groupId>com.example</groupId>"));
         assertTrue(result.contains("<artifactId>my-project</artifactId>"));

@@ -171,15 +171,15 @@ public class EmptyElementStyleTest {
         DomTripConfig config = DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.EXPANDED);
 
         Serializer serializer = new Serializer(config);
-        assertEquals(EmptyElementStyle.EXPANDED, serializer.getEmptyElementStyle());
+        assertEquals(EmptyElementStyle.EXPANDED, serializer.emptyElementStyle());
 
         // Test setter
         serializer.setEmptyElementStyle(EmptyElementStyle.SELF_CLOSING_SPACED);
-        assertEquals(EmptyElementStyle.SELF_CLOSING_SPACED, serializer.getEmptyElementStyle());
+        assertEquals(EmptyElementStyle.SELF_CLOSING_SPACED, serializer.emptyElementStyle());
 
         // Test null handling
         serializer.setEmptyElementStyle(null);
-        assertEquals(EmptyElementStyle.SELF_CLOSING, serializer.getEmptyElementStyle());
+        assertEquals(EmptyElementStyle.SELF_CLOSING, serializer.emptyElementStyle());
     }
 
     @Test

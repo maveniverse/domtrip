@@ -142,7 +142,7 @@ public class Attribute {
         if (useRaw && rawValue != null) {
             return rawValue;
         }
-        return escapeAttributeValue(value, quoteStyle.getCharacter());
+        return escapeAttributeValue(value, quoteStyle.character());
     }
 
     /**
@@ -169,14 +169,14 @@ public class Attribute {
         sb.append(precedingWhitespace)
                 .append(name)
                 .append("=")
-                .append(quoteStyle.getCharacter())
+                .append(quoteStyle.character())
                 .append(getSerializationValue(useRaw))
-                .append(quoteStyle.getCharacter());
+                .append(quoteStyle.character());
     }
 
     @Override
     public String toString() {
-        return "Attribute{name='" + name + "', value='" + value + "', quote=" + quoteStyle.getCharacter() + "}";
+        return "Attribute{name='" + name + "', value='" + value + "', quote=" + quoteStyle.character() + "}";
     }
 
     private static String validateName(String name) {

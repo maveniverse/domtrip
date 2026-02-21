@@ -644,7 +644,7 @@ public class Editor {
 
         // Remove all elements in reverse order to maintain indices
         for (int i = lastIndex; i >= firstIndex; i--) {
-            Node node = parent.getNode(i);
+            Node node = parent.node(i);
             if (node instanceof Element && java.util.Arrays.asList(elements).contains(node)) {
                 parent.removeNode(node);
             }
@@ -662,7 +662,7 @@ public class Editor {
 
             // Ensure the next element (if any) has proper preceding whitespace
             if ((firstIndex + 2) < parent.nodeCount()) {
-                Node nextNode = parent.getNode(firstIndex + 2);
+                Node nextNode = parent.node(firstIndex + 2);
                 if (nextNode instanceof Element nextElement
                         && nextElement.precedingWhitespace().isEmpty()) {
                     nextElement.precedingWhitespaceInternal(lastElementFollowingWhitespace);

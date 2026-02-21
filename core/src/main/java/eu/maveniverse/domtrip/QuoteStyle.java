@@ -61,8 +61,14 @@ public enum QuoteStyle {
      *
      * @return the quote character (either '"' or '\'')
      */
-    public char getCharacter() {
+    public char character() {
         return character;
+    }
+
+    /** @deprecated Use {@link #character()} instead. */
+    @Deprecated
+    public char getCharacter() {
+        return character();
     }
 
     /**

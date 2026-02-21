@@ -36,27 +36,27 @@ public class ElementCloneTest {
         assertNull(clone.parent());
 
         // Verify children are cloned
-        Element clonedChild1 = (Element) clone.getNode(0);
+        Element clonedChild1 = (Element) clone.node(0);
         assertEquals("child1", clonedChild1.name());
         assertEquals("content1", clonedChild1.textContent());
         assertEquals(clone, clonedChild1.parent()); // Parent should be the clone
 
-        Element clonedChild2 = (Element) clone.getNode(1);
+        Element clonedChild2 = (Element) clone.node(1);
         assertEquals("child2", clonedChild2.name());
         assertEquals(1, clonedChild2.nodeCount());
 
-        Element clonedGrandchild = (Element) clonedChild2.getNode(0);
+        Element clonedGrandchild = (Element) clonedChild2.node(0);
         assertEquals("grandchild", clonedGrandchild.name());
         assertEquals("nested", clonedGrandchild.textContent());
         assertEquals(clonedChild2, clonedGrandchild.parent()); // Parent should be cloned child2
 
         // Verify comment is cloned
-        Comment clonedComment = (Comment) clone.getNode(2);
+        Comment clonedComment = (Comment) clone.node(2);
         assertEquals("test comment", clonedComment.content());
         assertEquals(clone, clonedComment.parent());
 
         // Verify text is cloned
-        Text clonedText = (Text) clone.getNode(3);
+        Text clonedText = (Text) clone.node(3);
         assertEquals("some text", clonedText.content());
         assertEquals(clone, clonedText.parent());
 
@@ -105,8 +105,8 @@ public class ElementCloneTest {
         assertEquals(parent2, child.parent());
         assertEquals(0, parent1.nodeCount()); // Child removed from first parent
         assertEquals(2, parent2.nodeCount()); // Child + sibling
-        assertEquals(child, parent2.getNode(0)); // Child is at index 0
-        assertEquals(sibling, parent2.getNode(1)); // Sibling moved to index 1
+        assertEquals(child, parent2.node(0)); // Child is at index 0
+        assertEquals(sibling, parent2.node(1)); // Sibling moved to index 1
     }
 
     @Test
@@ -135,11 +135,11 @@ public class ElementCloneTest {
 
         Element clone = original.clone();
 
-        Text clonedCData = (Text) clone.getNode(0);
+        Text clonedCData = (Text) clone.node(0);
         assertTrue(clonedCData.cdata());
         assertEquals("<script>alert('test');</script>", clonedCData.content());
 
-        ProcessingInstruction clonedPI = (ProcessingInstruction) clone.getNode(1);
+        ProcessingInstruction clonedPI = (ProcessingInstruction) clone.node(1);
         assertEquals("xml-stylesheet", clonedPI.target());
         assertEquals("type=\"text/css\"", clonedPI.data());
     }
@@ -170,15 +170,15 @@ public class ElementCloneTest {
         assertEquals("html", clone.root().name());
         assertEquals(2, clone.root().nodeCount());
 
-        Element clonedHead = (Element) clone.root().getNode(0);
+        Element clonedHead = (Element) clone.root().node(0);
         assertEquals("head", clonedHead.name());
         assertEquals(clone.root(), clonedHead.parent());
 
-        Element clonedBody = (Element) clone.root().getNode(1);
+        Element clonedBody = (Element) clone.root().node(1);
         assertEquals("body", clonedBody.name());
         assertEquals(clone.root(), clonedBody.parent());
 
-        Text clonedText = (Text) clonedBody.getNode(0);
+        Text clonedText = (Text) clonedBody.node(0);
         assertEquals("Hello World", clonedText.content());
         assertEquals(clonedBody, clonedText.parent());
 

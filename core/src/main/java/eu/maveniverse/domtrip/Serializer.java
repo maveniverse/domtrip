@@ -149,8 +149,14 @@ public class Serializer {
      *
      * @return the indentation string
      */
-    public String getIndentString() {
+    public String indentString() {
         return indentString;
+    }
+
+    /** @deprecated Use {@link #indentString()} instead. */
+    @Deprecated
+    public String getIndentString() {
+        return indentString();
     }
 
     /**
@@ -185,8 +191,14 @@ public class Serializer {
      *
      * @return the line ending string
      */
-    public String getLineEnding() {
+    public String lineEnding() {
         return lineEnding;
+    }
+
+    /** @deprecated Use {@link #lineEnding()} instead. */
+    @Deprecated
+    public String getLineEnding() {
+        return lineEnding();
     }
 
     /**
@@ -203,8 +215,14 @@ public class Serializer {
      *
      * @return the empty element style
      */
-    public EmptyElementStyle getEmptyElementStyle() {
+    public EmptyElementStyle emptyElementStyle() {
         return emptyElementStyle;
+    }
+
+    /** @deprecated Use {@link #emptyElementStyle()} instead. */
+    @Deprecated
+    public EmptyElementStyle getEmptyElementStyle() {
+        return emptyElementStyle();
     }
 
     /**

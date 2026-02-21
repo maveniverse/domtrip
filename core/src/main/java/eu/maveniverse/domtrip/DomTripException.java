@@ -80,8 +80,14 @@ public class DomTripException extends RuntimeException {
      *
      * @return the character position, or -1 if position is not available
      */
-    public int getPosition() {
+    public int position() {
         return position;
+    }
+
+    /** @deprecated Use {@link #position()} instead. */
+    @Deprecated
+    public int getPosition() {
+        return position();
     }
 
     /**
@@ -92,7 +98,13 @@ public class DomTripException extends RuntimeException {
      *
      * @return the XML content, or null if not available
      */
-    public String getXmlContent() {
+    public String xmlContent() {
         return xmlContent;
+    }
+
+    /** @deprecated Use {@link #xmlContent()} instead. */
+    @Deprecated
+    public String getXmlContent() {
+        return xmlContent();
     }
 }

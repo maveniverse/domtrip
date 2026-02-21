@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Represents the root of an XML document, containing the document element
@@ -519,6 +520,36 @@ public class Document extends ContainerNode {
             throw new DomTripException("XML string cannot be null or empty");
         }
         return new Parser().parse(xml);
+    }
+
+    /**
+     * Parses an XML fragment into a list of nodes.
+     *
+     * <p>This method parses an XML fragment that may contain multiple root-level
+     * elements, comments, processing instructions, and text nodes. Unlike
+     * {@link #of(String)}, which expects a well-formed XML document, this method
+     * handles fragments that don't have a single root element.</p>
+     *
+     * <h3>Usage Examples:</h3>
+     * <pre>{@code
+     * // Parse a fragment with multiple elements
+     * List<Node> nodes = Document.parseFragment("<foo>bar</foo><bar>baz</bar>");
+     *
+     * // Parse a fragment with comments and elements
+     * List<Node> nodes = Document.parseFragment(
+     *     "<!-- comment -->\n<foo>bar</foo>\n<bar>baz</bar>");
+     * }</pre>
+     *
+     * @param xml the XML fragment string to parse
+     * @return a list of parsed nodes
+     * @throws DomTripException if the XML fragment is malformed
+     */
+    public static List<Node> parseFragment(String xml) throws DomTripException {
+        if (xml == null || xml.isEmpty()) {
+            return List.of();
+        }
+        Document doc = new Parser().parse(xml);
+        return doc.nodes().toList();
     }
 
     /**

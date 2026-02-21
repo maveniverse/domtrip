@@ -104,6 +104,28 @@ public class Comment extends Node {
     public String content() {
         return content;
     }
+    /**
+     * {@inheritDoc}
+     *
+     * @return this comment for method chaining
+     */
+    @Override
+    public Comment parent(ContainerNode parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return this comment for method chaining
+     */
+    @Override
+    public Comment precedingWhitespace(String whitespace) {
+        this.precedingWhitespace = whitespace != null ? whitespace : "";
+        markModified();
+        return this;
+    }
 
     /**
      * Sets the content of this comment.

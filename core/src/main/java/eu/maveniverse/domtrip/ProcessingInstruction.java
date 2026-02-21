@@ -97,6 +97,28 @@ public class ProcessingInstruction extends Node {
             this.data = "";
         }
     }
+    /**
+     * {@inheritDoc}
+     *
+     * @return this processing instruction for method chaining
+     */
+    @Override
+    public ProcessingInstruction parent(ContainerNode parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return this processing instruction for method chaining
+     */
+    @Override
+    public ProcessingInstruction precedingWhitespace(String whitespace) {
+        this.precedingWhitespace = whitespace != null ? whitespace : "";
+        markModified();
+        return this;
+    }
 
     public String target() {
         return target;

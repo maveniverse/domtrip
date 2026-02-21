@@ -114,6 +114,28 @@ public class Text extends Node {
     public String content() {
         return content;
     }
+    /**
+     * {@inheritDoc}
+     *
+     * @return this text node for method chaining
+     */
+    @Override
+    public Text parent(ContainerNode parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return this text node for method chaining
+     */
+    @Override
+    public Text precedingWhitespace(String whitespace) {
+        this.precedingWhitespace = whitespace != null ? whitespace : "";
+        markModified();
+        return this;
+    }
 
     public Text content(String content) {
         this.content = content != null ? content : "";

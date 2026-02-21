@@ -169,4 +169,38 @@ public class ElementInnerWhitespaceSerializationTest {
         String xml = element.toXml();
         assertEquals("<test></test>", xml);
     }
+
+    @Test
+    public void testPrecedingWhitespaceBeforeInnerPrecedingWhitespace() throws DomTripException {
+        // Issue #129: calling precedingWhitespace before innerPrecedingWhitespace should work
+        Element element = Element.of("foo").precedingWhitespace("  ").innerPrecedingWhitespace("  ");
+        assertEquals("  ", element.precedingWhitespace());
+        assertEquals("  ", element.innerPrecedingWhitespace());
+    }
+
+    @Test
+    public void testInnerPrecedingWhitespaceBeforePrecedingWhitespace() throws DomTripException {
+        // Issue #129: calling innerPrecedingWhitespace before precedingWhitespace should also work
+        Element element = Element.of("foo").innerPrecedingWhitespace("  ").precedingWhitespace("  ");
+        assertEquals("  ", element.precedingWhitespace());
+        assertEquals("  ", element.innerPrecedingWhitespace());
+    }
+
+    @Test
+    public void testCovariantPrecedingWhitespaceOnAllNodeTypes() throws DomTripException {
+        // Verify covariant return types work for all node types
+        Element element = Element.of("foo").precedingWhitespace("\n").name("bar");
+        assertEquals("bar", element.name());
+
+        Comment comment = Comment.of("test").precedingWhitespace("\n").content("updated");
+        assertEquals("updated", comment.content());
+
+        Text text = Text.of("hello").precedingWhitespace("\n").content("world");
+        assertEquals("world", text.content());
+
+        ProcessingInstruction pi = ProcessingInstruction.of("target", "data")
+                .precedingWhitespace("\n")
+                .target("new");
+        assertEquals("new", pi.target());
+    }
 }

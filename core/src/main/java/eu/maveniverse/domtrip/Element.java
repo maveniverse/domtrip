@@ -389,6 +389,28 @@ public class Element extends ContainerNode {
     }
 
     // Tag formatting
+    /**
+     * {@inheritDoc}
+     *
+     * @return this element for method chaining
+     */
+    @Override
+    public Element parent(ContainerNode parent) {
+        this.parent = parent;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return this element for method chaining
+     */
+    @Override
+    public Element precedingWhitespace(String whitespace) {
+        this.precedingWhitespace = whitespace != null ? whitespace : "";
+        markModified();
+        return this;
+    }
 
     /**
      * Gets the whitespace within the opening tag (before the closing &gt;).

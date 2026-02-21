@@ -96,12 +96,21 @@ public abstract class ContainerNode extends Node {
 
     /**
      * Gets the child at the specified index.
+     *
+     * @param index the index of the child node to return
+     * @return the child node at the specified index, or null if the index is out of range
      */
-    public Node getNode(int index) {
+    public Node node(int index) {
         if (index >= 0 && index < nodes.size()) {
             return nodes.get(index);
         }
         return null;
+    }
+
+    /** @deprecated Use {@link #node(int)} instead. */
+    @Deprecated
+    public Node getNode(int index) {
+        return node(index);
     }
 
     /**

@@ -24,7 +24,7 @@ public class AttributeClassTest {
     void testBasicAttributeCreation() {
         assertEquals("test", attribute.name());
         assertEquals("value", attribute.value());
-        assertEquals('"', attribute.quoteStyle().getCharacter());
+        assertEquals('"', attribute.quoteStyle().character());
         assertEquals(" ", attribute.precedingWhitespace());
         assertNull(attribute.rawValue());
     }
@@ -35,7 +35,7 @@ public class AttributeClassTest {
 
         assertEquals("name", attr.name());
         assertEquals("value", attr.value());
-        assertEquals('\'', attr.quoteStyle().getCharacter());
+        assertEquals('\'', attr.quoteStyle().character());
         assertEquals("  ", attr.precedingWhitespace());
     }
 
@@ -64,7 +64,7 @@ public class AttributeClassTest {
     @Test
     void testSetQuoteChar() {
         attribute.quoteStyle(QuoteStyle.SINGLE);
-        assertEquals('\'', attribute.quoteStyle().getCharacter());
+        assertEquals('\'', attribute.quoteStyle().character());
     }
 
     @Test

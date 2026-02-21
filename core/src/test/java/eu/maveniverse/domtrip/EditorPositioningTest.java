@@ -32,7 +32,7 @@ class EditorPositioningTest {
         // Find the position after the "first" element
         int insertPosition = -1;
         for (int i = 0; i < root.nodeCount(); i++) {
-            Node node = root.getNode(i);
+            Node node = root.node(i);
             if (node instanceof Element element && "first".equals(element.name())) {
                 insertPosition = i + 1;
                 break;

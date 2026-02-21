@@ -91,8 +91,8 @@ public class ConfigurationTest {
 
     @Test
     void testQuoteStyleEnum() throws DomTripException {
-        assertEquals('"', QuoteStyle.DOUBLE.getCharacter());
-        assertEquals('\'', QuoteStyle.SINGLE.getCharacter());
+        assertEquals('"', QuoteStyle.DOUBLE.character());
+        assertEquals('\'', QuoteStyle.SINGLE.character());
 
         assertEquals(QuoteStyle.DOUBLE, QuoteStyle.fromChar('"'));
         assertEquals(QuoteStyle.SINGLE, QuoteStyle.fromChar('\''));

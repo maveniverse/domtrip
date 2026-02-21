@@ -75,7 +75,7 @@ import java.util.regex.Pattern;
  *     // Use the parsed document
  * } catch (DomTripException e) {
  *     // Handle parsing errors
- *     System.err.println("Parse error at position " + e.getPosition() + ": " + e.getMessage());
+ *     System.err.println("Parse error at position " + e.position() + ": " + e.getMessage());
  * }
  * }</pre>
  *

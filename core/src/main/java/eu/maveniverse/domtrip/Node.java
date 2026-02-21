@@ -1,5 +1,7 @@
 package eu.maveniverse.domtrip;
 
+import java.util.Optional;
+
 /**
  * Base class for all XML nodes in the lossless XML tree, providing core
  * functionality for formatting preservation and tree navigation.
@@ -288,5 +290,87 @@ public abstract class Node {
             current = current.parent;
         }
         return false;
+    }
+
+    /**
+     * Gets the index of this node within its parent's children list.
+     *
+     * @return the index of this node, or -1 if this node has no parent
+     */
+    public int siblingIndex() {
+        if (parent == null) {
+            return -1;
+        }
+        return parent.nodes.indexOf(this);
+    }
+
+    /**
+     * Gets the previous sibling node.
+     *
+     * @return an Optional containing the previous sibling, or empty if this is the first child or has no parent
+     */
+    public Optional<Node> previousSibling() {
+        if (parent == null) {
+            return Optional.empty();
+        }
+        int index = parent.nodes.indexOf(this);
+        if (index > 0) {
+            return Optional.of(parent.nodes.get(index - 1));
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Gets the next sibling node.
+     *
+     * @return an Optional containing the next sibling, or empty if this is the last child or has no parent
+     */
+    public Optional<Node> nextSibling() {
+        if (parent == null) {
+            return Optional.empty();
+        }
+        int index = parent.nodes.indexOf(this);
+        if (index >= 0 && index < parent.nodes.size() - 1) {
+            return Optional.of(parent.nodes.get(index + 1));
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Gets the previous sibling that is an Element.
+     *
+     * @return an Optional containing the previous Element sibling, or empty if none exists
+     */
+    public Optional<Element> previousSiblingElement() {
+        if (parent == null) {
+            return Optional.empty();
+        }
+        int index = parent.nodes.indexOf(this);
+        for (int i = index - 1; i >= 0; i--) {
+            Node node = parent.nodes.get(i);
+            if (node instanceof Element element) {
+                return Optional.of(element);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Gets the next sibling that is an Element.
+     *
+     * @return an Optional containing the next Element sibling, or empty if none exists
+     */
+    public Optional<Element> nextSiblingElement() {
+        if (parent == null) {
+            return Optional.empty();
+        }
+        int index = parent.nodes.indexOf(this);
+        for (int i = index + 1; i < parent.nodes.size(); i++) {
+            Node node = parent.nodes.get(i);
+            if (node instanceof Element element) {
+                return Optional.of(element);
+            }
+        }
+        return Optional.empty();
     }
 }

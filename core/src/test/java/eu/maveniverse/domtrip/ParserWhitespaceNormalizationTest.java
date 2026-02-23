@@ -227,6 +227,46 @@ public class ParserWhitespaceNormalizationTest {
         assertEquals(xml4, doc4.toXml(), "XML round-trip should preserve whitespace and comment");
     }
 
+    @Test
+    void testPrecedingWhitespaceSetOnAllNodeTypes() throws DomTripException {
+        // Issue #130: precedingWhitespace should be set consistently on all node types
+        String xml = "<root>\n    <!-- a comment -->\n    <?pi data?>\n    <![CDATA[cdata]]>\n    <child/>\n</root>";
+
+        Document doc = Document.of(xml);
+        Element root = doc.root();
+
+        // Comment should have precedingWhitespace
+        Comment comment = root.nodes()
+                .filter(n -> n instanceof Comment)
+                .map(n -> (Comment) n)
+                .findFirst()
+                .orElseThrow();
+        assertEquals("\n    ", comment.precedingWhitespace(), "Comment should have precedingWhitespace set by parser");
+
+        // ProcessingInstruction should have precedingWhitespace
+        ProcessingInstruction pi = root.nodes()
+                .filter(n -> n instanceof ProcessingInstruction)
+                .map(n -> (ProcessingInstruction) n)
+                .findFirst()
+                .orElseThrow();
+        assertEquals("\n    ", pi.precedingWhitespace(), "PI should have precedingWhitespace set by parser");
+
+        // CDATA (Text node) should have precedingWhitespace
+        Text cdata = root.nodes()
+                .filter(n -> n instanceof Text && ((Text) n).cdata())
+                .map(n -> (Text) n)
+                .findFirst()
+                .orElseThrow();
+        assertEquals("\n    ", cdata.precedingWhitespace(), "CDATA should have precedingWhitespace set by parser");
+
+        // Element should have precedingWhitespace
+        Element child = root.child("child").orElseThrow();
+        assertEquals("\n    ", child.precedingWhitespace(), "Element should have precedingWhitespace set by parser");
+
+        // Verify round-trip preserves all whitespace
+        assertEquals(xml, root.toXml());
+    }
+
     /**
      * Helper method to count all text nodes in an element tree
      */

@@ -9,7 +9,6 @@ import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -386,7 +385,7 @@ public class MigrationSnippets extends BaseSnippetTest {
                 .filter(el -> "test".equals(el.attribute("scope")));
         // END: migration-xpath-queries
 
-        List<Element> nodeList = nodes.collect(Collectors.toList());
+        List<Element> nodeList = nodes.toList();
         Assertions.assertNotNull(nodeList);
     }
 

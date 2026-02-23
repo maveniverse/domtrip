@@ -1,6 +1,7 @@
 package eu.maveniverse.domtrip.website;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -101,7 +102,7 @@ public class LinkValidationTest {
     private List<BrokenLink> validateLinksInFile(Path htmlFile, Path outputDir, Set<String> existingFiles)
             throws IOException {
         List<BrokenLink> brokenLinks = new ArrayList<>();
-        String content = Files.readString(htmlFile);
+        String content = new String(Files.readAllBytes(htmlFile), StandardCharsets.UTF_8);
         String relativeFilePath = outputDir.relativize(htmlFile).toString();
 
         Matcher matcher = INTERNAL_LINK_PATTERN.matcher(content);

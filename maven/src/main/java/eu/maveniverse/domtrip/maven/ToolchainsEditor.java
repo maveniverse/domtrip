@@ -253,9 +253,11 @@ public class ToolchainsEditor extends AbstractMavenEditor {
     @Override
     protected List<String> getOrderListForParent(Element parent) {
         String parentName = parent.name();
-        return switch (parentName) {
-            case TOOLCHAIN -> TOOLCHAIN_ELEMENT_ORDER;
-            default -> null;
-        };
+        switch (parentName) {
+            case TOOLCHAIN:
+                return TOOLCHAIN_ELEMENT_ORDER;
+            default:
+                return null;
+        }
     }
 }

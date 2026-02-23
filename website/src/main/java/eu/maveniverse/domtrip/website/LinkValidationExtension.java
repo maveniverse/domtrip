@@ -13,14 +13,17 @@ import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -131,7 +134,7 @@ public class LinkValidationExtension {
         String[] possiblePaths = {"website/target/dist", "target/dist", "dist"};
 
         for (String pathStr : possiblePaths) {
-            Path path = Path.of(pathStr);
+            Path path = Paths.get(pathStr);
             if (Files.exists(path)) {
                 Log.infof("Found output directory: %s", path.toAbsolutePath());
                 return path;
@@ -149,7 +152,7 @@ public class LinkValidationExtension {
 
         try (Stream<Path> paths = Files.walk(outputDir)) {
             List<Path> htmlFiles =
-                    paths.filter(path -> path.toString().endsWith(".html")).toList();
+                    paths.filter(path -> path.toString().endsWith(".html")).collect(Collectors.toList());
             Log.infof("Validating links in %d HTML files...", htmlFiles.size());
 
             for (Path htmlFile : htmlFiles) {
@@ -194,7 +197,7 @@ public class LinkValidationExtension {
     private List<BrokenLink> validateLinksInFile(Path htmlFile, Path outputDir, Set<String> existingFiles)
             throws IOException {
         List<BrokenLink> brokenLinks = new ArrayList<>();
-        String content = Files.readString(htmlFile);
+        String content = new String(Files.readAllBytes(htmlFile), StandardCharsets.UTF_8);
         String relativeFilePath = outputDir.relativize(htmlFile).toString();
 
         Matcher matcher = INTERNAL_LINK_PATTERN.matcher(content);

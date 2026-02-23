@@ -27,7 +27,7 @@ import java.util.stream.Stream;
  * List<Element> testDeps = root.query()
  *     .withName("dependency")
  *     .withAttribute("scope", "test")
- *     .toList();
+ *     .collect(Collectors.toList());
  *
  * // Find first element in specific namespace
  * Optional<Element> soapBody = root.query()

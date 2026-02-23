@@ -338,7 +338,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
         // Process multiple XML files
         // List<Path> xmlFiles = Files.list(Path.of("xml-data"))
         //     .filter(path -> path.toString().endsWith(".xml"))
-        //     .collect(Collectors.toList());
+        //     .toList();
 
         // For testing, simulate multiple files
         String[] xmlContents = {createTestXml("file1"), createTestXml("file2"), createTestXml("file3")};

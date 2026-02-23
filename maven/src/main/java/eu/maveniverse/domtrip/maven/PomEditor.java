@@ -18,8 +18,10 @@ import eu.maveniverse.domtrip.Element;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Specialized editor for Maven POM files that extends the base {@link Editor} class
@@ -933,7 +935,7 @@ public class PomEditor extends AbstractMavenEditor {
                 modules = insertMavenElement(root(), MODULES);
             }
             List<String> existing =
-                    modules.children(MODULE).map(Element::textContent).toList();
+                    modules.children(MODULE).map(Element::textContent).collect(Collectors.toList());
             if (!existing.contains(moduleName)) {
                 insertMavenElement(modules, MODULE, moduleName);
                 return true;
@@ -1282,12 +1284,14 @@ public class PomEditor extends AbstractMavenEditor {
     private boolean updateVersionElement(Element parent, String newVersion) throws DomTripException {
         java.util.Optional<Element> version = parent.child(VERSION);
         if (version.isPresent()) {
-            String versionValue = version.orElseThrow().textContent();
+            String versionValue = version.orElseThrow(() -> new NoSuchElementException("No value present"))
+                    .textContent();
             if (versionValue != null && versionValue.startsWith("${") && versionValue.endsWith("}")) {
                 String propertyKey = versionValue.substring(2, versionValue.length() - 1);
                 return properties().updateProperty(false, propertyKey, newVersion);
             } else {
-                version.orElseThrow().textContent(newVersion);
+                version.orElseThrow(() -> new NoSuchElementException("No value present"))
+                        .textContent(newVersion);
                 return true;
             }
         }

@@ -6,6 +6,7 @@ import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -78,7 +79,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
             Files.writeString(tempFile, createMavenPomXml());
             addDependencyExample(tempFile.toString(), "junit", "junit", "4.13.2");
 
-            String result = Files.readString(tempFile);
+            String result = new String(Files.readAllBytes(tempFile), StandardCharsets.UTF_8);
             Assertions.assertTrue(result.contains("<groupId>junit</groupId>"));
         } finally {
             Files.deleteIfExists(tempFile);

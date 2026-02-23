@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -89,13 +88,13 @@ public class NamespaceTest {
 
         // Find by namespace and local name using QName
         List<Element> defaultTitles = root.descendants(QName.of("http://example.com/default", "title"))
-                .collect(Collectors.toList());
+                .toList();
         assertEquals(2, defaultTitles.size());
         assertEquals("Default Title", defaultTitles.get(0).textContent());
         assertEquals("Nested Title", defaultTitles.get(1).textContent());
 
         List<Element> metaTitles =
-                root.descendants(QName.of("http://example.com/meta", "title")).collect(Collectors.toList());
+                root.descendants(QName.of("http://example.com/meta", "title")).toList();
         assertEquals(2, metaTitles.size());
         assertEquals("Meta Title", metaTitles.get(0).textContent());
         assertEquals("Nested Meta Title", metaTitles.get(1).textContent());

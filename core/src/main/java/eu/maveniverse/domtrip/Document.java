@@ -13,7 +13,9 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents the root of an XML document, containing the document element
@@ -39,7 +41,7 @@ import java.util.List;
  * Document doc = Document.of(); // Empty document
  * Document parsed = Document.of(xmlString); // Parse XML from String
  * Document fromStream = Document.of(inputStream); // Parse XML from InputStream
- * Document fromFile = Document.of(Path.of("config.xml")); // Parse XML from file
+ * Document fromFile = Document.of(Paths.get("config.xml")); // Parse XML from file
  * Document withDecl = Document.withXmlDeclaration("1.0", "UTF-8");
  * Document complete = Document.withRootElement("project");
  *
@@ -126,7 +128,7 @@ public class Document extends ContainerNode {
         }
 
         // Deep copy children directly to avoid addNode() side effects
-        for (Node child : original.nodes().toList()) {
+        for (Node child : original.nodes().collect(Collectors.toList())) {
             Node clonedChild = child.clone();
             clonedChild.parent(this); // Set parent directly
             this.nodes.add(clonedChild); // Add directly to list
@@ -563,10 +565,10 @@ public class Document extends ContainerNode {
      */
     public static List<Node> parseFragment(String xml) throws DomTripException {
         if (xml == null || xml.isEmpty()) {
-            return List.of();
+            return Collections.emptyList();
         }
         Document doc = new Parser().parse(xml);
-        return doc.nodes().toList();
+        return doc.nodes().collect(Collectors.toList());
     }
 
     /**
@@ -654,12 +656,12 @@ public class Document extends ContainerNode {
      * <h3>Usage Examples:</h3>
      * <pre>{@code
      * // Parse XML file with automatic encoding detection
-     * Document doc = Document.of(Path.of("config.xml"));
+     * Document doc = Document.of(Paths.get("config.xml"));
      *
      * // Works with various encodings
-     * Document utf8Doc = Document.of(Path.of("utf8-file.xml"));
-     * Document utf16Doc = Document.of(Path.of("utf16-file.xml"));
-     * Document isoDoc = Document.of(Path.of("iso-8859-1-file.xml"));
+     * Document utf8Doc = Document.of(Paths.get("utf8-file.xml"));
+     * Document utf16Doc = Document.of(Paths.get("utf16-file.xml"));
+     * Document isoDoc = Document.of(Paths.get("iso-8859-1-file.xml"));
      *
      * // Use with try-with-resources for proper resource management
      * try {

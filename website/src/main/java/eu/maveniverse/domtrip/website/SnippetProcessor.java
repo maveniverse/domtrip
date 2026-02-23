@@ -12,8 +12,10 @@ import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -193,7 +195,7 @@ public class SnippetProcessor {
 
         for (String[] modulePathOptions : possiblePaths) {
             for (String pathStr : modulePathOptions) {
-                Path path = Path.of(pathStr);
+                Path path = Paths.get(pathStr);
                 if (Files.exists(path) && Files.isDirectory(path)) {
                     System.out.println("📁 Found snippets directory: " + path.toAbsolutePath());
                     foundDirectories.add(path);
@@ -211,7 +213,7 @@ public class SnippetProcessor {
 
     private void processFile(Path filePath) {
         try {
-            String content = Files.readString(filePath);
+            String content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
             int snippetsBefore = snippetCache.size();
             extractSnippetsFromContent(content, filePath.getFileName().toString());
             int snippetsAfter = snippetCache.size();

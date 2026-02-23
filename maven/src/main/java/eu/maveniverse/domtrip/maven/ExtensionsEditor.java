@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Specialized editor for Maven extensions.xml files.
@@ -207,7 +208,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @return list of Coordinates objects representing the extensions
      */
     public List<Coordinates> listExtensions() throws DomTripException {
-        return root().children(EXTENSION).map(this::toJarCoordinates).toList();
+        return root().children(EXTENSION).map(this::toJarCoordinates).collect(Collectors.toList());
     }
 
     /**
@@ -222,7 +223,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      */
     public boolean updateExtension(boolean upsert, Coordinates coordinates) throws DomTripException {
         List<Element> matched =
-                root().children(EXTENSION).filter(coordinates.predicateGA()).toList();
+                root().children(EXTENSION).filter(coordinates.predicateGA()).collect(Collectors.toList());
         if (matched.isEmpty()) {
             if (upsert) {
                 addExtension(root(), coordinates.groupId(), coordinates.artifactId(), coordinates.version());
@@ -265,9 +266,11 @@ public class ExtensionsEditor extends AbstractMavenEditor {
     @Override
     protected List<String> getOrderListForParent(Element parent) {
         String parentName = parent.name();
-        return switch (parentName) {
-            case EXTENSION -> EXTENSION_ELEMENT_ORDER;
-            default -> null;
-        };
+        switch (parentName) {
+            case EXTENSION:
+                return EXTENSION_ELEMENT_ORDER;
+            default:
+                return null;
+        }
     }
 }

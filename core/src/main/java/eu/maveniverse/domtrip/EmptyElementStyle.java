@@ -7,6 +7,8 @@
  */
 package eu.maveniverse.domtrip;
 
+import java.util.stream.Collectors;
+
 /**
  * Enumeration for XML empty element formatting styles.
  *
@@ -144,7 +146,7 @@ public enum EmptyElementStyle {
         }
 
         // Recursively analyze child elements
-        for (Node child : element.nodes().toList()) {
+        for (Node child : element.nodes().collect(Collectors.toList())) {
             if (child instanceof Element) {
                 analyzeElement((Element) child, counter);
             }

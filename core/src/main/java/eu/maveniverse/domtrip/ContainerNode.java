@@ -48,7 +48,8 @@ public abstract class ContainerNode extends Node {
             node.parent(this);
             nodes.add(node);
             // If this is an Element and it was self-closing, make it not self-closing
-            if (this instanceof Element element) {
+            if (this instanceof Element) {
+                Element element = (Element) this;
                 if (element.selfClosing()) {
                     element.selfClosingInternal(false);
                 }
@@ -90,7 +91,8 @@ public abstract class ContainerNode extends Node {
         node.parent(this);
         nodes.add(index, node);
         // If this is an Element and it was self-closing, make it not self-closing
-        if (this instanceof Element element) {
+        if (this instanceof Element) {
+            Element element = (Element) this;
             if (element.selfClosing()) {
                 element.selfClosingInternal(false);
             }
@@ -150,7 +152,8 @@ public abstract class ContainerNode extends Node {
     public String textContent() {
         StringBuilder sb = new StringBuilder();
         for (Node node : nodes) {
-            if (node instanceof Text textNode) {
+            if (node instanceof Text) {
+                Text textNode = (Text) node;
                 sb.append(textNode.content());
             }
         }

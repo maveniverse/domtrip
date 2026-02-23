@@ -6,7 +6,6 @@ import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +41,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
         List<String> groupIds = dependencies
                 .children("dependency")
                 .map(dep -> dep.child("groupId").orElseThrow().textContent())
-                .collect(Collectors.toList());
+                .toList();
 
         // Result: ["junit", "mockito", "hamcrest"]
         // END: basic-stream-navigation
@@ -85,7 +84,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
                 .filter(dep -> "test"
                         .equals(dep.child("scope").map(Element::textContent).orElse("")))
                 .map(dep -> dep.child("artifactId").orElseThrow().textContent())
-                .collect(Collectors.toList());
+                .toList();
 
         // Result: ["junit", "mockito-core"]
         // END: filtering-streams
@@ -123,7 +122,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
 
         // Find all groupId elements anywhere in the document
         List<String> allGroupIds =
-                root.descendants("groupId").map(Element::textContent).collect(Collectors.toList());
+                root.descendants("groupId").map(Element::textContent).toList();
 
         // Result: ["junit", "org.apache.maven.plugins"]
         // END: descendant-streams
@@ -163,7 +162,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
                     String version = dep.child("version").orElseThrow().textContent();
                     return groupId + ":" + artifactId + ":" + version;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         // Result: ["junit:junit:4.13.2", "mockito:mockito-core:3.12.4"]
         // END: stream-transformations
@@ -297,7 +296,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
                         .startsWith("org.apache.maven.plugins"))
                 .map(plugin ->
                         plugin.child("artifactId").map(Element::textContent).orElse("unknown"))
-                .collect(Collectors.toList());
+                .toList();
 
         // Find dependencies with specific patterns
         boolean hasTestFramework = root.descendants("dependency").anyMatch(dep -> {
@@ -343,14 +342,14 @@ public class StreamSupportSnippets extends BaseSnippetTest {
                     String version = dep.child("version").orElseThrow().textContent();
                     return artifactId + ":" + version;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         // Find dependencies missing versions
         List<String> dependenciesMissingVersions = dependencies
                 .children("dependency")
                 .filter(dep -> dep.child("version").isEmpty())
                 .map(dep -> dep.child("artifactId").orElseThrow().textContent())
-                .collect(Collectors.toList());
+                .toList();
         // END: stream-with-optionals
 
         Assertions.assertEquals(1, dependenciesWithVersions.size());
@@ -387,7 +386,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
                     // Simulate expensive processing
                     return groupId.toUpperCase() + ":" + artifactId.toUpperCase();
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         // Note: Order may vary with parallel streams
         // END: parallel-streams
@@ -440,7 +439,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
                 .filter(dep -> "test"
                         .equals(dep.child("scope").map(Element::textContent).orElse("")))
                 .map(dep -> dep.child("artifactId").orElseThrow().textContent())
-                .collect(Collectors.toList());
+                .toList();
         // END: stream-chaining
 
         Assertions.assertEquals(1, testDependenciesInProfiles.size());

@@ -2,7 +2,6 @@ package eu.maveniverse.domtrip.snippets;
 
 import eu.maveniverse.domtrip.*;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -213,17 +212,17 @@ public class ElementApiSnippets {
 
         // START: element-streams
         // Stream all child elements
-        var allDeps = dependencies.children().collect(Collectors.toList());
+        var allDeps = dependencies.children().toList();
 
         // Stream children with specific name
-        var depElements = dependencies.children("dependency").collect(Collectors.toList());
+        var depElements = dependencies.children("dependency").toList();
 
         // Filter and transform
         var testDeps = dependencies
                 .children("dependency")
                 .filter(dep -> "test".equals(dep.attribute("scope")))
                 .map(Element::textContent)
-                .collect(Collectors.toList());
+                .toList();
         // END: element-streams
 
         Assertions.assertEquals(3, allDeps.size());
@@ -339,12 +338,12 @@ public class ElementApiSnippets {
         toRemove.ifPresent(element -> project.removeNode(element));
 
         // Remove all elements with specific name (collect to list first to avoid ConcurrentModificationException)
-        project.children("dependency").collect(Collectors.toList()).forEach(project::removeNode);
+        project.children("dependency").toList().forEach(project::removeNode);
 
         // Remove by condition (collect to list first to avoid ConcurrentModificationException)
         project.children()
                 .filter(child -> "deprecated".equals(child.attribute("status")))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(project::removeNode);
         // end-snippet:removing-elements
 

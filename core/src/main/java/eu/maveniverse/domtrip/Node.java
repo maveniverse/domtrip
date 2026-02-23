@@ -355,8 +355,8 @@ public abstract class Node {
         int index = parent.nodes.indexOf(this);
         for (int i = index - 1; i >= 0; i--) {
             Node node = parent.nodes.get(i);
-            if (node instanceof Element element) {
-                return Optional.of(element);
+            if (node instanceof Element) {
+                return Optional.of((Element) node);
             }
         }
         return Optional.empty();
@@ -374,8 +374,8 @@ public abstract class Node {
         int index = parent.nodes.indexOf(this);
         for (int i = index + 1; i < parent.nodes.size(); i++) {
             Node node = parent.nodes.get(i);
-            if (node instanceof Element element) {
-                return Optional.of(element);
+            if (node instanceof Element) {
+                return Optional.of((Element) node);
             }
         }
         return Optional.empty();

@@ -37,7 +37,8 @@
   </scm>
 
   <properties>
-    <maven.compiler.release>17</maven.compiler.release>
+    <maven.compiler.release>8</maven.compiler.release>
+    <maven.compiler.testRelease>21</maven.compiler.testRelease>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <version.junit>6.0.3</version.junit>
   </properties>

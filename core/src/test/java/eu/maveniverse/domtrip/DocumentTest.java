@@ -340,7 +340,8 @@ public class DocumentTest {
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Hello World", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "Hello World", doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -371,9 +372,9 @@ public class DocumentTest {
         assertEquals("config", doc.root().name());
 
         // Verify structure
-        Element database = doc.root().child("database").orElseThrow();
-        assertEquals("localhost", database.child("host").orElseThrow().textContent());
-        assertEquals("5432", database.child("port").orElseThrow().textContent());
+        Element database = doc.root().childElement("database").orElseThrow();
+        assertEquals("localhost", database.childElement("host").orElseThrow().textContent());
+        assertEquals("5432", database.childElement("port").orElseThrow().textContent());
 
         // Verify round-trip preserves formatting (note: XML declaration may not be preserved exactly)
         String result = editor.toXml();
@@ -399,7 +400,8 @@ public class DocumentTest {
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Test Content", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "Test Content", doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -455,6 +457,7 @@ public class DocumentTest {
         assertEquals("UTF-8", doc.encoding()); // Should default to UTF-8
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("No declaration", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "No declaration", doc.root().childElement("child").orElseThrow().textContent());
     }
 }

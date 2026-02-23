@@ -201,14 +201,14 @@ public class ApiImprovementsTest {
         Element other = editor.addElement(root, "other", "content3");
 
         // Test enhanced navigation methods
-        Optional<Element> firstChild = root.child("child");
+        Optional<Element> firstChild = root.childElement("child");
         assertTrue(firstChild.isPresent());
         assertEquals("content1", firstChild.orElseThrow().textContent());
 
-        List<Element> allChildren = root.children("child").toList();
+        List<Element> allChildren = root.childElements("child").toList();
         assertEquals(2, allChildren.size());
 
-        List<Element> allChildElements = root.children().toList();
+        List<Element> allChildElements = root.childElements().toList();
         assertEquals(3, allChildElements.size());
 
         // Test descendant navigation

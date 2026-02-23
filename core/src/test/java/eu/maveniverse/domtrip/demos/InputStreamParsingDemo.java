@@ -36,7 +36,7 @@ public class InputStreamParsingDemo {
             System.out.println("   Version: " + doc.version());
             System.out.println("   Root element: " + doc.root().name());
             System.out.println("   Child content: "
-                    + doc.root().child("child").orElseThrow().textContent());
+                    + doc.root().childElement("child").orElseThrow().textContent());
         } catch (DomTripException e) {
             System.err.println("   Error: " + e.getMessage());
         }
@@ -67,8 +67,8 @@ public class InputStreamParsingDemo {
                 Document doc = Document.of(inputStream);
 
                 System.out.println("   " + encoding + " - Detected: " + doc.encoding());
-                System.out.println(
-                        "   Content: " + doc.root().child("child").orElseThrow().textContent());
+                System.out.println("   Content: "
+                        + doc.root().childElement("child").orElseThrow().textContent());
             } catch (DomTripException e) {
                 System.err.println("   " + encoding + " - Error: " + e.getMessage());
             }
@@ -94,8 +94,8 @@ public class InputStreamParsingDemo {
 
             System.out.println("   BOM detected and handled successfully!");
             System.out.println("   Encoding: " + doc.encoding());
-            System.out.println(
-                    "   Content: " + doc.root().child("child").orElseThrow().textContent());
+            System.out.println("   Content: "
+                    + doc.root().childElement("child").orElseThrow().textContent());
         } catch (DomTripException e) {
             System.err.println("   Error: " + e.getMessage());
         }
@@ -155,7 +155,7 @@ public class InputStreamParsingDemo {
                     + Optional.ofNullable(doc.root().attribute("xmlns")).orElse("none"));
 
             // Verify structure
-            String groupId = doc.root().child("groupId").orElseThrow().textContent();
+            String groupId = doc.root().childElement("groupId").orElseThrow().textContent();
             System.out.println("   GroupId: " + groupId);
 
             // Show that formatting is preserved

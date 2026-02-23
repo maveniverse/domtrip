@@ -26,7 +26,8 @@ public class InputStreamParsingTest {
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Hello World", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "Hello World", doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -41,7 +42,8 @@ public class InputStreamParsingTest {
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Hello UTF-16", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "Hello UTF-16", doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -56,7 +58,7 @@ public class InputStreamParsingTest {
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Hello ISO", doc.root().child("child").orElseThrow().textContent());
+        assertEquals("Hello ISO", doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -79,7 +81,7 @@ public class InputStreamParsingTest {
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Hello BOM", doc.root().child("child").orElseThrow().textContent());
+        assertEquals("Hello BOM", doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -96,7 +98,8 @@ public class InputStreamParsingTest {
         assertTrue(doc.isStandalone());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Standalone", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "Standalone", doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -111,7 +114,8 @@ public class InputStreamParsingTest {
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("No encoding", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "No encoding", doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -125,7 +129,8 @@ public class InputStreamParsingTest {
         assertEquals("UTF-8", doc.encoding());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Simple XML", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "Simple XML", doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -192,12 +197,12 @@ public class InputStreamParsingTest {
         assertEquals("project", doc.root().name());
 
         // Verify complex structure is preserved
-        Element groupId = doc.root().child("groupId").orElseThrow();
+        Element groupId = doc.root().childElement("groupId").orElseThrow();
         assertEquals("com.example", groupId.textContent());
 
-        Element dependencies = doc.root().child("dependencies").orElseThrow();
-        Element dependency = dependencies.child("dependency").orElseThrow();
-        Element junitGroupId = dependency.child("groupId").orElseThrow();
+        Element dependencies = doc.root().childElement("dependencies").orElseThrow();
+        Element dependency = dependencies.childElement("dependency").orElseThrow();
+        Element junitGroupId = dependency.childElement("groupId").orElseThrow();
         assertEquals("junit", junitGroupId.textContent());
     }
 
@@ -236,7 +241,8 @@ public class InputStreamParsingTest {
         Document doc2 = Document.of(inputStream2);
 
         assertTrue(doc2.encoding().startsWith("UTF-16"), "Expected UTF-16 encoding but got: " + doc2.encoding());
-        assertEquals("UTF-16 test", doc2.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "UTF-16 test", doc2.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -293,7 +299,8 @@ public class InputStreamParsingTest {
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
         assertEquals(
-                "Charset object test", doc.root().child("child").orElseThrow().textContent());
+                "Charset object test",
+                doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -352,6 +359,7 @@ public class InputStreamParsingTest {
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding());
         assertEquals(
-                "Null charset test", doc.root().child("child").orElseThrow().textContent());
+                "Null charset test",
+                doc.root().childElement("child").orElseThrow().textContent());
     }
 }

@@ -57,7 +57,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        Optional<Element> body = root.child("soap:Body");
+        Optional<Element> body = root.childElement("soap:Body");
         if (body.isPresent()) {
             System.out.println("Found SOAP body");
         }

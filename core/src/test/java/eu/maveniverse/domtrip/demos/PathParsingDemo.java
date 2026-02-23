@@ -38,7 +38,7 @@ public class PathParsingDemo {
             System.out.println("   Version: " + doc.version());
             System.out.println("   Root element: " + doc.root().name());
             System.out.println("   Child content: "
-                    + doc.root().child("child").orElseThrow().textContent());
+                    + doc.root().childElement("child").orElseThrow().textContent());
 
             // Clean up
             Files.deleteIfExists(tempFile);
@@ -64,8 +64,8 @@ public class PathParsingDemo {
                 // Parse using Document.of(Path) - should auto-detect encoding
                 Document doc = Document.of(tempFile);
                 System.out.println("   " + encoding + " - Detected: " + doc.encoding());
-                System.out.println(
-                        "   Content: " + doc.root().child("child").orElseThrow().textContent());
+                System.out.println("   Content: "
+                        + doc.root().childElement("child").orElseThrow().textContent());
 
                 // Clean up
                 Files.deleteIfExists(tempFile);
@@ -105,9 +105,9 @@ public class PathParsingDemo {
 
             // Verify structure
             String host = doc.root()
-                    .child("database")
+                    .childElement("database")
                     .orElseThrow()
-                    .child("host")
+                    .childElement("host")
                     .orElseThrow()
                     .textContent();
             System.out.println("   Database host: " + host);

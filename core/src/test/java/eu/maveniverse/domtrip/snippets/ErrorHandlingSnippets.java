@@ -300,7 +300,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
 
     public String safeGetElementText(Element parent, String childName) {
         try {
-            return parent.child(childName).map(Element::textContent).orElse("");
+            return parent.childElement(childName).map(Element::textContent).orElse("");
         } catch (Exception e) {
             System.err.println("Failed to access child element '" + childName + "': " + e.getMessage());
             return "";

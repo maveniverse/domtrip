@@ -29,11 +29,11 @@ class WhitespaceCaptureTest {
         Element root = doc.root();
 
         // Test that child nodes have captured preceding whitespace
-        assertTrue(root.children().count() > 0, "Root should have children");
+        assertTrue(root.childElements().count() > 0, "Root should have children");
 
         // Find the first element child
         Element firstElement =
-                root.children().findFirst().orElseThrow(() -> new AssertionError("Should have element children"));
+                root.childElements().findFirst().orElseThrow(() -> new AssertionError("Should have element children"));
 
         // Verify preceding whitespace is captured (should include newline and spaces)
         String precedingWs = firstElement.precedingWhitespace();
@@ -174,7 +174,7 @@ class WhitespaceCaptureTest {
         }
 
         // Test child element whitespace
-        Element child = element.child("child").orElse(null);
+        Element child = element.childElement("child").orElse(null);
         if (child != null) {
             assertNotNull(child.precedingWhitespace(), "Child preceding whitespace should not be null");
         }
@@ -231,7 +231,7 @@ class WhitespaceCaptureTest {
 
         Document doc = Document.of(xml);
         Element root = doc.root();
-        Element element = root.child("element").orElseThrow();
+        Element element = root.childElement("element").orElseThrow();
 
         // Even with minimal whitespace, the fields should be initialized
         assertNotNull(element.precedingWhitespace(), "Preceding whitespace should not be null");
@@ -252,7 +252,7 @@ class WhitespaceCaptureTest {
 
         Document doc = Document.of(xml);
         Element root = doc.root();
-        Element child = root.child("child").orElseThrow();
+        Element child = root.childElement("child").orElseThrow();
 
         // ✅ WORKING: Attribute preceding whitespace
         Attribute attr1 = root.attributeObject("attr1");

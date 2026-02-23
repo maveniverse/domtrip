@@ -197,7 +197,7 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        Optional<Element> found = root.child("child2");
+        Optional<Element> found = root.childElement("child2");
         assertTrue(found.isPresent());
         assertEquals("child2", found.orElseThrow().name());
         assertEquals("content2", found.orElseThrow().textContent());
@@ -211,7 +211,7 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        Optional<Element> found = root.child("nonexistent");
+        Optional<Element> found = root.childElement("nonexistent");
         assertFalse(found.isPresent());
     }
 

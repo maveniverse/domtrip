@@ -118,8 +118,8 @@ class ElementTextHelpersTest {
         project.addNode(dependencies);
 
         // Chained usage
-        String groupId = project.child("dependencies")
-                .flatMap(deps -> deps.child("dependency"))
+        String groupId = project.childElement("dependencies")
+                .flatMap(deps -> deps.childElement("dependency"))
                 .map(dep -> dep.childTextOr("groupId", "unknown"))
                 .orElse("not-found");
 

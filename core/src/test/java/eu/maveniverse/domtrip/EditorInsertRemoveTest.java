@@ -28,7 +28,7 @@ class EditorInsertRemoveTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element first = doc.root().child("first").orElseThrow();
+        Element first = doc.root().childElement("first").orElseThrow();
 
         editor.removeElement(first);
         String result = editor.toXml();
@@ -53,7 +53,7 @@ class EditorInsertRemoveTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element third = doc.root().child("third").orElseThrow();
+        Element third = doc.root().childElement("third").orElseThrow();
 
         editor.removeElement(third);
         String result = editor.toXml();
@@ -78,7 +78,7 @@ class EditorInsertRemoveTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element second = doc.root().child("second").orElseThrow();
+        Element second = doc.root().childElement("second").orElseThrow();
 
         editor.removeElement(second);
         String result = editor.toXml();
@@ -101,7 +101,7 @@ class EditorInsertRemoveTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element only = doc.root().child("only").orElseThrow();
+        Element only = doc.root().childElement("only").orElseThrow();
 
         editor.removeElement(only);
         String result = editor.toXml();
@@ -126,7 +126,7 @@ class EditorInsertRemoveTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element second = doc.root().child("second").orElseThrow();
+        Element second = doc.root().childElement("second").orElseThrow();
 
         editor.removeElement(second);
         String result = editor.toXml();
@@ -294,8 +294,8 @@ class EditorInsertRemoveTest {
         editor = new Editor(doc);
 
         // Remove the first dependency
-        Element dependencies = doc.root().child("dependencies").orElseThrow();
-        Element firstDep = dependencies.child("dependency").orElseThrow();
+        Element dependencies = doc.root().childElement("dependencies").orElseThrow();
+        Element firstDep = dependencies.childElement("dependency").orElseThrow();
 
         editor.removeElement(firstDep);
         String result = editor.toXml();

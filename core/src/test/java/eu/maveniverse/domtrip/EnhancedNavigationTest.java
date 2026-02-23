@@ -54,38 +54,40 @@ public class EnhancedNavigationTest {
     @Test
     void testFindChild() {
         // Test finding existing child
-        Optional<Element> groupId = root.child("groupId");
+        Optional<Element> groupId = root.childElement("groupId");
         assertTrue(groupId.isPresent());
         assertEquals("com.example", groupId.orElseThrow().textContent());
 
         // Test finding non-existing child
-        Optional<Element> nonExistent = root.child("nonexistent");
+        Optional<Element> nonExistent = root.childElement("nonexistent");
         assertFalse(nonExistent.isPresent());
 
         // Test finding nested child
-        Optional<Element> dependencies = root.child("dependencies");
+        Optional<Element> dependencies = root.childElement("dependencies");
         assertTrue(dependencies.isPresent());
 
-        Optional<Element> dependency = dependencies.orElseThrow().child("dependency");
+        Optional<Element> dependency = dependencies.orElseThrow().childElement("dependency");
         assertTrue(dependency.isPresent());
         assertEquals(
-                "junit", dependency.orElseThrow().child("groupId").orElseThrow().textContent());
+                "junit",
+                dependency.orElseThrow().childElement("groupId").orElseThrow().textContent());
     }
 
     @Test
     void testFindChildren() {
-        Element dependencies = root.child("dependencies").orElseThrow();
+        Element dependencies = root.childElement("dependencies").orElseThrow();
 
         // Find all dependency children
-        List<Element> deps = dependencies.children("dependency").toList();
+        List<Element> deps = dependencies.childElements("dependency").toList();
         assertEquals(2, deps.size());
 
         // Verify content
-        assertEquals("junit", deps.get(0).child("groupId").orElseThrow().textContent());
-        assertEquals("mockito", deps.get(1).child("groupId").orElseThrow().textContent());
+        assertEquals("junit", deps.get(0).childElement("groupId").orElseThrow().textContent());
+        assertEquals(
+                "mockito", deps.get(1).childElement("groupId").orElseThrow().textContent());
 
         // Test finding children that don't exist
-        List<Element> nonExistent = root.children("nonexistent").toList();
+        List<Element> nonExistent = root.childElements("nonexistent").toList();
         assertTrue(nonExistent.isEmpty());
     }
 
@@ -133,7 +135,7 @@ public class EnhancedNavigationTest {
     @Test
     void testChildElements() {
         // Test direct child elements
-        List<Element> rootChildren = root.children().toList();
+        List<Element> rootChildren = root.childElements().toList();
         assertEquals(5, rootChildren.size()); // groupId, artifactId, version, dependencies, properties
 
         List<String> childNames = rootChildren.stream().map(Element::name).toList();
@@ -144,8 +146,8 @@ public class EnhancedNavigationTest {
         assertTrue(childNames.contains("properties"));
 
         // Test child elements of dependencies
-        Element dependencies = root.child("dependencies").orElseThrow();
-        List<Element> depChildren = dependencies.children().toList();
+        Element dependencies = root.childElement("dependencies").orElseThrow();
+        List<Element> depChildren = dependencies.childElements().toList();
         assertEquals(2, depChildren.size());
         assertTrue(depChildren.stream().allMatch(el -> "dependency".equals(el.name())));
     }
@@ -169,28 +171,28 @@ public class EnhancedNavigationTest {
 
     @Test
     void testFindTextChild() {
-        Element groupId = root.child("groupId").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
 
         Optional<Text> textChild = groupId.textChild();
         assertTrue(textChild.isPresent());
         assertEquals("com.example", textChild.orElseThrow().content());
 
         // Test element without text child
-        Element dependencies = root.child("dependencies").orElseThrow();
+        Element dependencies = root.childElement("dependencies").orElseThrow();
         Optional<Text> noTextChild = dependencies.textChild();
         // May or may not have text child depending on whitespace handling
     }
 
     @Test
     void testGetTextContent() {
-        Element groupId = root.child("groupId").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
         assertEquals("com.example", groupId.textContent());
 
-        Element artifactId = root.child("artifactId").orElseThrow();
+        Element artifactId = root.childElement("artifactId").orElseThrow();
         assertEquals("test-project", artifactId.textContent());
 
         // Test element with no text content
-        Element dependencies = root.child("dependencies").orElseThrow();
+        Element dependencies = root.childElement("dependencies").orElseThrow();
         String depText = dependencies.textContent();
         // Should be empty or whitespace only
     }
@@ -199,19 +201,19 @@ public class EnhancedNavigationTest {
     void testHasChildElements() {
         assertTrue(root.hasNodeElements());
 
-        Element dependencies = root.child("dependencies").orElseThrow();
+        Element dependencies = root.childElement("dependencies").orElseThrow();
         assertTrue(dependencies.hasNodeElements());
 
-        Element groupId = root.child("groupId").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
         assertFalse(groupId.hasNodeElements());
     }
 
     @Test
     void testHasTextContent() {
-        Element groupId = root.child("groupId").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
         assertTrue(groupId.hasTextContent());
 
-        Element dependencies = root.child("dependencies").orElseThrow();
+        Element dependencies = root.childElement("dependencies").orElseThrow();
         // May or may not have text content depending on whitespace
     }
 
@@ -220,21 +222,21 @@ public class EnhancedNavigationTest {
         assertEquals(0, document.depth()); // Document is root
         assertEquals(1, root.depth()); // Root element
 
-        Element dependencies = root.child("dependencies").orElseThrow();
+        Element dependencies = root.childElement("dependencies").orElseThrow();
         assertEquals(2, dependencies.depth());
 
-        Element dependency = dependencies.child("dependency").orElseThrow();
+        Element dependency = dependencies.childElement("dependency").orElseThrow();
         assertEquals(3, dependency.depth());
 
-        Element scope = dependency.child("scope").orElseThrow();
+        Element scope = dependency.childElement("scope").orElseThrow();
         assertEquals(4, scope.depth());
     }
 
     @Test
     void testGetDocument() {
-        Element dependencies = root.child("dependencies").orElseThrow();
-        Element dependency = dependencies.child("dependency").orElseThrow();
-        Element scope = dependency.child("scope").orElseThrow();
+        Element dependencies = root.childElement("dependencies").orElseThrow();
+        Element dependency = dependencies.childElement("dependency").orElseThrow();
+        Element scope = dependency.childElement("scope").orElseThrow();
 
         assertEquals(document, root.document());
         assertEquals(document, dependencies.document());
@@ -244,9 +246,9 @@ public class EnhancedNavigationTest {
 
     @Test
     void testIsDescendantOf() {
-        Element dependencies = root.child("dependencies").orElseThrow();
-        Element dependency = dependencies.child("dependency").orElseThrow();
-        Element scope = dependency.child("scope").orElseThrow();
+        Element dependencies = root.childElement("dependencies").orElseThrow();
+        Element dependency = dependencies.childElement("dependency").orElseThrow();
+        Element scope = dependency.childElement("scope").orElseThrow();
 
         assertTrue(root.isDescendantOf(document));
         assertTrue(dependencies.isDescendantOf(root));
@@ -266,8 +268,8 @@ public class EnhancedNavigationTest {
         assertFalse(dependency.isDescendantOf(scope));
 
         // Test siblings
-        Element groupId = root.child("groupId").orElseThrow();
-        Element artifactId = root.child("artifactId").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
+        Element artifactId = root.childElement("artifactId").orElseThrow();
         assertFalse(groupId.isDescendantOf(artifactId));
         assertFalse(artifactId.isDescendantOf(groupId));
     }
@@ -275,25 +277,25 @@ public class EnhancedNavigationTest {
     @Test
     void testNavigationChaining() {
         // Test chaining navigation methods
-        String junitVersion = root.child("dependencies")
-                .flatMap(deps -> deps.children("dependency")
-                        .filter(dep -> dep.child("groupId")
+        String junitVersion = root.childElement("dependencies")
+                .flatMap(deps -> deps.childElements("dependency")
+                        .filter(dep -> dep.childElement("groupId")
                                 .map(gid -> "junit".equals(gid.textContent()))
                                 .orElse(false))
                         .findFirst())
-                .flatMap(dep -> dep.child("version"))
+                .flatMap(dep -> dep.childElement("version"))
                 .map(element1 -> element1.textContent())
                 .orElse("not found");
 
         assertEquals("4.13.2", junitVersion);
 
         // Test finding all test scoped dependencies
-        List<String> testDependencies = root.child("dependencies")
-                .map(deps -> deps.children("dependency")
-                        .filter(dep -> dep.child("scope")
+        List<String> testDependencies = root.childElement("dependencies")
+                .map(deps -> deps.childElements("dependency")
+                        .filter(dep -> dep.childElement("scope")
                                 .map(scope -> "test".equals(scope.textContent()))
                                 .orElse(false))
-                        .map(dep -> dep.child("groupId")
+                        .map(dep -> dep.childElement("groupId")
                                 .map(element -> element.textContent())
                                 .orElse("unknown"))
                         .toList())

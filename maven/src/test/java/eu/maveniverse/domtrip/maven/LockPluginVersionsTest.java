@@ -279,7 +279,7 @@ class LockPluginVersionsTest {
         }
 
         // Iterate through existing plugins and add them to pluginManagement
-        for (Element plugin : pluginsElement.children(PLUGIN).toList()) {
+        for (Element plugin : pluginsElement.childElements(PLUGIN).toList()) {
             String groupId = getPluginCoordinate(plugin, GROUP_ID);
             String artifactId = getPluginCoordinate(plugin, ARTIFACT_ID);
             String version = getPluginCoordinate(plugin, VERSION);
@@ -295,11 +295,11 @@ class LockPluginVersionsTest {
     }
 
     private String getPluginCoordinate(Element plugin, String coordinateName) {
-        return plugin.child(coordinateName).map(Element::textContent).orElse(null);
+        return plugin.childElement(coordinateName).map(Element::textContent).orElse(null);
     }
 
     private boolean isPluginAlreadyManaged(Element managedPlugins, String groupId, String artifactId) {
-        return managedPlugins.children(PLUGIN).anyMatch(plugin -> {
+        return managedPlugins.childElements(PLUGIN).anyMatch(plugin -> {
             String managedGroupId = getPluginCoordinate(plugin, GROUP_ID);
             String managedArtifactId = getPluginCoordinate(plugin, ARTIFACT_ID);
 

@@ -81,7 +81,7 @@ public class XmlConformanceTest {
         Editor editor = new Editor(doc);
 
         // Find the text element by name instead of index
-        Element textElement = editor.root().child("text").orElse(null);
+        Element textElement = editor.root().childElement("text").orElse(null);
         if (textElement == null) {
             throw new AssertionError("Could not find 'text' element");
         }
@@ -139,8 +139,8 @@ public class XmlConformanceTest {
         Editor editor = new Editor(doc);
 
         // Find elements by name instead of index
-        Element element = editor.root().child("element").orElse(null);
-        Element preserve = editor.root().child("preserve").orElse(null);
+        Element element = editor.root().childElement("element").orElse(null);
+        Element preserve = editor.root().childElement("preserve").orElse(null);
         if (element == null || preserve == null) {
             throw new AssertionError("Could not find required elements");
         }
@@ -491,10 +491,10 @@ public class XmlConformanceTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
 
-        Element element = editor.root().child("element").orElse(null);
-        Element tabs = editor.root().child("tabs").orElse(null);
-        Element mixed = editor.root().child("mixed").orElse(null);
-        Element newlines = editor.root().child("newlines").orElse(null);
+        Element element = editor.root().childElement("element").orElse(null);
+        Element tabs = editor.root().childElement("tabs").orElse(null);
+        Element mixed = editor.root().childElement("mixed").orElse(null);
+        Element newlines = editor.root().childElement("newlines").orElse(null);
 
         assertNotNull(element);
         assertNotNull(tabs);

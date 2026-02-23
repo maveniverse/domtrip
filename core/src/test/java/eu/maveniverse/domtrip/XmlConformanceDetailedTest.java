@@ -281,13 +281,13 @@ public class XmlConformanceDetailedTest {
         Document doc = Document.of(xml);
         String result = doc.toXml();
 
-        Element element = doc.root().child("element").orElseThrow();
+        Element element = doc.root().childElement("element").orElseThrow();
         assertEquals("  content with spaces  ", element.textContent(), "Spaces should be preserved");
 
-        Element tabs = doc.root().child("tabs").orElseThrow();
+        Element tabs = doc.root().childElement("tabs").orElseThrow();
         assertTrue(tabs.textContent().contains("\t\t"), "Tabs should be preserved");
 
-        Element newlines = doc.root().child("newlines").orElseThrow();
+        Element newlines = doc.root().childElement("newlines").orElseThrow();
         assertTrue(newlines.textContent().contains("\n\n\n"), "Newlines should be preserved");
 
         assertEquals(xml, result, "Whitespace in text content should round-trip exactly");

@@ -18,7 +18,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
         // DomTrip approach (preservation-focused)
         Editor editor = new Editor(Document.of(xml));
         Element root = editor.root();
-        Element version = root.child("version").orElse(null);
+        Element version = root.childElement("version").orElse(null);
         String value = version.textContent();
         String result = editor.toXml(); // Identical to original if unchanged
         // END: lossless-philosophy
@@ -51,11 +51,11 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
         Element root = editor.root();
 
         // Unmodified nodes track their state
-        Element unchanged = root.child("name").orElse(null);
+        Element unchanged = root.childElement("name").orElse(null);
         Assertions.assertFalse(unchanged.isModified()); // false
 
         // Modified nodes are tracked
-        Element changed = root.child("version").orElse(null);
+        Element changed = root.childElement("version").orElse(null);
         editor.setTextContent(changed, "2.0.0");
         Assertions.assertTrue(changed.isModified()); // true
 
@@ -160,7 +160,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
         Editor editor = new Editor(Document.of(xml));
         Element root = editor.root();
 
-        Optional<Element> child = root.child("child");
+        Optional<Element> child = root.childElement("child");
         child.ifPresent(element -> {
             // Safe navigation - no null checks needed
             String value = element.textContent();
@@ -186,9 +186,9 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
         Element root = editor.root();
 
         // Find all active dependencies
-        java.util.List<String> activeArtifacts = root.children("dependency")
+        java.util.List<String> activeArtifacts = root.childElements("dependency")
                 .filter(dep -> "active".equals(dep.attribute("status")))
-                .map(dep -> dep.child("artifactId").orElse(null))
+                .map(dep -> dep.childElement("artifactId").orElse(null))
                 .filter(java.util.Objects::nonNull)
                 .map(Element::textContent)
                 .toList();
@@ -214,7 +214,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
         Element root = editor.root();
 
         // Find elements by qualified name
-        Optional<Element> soapBody = root.child("soap:Body");
+        Optional<Element> soapBody = root.childElement("soap:Body");
 
         // Access namespace information
         String namespaceURI = root.namespaceURI(); // "http://schemas.xmlsoap.org/soap/envelope/"

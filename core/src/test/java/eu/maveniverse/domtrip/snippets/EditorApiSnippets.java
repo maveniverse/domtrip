@@ -66,7 +66,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
         Element root = editor.root();
 
         // Find first element with name
-        Element version = root.child("version").orElse(null);
+        Element version = root.childElement("version").orElse(null);
 
         // Find all elements with name using streams
         List<Element> allVersions = root.descendants("version").toList();
@@ -111,10 +111,11 @@ public class EditorApiSnippets extends BaseSnippetTest {
         // END: batch-element-creation
 
         Assertions.assertEquals(
-                "com.example", parent.child("groupId").orElseThrow().textContent());
+                "com.example", parent.childElement("groupId").orElseThrow().textContent());
         Assertions.assertEquals(
-                "my-app", parent.child("artifactId").orElseThrow().textContent());
-        Assertions.assertEquals("1.0.0", parent.child("version").orElseThrow().textContent());
+                "my-app", parent.childElement("artifactId").orElseThrow().textContent());
+        Assertions.assertEquals(
+                "1.0.0", parent.childElement("version").orElseThrow().textContent());
     }
 
     @Test
@@ -124,7 +125,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
         Editor editor = new Editor(Document.of(xml));
         Element root = editor.root();
 
-        Element toRemove = root.child("deprecated").orElse(null);
+        Element toRemove = root.childElement("deprecated").orElse(null);
         if (toRemove != null) {
             editor.removeElement(toRemove);
         }
@@ -143,7 +144,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
         Editor editor = new Editor(Document.of(xml));
         Element root = editor.root();
 
-        Element version = root.child("version").orElse(null);
+        Element version = root.childElement("version").orElse(null);
 
         // Get text content
         String content = version.textContent();
@@ -224,7 +225,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
         String xml = "<project><version>1.0</version></project>";
         Editor editor = new Editor(Document.of(xml));
         Element parent = editor.root();
-        Element version = parent.child("version").orElse(null);
+        Element version = parent.childElement("version").orElse(null);
 
         // Add comment as child
         editor.addComment(parent, " This is a comment ");
@@ -287,11 +288,11 @@ public class EditorApiSnippets extends BaseSnippetTest {
         Element root = editor.root();
 
         // ✅ Safe navigation using Optional
-        Optional<Element> element = root.child("optional");
+        Optional<Element> element = root.childElement("optional");
         element.ifPresent(el -> editor.setTextContent(el, "value"));
 
         // ✅ Or use null check pattern
-        Element version = root.child("version").orElse(null);
+        Element version = root.childElement("version").orElse(null);
         if (version != null) {
             editor.setTextContent(version, "updated");
         }
@@ -320,9 +321,9 @@ public class EditorApiSnippets extends BaseSnippetTest {
         // END: best-practices
 
         Assertions.assertEquals(
-                "com.example", parent.child("groupId").orElseThrow().textContent());
+                "com.example", parent.childElement("groupId").orElseThrow().textContent());
         Assertions.assertEquals(
-                "my-app", parent.child("artifactId").orElseThrow().textContent());
+                "my-app", parent.childElement("artifactId").orElseThrow().textContent());
     }
 
     @Test
@@ -406,7 +407,8 @@ public class EditorApiSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(editor);
         Assertions.assertNotNull(programmaticEditor);
         Assertions.assertEquals(
-                "1.0", programmaticEditor.root().child("version").orElseThrow().textContent());
+                "1.0",
+                programmaticEditor.root().childElement("version").orElseThrow().textContent());
     }
 
     @Test
@@ -445,7 +447,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
         Element root = editor.root();
 
         // Find first element with name
-        Element version = root.child("version").orElse(null);
+        Element version = root.childElement("version").orElse(null);
 
         // Find all elements with name using descendants
         List<Element> allVersions = root.descendants("version").toList();
@@ -454,7 +456,7 @@ public class EditorApiSnippets extends BaseSnippetTest {
         Element child = editor.addElement(root, "newChild");
 
         // Remove element (if it exists)
-        Element toRemove = root.child("deprecated").orElse(null);
+        Element toRemove = root.childElement("deprecated").orElse(null);
         if (toRemove != null) {
             editor.removeElement(toRemove);
         }

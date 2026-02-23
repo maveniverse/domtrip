@@ -951,7 +951,7 @@ public class Element extends ContainerNode {
      * @param qname the QName to match
      * @return an Optional containing the first matching child element, or empty if none found
      */
-    public Optional<Element> child(QName qname) {
+    public Optional<Element> childElement(QName qname) {
         if (qname == null) {
             return Optional.empty();
         }
@@ -968,7 +968,7 @@ public class Element extends ContainerNode {
      * @param name the element name to match
      * @return an Optional containing the first matching child element, or empty if none found
      */
-    public Optional<Element> child(String name) {
+    public Optional<Element> childElement(String name) {
         return nodes.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
@@ -999,7 +999,7 @@ public class Element extends ContainerNode {
      * @since 0.3.0
      */
     public String childTextOr(String childName, String defaultValue) {
-        return child(childName).map(e -> e.textContentOr(defaultValue)).orElse(defaultValue);
+        return childElement(childName).map(e -> e.textContentOr(defaultValue)).orElse(defaultValue);
     }
 
     /**
@@ -1010,12 +1010,12 @@ public class Element extends ContainerNode {
      *
      * @param childName the child element name
      * @return the text content of the child element, or null if not found
-     * @see #child(String)
+     * @see #childElement(String)
      * @see #childTextOr(String, String)
      * @see #childTextTrimmed(String)
      */
     public String childText(String childName) {
-        return child(childName).map(Element::textContent).orElse(null);
+        return childElement(childName).map(Element::textContent).orElse(null);
     }
 
     /**
@@ -1026,13 +1026,13 @@ public class Element extends ContainerNode {
      *
      * @param childName the child element name
      * @return the trimmed text content of the child element, or null if not found
-     * @see #child(String)
+     * @see #childElement(String)
      * @see #childTextOr(String, String)
      * @see #childText(String)
      * @see #textContentTrimmed()
      */
     public String childTextTrimmed(String childName) {
-        return child(childName).map(Element::textContentTrimmed).orElse(null);
+        return childElement(childName).map(Element::textContentTrimmed).orElse(null);
     }
 
     /**
@@ -1054,7 +1054,7 @@ public class Element extends ContainerNode {
      * @since 0.3.0
      */
     public String childTextRequired(String childName) {
-        return child(childName)
+        return childElement(childName)
                 .map(Element::textContent)
                 .orElseThrow(() -> new DomTripException(
                         "Required child element '" + childName + "' not found in element '" + name + "'"));
@@ -1066,7 +1066,7 @@ public class Element extends ContainerNode {
      * @param qname the QName to match
      * @return a Stream of matching child elements
      */
-    public Stream<Element> children(QName qname) {
+    public Stream<Element> childElements(QName qname) {
         if (qname == null) {
             return Stream.empty();
         }
@@ -1082,7 +1082,7 @@ public class Element extends ContainerNode {
      * @param name the element name to match
      * @return a Stream of matching child elements
      */
-    public Stream<Element> children(String name) {
+    public Stream<Element> childElements(String name) {
         return nodes.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
@@ -1094,7 +1094,7 @@ public class Element extends ContainerNode {
      *
      * @return a Stream of all child elements
      */
-    public Stream<Element> children() {
+    public Stream<Element> childElements() {
         return nodes.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
     }
 
@@ -1187,7 +1187,7 @@ public class Element extends ContainerNode {
         return Arrays.stream(path)
                 .reduce(
                         Optional.of(this),
-                        (current, elementName) -> current.flatMap(el -> el.child(elementName)),
+                        (current, elementName) -> current.flatMap(el -> el.childElement(elementName)),
                         (a, b) -> b);
     }
 
@@ -1203,7 +1203,10 @@ public class Element extends ContainerNode {
         }
 
         return Arrays.stream(path)
-                .reduce(Optional.of(this), (current, qname) -> current.flatMap(el -> el.child(qname)), (a, b) -> b);
+                .reduce(
+                        Optional.of(this),
+                        (current, qname) -> current.flatMap(el -> el.childElement(qname)),
+                        (a, b) -> b);
     }
 
     /**

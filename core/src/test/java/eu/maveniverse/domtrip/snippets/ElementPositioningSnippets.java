@@ -61,7 +61,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element build = doc.root().child("build").orElseThrow();
+        Element build = doc.root().childElement("build").orElseThrow();
 
         // Insert properties section before build
         Element properties = editor.insertElementBefore(build, "properties");
@@ -87,7 +87,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element version = doc.root().child("version").orElseThrow();
+        Element version = doc.root().childElement("version").orElseThrow();
 
         // Insert packaging after version
         Element packaging = editor.insertElementAfter(version, "packaging");
@@ -113,7 +113,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
 
         Editor editor = new Editor(doc);
         Element root = doc.root();
-        Element version = root.child("version").orElseThrow();
+        Element version = root.childElement("version").orElseThrow();
 
         // Remove and re-add at the end to reorder
         root.removeNode(version);
@@ -138,8 +138,8 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
 
         Editor editor = new Editor(doc);
         Element root = doc.root();
-        Element groupId = root.child("groupId").orElseThrow();
-        Element artifactId = root.child("artifactId").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
+        Element artifactId = root.childElement("artifactId").orElseThrow();
 
         // Remove groupId and insert it before artifactId
         root.removeNode(groupId);
@@ -165,8 +165,8 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
 
         Editor editor = new Editor(doc);
         Element root = doc.root();
-        Element artifactId = root.child("artifactId").orElseThrow();
-        Element groupId = root.child("groupId").orElseThrow();
+        Element artifactId = root.childElement("artifactId").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
 
         // Remove artifactId and insert it after groupId
         root.removeNode(artifactId);
@@ -190,7 +190,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element artifactId = doc.root().child("artifactId").orElseThrow();
+        Element artifactId = doc.root().childElement("artifactId").orElseThrow();
 
         // Insert version between groupId and artifactId
         // Whitespace is automatically inferred from surrounding elements
@@ -222,9 +222,9 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
         Element root = doc.root();
 
         // Move project coordinates to the beginning
-        Element groupId = root.child("groupId").orElseThrow();
-        Element artifactId = root.child("artifactId").orElseThrow();
-        Element version = root.child("version").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
+        Element artifactId = root.childElement("artifactId").orElseThrow();
+        Element version = root.childElement("version").orElseThrow();
 
         // Remove all three elements
         root.removeNode(groupId);

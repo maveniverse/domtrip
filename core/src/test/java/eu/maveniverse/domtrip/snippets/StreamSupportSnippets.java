@@ -39,8 +39,8 @@ public class StreamSupportSnippets extends BaseSnippetTest {
 
         // Stream over child elements
         List<String> groupIds = dependencies
-                .children("dependency")
-                .map(dep -> dep.child("groupId").orElseThrow().textContent())
+                .childElements("dependency")
+                .map(dep -> dep.childElement("groupId").orElseThrow().textContent())
                 .toList();
 
         // Result: ["junit", "mockito", "hamcrest"]
@@ -80,10 +80,12 @@ public class StreamSupportSnippets extends BaseSnippetTest {
 
         // Find all test dependencies
         List<String> testDependencies = dependencies
-                .children("dependency")
+                .childElements("dependency")
                 .filter(dep -> "test"
-                        .equals(dep.child("scope").map(Element::textContent).orElse("")))
-                .map(dep -> dep.child("artifactId").orElseThrow().textContent())
+                        .equals(dep.childElement("scope")
+                                .map(Element::textContent)
+                                .orElse("")))
+                .map(dep -> dep.childElement("artifactId").orElseThrow().textContent())
                 .toList();
 
         // Result: ["junit", "mockito-core"]
@@ -155,11 +157,12 @@ public class StreamSupportSnippets extends BaseSnippetTest {
 
         // Transform dependency information
         List<String> dependencyInfo = dependencies
-                .children("dependency")
+                .childElements("dependency")
                 .map(dep -> {
-                    String groupId = dep.child("groupId").orElseThrow().textContent();
-                    String artifactId = dep.child("artifactId").orElseThrow().textContent();
-                    String version = dep.child("version").orElseThrow().textContent();
+                    String groupId = dep.childElement("groupId").orElseThrow().textContent();
+                    String artifactId =
+                            dep.childElement("artifactId").orElseThrow().textContent();
+                    String version = dep.childElement("version").orElseThrow().textContent();
                     return groupId + ":" + artifactId + ":" + version;
                 })
                 .toList();
@@ -187,25 +190,29 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element dependencies = doc.root().child("dependencies").orElseThrow();
+        Element dependencies = doc.root().childElement("dependencies").orElseThrow();
 
         // Count dependencies by scope
         long testCount = dependencies
-                .children("dependency")
+                .childElements("dependency")
                 .filter(dep -> "test"
-                        .equals(dep.child("scope").map(Element::textContent).orElse("")))
+                        .equals(dep.childElement("scope")
+                                .map(Element::textContent)
+                                .orElse("")))
                 .count();
 
         // Find first compile dependency
         Optional<Element> firstCompile = dependencies
-                .children("dependency")
+                .childElements("dependency")
                 .filter(dep -> "compile"
-                        .equals(dep.child("scope").map(Element::textContent).orElse("")))
+                        .equals(dep.childElement("scope")
+                                .map(Element::textContent)
+                                .orElse("")))
                 .findFirst();
 
         // Check if any runtime dependencies exist
-        boolean hasRuntime = dependencies.children("dependency").anyMatch(dep -> "runtime"
-                .equals(dep.child("scope").map(Element::textContent).orElse("")));
+        boolean hasRuntime = dependencies.childElements("dependency").anyMatch(dep -> "runtime"
+                .equals(dep.childElement("scope").map(Element::textContent).orElse("")));
         // END: stream-aggregation
 
         Assertions.assertEquals(2, testCount);
@@ -235,9 +242,9 @@ public class StreamSupportSnippets extends BaseSnippetTest {
         Element dependencies = doc.root();
 
         // Update all versions to latest
-        dependencies.children("dependency").forEach(dep -> {
-            Element version = dep.child("version").orElseThrow();
-            String groupId = dep.child("groupId").orElseThrow().textContent();
+        dependencies.childElements("dependency").forEach(dep -> {
+            Element version = dep.childElement("version").orElseThrow();
+            String groupId = dep.childElement("groupId").orElseThrow().textContent();
 
             if ("junit".equals(groupId)) {
                 editor.setTextContent(version, "4.13.2");
@@ -290,19 +297,20 @@ public class StreamSupportSnippets extends BaseSnippetTest {
 
         // Complex query: Find all Apache Maven plugins
         List<String> mavenPlugins = root.descendants("plugin")
-                .filter(plugin -> plugin.child("groupId")
+                .filter(plugin -> plugin.childElement("groupId")
                         .map(Element::textContent)
                         .orElse("")
                         .startsWith("org.apache.maven.plugins"))
-                .map(plugin ->
-                        plugin.child("artifactId").map(Element::textContent).orElse("unknown"))
+                .map(plugin -> plugin.childElement("artifactId")
+                        .map(Element::textContent)
+                        .orElse("unknown"))
                 .toList();
 
         // Find dependencies with specific patterns
         boolean hasTestFramework = root.descendants("dependency").anyMatch(dep -> {
             String artifactId =
-                    dep.child("artifactId").map(Element::textContent).orElse("");
-            String scope = dep.child("scope").map(Element::textContent).orElse("compile");
+                    dep.childElement("artifactId").map(Element::textContent).orElse("");
+            String scope = dep.childElement("scope").map(Element::textContent).orElse("compile");
             return (artifactId.contains("junit") || artifactId.contains("testng")) && "test".equals(scope);
         });
         // END: complex-stream-queries
@@ -335,20 +343,21 @@ public class StreamSupportSnippets extends BaseSnippetTest {
 
         // Handle optional elements gracefully
         List<String> dependenciesWithVersions = dependencies
-                .children("dependency")
-                .filter(dep -> dep.child("version").isPresent())
+                .childElements("dependency")
+                .filter(dep -> dep.childElement("version").isPresent())
                 .map(dep -> {
-                    String artifactId = dep.child("artifactId").orElseThrow().textContent();
-                    String version = dep.child("version").orElseThrow().textContent();
+                    String artifactId =
+                            dep.childElement("artifactId").orElseThrow().textContent();
+                    String version = dep.childElement("version").orElseThrow().textContent();
                     return artifactId + ":" + version;
                 })
                 .toList();
 
         // Find dependencies missing versions
         List<String> dependenciesMissingVersions = dependencies
-                .children("dependency")
-                .filter(dep -> dep.child("version").isEmpty())
-                .map(dep -> dep.child("artifactId").orElseThrow().textContent())
+                .childElements("dependency")
+                .filter(dep -> dep.childElement("version").isEmpty())
+                .map(dep -> dep.childElement("artifactId").orElseThrow().textContent())
                 .toList();
         // END: stream-with-optionals
 
@@ -374,15 +383,16 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element dependencies = doc.root().child("dependencies").orElseThrow();
+        Element dependencies = doc.root().childElement("dependencies").orElseThrow();
 
         // Process dependencies in parallel for performance
         List<String> processedDependencies = dependencies
-                .children("dependency")
+                .childElements("dependency")
                 .parallel()
                 .map(dep -> {
-                    String groupId = dep.child("groupId").orElseThrow().textContent();
-                    String artifactId = dep.child("artifactId").orElseThrow().textContent();
+                    String groupId = dep.childElement("groupId").orElseThrow().textContent();
+                    String artifactId =
+                            dep.childElement("artifactId").orElseThrow().textContent();
                     // Simulate expensive processing
                     return groupId.toUpperCase() + ":" + artifactId.toUpperCase();
                 })
@@ -430,15 +440,17 @@ public class StreamSupportSnippets extends BaseSnippetTest {
         Element root = doc.root();
 
         // Chain multiple stream operations
-        List<String> testDependenciesInProfiles = root.child("profiles")
+        List<String> testDependenciesInProfiles = root.childElement("profiles")
                 .orElseThrow()
-                .children("profile")
-                .flatMap(profile -> profile.child("dependencies")
-                        .map(deps -> deps.children("dependency"))
+                .childElements("profile")
+                .flatMap(profile -> profile.childElement("dependencies")
+                        .map(deps -> deps.childElements("dependency"))
                         .orElse(java.util.stream.Stream.empty()))
                 .filter(dep -> "test"
-                        .equals(dep.child("scope").map(Element::textContent).orElse("")))
-                .map(dep -> dep.child("artifactId").orElseThrow().textContent())
+                        .equals(dep.childElement("scope")
+                                .map(Element::textContent)
+                                .orElse("")))
+                .map(dep -> dep.childElement("artifactId").orElseThrow().textContent())
                 .toList();
         // END: stream-chaining
 

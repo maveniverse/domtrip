@@ -112,7 +112,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
         Element database = root.descendant("database").orElseThrow();
 
         // Modern navigation with Optional
-        Optional<Element> host = database.child("host");
+        Optional<Element> host = database.childElement("host");
         if (host.isPresent()) {
             System.out.println("Host: " + host.orElseThrow().textContent());
         }

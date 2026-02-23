@@ -109,7 +109,7 @@ public class BuilderPatternsDemo {
         Element body = Element.text("body", "");
         html.addNode(body);
         body.addNode(Element.withAttributes("h1", Map.of("id", "title")));
-        body.child("h1").ifPresent(h1 -> h1.textContent("Welcome"));
+        body.childElement("h1").ifPresent(h1 -> h1.textContent("Welcome"));
 
         System.out.println("Simple document:");
         System.out.println(simple.toXml());
@@ -191,7 +191,7 @@ public class BuilderPatternsDemo {
 
         editor.add().element("configuration").to(plugin).build();
 
-        Element configuration = plugin.child("configuration").orElseThrow();
+        Element configuration = plugin.childElement("configuration").orElseThrow();
 
         editor.add()
                 .text()

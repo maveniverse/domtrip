@@ -243,7 +243,7 @@ public class ToolchainsEditor extends AbstractMavenEditor {
      * @return the child element if found, null otherwise
      */
     public Element findChildElement(Element parent, String elementName) {
-        Optional<Element> child = parent.child(elementName);
+        Optional<Element> child = parent.childElement(elementName);
         return child.orElse(null);
     }
 

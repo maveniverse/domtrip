@@ -53,7 +53,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
 
         Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", project.attribute("xmlns"));
         Assertions.assertEquals(
-                "com.example", project.child("groupId").orElseThrow().textContent());
+                "com.example", project.childElement("groupId").orElseThrow().textContent());
         Assertions.assertTrue(script.textContent().contains("function test()"));
     }
 
@@ -93,7 +93,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         Assertions.assertEquals("1.0", docWithDecl.version());
         Assertions.assertEquals("UTF-8", docWithDecl.encoding());
         Assertions.assertEquals(
-                "value", parsedDoc.root().child("child").orElseThrow().textContent());
+                "value", parsedDoc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -137,7 +137,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         editor.add().comment().to(root).withContent(" Configuration section ").build();
         // END: fluent-element-addition
 
-        Element dependency = root.child("dependency").orElseThrow();
+        Element dependency = root.childElement("dependency").orElseThrow();
         Assertions.assertEquals("test", dependency.attribute("scope"));
         Assertions.assertEquals("junit", dependency.textContent());
 
@@ -193,11 +193,12 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         // END: complex-structure-creation
 
         Assertions.assertEquals(
-                "junit", dependency.child("groupId").orElseThrow().textContent());
-        Assertions.assertEquals("test", dependency.child("scope").orElseThrow().textContent());
+                "junit", dependency.childElement("groupId").orElseThrow().textContent());
         Assertions.assertEquals(
-                "my-app", project.child("artifactId").orElseThrow().textContent());
-        Assertions.assertTrue(project.child("dependencies").isPresent());
+                "test", dependency.childElement("scope").orElseThrow().textContent());
+        Assertions.assertEquals(
+                "my-app", project.childElement("artifactId").orElseThrow().textContent());
+        Assertions.assertTrue(project.childElement("dependencies").isPresent());
     }
 
     @Test
@@ -239,10 +240,11 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         dependencies.addNode(mockitoDep);
         // END: reusable-factory-methods
 
-        Assertions.assertEquals("junit", junitDep.child("groupId").orElseThrow().textContent());
         Assertions.assertEquals(
-                "org.mockito", mockitoDep.child("groupId").orElseThrow().textContent());
-        Assertions.assertEquals(2, dependencies.children().count());
+                "junit", junitDep.childElement("groupId").orElseThrow().textContent());
+        Assertions.assertEquals(
+                "org.mockito", mockitoDep.childElement("groupId").orElseThrow().textContent());
+        Assertions.assertEquals(2, dependencies.childElements().count());
     }
 
     // Helper method for the reusable factory methods example

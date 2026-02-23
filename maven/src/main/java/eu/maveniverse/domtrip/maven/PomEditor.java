@@ -279,7 +279,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @return the child element if found, null otherwise
      */
     public Element findChildElement(Element parent, String elementName) {
-        return parent.child(elementName).orElse(null);
+        return parent.childElement(elementName).orElse(null);
     }
 
     /**
@@ -356,7 +356,7 @@ public class PomEditor extends AbstractMavenEditor {
                 }
                 if (dependencies != null) {
                     Element dependency = dependencies
-                            .children(DEPENDENCY)
+                            .childElements(DEPENDENCY)
                             .filter(coordinates.predicateGATC())
                             .findFirst()
                             .orElse(null);
@@ -401,7 +401,7 @@ public class PomEditor extends AbstractMavenEditor {
                 Element dependencies = findChildElement(dependencyManagement, DEPENDENCIES);
                 if (dependencies != null) {
                     Element dependency = dependencies
-                            .children(DEPENDENCY)
+                            .childElements(DEPENDENCY)
                             .filter(coordinates.predicateGATC())
                             .findFirst()
                             .orElse(null);
@@ -441,7 +441,7 @@ public class PomEditor extends AbstractMavenEditor {
             }
             if (dependencies != null) {
                 Element dependency = dependencies
-                        .children(DEPENDENCY)
+                        .childElements(DEPENDENCY)
                         .filter(coordinates.predicateGATC())
                         .findFirst()
                         .orElse(null);
@@ -459,7 +459,7 @@ public class PomEditor extends AbstractMavenEditor {
                     return true;
                 }
                 if (dependency != null) {
-                    java.util.Optional<Element> version = dependency.child(VERSION);
+                    java.util.Optional<Element> version = dependency.childElement(VERSION);
                     if (version.isPresent()) {
                         return updateVersionElement(dependency, coordinates.version());
                     } else {
@@ -488,7 +488,7 @@ public class PomEditor extends AbstractMavenEditor {
             Element dependencies = findChildElement(root(), DEPENDENCIES);
             if (dependencies != null) {
                 Element dependency = dependencies
-                        .children(DEPENDENCY)
+                        .childElements(DEPENDENCY)
                         .filter(coordinates.predicateGATC())
                         .findFirst()
                         .orElse(null);
@@ -519,13 +519,13 @@ public class PomEditor extends AbstractMavenEditor {
             Element dependencies = findChildElement(root(), DEPENDENCIES);
             if (dependencies != null) {
                 Element dependency = dependencies
-                        .children(DEPENDENCY)
+                        .childElements(DEPENDENCY)
                         .filter(coordinates.predicateGATC())
                         .findFirst()
                         .orElse(null);
                 if (dependency != null) {
                     return dependency
-                            .child(VERSION)
+                            .childElement(VERSION)
                             .map(PomEditor.this::removeElement)
                             .isPresent();
                 }
@@ -624,7 +624,7 @@ public class PomEditor extends AbstractMavenEditor {
             if (plugins == null) {
                 return null;
             }
-            return plugins.children(PLUGIN)
+            return plugins.childElements(PLUGIN)
                     .filter(coordinates.predicateGA())
                     .findFirst()
                     .orElse(null);
@@ -683,7 +683,7 @@ public class PomEditor extends AbstractMavenEditor {
                     return true;
                 }
                 if (plugin != null) {
-                    java.util.Optional<Element> version = plugin.child(VERSION);
+                    java.util.Optional<Element> version = plugin.childElement(VERSION);
                     if (version.isPresent()) {
                         return updateVersionElement(plugin, coordinates.version());
                     } else {
@@ -737,7 +737,7 @@ public class PomEditor extends AbstractMavenEditor {
             Element plugins = findOrCreatePlugins(false); // upsert=false; will not throw
             Element plugin = findPlugin(plugins, coordinates);
             if (plugin != null) {
-                return plugin.child(VERSION).filter(plugin::removeNode).isPresent();
+                return plugin.childElement(VERSION).filter(plugin::removeNode).isPresent();
             }
             return false;
         }
@@ -836,7 +836,7 @@ public class PomEditor extends AbstractMavenEditor {
                 return null;
             }
             return extensions
-                    .children(EXTENSION)
+                    .childElements(EXTENSION)
                     .filter(coordinates.predicateGA())
                     .findFirst()
                     .orElse(null);
@@ -871,7 +871,7 @@ public class PomEditor extends AbstractMavenEditor {
                     return true;
                 }
                 if (extension != null) {
-                    java.util.Optional<Element> version = extension.child(VERSION);
+                    java.util.Optional<Element> version = extension.childElement(VERSION);
                     if (version.isPresent()) {
                         return updateVersionElement(extension, coordinates.version());
                     }
@@ -935,7 +935,7 @@ public class PomEditor extends AbstractMavenEditor {
                 modules = insertMavenElement(root(), MODULES);
             }
             List<String> existing =
-                    modules.children(MODULE).map(Element::textContent).collect(Collectors.toList());
+                    modules.childElements(MODULE).map(Element::textContent).collect(Collectors.toList());
             if (!existing.contains(moduleName)) {
                 insertMavenElement(modules, MODULE, moduleName);
                 return true;
@@ -955,7 +955,7 @@ public class PomEditor extends AbstractMavenEditor {
                 return false;
             }
             AtomicBoolean removed = new AtomicBoolean(false);
-            modules.children(MODULE)
+            modules.childElements(MODULE)
                     .filter(e -> Objects.equals(moduleName, e.textContent()))
                     .peek(e -> removed.set(true))
                     .forEach(PomEditor.this::removeElement);
@@ -996,12 +996,12 @@ public class PomEditor extends AbstractMavenEditor {
          * @throws DomTripException if an error occurs during editing
          */
         public boolean updateProperty(boolean upsert, String key, String value) throws DomTripException {
-            Element properties = root().child(PROPERTIES).orElse(null);
+            Element properties = root().childElement(PROPERTIES).orElse(null);
             if (properties == null && upsert) {
                 properties = insertMavenElement(root(), PROPERTIES);
             }
             if (properties != null) {
-                Element property = properties.child(key).orElse(null);
+                Element property = properties.childElement(key).orElse(null);
                 if (property == null && upsert) {
                     property = addElement(properties, key);
                 }
@@ -1020,9 +1020,9 @@ public class PomEditor extends AbstractMavenEditor {
          * @return true if the property was removed, false if it didn't exist
          */
         public boolean deleteProperty(String key) throws DomTripException {
-            Element properties = root().child(PROPERTIES).orElse(null);
+            Element properties = root().childElement(PROPERTIES).orElse(null);
             if (properties != null) {
-                Element property = properties.child(key).orElse(null);
+                Element property = properties.childElement(key).orElse(null);
                 if (property != null) {
                     removeElement(property);
                     return true;
@@ -1146,7 +1146,7 @@ public class PomEditor extends AbstractMavenEditor {
         boolean hasElementsBefore = false;
         for (int i = 0; i < elementIndex; i++) {
             String orderElement = order.get(i);
-            if (!orderElement.isEmpty() && parent.child(orderElement).isPresent()) {
+            if (!orderElement.isEmpty() && parent.childElement(orderElement).isPresent()) {
                 hasElementsBefore = true;
                 break;
             }
@@ -1168,7 +1168,7 @@ public class PomEditor extends AbstractMavenEditor {
         boolean hasElementsAfter = false;
         for (int i = elementIndex + 2; i < order.size(); i++) { // Skip the blank line marker at elementIndex + 1
             String orderElement = order.get(i);
-            if (!orderElement.isEmpty() && parent.child(orderElement).isPresent()) {
+            if (!orderElement.isEmpty() && parent.childElement(orderElement).isPresent()) {
                 hasElementsAfter = true;
                 break;
             }
@@ -1204,7 +1204,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @since 0.3.0
      */
     public boolean hasChildElement(Element parent, String childName) {
-        return parent.child(childName).isPresent();
+        return parent.childElement(childName).isPresent();
     }
 
     /**
@@ -1232,7 +1232,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @since 0.3.0
      */
     public String getChildElementText(Element parent, String childName) {
-        return parent.child(childName).map(Element::textContent).orElse(null);
+        return parent.childElement(childName).map(Element::textContent).orElse(null);
     }
 
     /**
@@ -1282,7 +1282,7 @@ public class PomEditor extends AbstractMavenEditor {
      * @throws DomTripException if an error occurs during editing
      */
     private boolean updateVersionElement(Element parent, String newVersion) throws DomTripException {
-        java.util.Optional<Element> version = parent.child(VERSION);
+        java.util.Optional<Element> version = parent.childElement(VERSION);
         if (version.isPresent()) {
             String versionValue = version.orElseThrow(() -> new NoSuchElementException("No value present"))
                     .textContent();

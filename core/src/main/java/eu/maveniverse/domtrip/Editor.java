@@ -1909,13 +1909,13 @@ public class Editor {
      */
     private void fixRecursiveIndentation(Element element, String indentation) {
         // Fix the innerPrecedingWhitespace for this element if it has element children
-        if (element.children().findAny().isPresent()) {
+        if (element.childElements().findAny().isPresent()) {
             element.innerPrecedingWhitespace(lineEnding + indentation);
         }
 
         // Process direct child elements recursively
         String childIndentation = indentation + detectedIndentationUnit;
-        element.children().forEach(child -> {
+        element.childElements().forEach(child -> {
             // Update the child's preceding whitespace to match target document style
             child.precedingWhitespace(lineEnding + childIndentation);
 

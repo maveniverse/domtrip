@@ -28,7 +28,7 @@ class WhitespacePreservationTest {
         Document doc = Document.of(originalXml);
         Editor editor = new Editor(doc);
         Element database = doc.root().descendant("database").orElseThrow();
-        Element name = database.child("name").orElseThrow();
+        Element name = database.childElement("name").orElseThrow();
 
         // Change the text content
         name.textContent("newdb");

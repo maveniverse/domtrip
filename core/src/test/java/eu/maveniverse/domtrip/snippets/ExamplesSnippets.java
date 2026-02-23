@@ -249,7 +249,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
 
         // Update the URL property
         Element urlProperty = dataSource
-                .children()
+                .childElements()
                 .filter(e -> "property".equals(e.name()) && "url".equals(e.attribute("name")))
                 .findFirst()
                 .orElseThrow();

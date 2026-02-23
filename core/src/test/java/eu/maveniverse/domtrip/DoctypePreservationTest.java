@@ -195,8 +195,8 @@ class DoctypePreservationTest {
 
         // Test that we can modify content without losing DOCTYPE
         Element root = doc.root();
-        Element book = root.child("book").orElseThrow();
-        Element price = book.child("price").orElseThrow();
+        Element book = root.childElement("book").orElseThrow();
+        Element price = book.childElement("price").orElseThrow();
         price.textContent("39.99");
 
         // Verify DOCTYPE is still preserved after modification

@@ -294,7 +294,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
         // Read configuration values
         String dbUrl = editor.root()
                 .descendant("database")
-                .flatMap(db -> db.child("url"))
+                .flatMap(db -> db.childElement("url"))
                 .map(Element::textContent)
                 .orElse("default-url");
         // END: configuration-files
@@ -323,7 +323,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
             Editor editor = new Editor(doc);
 
             // Process response data
-            Element result = editor.root().child("result").orElse(null);
+            Element result = editor.root().childElement("result").orElse(null);
             // ... extract data
         }
         // END: web-service-responses

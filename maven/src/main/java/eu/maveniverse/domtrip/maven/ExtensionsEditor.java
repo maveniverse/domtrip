@@ -194,7 +194,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @return the child element if found, null otherwise
      */
     public Element findChildElement(Element parent, String elementName) {
-        Optional<Element> child = parent.child(elementName);
+        Optional<Element> child = parent.childElement(elementName);
         return child.orElse(null);
     }
 
@@ -208,7 +208,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @return list of Coordinates objects representing the extensions
      */
     public List<Coordinates> listExtensions() throws DomTripException {
-        return root().children(EXTENSION).map(this::toJarCoordinates).collect(Collectors.toList());
+        return root().childElements(EXTENSION).map(this::toJarCoordinates).collect(Collectors.toList());
     }
 
     /**
@@ -222,8 +222,9 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @return true if the extension was updated or inserted, false otherwise
      */
     public boolean updateExtension(boolean upsert, Coordinates coordinates) throws DomTripException {
-        List<Element> matched =
-                root().children(EXTENSION).filter(coordinates.predicateGA()).collect(Collectors.toList());
+        List<Element> matched = root().childElements(EXTENSION)
+                .filter(coordinates.predicateGA())
+                .collect(Collectors.toList());
         if (matched.isEmpty()) {
             if (upsert) {
                 addExtension(root(), coordinates.groupId(), coordinates.artifactId(), coordinates.version());
@@ -253,7 +254,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      */
     public boolean deleteExtension(Coordinates coordinates) throws DomTripException {
         AtomicInteger counter = new AtomicInteger(0);
-        root().children(EXTENSION)
+        root().childElements(EXTENSION)
                 .filter(coordinates.predicateGA())
                 .peek(e -> counter.incrementAndGet())
                 .forEach(this::removeElement);

@@ -327,7 +327,7 @@ public class DocumentSnippets extends BaseSnippetTest {
         editor.addElement(editor.root(), "setting", "value");
 
         // Document reflects changes
-        Element setting = doc.root().child("setting").orElse(null);
+        Element setting = doc.root().childElement("setting").orElse(null);
         // END: editor-integration
 
         Assertions.assertNotNull(setting);

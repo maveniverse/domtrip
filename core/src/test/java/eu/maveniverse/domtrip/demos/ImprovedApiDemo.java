@@ -80,7 +80,7 @@ public class ImprovedApiDemo {
                 .withAttribute("host", "localhost")
                 .build();
 
-        Element database = root.child("database").orElse(null);
+        Element database = root.childElement("database").orElse(null);
 
         editor.add()
                 .element("connection")
@@ -152,12 +152,13 @@ public class ImprovedApiDemo {
 
         // Enhanced navigation methods
         System.out.println("Finding dependencies using new navigation:");
-        root.child("dependencies").ifPresent(deps -> {
+        root.childElement("dependencies").ifPresent(deps -> {
             System.out.println("Found dependencies element");
 
             // Stream-based navigation
-            deps.children("dependency").forEach(dep -> {
-                dep.child("groupId").ifPresent(groupId -> System.out.println("  GroupId: " + groupId.textContent()));
+            deps.childElements("dependency").forEach(dep -> {
+                dep.childElement("groupId")
+                        .ifPresent(groupId -> System.out.println("  GroupId: " + groupId.textContent()));
             });
         });
 

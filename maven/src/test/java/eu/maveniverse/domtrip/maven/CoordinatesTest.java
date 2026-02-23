@@ -230,7 +230,8 @@ class CoordinatesTest {
         deps.addNode(createDependency("junit", "junit", "4.13.2"));
         deps.addNode(createDependency("org.mockito", "mockito-core", "5.0.0"));
 
-        long count = deps.children("dependency").filter(junit.predicateGA()).count();
+        long count =
+                deps.childElements("dependency").filter(junit.predicateGA()).count();
         assertEquals(1, count);
     }
 

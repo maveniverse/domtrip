@@ -260,7 +260,7 @@ public class ParserWhitespaceNormalizationTest {
         assertEquals("\n    ", cdata.precedingWhitespace(), "CDATA should have precedingWhitespace set by parser");
 
         // Element should have precedingWhitespace
-        Element child = root.child("child").orElseThrow();
+        Element child = root.childElement("child").orElseThrow();
         assertEquals("\n    ", child.precedingWhitespace(), "Element should have precedingWhitespace set by parser");
 
         // Verify round-trip preserves all whitespace

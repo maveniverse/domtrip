@@ -101,7 +101,7 @@ class EditorPositioningTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element existing = doc.root().child("existing").orElseThrow();
+        Element existing = doc.root().childElement("existing").orElseThrow();
 
         Element newElement = editor.insertElementBefore(existing, "newElement");
 
@@ -128,7 +128,7 @@ class EditorPositioningTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element existing = doc.root().child("existing").orElseThrow();
+        Element existing = doc.root().childElement("existing").orElseThrow();
 
         Element newElement = editor.insertElementBefore(existing, "newElement", "new content");
 
@@ -156,7 +156,7 @@ class EditorPositioningTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element existing = doc.root().child("existing").orElseThrow();
+        Element existing = doc.root().childElement("existing").orElseThrow();
 
         Element newElement = editor.insertElementAfter(existing, "newElement");
 
@@ -183,7 +183,7 @@ class EditorPositioningTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element existing = doc.root().child("existing").orElseThrow();
+        Element existing = doc.root().childElement("existing").orElseThrow();
 
         editor.insertElementAfter(existing, "newElement").textContent("new content");
 
@@ -351,8 +351,8 @@ class EditorPositioningTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element dependencies = doc.root().child("dependencies").orElseThrow();
-        Element existingDep = dependencies.child("dependency").orElseThrow();
+        Element dependencies = doc.root().childElement("dependencies").orElseThrow();
+        Element existingDep = dependencies.childElement("dependency").orElseThrow();
 
         // Insert before existing dependency
         Element newDep1 = editor.insertElementBefore(existingDep, "dependency");
@@ -399,7 +399,7 @@ class EditorPositioningTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element dependencies = doc.root().child("dependencies").orElseThrow();
+        Element dependencies = doc.root().childElement("dependencies").orElseThrow();
 
         // Insert before existing dependency
         Element newDep1 = editor.addElement(dependencies, "dependency");

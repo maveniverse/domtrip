@@ -140,7 +140,7 @@ public class EntityPreservationTest {
         Editor editor = new Editor(doc);
 
         // Find the modify element by name instead of index
-        Element modify = editor.root().child("modify").orElse(null);
+        Element modify = editor.root().childElement("modify").orElse(null);
         if (modify == null) {
             throw new AssertionError("Could not find 'modify' element");
         }

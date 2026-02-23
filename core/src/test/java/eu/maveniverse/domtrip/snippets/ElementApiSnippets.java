@@ -45,7 +45,7 @@ public class ElementApiSnippets {
 
         Assertions.assertEquals("test", dependency.attribute("scope"));
         Assertions.assertEquals(
-                "com.example", project.child("groupId").orElseThrow().textContent());
+                "com.example", project.childElement("groupId").orElseThrow().textContent());
     }
 
     @Test
@@ -184,14 +184,14 @@ public class ElementApiSnippets {
 
         // START: child-navigation
         // Find first child with name
-        Optional<Element> groupId = project.child("groupId");
+        Optional<Element> groupId = project.childElement("groupId");
         String group = groupId.map(Element::textContent).orElse("unknown");
 
         // Find descendant anywhere in tree
         Optional<Element> version = project.descendant("version");
 
         // Check if child exists
-        boolean hasArtifactId = project.child("artifactId").isPresent();
+        boolean hasArtifactId = project.childElement("artifactId").isPresent();
         // END: child-navigation
 
         Assertions.assertEquals("com.example", group);
@@ -212,14 +212,14 @@ public class ElementApiSnippets {
 
         // START: element-streams
         // Stream all child elements
-        var allDeps = dependencies.children().toList();
+        var allDeps = dependencies.childElements().toList();
 
         // Stream children with specific name
-        var depElements = dependencies.children("dependency").toList();
+        var depElements = dependencies.childElements("dependency").toList();
 
         // Filter and transform
         var testDeps = dependencies
-                .children("dependency")
+                .childElements("dependency")
                 .filter(dep -> "test".equals(dep.attribute("scope")))
                 .map(Element::textContent)
                 .toList();
@@ -317,8 +317,8 @@ public class ElementApiSnippets {
         dependency.addNode(scope);
         // END: adding-children
 
-        Assertions.assertEquals(1, parent.children().count());
-        Assertions.assertEquals(4, dependency.children().count());
+        Assertions.assertEquals(1, parent.childElements().count());
+        Assertions.assertEquals(4, dependency.childElements().count());
     }
 
     @Test
@@ -334,22 +334,22 @@ public class ElementApiSnippets {
 
         // snippet:removing-elements
         // Find and remove specific element
-        Optional<Element> toRemove = project.child("dependency");
+        Optional<Element> toRemove = project.childElement("dependency");
         toRemove.ifPresent(element -> project.removeNode(element));
 
         // Remove all elements with specific name (collect to list first to avoid ConcurrentModificationException)
-        project.children("dependency").toList().forEach(project::removeNode);
+        project.childElements("dependency").toList().forEach(project::removeNode);
 
         // Remove by condition (collect to list first to avoid ConcurrentModificationException)
-        project.children()
+        project.childElements()
                 .filter(child -> "deprecated".equals(child.attribute("status")))
                 .toList()
                 .forEach(project::removeNode);
         // end-snippet:removing-elements
 
-        Assertions.assertEquals(1, project.children().count());
+        Assertions.assertEquals(1, project.childElements().count());
         Assertions.assertEquals(
-                "other", project.children().findFirst().orElseThrow().name());
+                "other", project.childElements().findFirst().orElseThrow().name());
     }
 
     @Test
@@ -364,13 +364,15 @@ public class ElementApiSnippets {
 
         // Modify clone without affecting original
         clone.attribute("scope", "compile");
-        clone.child("groupId").ifPresent(g -> g.textContent("mockito"));
+        clone.childElement("groupId").ifPresent(g -> g.textContent("mockito"));
         // END: element-cloning
 
         Assertions.assertEquals("test", original.attribute("scope"));
         Assertions.assertEquals("compile", clone.attribute("scope"));
-        Assertions.assertEquals("junit", original.child("groupId").orElseThrow().textContent());
-        Assertions.assertEquals("mockito", clone.child("groupId").orElseThrow().textContent());
+        Assertions.assertEquals(
+                "junit", original.childElement("groupId").orElseThrow().textContent());
+        Assertions.assertEquals(
+                "mockito", clone.childElement("groupId").orElseThrow().textContent());
     }
 
     @Test
@@ -413,11 +415,11 @@ public class ElementApiSnippets {
         editor.addElement(dependency, "groupId", "junit");
 
         // Use Element methods for navigation
-        Optional<Element> groupId = dependency.child("groupId");
+        Optional<Element> groupId = dependency.childElement("groupId");
         String value = groupId.map(Element::textContent).orElse("unknown");
 
         // Combine both approaches
-        dependency.children().forEach(child -> {
+        dependency.childElements().forEach(child -> {
             editor.setAttribute(child, "modified", "true");
         });
         // end-snippet:element-editor-integration

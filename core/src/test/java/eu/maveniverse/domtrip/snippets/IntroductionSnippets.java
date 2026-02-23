@@ -53,7 +53,7 @@ public class IntroductionSnippets extends BaseSnippetTest {
         String xml = createTestXml("root");
         Document doc = Document.of(xml);
         Element root = doc.root();
-        Optional<Element> child = root.child("dependency");
+        Optional<Element> child = root.childElement("dependency");
         Stream<Element> descendants = root.descendants();
         // END: modern-java-api
 

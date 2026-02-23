@@ -78,9 +78,9 @@ public class ContainerNodeTest {
         root.addNode(other);
 
         // Test element-specific navigation methods
-        assertEquals(child1, root.child("child").orElse(null));
-        assertEquals(2, root.children("child").count());
-        assertEquals(3, root.children().count()); // Excludes text node
+        assertEquals(child1, root.childElement("child").orElse(null));
+        assertEquals(2, root.childElements("child").count());
+        assertEquals(3, root.childElements().count()); // Excludes text node
 
         // Test that these methods are only available on Element, not on leaf nodes
         // This is enforced by the type system - leaf nodes don't have these methods

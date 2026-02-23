@@ -67,19 +67,21 @@ public class NamespaceDemo {
         System.out.println("  Is in default namespace: " + root.inNamespace("http://example.com/default"));
 
         // Find namespaced elements using QName
-        root.child(QName.of("http://example.com/default", "child")).ifPresent(child -> {
+        root.childElement(QName.of("http://example.com/default", "child")).ifPresent(child -> {
             System.out.println("\nFound child in default namespace: " + child.name());
 
-            child.child(QName.of("http://example.com/ns1", "element")).ifPresent(ns1Element -> {
+            child.childElement(QName.of("http://example.com/ns1", "element")).ifPresent(ns1Element -> {
                 System.out.println("Found ns1:element: " + ns1Element.name());
                 System.out.println("  Prefix: " + ns1Element.prefix());
                 System.out.println("  Local name: " + ns1Element.localName());
                 System.out.println("  Namespace URI: " + ns1Element.namespaceURI());
 
-                ns1Element.child(QName.of("http://example.com/ns2", "data")).ifPresent(ns2Data -> {
-                    System.out.println("Found ns2:data: " + ns2Data.name());
-                    System.out.println("  Content: " + ns2Data.textContent());
-                });
+                ns1Element
+                        .childElement(QName.of("http://example.com/ns2", "data"))
+                        .ifPresent(ns2Data -> {
+                            System.out.println("Found ns2:data: " + ns2Data.name());
+                            System.out.println("  Content: " + ns2Data.textContent());
+                        });
             });
         });
         System.out.println();
@@ -105,17 +107,17 @@ public class NamespaceDemo {
 
         // Navigate using namespace-aware methods with QName
         System.out.println("Metadata elements:");
-        root.children(QName.of("http://example.com/metadata", "title"))
+        root.childElements(QName.of("http://example.com/metadata", "title"))
                 .forEach(title -> System.out.println("  Title: " + title.textContent()));
-        root.children(QName.of("http://example.com/metadata", "author"))
+        root.childElements(QName.of("http://example.com/metadata", "author"))
                 .forEach(author -> System.out.println("  Author: " + author.textContent()));
 
         System.out.println("Content sections:");
-        root.children(QName.of("http://example.com/content", "section"))
+        root.childElements(QName.of("http://example.com/content", "section"))
                 .forEach(section -> System.out.println("  Section: " + section.textContent()));
 
         System.out.println("Default namespace elements:");
-        root.children(QName.of("http://example.com/doc", "summary"))
+        root.childElements(QName.of("http://example.com/doc", "summary"))
                 .forEach(summary -> System.out.println("  Summary: " + summary.textContent()));
         System.out.println();
     }
@@ -145,7 +147,7 @@ public class NamespaceDemo {
         System.out.println("  Declared prefixes: " + rootContext.declaredPrefixes());
         System.out.println("  Declared URIs: " + rootContext.declaredNamespaceURIs());
 
-        root.child("child").ifPresent(child -> {
+        root.childElement("child").ifPresent(child -> {
             NamespaceContext childContext = child.namespaceContext();
             System.out.println("\nChild namespace context: " + childContext);
             System.out.println("  Prefix 'c' maps to: " + childContext.namespaceURI("c"));
@@ -208,10 +210,10 @@ public class NamespaceDemo {
                 .findFirst()
                 .ifPresent(soapBody -> {
                     System.out.println("Found SOAP Body");
-                    soapBody.child(QName.of("http://example.com/userservice", "GetUserInfo"))
+                    soapBody.childElement(QName.of("http://example.com/userservice", "GetUserInfo"))
                             .ifPresent(method -> {
                                 System.out.println("Found method: " + method.localName());
-                                method.child(QName.of("http://example.com/userservice", "userId"))
+                                method.childElement(QName.of("http://example.com/userservice", "userId"))
                                         .ifPresent(userId -> System.out.println("  User ID: " + userId.textContent()));
                             });
                 });

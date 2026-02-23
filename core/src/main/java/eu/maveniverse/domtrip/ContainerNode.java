@@ -63,23 +63,32 @@ public abstract class ContainerNode extends Node {
 
     /**
      * Inserts a child at the specified index.
+     *
+     * @param index the position at which to insert the node
+     * @param node the node to insert
+     * @throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index > nodeCount()})
+     * @throws IllegalArgumentException if node is null
      */
     public void insertNode(int index, Node node) {
-        if (node != null && index >= 0 && index <= nodes.size()) {
-            // Remove from previous parent if it exists
-            if (node.parent() != null) {
-                node.parent().removeNode(node);
-            }
-            node.parent(this);
-            nodes.add(index, node);
-            // If this is an Element and it was self-closing, make it not self-closing
-            if (this instanceof Element element) {
-                if (element.selfClosing()) {
-                    element.selfClosingInternal(false);
-                }
-            }
-            markModified();
+        if (node == null) {
+            throw new IllegalArgumentException("Node cannot be null");
         }
+        if (index < 0 || index > nodes.size()) {
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + nodes.size());
+        }
+        // Remove from previous parent if it exists
+        if (node.parent() != null) {
+            node.parent().removeNode(node);
+        }
+        node.parent(this);
+        nodes.add(index, node);
+        // If this is an Element and it was self-closing, make it not self-closing
+        if (this instanceof Element element) {
+            if (element.selfClosing()) {
+                element.selfClosingInternal(false);
+            }
+        }
+        markModified();
     }
 
     /**
@@ -98,13 +107,11 @@ public abstract class ContainerNode extends Node {
      * Gets the child at the specified index.
      *
      * @param index the index of the child node to return
-     * @return the child node at the specified index, or null if the index is out of range
+     * @return the child node at the specified index
+     * @throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index >= nodeCount()})
      */
     public Node node(int index) {
-        if (index >= 0 && index < nodes.size()) {
-            return nodes.get(index);
-        }
-        return null;
+        return nodes.get(index);
     }
 
     /** @deprecated Use {@link #node(int)} instead. */

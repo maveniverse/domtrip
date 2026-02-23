@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
@@ -249,12 +250,8 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-
-        // Implementation may return null instead of throwing
-        assertDoesNotThrow(() -> {
-            Node result = root.node(10);
-            // May be null or throw, both are acceptable
-        });
+        // Out-of-bounds index should throw IndexOutOfBoundsException
+        assertThrows(IndexOutOfBoundsException.class, () -> root.node(10));
     }
 
     @Test

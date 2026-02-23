@@ -332,7 +332,7 @@ class WhitespaceCaptureTest {
         root.innerPrecedingWhitespace("\n");
 
         // Add to document
-        root.addNode(newElement);
+        root.addChild(newElement);
 
         // Serialize and check if whitespace is used
         String result = editor.toXml();

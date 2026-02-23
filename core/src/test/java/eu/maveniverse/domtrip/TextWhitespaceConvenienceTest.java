@@ -178,8 +178,8 @@ class TextWhitespaceConvenienceTest {
         Element path = doc.root().descendant("path").orElseThrow();
 
         // Get the text nodes
-        Text messageText = (Text) message.nodes.get(0);
-        Text pathText = (Text) path.nodes.get(0);
+        Text messageText = (Text) message.children.get(0);
+        Text pathText = (Text) path.children.get(0);
 
         // Test convenience methods
         assertEquals("Welcome to our application!", messageText.trimmedContent());

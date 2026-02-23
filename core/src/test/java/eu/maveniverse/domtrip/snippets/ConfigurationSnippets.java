@@ -302,7 +302,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
 
         // Add a new empty element
         Element newEmpty = Element.of("placeholder");
-        doc.root().addNode(newEmpty);
+        doc.root().addChild(newEmpty);
 
         String result = serializer.serialize(doc);
         // New empty element will use the detected style: <placeholder />
@@ -317,7 +317,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
         // START: empty-element-style-comparison
         Document doc = Document.withRootElement("root");
         Element empty = Element.of("empty");
-        doc.root().addNode(empty);
+        doc.root().addChild(empty);
 
         // Test different styles
         DomTripConfig expandedConfig = DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.EXPANDED);

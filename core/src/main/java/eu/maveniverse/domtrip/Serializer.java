@@ -553,21 +553,21 @@ public class Serializer {
     }
 
     private void serializeDocument(Document document, StringBuilder sb) {
-        for (Node child : document.nodes) {
+        for (Node child : document.children) {
             serializeNode(child, sb);
         }
 
-        if (document.root() != null && !document.nodes.contains(document.root())) {
+        if (document.root() != null && !document.children.contains(document.root())) {
             serializeNode(document.root(), sb);
         }
     }
 
     private void serializeDocumentPretty(Document document, StringBuilder sb, int depth) {
-        for (Node child : document.nodes) {
+        for (Node child : document.children) {
             serializeNodePretty(child, sb, depth);
         }
 
-        if (document.root() != null && !document.nodes.contains(document.root())) {
+        if (document.root() != null && !document.children.contains(document.root())) {
             serializeNodePretty(document.root(), sb, depth);
         }
     }
@@ -598,7 +598,7 @@ public class Serializer {
         }
 
         // Check if element is empty (no child nodes)
-        boolean isEmpty = element.nodeCount() == 0;
+        boolean isEmpty = element.childCount() == 0;
 
         if (isEmpty) {
             // Apply configured empty element style
@@ -618,10 +618,10 @@ public class Serializer {
             // but handle gracefully by treating as regular element
             sb.append(">");
 
-            boolean hasElementChildren = element.nodes.stream().anyMatch(child -> child instanceof Element);
+            boolean hasElementChildren = element.children.stream().anyMatch(child -> child instanceof Element);
 
             // Children
-            for (Node child : element.nodes) {
+            for (Node child : element.children) {
                 if (hasElementChildren && child instanceof Element) {
                     serializeNodePretty(child, sb, depth + 1);
                 } else {
@@ -640,10 +640,10 @@ public class Serializer {
         } else {
             sb.append(">");
 
-            boolean hasElementChildren = element.nodes.stream().anyMatch(child -> child instanceof Element);
+            boolean hasElementChildren = element.children.stream().anyMatch(child -> child instanceof Element);
 
             // Children
-            for (Node child : element.nodes) {
+            for (Node child : element.children) {
                 if (hasElementChildren && child instanceof Element) {
                     serializeNodePretty(child, sb, depth + 1);
                 } else {

@@ -242,16 +242,16 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
         // Add body with same namespace
         QName soapBody = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap");
         Element body = Element.of(soapBody);
-        envelope.addNode(body);
+        envelope.addChild(body);
 
         // Add custom content with different namespace
         Element customElement = Element.of("GetUserInfo").namespaceDeclaration(null, "http://example.com/userservice");
-        body.addNode(customElement);
+        body.addChild(customElement);
 
         // Create document and editor
         Document doc = new Document();
         doc.root(envelope);
-        doc.addNode(envelope);
+        doc.addChild(envelope);
         Editor editor = new Editor(doc);
 
         String result = editor.toXml();
@@ -325,7 +325,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
                 .attribute("id", "123");
 
         // Add to document
-        parent.addNode(customElement);
+        parent.addChild(customElement);
 
         String result = editor.toXml();
         // END: creating-namespaced-elements

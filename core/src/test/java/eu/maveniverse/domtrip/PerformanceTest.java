@@ -60,7 +60,7 @@ public class PerformanceTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Text textNode = (Text) root.node(0);
+        Text textNode = (Text) root.child(0);
 
         // Test text node's toXml(StringBuilder) method
         String directResult = textNode.toXml();
@@ -79,7 +79,7 @@ public class PerformanceTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Comment comment = (Comment) root.node(0);
+        Comment comment = (Comment) root.child(0);
 
         // Test comment's toXml(StringBuilder) method
         String directResult = comment.toXml();

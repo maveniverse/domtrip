@@ -119,7 +119,7 @@ public class SerializationModesDemo {
         entry.attribute("timestamp", "2024-01-01T12:00:00Z");
         entry.attribute("level", "INFO");
         entry.textContent("Application started");
-        logDoc.root().addNode(entry);
+        logDoc.root().addChild(entry);
 
         String logOutput = rawSerializer.serialize(logDoc);
         System.out.println("Log entry (single line): " + logOutput);

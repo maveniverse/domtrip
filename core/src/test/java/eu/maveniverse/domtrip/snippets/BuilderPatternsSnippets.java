@@ -258,7 +258,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
         // Processing instructions using direct creation
         ProcessingInstruction stylesheet =
                 ProcessingInstruction.of("xml-stylesheet", "type=\"text/xsl\" href=\"transform.xsl\"");
-        editor.document().addNode(stylesheet);
+        editor.document().addChild(stylesheet);
         // end-snippet:processing-instructions
 
         Document doc = editor.document();
@@ -358,9 +358,9 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
 
         // ✅ Good - combine chaining with method calls
         Element project = Element.of("project").attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
-        project.addNode(Element.of("groupId").textContent("com.example"));
-        project.addNode(Element.of("artifactId").textContent("my-app"));
-        project.addNode(Element.of("version").textContent("1.0.0"));
+        project.addChild(Element.of("groupId").textContent("com.example"));
+        project.addChild(Element.of("artifactId").textContent("my-app"));
+        project.addChild(Element.of("version").textContent("1.0.0"));
         // end-snippet:method-chaining-best-practices
 
         Assertions.assertNotNull(dependency);

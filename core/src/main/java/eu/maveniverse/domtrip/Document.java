@@ -128,10 +128,10 @@ public class Document extends ContainerNode {
         }
 
         // Deep copy children directly to avoid addNode() side effects
-        for (Node child : original.nodes().collect(Collectors.toList())) {
+        for (Node child : original.children().collect(Collectors.toList())) {
             Node clonedChild = child.clone();
             clonedChild.parent(this); // Set parent directly
-            this.nodes.add(clonedChild); // Add directly to list
+            this.children.add(clonedChild); // Add directly to list
         }
 
         // Note: parent is intentionally not copied - clone has no parent
@@ -254,7 +254,7 @@ public class Document extends ContainerNode {
      * @param root the element to set as the document root, or null to clear it
      * @return this document for method chaining
      * @see #root()
-     * @see #addNode(Node)
+     * @see #addChild(Node)
      */
     public Document root(Element root) {
         this.root = root;
@@ -419,12 +419,12 @@ public class Document extends ContainerNode {
         sb.append(precedingWhitespace);
 
         // Add all children (comments, processing instructions, document element)
-        for (Node child : nodes) {
+        for (Node child : children) {
             child.toXml(sb);
         }
 
         // Add document element if set and not already in children
-        if (root != null && !nodes.contains(root)) {
+        if (root != null && !children.contains(root)) {
             root.toXml(sb);
         }
     }
@@ -568,7 +568,7 @@ public class Document extends ContainerNode {
             return Collections.emptyList();
         }
         Document doc = new Parser().parse(xml);
-        return doc.nodes().collect(Collectors.toList());
+        return doc.children().collect(Collectors.toList());
     }
 
     /**

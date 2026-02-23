@@ -30,7 +30,7 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element child = (Element) root.node(0);
+        Element child = (Element) root.child(0);
 
         child.name("newName");
 
@@ -145,8 +145,8 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element empty = (Element) root.node(0);
-        Element normal = (Element) root.node(1);
+        Element empty = (Element) root.child(0);
+        Element normal = (Element) root.child(1);
 
         assertTrue(empty.selfClosing());
         assertFalse(normal.selfClosing());
@@ -159,7 +159,7 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element empty = (Element) root.node(0);
+        Element empty = (Element) root.child(0);
 
         // Add content to self-closing element
         empty.textContent("now has content");
@@ -176,7 +176,7 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element element = (Element) root.node(0);
+        Element element = (Element) root.child(0);
 
         // Remove all content
         element.textContent("");
@@ -227,7 +227,7 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        assertTrue(root.nodeCount() >= 4); // At least 2 elements, 1 text, 1 comment
+        assertTrue(root.childCount() >= 4); // At least 2 elements, 1 text, 1 comment
     }
 
     @Test
@@ -238,7 +238,7 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        Node firstChild = root.node(0);
+        Node firstChild = root.child(0);
         assertTrue(firstChild instanceof Element);
         assertEquals("first", ((Element) firstChild).name());
     }
@@ -251,7 +251,7 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
         // Out-of-bounds index should throw IndexOutOfBoundsException
-        assertThrows(IndexOutOfBoundsException.class, () -> root.node(10));
+        assertThrows(IndexOutOfBoundsException.class, () -> root.child(10));
     }
 
     @Test
@@ -262,7 +262,7 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        var children = root.nodes;
+        var children = root.children;
         assertNotNull(children);
         assertTrue(children.size() >= 2);
     }
@@ -276,7 +276,7 @@ public class ElementAdvancedTest {
         Element root = editor.root();
         Element second = new Element("second");
 
-        root.insertNode(1, second);
+        root.insertChild(1, second);
 
         String result = editor.toXml();
         // Order should be first, second, third
@@ -295,9 +295,9 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element toRemove = (Element) root.node(1);
+        Element toRemove = (Element) root.child(1);
 
-        root.removeNode(toRemove);
+        root.removeChild(toRemove);
 
         String result = editor.toXml();
         assertTrue(result.contains("<keep1"));
@@ -313,8 +313,8 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        Node secondChild = root.node(1); // Get second child
-        root.removeNode(secondChild); // Remove it
+        Node secondChild = root.child(1); // Get second child
+        root.removeChild(secondChild); // Remove it
 
         String result = editor.toXml();
         assertTrue(result.contains("<first"));
@@ -331,11 +331,11 @@ public class ElementAdvancedTest {
         Element root = editor.root();
 
         // Remove all children manually since clearChildren() doesn't exist
-        while (root.nodeCount() > 0) {
-            root.removeNode(root.node(0));
+        while (root.childCount() > 0) {
+            root.removeChild(root.child(0));
         }
 
-        assertEquals(0, root.nodeCount());
+        assertEquals(0, root.childCount());
         String result = editor.toXml();
         assertTrue(result.contains("<root></root>") || result.contains("<root/>"));
     }
@@ -345,8 +345,8 @@ public class ElementAdvancedTest {
         Element element = new Element("testElement");
         element.attribute("attr1", "value1");
         element.attribute("attr2", "value2");
-        element.addNode(new Element("child1"));
-        element.addNode(new Element("child2"));
+        element.addChild(new Element("child1"));
+        element.addChild(new Element("child2"));
 
         String str = element.toString();
         assertTrue(str.contains("Element{"));
@@ -382,7 +382,7 @@ public class ElementAdvancedTest {
         Element root = editor.root();
 
         // Should have multiple children: text, element, text
-        assertTrue(root.nodeCount() >= 3);
+        assertTrue(root.childCount() >= 3);
 
         String result = editor.toXml();
         assertEquals(xml, result);

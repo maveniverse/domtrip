@@ -32,7 +32,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
         // START: node-hierarchy
         // ✅ This works - Element can have children
         Element parent = Element.of("parent");
-        parent.addNode(Text.of("content"));
+        parent.addChild(Text.of("content"));
 
         // Text nodes cannot have children (compile-time safety)
         Text text = Text.of("content");

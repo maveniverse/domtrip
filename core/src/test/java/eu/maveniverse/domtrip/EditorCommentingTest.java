@@ -92,7 +92,7 @@ class EditorCommentingTest {
 
         // Find the comment
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()
@@ -155,7 +155,7 @@ class EditorCommentingTest {
         editor = new Editor(doc);
 
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()
@@ -173,7 +173,7 @@ class EditorCommentingTest {
         editor = new Editor(doc);
 
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()
@@ -247,7 +247,7 @@ class EditorCommentingTest {
 
         // Find the comment
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()

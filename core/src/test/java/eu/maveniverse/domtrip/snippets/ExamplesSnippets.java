@@ -304,10 +304,10 @@ public class ExamplesSnippets extends BaseSnippetTest {
         // START: using-builder-patterns
         // Create elements using factory methods (simplified builder pattern)
         Element dependency = Element.of("dependency");
-        dependency.addNode(Element.text("groupId", "org.junit.jupiter"));
-        dependency.addNode(Element.text("artifactId", "junit-jupiter"));
-        dependency.addNode(Element.text("version", "5.9.2"));
-        dependency.addNode(Element.text("scope", "test"));
+        dependency.addChild(Element.text("groupId", "org.junit.jupiter"));
+        dependency.addChild(Element.text("artifactId", "junit-jupiter"));
+        dependency.addChild(Element.text("version", "5.9.2"));
+        dependency.addChild(Element.text("scope", "test"));
 
         // Add to existing document
         String pomXml = createMavenPomXml();
@@ -318,7 +318,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
         if (dependencies == null) {
             dependencies = editor.addElement(editor.root(), "dependencies");
         }
-        dependencies.addNode(dependency);
+        dependencies.addChild(dependency);
         // END: using-builder-patterns
 
         String result = editor.toXml();

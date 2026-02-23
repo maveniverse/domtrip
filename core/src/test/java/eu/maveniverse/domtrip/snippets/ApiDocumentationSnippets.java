@@ -28,9 +28,9 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
 
         // Using fluent builders
         Element dependency = Element.of("dependency").attribute("scope", "test");
-        dependency.addNode(Element.text("groupId", "junit"));
-        dependency.addNode(Element.text("artifactId", "junit"));
-        parent.addNode(dependency);
+        dependency.addChild(Element.text("groupId", "junit"));
+        dependency.addChild(Element.text("artifactId", "junit"));
+        parent.addChild(dependency);
         // END: fluent-element-builders
 
         String result = editor.toXml();

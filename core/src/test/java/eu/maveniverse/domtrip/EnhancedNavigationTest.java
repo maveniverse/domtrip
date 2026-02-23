@@ -155,14 +155,15 @@ public class EnhancedNavigationTest {
     @Test
     void testChildNodes() {
         // Test all child nodes (including text nodes)
-        long nodeCount = root.nodes().count();
+        long nodeCount = root.children().count();
         assertTrue(nodeCount >= 5); // At least the 5 element children, possibly more with text nodes
 
         // Test filtering by type
-        long elementCount = root.nodes().filter(node -> node instanceof Element).count();
+        long elementCount =
+                root.children().filter(node -> node instanceof Element).count();
         assertEquals(5, elementCount);
 
-        long textCount = root.nodes().filter(node -> node instanceof Text).count();
+        long textCount = root.children().filter(node -> node instanceof Text).count();
         // With whitespace capture, whitespace is stored as element properties, not separate text nodes
         // The root element only contains child elements, no direct text content
         // Text nodes exist within the child elements (like groupId containing "com.example")
@@ -199,13 +200,13 @@ public class EnhancedNavigationTest {
 
     @Test
     void testHasChildElements() {
-        assertTrue(root.hasNodeElements());
+        assertTrue(root.hasChildElements());
 
         Element dependencies = root.childElement("dependencies").orElseThrow();
-        assertTrue(dependencies.hasNodeElements());
+        assertTrue(dependencies.hasChildElements());
 
         Element groupId = root.childElement("groupId").orElseThrow();
-        assertFalse(groupId.hasNodeElements());
+        assertFalse(groupId.hasChildElements());
     }
 
     @Test

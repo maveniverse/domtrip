@@ -20,7 +20,7 @@ class MavenEditorUtilityMethodsTest {
     @Test
     void testToGA_missingGroupId() throws DomTripException {
         Element element = Element.of("dependency");
-        element.addNode(Element.text("artifactId", "my-module"));
+        element.addChild(Element.text("artifactId", "my-module"));
 
         assertNull(AbstractMavenEditor.toGA(element));
     }
@@ -28,7 +28,7 @@ class MavenEditorUtilityMethodsTest {
     @Test
     void testToGA_missingArtifactId() throws DomTripException {
         Element element = Element.of("dependency");
-        element.addNode(Element.text("groupId", "org.example"));
+        element.addChild(Element.text("groupId", "org.example"));
 
         assertNull(AbstractMavenEditor.toGA(element));
     }
@@ -36,8 +36,8 @@ class MavenEditorUtilityMethodsTest {
     @Test
     void testToPluginGA_withGroupId() throws DomTripException {
         Element element = Element.of("plugin");
-        element.addNode(Element.text("groupId", "org.codehaus.mojo"));
-        element.addNode(Element.text("artifactId", "build-helper-maven-plugin"));
+        element.addChild(Element.text("groupId", "org.codehaus.mojo"));
+        element.addChild(Element.text("artifactId", "build-helper-maven-plugin"));
 
         assertEquals("org.codehaus.mojo:build-helper-maven-plugin", AbstractMavenEditor.toPluginGA(element));
     }
@@ -45,7 +45,7 @@ class MavenEditorUtilityMethodsTest {
     @Test
     void testToPluginGA_withoutGroupId() throws DomTripException {
         Element element = Element.of("plugin");
-        element.addNode(Element.text("artifactId", "maven-compiler-plugin"));
+        element.addChild(Element.text("artifactId", "maven-compiler-plugin"));
 
         // Should default to org.apache.maven.plugins
         assertEquals("org.apache.maven.plugins:maven-compiler-plugin", AbstractMavenEditor.toPluginGA(element));
@@ -54,7 +54,7 @@ class MavenEditorUtilityMethodsTest {
     @Test
     void testToPluginGA_missingArtifactId() throws DomTripException {
         Element element = Element.of("plugin");
-        element.addNode(Element.text("groupId", "org.apache.maven.plugins"));
+        element.addChild(Element.text("groupId", "org.apache.maven.plugins"));
 
         assertNull(AbstractMavenEditor.toPluginGA(element));
     }
@@ -62,7 +62,7 @@ class MavenEditorUtilityMethodsTest {
     @Test
     void testToGATC_jarType() throws DomTripException {
         Element element = createDependency("org.junit.jupiter", "junit-jupiter", "5.9.2");
-        element.addNode(Element.text("type", "jar"));
+        element.addChild(Element.text("type", "jar"));
 
         assertEquals("org.junit.jupiter:junit-jupiter:jar", AbstractMavenEditor.toGATC(element));
     }
@@ -78,8 +78,8 @@ class MavenEditorUtilityMethodsTest {
     @Test
     void testToGATC_withClassifier() throws DomTripException {
         Element element = createDependency("org.example", "my-lib", "1.0.0");
-        element.addNode(Element.text("type", "jar"));
-        element.addNode(Element.text("classifier", "sources"));
+        element.addChild(Element.text("type", "jar"));
+        element.addChild(Element.text("classifier", "sources"));
 
         assertEquals("org.example:my-lib:jar:sources", AbstractMavenEditor.toGATC(element));
     }
@@ -87,7 +87,7 @@ class MavenEditorUtilityMethodsTest {
     @Test
     void testToGATC_warType() throws DomTripException {
         Element element = createDependency("org.example", "my-webapp", "1.0.0");
-        element.addNode(Element.text("type", "war"));
+        element.addChild(Element.text("type", "war"));
 
         assertEquals("org.example:my-webapp:war", AbstractMavenEditor.toGATC(element));
     }
@@ -95,7 +95,7 @@ class MavenEditorUtilityMethodsTest {
     @Test
     void testToGATC_missingGA() throws DomTripException {
         Element element = Element.of("dependency");
-        element.addNode(Element.text("type", "jar"));
+        element.addChild(Element.text("type", "jar"));
 
         assertNull(AbstractMavenEditor.toGATC(element));
     }
@@ -118,7 +118,7 @@ class MavenEditorUtilityMethodsTest {
     void testToArtifact_withClassifier() throws DomTripException {
         PomEditor editor = new PomEditor();
         Element element = createDependency("org.example", "my-lib", "1.0.0");
-        element.addNode(Element.text("classifier", "sources"));
+        element.addChild(Element.text("classifier", "sources"));
 
         Coordinates coordinates = editor.toCoordinates(element, "jar");
 
@@ -129,7 +129,7 @@ class MavenEditorUtilityMethodsTest {
     void testToArtifact_maven4Inference() throws DomTripException {
         PomEditor editor = new PomEditor();
         Element element = Element.of("dependency");
-        element.addNode(Element.text("artifactId", "my-module"));
+        element.addChild(Element.text("artifactId", "my-module"));
         // No groupId or version - Maven 4 inference
 
         Coordinates coordinates = editor.toCoordinates(element, "jar");
@@ -143,7 +143,7 @@ class MavenEditorUtilityMethodsTest {
     void testToArtifact_missingArtifactId() throws DomTripException {
         PomEditor editor = new PomEditor();
         Element element = Element.of("dependency");
-        element.addNode(Element.text("groupId", "org.example"));
+        element.addChild(Element.text("groupId", "org.example"));
 
         // ArtifactId is always required
         assertThrows(DomTripException.class, () -> editor.toCoordinates(element, "jar"));
@@ -171,9 +171,9 @@ class MavenEditorUtilityMethodsTest {
 
     private Element createDependency(String groupId, String artifactId, String version) throws DomTripException {
         Element dep = Element.of("dependency");
-        dep.addNode(Element.text("groupId", groupId));
-        dep.addNode(Element.text("artifactId", artifactId));
-        dep.addNode(Element.text("version", version));
+        dep.addChild(Element.text("groupId", groupId));
+        dep.addChild(Element.text("artifactId", artifactId));
+        dep.addChild(Element.text("version", version));
         return dep;
     }
 }

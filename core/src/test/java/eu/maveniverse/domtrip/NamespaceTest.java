@@ -214,7 +214,7 @@ public class NamespaceTest {
         Element element = Element.of("test")
                 .namespaceDeclaration("ex", "http://example.com/ns")
                 .namespaceDeclaration(null, "http://example.com/default");
-        element.addNode(new Text("content"));
+        element.addChild(new Text("content"));
 
         assertEquals("http://example.com/ns", element.attribute("xmlns:ex"));
         assertEquals("http://example.com/default", element.attribute("xmlns"));

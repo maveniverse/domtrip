@@ -737,7 +737,7 @@ public class PomEditor extends AbstractMavenEditor {
             Element plugins = findOrCreatePlugins(false); // upsert=false; will not throw
             Element plugin = findPlugin(plugins, coordinates);
             if (plugin != null) {
-                return plugin.childElement(VERSION).filter(plugin::removeNode).isPresent();
+                return plugin.childElement(VERSION).filter(plugin::removeChild).isPresent();
             }
             return false;
         }

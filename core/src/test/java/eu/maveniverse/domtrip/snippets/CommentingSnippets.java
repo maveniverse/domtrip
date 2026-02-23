@@ -88,7 +88,7 @@ public class CommentingSnippets extends BaseSnippetTest {
 
         // Find the comment containing the dependency
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()

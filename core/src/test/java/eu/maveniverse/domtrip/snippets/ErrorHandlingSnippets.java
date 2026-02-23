@@ -216,7 +216,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             // Fallback: Add as comment
             try {
                 Comment fallback = Comment.of("Failed to add element: " + name + "=" + content);
-                parent.addNode(fallback);
+                parent.addChild(fallback);
             } catch (Exception fallbackError) {
                 System.err.println("Fallback also failed: " + fallbackError.getMessage());
             }

@@ -65,10 +65,10 @@ public class BuilderPatternsDemo {
 
         // Using element fluent API for complex structures
         Element complex = Element.of("article").attribute("id", "article-1").attribute("class", "blog-post");
-        complex.addNode(new Text("Article content here"));
-        complex.addNode(Element.text("author", "John Doe"));
-        complex.addNode(Element.text("date", "2024-01-15"));
-        complex.addNode(new Comment(" Article metadata "));
+        complex.addChild(new Text("Article content here"));
+        complex.addChild(Element.text("author", "John Doe"));
+        complex.addChild(Element.text("date", "2024-01-15"));
+        complex.addChild(new Comment(" Article metadata "));
 
         System.out.println("Text element: " + textElement.toXml());
         System.out.println("Self-closing: " + selfClosing.toXml());
@@ -103,12 +103,12 @@ public class BuilderPatternsDemo {
         html.attribute("xmlns", "http://www.w3.org/1999/xhtml");
 
         Element head = Element.text("head", "");
-        html.addNode(head);
-        head.addNode(Element.text("title", "Demo Page"));
+        html.addChild(head);
+        head.addChild(Element.text("title", "Demo Page"));
 
         Element body = Element.text("body", "");
-        html.addNode(body);
-        body.addNode(Element.withAttributes("h1", Map.of("id", "title")));
+        html.addChild(body);
+        body.addChild(Element.withAttributes("h1", Map.of("id", "title")));
         body.childElement("h1").ifPresent(h1 -> h1.textContent("Welcome"));
 
         System.out.println("Simple document:");

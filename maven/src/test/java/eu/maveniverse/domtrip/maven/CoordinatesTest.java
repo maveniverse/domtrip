@@ -21,9 +21,9 @@ class CoordinatesTest {
         Coordinates coordinates = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element element = Element.of("dependency");
-        element.addNode(Element.text("groupId", "org.junit.jupiter"));
-        element.addNode(Element.text("artifactId", "junit-jupiter"));
-        element.addNode(Element.text("version", "5.9.2"));
+        element.addChild(Element.text("groupId", "org.junit.jupiter"));
+        element.addChild(Element.text("artifactId", "junit-jupiter"));
+        element.addChild(Element.text("version", "5.9.2"));
 
         Predicate<Element> predicate = coordinates.predicateGA();
         assertTrue(predicate.test(element));
@@ -34,8 +34,8 @@ class CoordinatesTest {
         Coordinates coordinates = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element element = Element.of("dependency");
-        element.addNode(Element.text("groupId", "junit"));
-        element.addNode(Element.text("artifactId", "junit"));
+        element.addChild(Element.text("groupId", "junit"));
+        element.addChild(Element.text("artifactId", "junit"));
 
         Predicate<Element> predicate = coordinates.predicateGA();
         assertFalse(predicate.test(element));
@@ -46,9 +46,9 @@ class CoordinatesTest {
         Coordinates coordinates = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element element = Element.of("dependency");
-        element.addNode(Element.text("groupId", "org.junit.jupiter"));
-        element.addNode(Element.text("artifactId", "junit-jupiter"));
-        element.addNode(Element.text("version", "5.10.0")); // Different version
+        element.addChild(Element.text("groupId", "org.junit.jupiter"));
+        element.addChild(Element.text("artifactId", "junit-jupiter"));
+        element.addChild(Element.text("version", "5.10.0")); // Different version
 
         Predicate<Element> predicate = coordinates.predicateGA();
         assertTrue(predicate.test(element)); // Should still match on GA
@@ -60,7 +60,7 @@ class CoordinatesTest {
 
         // Plugin element without groupId (defaults to org.apache.maven.plugins)
         Element element = Element.of("plugin");
-        element.addNode(Element.text("artifactId", "maven-compiler-plugin"));
+        element.addChild(Element.text("artifactId", "maven-compiler-plugin"));
 
         Predicate<Element> predicate = coordinates.predicatePluginGA();
         assertTrue(predicate.test(element));
@@ -71,8 +71,8 @@ class CoordinatesTest {
         Coordinates coordinates = Coordinates.of("org.codehaus.mojo", "build-helper-maven-plugin", "3.3.0");
 
         Element element = Element.of("plugin");
-        element.addNode(Element.text("groupId", "org.codehaus.mojo"));
-        element.addNode(Element.text("artifactId", "build-helper-maven-plugin"));
+        element.addChild(Element.text("groupId", "org.codehaus.mojo"));
+        element.addChild(Element.text("artifactId", "build-helper-maven-plugin"));
 
         Predicate<Element> predicate = coordinates.predicatePluginGA();
         assertTrue(predicate.test(element));
@@ -83,9 +83,9 @@ class CoordinatesTest {
         Coordinates coordinates = Coordinates.of("org.example", "my-lib", "1.0.0", null, "jar");
 
         Element element = Element.of("dependency");
-        element.addNode(Element.text("groupId", "org.example"));
-        element.addNode(Element.text("artifactId", "my-lib"));
-        element.addNode(Element.text("type", "jar"));
+        element.addChild(Element.text("groupId", "org.example"));
+        element.addChild(Element.text("artifactId", "my-lib"));
+        element.addChild(Element.text("type", "jar"));
 
         Predicate<Element> predicate = coordinates.predicateGATC();
         assertTrue(predicate.test(element));
@@ -96,10 +96,10 @@ class CoordinatesTest {
         Coordinates coordinates = Coordinates.of("org.example", "my-lib", "1.0.0", "sources", "jar");
 
         Element element = Element.of("dependency");
-        element.addNode(Element.text("groupId", "org.example"));
-        element.addNode(Element.text("artifactId", "my-lib"));
-        element.addNode(Element.text("type", "jar"));
-        element.addNode(Element.text("classifier", "sources"));
+        element.addChild(Element.text("groupId", "org.example"));
+        element.addChild(Element.text("artifactId", "my-lib"));
+        element.addChild(Element.text("type", "jar"));
+        element.addChild(Element.text("classifier", "sources"));
 
         Predicate<Element> predicate = coordinates.predicateGATC();
         assertTrue(predicate.test(element));
@@ -110,9 +110,9 @@ class CoordinatesTest {
         Coordinates coordinates = Coordinates.of("org.example", "my-lib", "1.0.0", null, "war");
 
         Element element = Element.of("dependency");
-        element.addNode(Element.text("groupId", "org.example"));
-        element.addNode(Element.text("artifactId", "my-lib"));
-        element.addNode(Element.text("type", "jar"));
+        element.addChild(Element.text("groupId", "org.example"));
+        element.addChild(Element.text("artifactId", "my-lib"));
+        element.addChild(Element.text("type", "jar"));
 
         Predicate<Element> predicate = coordinates.predicateGATC();
         assertFalse(predicate.test(element));
@@ -213,7 +213,7 @@ class CoordinatesTest {
         Coordinates coordinates = Coordinates.of(null, "my-module", null, null, "jar");
 
         Element element = Element.of("dependency");
-        element.addNode(Element.text("artifactId", "my-module"));
+        element.addChild(Element.text("artifactId", "my-module"));
 
         Predicate<Element> predicate = coordinates.predicateGA();
         // artifact.toGA() = "null:my-module", AbstractMavenEditor.toGA(element) = null
@@ -226,9 +226,9 @@ class CoordinatesTest {
         Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.9.2");
 
         Element deps = Element.of("dependencies");
-        deps.addNode(createDependency("org.junit.jupiter", "junit-jupiter", "5.9.2"));
-        deps.addNode(createDependency("junit", "junit", "4.13.2"));
-        deps.addNode(createDependency("org.mockito", "mockito-core", "5.0.0"));
+        deps.addChild(createDependency("org.junit.jupiter", "junit-jupiter", "5.9.2"));
+        deps.addChild(createDependency("junit", "junit", "4.13.2"));
+        deps.addChild(createDependency("org.mockito", "mockito-core", "5.0.0"));
 
         long count =
                 deps.childElements("dependency").filter(junit.predicateGA()).count();
@@ -237,9 +237,9 @@ class CoordinatesTest {
 
     private Element createDependency(String groupId, String artifactId, String version) throws DomTripException {
         Element dep = Element.of("dependency");
-        dep.addNode(Element.text("groupId", groupId));
-        dep.addNode(Element.text("artifactId", artifactId));
-        dep.addNode(Element.text("version", version));
+        dep.addChild(Element.text("groupId", groupId));
+        dep.addChild(Element.text("artifactId", artifactId));
+        dep.addChild(Element.text("version", version));
         return dep;
     }
 }

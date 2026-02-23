@@ -30,15 +30,15 @@ class ElementTextHelpersTest {
     @Test
     void testTextContentOr_withWhitespaceOnly() throws DomTripException {
         Element element = Element.of("whitespace");
-        element.addNode(Text.of("   "));
+        element.addChild(Text.of("   "));
         assertEquals("   ", element.textContentOr("default"));
     }
 
     @Test
     void testChildTextOr_withExistingChild() throws DomTripException {
         Element parent = Element.of("dependency");
-        parent.addNode(Element.text("groupId", "org.junit.jupiter"));
-        parent.addNode(Element.text("artifactId", "junit-jupiter"));
+        parent.addChild(Element.text("groupId", "org.junit.jupiter"));
+        parent.addChild(Element.text("artifactId", "junit-jupiter"));
 
         assertEquals("org.junit.jupiter", parent.childTextOr("groupId", "default"));
         assertEquals("junit-jupiter", parent.childTextOr("artifactId", "default"));
@@ -47,7 +47,7 @@ class ElementTextHelpersTest {
     @Test
     void testChildTextOr_withMissingChild() throws DomTripException {
         Element parent = Element.of("dependency");
-        parent.addNode(Element.text("artifactId", "junit-jupiter"));
+        parent.addChild(Element.text("artifactId", "junit-jupiter"));
 
         assertEquals("default", parent.childTextOr("groupId", "default"));
     }
@@ -61,7 +61,7 @@ class ElementTextHelpersTest {
     @Test
     void testChildTextOr_withEmptyChildContent() throws DomTripException {
         Element parent = Element.of("dependency");
-        parent.addNode(Element.of("scope")); // Empty element
+        parent.addChild(Element.of("scope")); // Empty element
 
         // Should return default value when child exists but has no text
         assertEquals("compile", parent.childTextOr("scope", "compile"));
@@ -70,7 +70,7 @@ class ElementTextHelpersTest {
     @Test
     void testChildTextRequired_withExistingChild() throws DomTripException {
         Element parent = Element.of("dependency");
-        parent.addNode(Element.text("groupId", "org.junit.jupiter"));
+        parent.addChild(Element.text("groupId", "org.junit.jupiter"));
 
         assertEquals("org.junit.jupiter", parent.childTextRequired("groupId"));
     }
@@ -88,7 +88,7 @@ class ElementTextHelpersTest {
     @Test
     void testChildTextRequired_withEmptyChild() throws DomTripException {
         Element parent = Element.of("dependency");
-        parent.addNode(Element.of("groupId")); // Empty element
+        parent.addChild(Element.of("groupId")); // Empty element
 
         // Should return empty string, not throw
         assertEquals("", parent.childTextRequired("groupId"));
@@ -97,9 +97,9 @@ class ElementTextHelpersTest {
     @Test
     void testChildTextOr_withMultipleChildren() throws DomTripException {
         Element parent = Element.of("project");
-        parent.addNode(Element.text("groupId", "org.example"));
-        parent.addNode(Element.text("artifactId", "my-app"));
-        parent.addNode(Element.text("version", "1.0.0"));
+        parent.addChild(Element.text("groupId", "org.example"));
+        parent.addChild(Element.text("artifactId", "my-app"));
+        parent.addChild(Element.text("version", "1.0.0"));
 
         assertEquals("org.example", parent.childTextOr("groupId", null));
         assertEquals("my-app", parent.childTextOr("artifactId", null));
@@ -112,10 +112,10 @@ class ElementTextHelpersTest {
         Element project = Element.of("project");
         Element dependencies = Element.of("dependencies");
         Element dependency = Element.of("dependency");
-        dependency.addNode(Element.text("groupId", "junit"));
-        dependency.addNode(Element.text("artifactId", "junit"));
-        dependencies.addNode(dependency);
-        project.addNode(dependencies);
+        dependency.addChild(Element.text("groupId", "junit"));
+        dependency.addChild(Element.text("artifactId", "junit"));
+        dependencies.addChild(dependency);
+        project.addChild(dependencies);
 
         // Chained usage
         String groupId = project.childElement("dependencies")
@@ -129,7 +129,7 @@ class ElementTextHelpersTest {
     @Test
     void testTextContentOr_preservesWhitespace() throws DomTripException {
         Element element = Element.of("description");
-        element.addNode(Text.of("  Some text with spaces  "));
+        element.addChild(Text.of("  Some text with spaces  "));
 
         // textContentOr should preserve whitespace
         assertEquals("  Some text with spaces  ", element.textContentOr("default"));
@@ -139,9 +139,9 @@ class ElementTextHelpersTest {
     void testChildTextOr_withMultipleTextNodes() throws DomTripException {
         Element parent = Element.of("parent");
         Element child = Element.of("child");
-        child.addNode(Text.of("Hello "));
-        child.addNode(Text.of("World"));
-        parent.addNode(child);
+        child.addChild(Text.of("Hello "));
+        child.addChild(Text.of("World"));
+        parent.addChild(child);
 
         assertEquals("Hello World", parent.childTextOr("child", "default"));
     }

@@ -142,10 +142,10 @@ public class Element extends ContainerNode {
         this.precedingWhitespace = original.precedingWhitespace;
 
         // Deep copy children directly to avoid addNode() side effects
-        for (Node child : original.nodes().collect(Collectors.toList())) {
+        for (Node child : original.children().collect(Collectors.toList())) {
             Node clonedChild = child.clone();
             clonedChild.parent(this); // Set parent directly
-            this.nodes.add(clonedChild); // Add directly to list
+            this.children.add(clonedChild); // Add directly to list
         }
 
         // Note: parent is intentionally not copied - clone has no parent
@@ -621,7 +621,7 @@ public class Element extends ContainerNode {
                 }
 
                 // Add children (they have their own preceding whitespace)
-                for (Node child : nodes) {
+                for (Node child : children) {
                     child.toXml(sb);
                 }
 
@@ -653,7 +653,7 @@ public class Element extends ContainerNode {
             sb.append(openTagWhitespace).append(">");
 
             // Add children (they have their own preceding whitespace)
-            for (Node child : nodes) {
+            for (Node child : children) {
                 child.toXml(sb);
             }
 
@@ -695,7 +695,7 @@ public class Element extends ContainerNode {
     @Override
     public String textContent() {
         StringBuilder sb = new StringBuilder();
-        for (Node child : nodes) {
+        for (Node child : children) {
             if (child instanceof Text) {
                 sb.append(((Text) child).content());
             }
@@ -741,12 +741,12 @@ public class Element extends ContainerNode {
      */
     public Element textContent(String content) {
         // Remove all existing text children
-        nodes.removeIf(child -> child instanceof Text);
+        children.removeIf(child -> child instanceof Text);
 
         // Add new text content if not empty
         if (content != null && !content.isEmpty()) {
             Text textNode = new Text(content);
-            addNode(textNode);
+            addChild(textNode);
         }
 
         markModified();
@@ -835,7 +835,7 @@ public class Element extends ContainerNode {
      * @return the first Text child, or null if none exists
      */
     private Text getFirstTextChild() {
-        for (Node child : nodes) {
+        for (Node child : children) {
             if (child instanceof Text) {
                 return (Text) child;
             }
@@ -937,7 +937,7 @@ public class Element extends ContainerNode {
      * Returns a stream of all descendant elements (depth-first traversal).
      */
     public Stream<Element> descendants() {
-        return nodes.stream()
+        return children.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
                 .flatMap(element -> Stream.concat(Stream.of(element), element.descendants()));
@@ -955,7 +955,7 @@ public class Element extends ContainerNode {
         if (qname == null) {
             return Optional.empty();
         }
-        return nodes.stream()
+        return children.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
                 .filter(element -> qname.matches(element.namespaceURI(), element.localName()))
@@ -969,7 +969,7 @@ public class Element extends ContainerNode {
      * @return an Optional containing the first matching child element, or empty if none found
      */
     public Optional<Element> childElement(String name) {
-        return nodes.stream()
+        return children.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
                 .filter(element -> name.equals(element.name()))
@@ -1070,7 +1070,7 @@ public class Element extends ContainerNode {
         if (qname == null) {
             return Stream.empty();
         }
-        return nodes.stream()
+        return children.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
                 .filter(element -> qname.matches(element.namespaceURI(), element.localName()));
@@ -1083,7 +1083,7 @@ public class Element extends ContainerNode {
      * @return a Stream of matching child elements
      */
     public Stream<Element> childElements(String name) {
-        return nodes.stream()
+        return children.stream()
                 .filter(child -> child instanceof Element)
                 .map(child -> (Element) child)
                 .filter(element -> name.equals(element.name()));
@@ -1095,7 +1095,7 @@ public class Element extends ContainerNode {
      * @return a Stream of all child elements
      */
     public Stream<Element> childElements() {
-        return nodes.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
+        return children.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
     }
 
     /**
@@ -1153,7 +1153,7 @@ public class Element extends ContainerNode {
      * @return an Optional containing the first text child, or empty if none found
      */
     public Optional<Text> textChild() {
-        return nodes.stream()
+        return children.stream()
                 .filter(child -> child instanceof Text)
                 .map(child -> (Text) child)
                 .findFirst();
@@ -1244,7 +1244,7 @@ public class Element extends ContainerNode {
 
     @Override
     public String toString() {
-        return "Element{name='" + name + "', attributes=" + attributes.size() + ", children=" + nodes.size() + "}";
+        return "Element{name='" + name + "', attributes=" + attributes.size() + ", children=" + children.size() + "}";
     }
 
     // Factory methods for common element patterns
@@ -1298,7 +1298,7 @@ public class Element extends ContainerNode {
     public static Element text(String name, String content) throws DomTripException {
         Element element = new Element(name);
         if (content != null && !content.isEmpty()) {
-            element.addNode(new Text(content));
+            element.addChild(new Text(content));
         }
         return element;
     }
@@ -1351,7 +1351,7 @@ public class Element extends ContainerNode {
             throws DomTripException {
         Element element = withAttributes(name, attributes);
         if (content != null && !content.isEmpty()) {
-            element.addNode(new Text(content));
+            element.addChild(new Text(content));
         }
         return element;
     }
@@ -1370,7 +1370,7 @@ public class Element extends ContainerNode {
     public static Element cdata(String name, String content) throws DomTripException {
         Element element = new Element(name);
         if (content != null) {
-            element.addNode(new Text(content, true));
+            element.addChild(new Text(content, true));
         }
         return element;
     }
@@ -1388,7 +1388,7 @@ public class Element extends ContainerNode {
     public static Element text(QName qname, String content) throws DomTripException {
         Element element = of(qname);
         if (content != null && !content.isEmpty()) {
-            element.addNode(new Text(content));
+            element.addChild(new Text(content));
         }
         return element;
     }

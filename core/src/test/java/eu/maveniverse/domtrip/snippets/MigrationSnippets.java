@@ -305,9 +305,9 @@ public class MigrationSnippets extends BaseSnippetTest {
 
         // DomTrip (manual construction)
         Element dependency = Element.of("dependency");
-        dependency.addNode(Element.text("groupId", "junit"));
-        dependency.addNode(Element.text("artifactId", "junit"));
-        dependency.addNode(Element.text("version", "4.13.2"));
+        dependency.addChild(Element.text("groupId", "junit"));
+        dependency.addChild(Element.text("artifactId", "junit"));
+        dependency.addChild(Element.text("version", "4.13.2"));
 
         String xml = dependency.toXml();
         // END: jackson-xml-object-mapping

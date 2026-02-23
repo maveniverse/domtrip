@@ -38,9 +38,9 @@ public class ElementApiSnippets {
 
         // Chain multiple operations
         Element project = Element.of("project").attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
-        project.addNode(Element.of("groupId").textContent("com.example"));
-        project.addNode(Element.of("artifactId").textContent("my-app"));
-        project.addNode(Element.of("version").textContent("1.0.0"));
+        project.addChild(Element.of("groupId").textContent("com.example"));
+        project.addChild(Element.of("artifactId").textContent("my-app"));
+        project.addChild(Element.of("version").textContent("1.0.0"));
         // END: element-builder
 
         Assertions.assertEquals("test", dependency.attribute("scope"));
@@ -305,16 +305,16 @@ public class ElementApiSnippets {
 
         // Add child element
         Element dependency = Element.of("dependency");
-        parent.addNode(dependency);
+        parent.addChild(dependency);
 
         // Add multiple children
-        dependency.addNode(Element.of("groupId").textContent("junit"));
-        dependency.addNode(Element.of("artifactId").textContent("junit"));
-        dependency.addNode(Element.of("version").textContent("4.13.2"));
+        dependency.addChild(Element.of("groupId").textContent("junit"));
+        dependency.addChild(Element.of("artifactId").textContent("junit"));
+        dependency.addChild(Element.of("version").textContent("4.13.2"));
 
         // Add child with text
         Element scope = Element.of("scope").textContent("test");
-        dependency.addNode(scope);
+        dependency.addChild(scope);
         // END: adding-children
 
         Assertions.assertEquals(1, parent.childElements().count());
@@ -335,16 +335,16 @@ public class ElementApiSnippets {
         // snippet:removing-elements
         // Find and remove specific element
         Optional<Element> toRemove = project.childElement("dependency");
-        toRemove.ifPresent(element -> project.removeNode(element));
+        toRemove.ifPresent(element -> project.removeChild(element));
 
         // Remove all elements with specific name (collect to list first to avoid ConcurrentModificationException)
-        project.childElements("dependency").toList().forEach(project::removeNode);
+        project.childElements("dependency").toList().forEach(project::removeChild);
 
         // Remove by condition (collect to list first to avoid ConcurrentModificationException)
         project.childElements()
                 .filter(child -> "deprecated".equals(child.attribute("status")))
                 .toList()
-                .forEach(project::removeNode);
+                .forEach(project::removeChild);
         // end-snippet:removing-elements
 
         Assertions.assertEquals(1, project.childElements().count());
@@ -356,8 +356,8 @@ public class ElementApiSnippets {
     public void demonstrateElementCloning() throws DomTripException {
         // START: element-cloning
         Element original = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
-        original.addNode(Element.of("groupId").textContent("junit"));
-        original.addNode(Element.of("artifactId").textContent("junit"));
+        original.addChild(Element.of("groupId").textContent("junit"));
+        original.addChild(Element.of("artifactId").textContent("junit"));
 
         // Clone the element (deep copy)
         Element clone = original.clone();

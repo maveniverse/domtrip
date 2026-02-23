@@ -114,7 +114,7 @@ public class ProcessingInstructionTest {
 
         // Check that processing instructions are preserved in document
         boolean foundStylesheet = false;
-        for (Node child : doc.nodes) {
+        for (Node child : doc.children) {
             if (child instanceof ProcessingInstruction) {
                 ProcessingInstruction pi = (ProcessingInstruction) child;
                 if (pi.originalContent().contains("xml-stylesheet")) {
@@ -136,7 +136,7 @@ public class ProcessingInstructionTest {
         Editor editor = new Editor(doc);
 
         // Find and modify the processing instruction
-        for (Node child : doc.nodes) {
+        for (Node child : doc.children) {
             if (child instanceof ProcessingInstruction) {
                 ProcessingInstruction pi = (ProcessingInstruction) child;
                 if (pi.originalContent().contains("custom-pi")) {

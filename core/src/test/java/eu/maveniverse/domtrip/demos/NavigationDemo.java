@@ -201,7 +201,7 @@ public class NavigationDemo {
 
             // Check if parent has multiple children
             if (parent != null) {
-                System.out.println("  Parent has child elements: " + parent.hasNodeElements());
+                System.out.println("  Parent has child elements: " + parent.hasChildElements());
                 System.out.println("  Parent has text content: " + parent.hasTextContent());
                 System.out.println("  Number of sibling elements: "
                         + (parent.childElements().count() - 1)); // Subtract self
@@ -307,7 +307,7 @@ public class NavigationDemo {
 
         System.out.println(indent + element.name() + attrs);
 
-        if (element.hasTextContent() && !element.hasNodeElements()) {
+        if (element.hasTextContent() && !element.hasChildElements()) {
             System.out.println(indent + "  \"" + element.textContent().trim() + "\"");
         }
 

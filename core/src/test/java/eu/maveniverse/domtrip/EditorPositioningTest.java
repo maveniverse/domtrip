@@ -31,8 +31,8 @@ class EditorPositioningTest {
 
         // Find the position after the "first" element
         int insertPosition = -1;
-        for (int i = 0; i < root.nodeCount(); i++) {
-            Node node = root.node(i);
+        for (int i = 0; i < root.childCount(); i++) {
+            Node node = root.child(i);
             if (node instanceof Element element && "first".equals(element.name())) {
                 insertPosition = i + 1;
                 break;
@@ -206,7 +206,7 @@ class EditorPositioningTest {
 
         // Test index too large
         assertThrows(DomTripException.class, () -> {
-            editor.insertElementAt(root, root.nodeCount() + 1, "invalid");
+            editor.insertElementAt(root, root.childCount() + 1, "invalid");
         });
     }
 
@@ -289,7 +289,7 @@ class EditorPositioningTest {
         editor = new Editor(doc);
         Element root = doc.root();
 
-        Element third = editor.insertElementAt(root, root.nodeCount(), "third", "content3");
+        Element third = editor.insertElementAt(root, root.childCount(), "third", "content3");
 
         assertNotNull(third);
         assertEquals("third", third.name());

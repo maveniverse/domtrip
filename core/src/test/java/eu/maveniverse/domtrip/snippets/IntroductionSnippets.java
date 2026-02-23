@@ -48,7 +48,7 @@ public class IntroductionSnippets extends BaseSnippetTest {
         // START: modern-java-api
         // Fluent builders and Stream-based navigation
         Element element = Element.of("dependency").attribute("scope", "test");
-        element.addNode(Element.text("groupId", "junit"));
+        element.addChild(Element.text("groupId", "junit"));
 
         String xml = createTestXml("root");
         Document doc = Document.of(xml);

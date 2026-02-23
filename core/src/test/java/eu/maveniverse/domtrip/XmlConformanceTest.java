@@ -198,7 +198,7 @@ public class XmlConformanceTest {
         Element root = editor.root();
 
         // Should have multiple children: text, element, text, element, text
-        assertTrue(root.nodeCount() >= 5);
+        assertTrue(root.childCount() >= 5);
 
         String result = editor.toXml();
         assertTrue(result.contains("Text before <element>"));

@@ -159,7 +159,7 @@ public class DocumentTest {
     void testDocumentToXml() throws DomTripException {
         document.xmlDeclaration("<?xml version=\"1.0\"?>");
         Element root = new Element("root");
-        root.addNode(new Text("content"));
+        root.addChild(new Text("content"));
         document.root(root);
 
         String xml = document.toXml();

@@ -49,9 +49,9 @@ public class ContainerNodeTest {
         parent.addNode(text);
 
         assertEquals(3, parent.nodeCount());
-        assertEquals(child1, parent.getNode(0));
-        assertEquals(child2, parent.getNode(1));
-        assertEquals(text, parent.getNode(2));
+        assertEquals(child1, parent.node(0));
+        assertEquals(child2, parent.node(1));
+        assertEquals(text, parent.node(2));
 
         // Test removing children
         assertTrue(parent.removeNode(child2));

@@ -110,8 +110,14 @@ public abstract class ContainerNode extends Node {
      * @return the child node at the specified index
      * @throws IndexOutOfBoundsException if the index is out of range ({@code index < 0 || index >= nodeCount()})
      */
-    public Node getNode(int index) {
+    public Node node(int index) {
         return nodes.get(index);
+    }
+
+    /** @deprecated Use {@link #node(int)} instead. */
+    @Deprecated
+    public Node getNode(int index) {
+        return node(index);
     }
 
     /**

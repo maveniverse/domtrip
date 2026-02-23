@@ -186,7 +186,7 @@ public class SerializerTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element element = (Element) root.getNode(0);
+        Element element = (Element) root.node(0);
 
         // Modify the element
         element.attribute("attr", "modified");

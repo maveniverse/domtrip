@@ -159,7 +159,7 @@ public class ErrorHandlingTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element child = (Element) root.getNode(0);
+        Element child = (Element) root.node(0);
 
         // Remove the child
         editor.removeElement(child);

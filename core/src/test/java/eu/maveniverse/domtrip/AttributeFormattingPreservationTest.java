@@ -75,8 +75,8 @@ public class AttributeFormattingPreservationTest {
         // Verify whitespace is preserved but quotes are changed
         assertEquals(originalWhitespace1, root.attributeObject("attr1").precedingWhitespace());
         assertEquals(originalWhitespace2, root.attributeObject("attr2").precedingWhitespace());
-        assertEquals('"', root.attributeObject("attr1").quoteStyle().getCharacter());
-        assertEquals('\'', root.attributeObject("attr2").quoteStyle().getCharacter());
+        assertEquals('"', root.attributeObject("attr1").quoteStyle().character());
+        assertEquals('\'', root.attributeObject("attr2").quoteStyle().character());
     }
 
     @Test
@@ -95,9 +95,9 @@ public class AttributeFormattingPreservationTest {
         Attribute new1 = root.attributeObject("new1");
         Attribute new2 = root.attributeObject("new2");
 
-        assertEquals('"', new1.quoteStyle().getCharacter(), "New attribute should use default double quotes");
+        assertEquals('"', new1.quoteStyle().character(), "New attribute should use default double quotes");
         assertEquals(" ", new1.precedingWhitespace(), "New attribute should use default whitespace");
-        assertEquals('\'', new2.quoteStyle().getCharacter(), "New attribute should use specified quote char");
+        assertEquals('\'', new2.quoteStyle().character(), "New attribute should use specified quote char");
         assertEquals(" ", new2.precedingWhitespace(), "New attribute should use default whitespace");
     }
 
@@ -136,9 +136,9 @@ public class AttributeFormattingPreservationTest {
         String ws1 = element.attributeObject("attr1").precedingWhitespace();
         String ws2 = element.attributeObject("attr2").precedingWhitespace();
         String ws3 = element.attributeObject("attr3").precedingWhitespace();
-        char q1 = element.attributeObject("attr1").quoteStyle().getCharacter();
-        char q2 = element.attributeObject("attr2").quoteStyle().getCharacter();
-        char q3 = element.attributeObject("attr3").quoteStyle().getCharacter();
+        char q1 = element.attributeObject("attr1").quoteStyle().character();
+        char q2 = element.attributeObject("attr2").quoteStyle().character();
+        char q3 = element.attributeObject("attr3").quoteStyle().character();
 
         // Update all attributes
         element.attribute("attr1", "updated1");
@@ -149,9 +149,9 @@ public class AttributeFormattingPreservationTest {
         assertEquals(ws1, element.attributeObject("attr1").precedingWhitespace());
         assertEquals(ws2, element.attributeObject("attr2").precedingWhitespace());
         assertEquals(ws3, element.attributeObject("attr3").precedingWhitespace());
-        assertEquals(q1, element.attributeObject("attr1").quoteStyle().getCharacter());
-        assertEquals(q2, element.attributeObject("attr2").quoteStyle().getCharacter());
-        assertEquals(q3, element.attributeObject("attr3").quoteStyle().getCharacter());
+        assertEquals(q1, element.attributeObject("attr1").quoteStyle().character());
+        assertEquals(q2, element.attributeObject("attr2").quoteStyle().character());
+        assertEquals(q3, element.attributeObject("attr3").quoteStyle().character());
     }
 
     @Test
@@ -338,7 +338,7 @@ public class AttributeFormattingPreservationTest {
         assertNotNull(attr3, "attr3 should exist");
 
         // Should infer double quotes from existing attributes
-        assertEquals('"', attr3.quoteStyle().getCharacter(), "Should infer double quotes from existing attributes");
+        assertEquals('"', attr3.quoteStyle().character(), "Should infer double quotes from existing attributes");
 
         // Should infer multi-line alignment pattern
         String attr3Whitespace = attr3.precedingWhitespace();

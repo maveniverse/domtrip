@@ -30,7 +30,7 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element child = (Element) root.getNode(0);
+        Element child = (Element) root.node(0);
 
         child.name("newName");
 
@@ -145,8 +145,8 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element empty = (Element) root.getNode(0);
-        Element normal = (Element) root.getNode(1);
+        Element empty = (Element) root.node(0);
+        Element normal = (Element) root.node(1);
 
         assertTrue(empty.selfClosing());
         assertFalse(normal.selfClosing());
@@ -159,7 +159,7 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element empty = (Element) root.getNode(0);
+        Element empty = (Element) root.node(0);
 
         // Add content to self-closing element
         empty.textContent("now has content");
@@ -176,7 +176,7 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element element = (Element) root.getNode(0);
+        Element element = (Element) root.node(0);
 
         // Remove all content
         element.textContent("");
@@ -238,7 +238,7 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        Node firstChild = root.getNode(0);
+        Node firstChild = root.node(0);
         assertTrue(firstChild instanceof Element);
         assertEquals("first", ((Element) firstChild).name());
     }
@@ -251,7 +251,7 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
         // Out-of-bounds index should throw IndexOutOfBoundsException
-        assertThrows(IndexOutOfBoundsException.class, () -> root.getNode(10));
+        assertThrows(IndexOutOfBoundsException.class, () -> root.node(10));
     }
 
     @Test
@@ -295,7 +295,7 @@ public class ElementAdvancedTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
         Element root = editor.root();
-        Element toRemove = (Element) root.getNode(1);
+        Element toRemove = (Element) root.node(1);
 
         root.removeNode(toRemove);
 
@@ -313,7 +313,7 @@ public class ElementAdvancedTest {
         Editor editor = new Editor(doc);
         Element root = editor.root();
 
-        Node secondChild = root.getNode(1); // Get second child
+        Node secondChild = root.node(1); // Get second child
         root.removeNode(secondChild); // Remove it
 
         String result = editor.toXml();
@@ -332,7 +332,7 @@ public class ElementAdvancedTest {
 
         // Remove all children manually since clearChildren() doesn't exist
         while (root.nodeCount() > 0) {
-            root.removeNode(root.getNode(0));
+            root.removeNode(root.node(0));
         }
 
         assertEquals(0, root.nodeCount());

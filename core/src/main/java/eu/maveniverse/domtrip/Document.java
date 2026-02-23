@@ -128,6 +128,16 @@ public class Document extends ContainerNode {
         // Note: parent is intentionally not copied - clone has no parent
         // Note: modified flag is not copied - clone starts as unmodified
     }
+    /**
+     * {@inheritDoc}
+     *
+     * @return this document for method chaining
+     */
+    @Override
+    public Document parent(ContainerNode parent) {
+        this.parent = parent;
+        return this;
+    }
 
     /**
      * Returns the node type for this document.

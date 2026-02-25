@@ -43,9 +43,8 @@ dependencies {
 ## Requirements
 
 ### Java Version
-- **Java 17 or higher** is required
-- The library is built and tested with Java 17+
-- Uses modern Java features like records, pattern matching, and enhanced switch expressions
+- **Java 8 or higher** is required
+- The library targets Java 8 at runtime and is tested with Java 21
 
 ### Maven Version Compatibility
 The Maven extension works with POM files from:
@@ -120,7 +119,7 @@ org.maveniverse.domtrip.maven
 ### ClassNotFoundException
 If you get a `ClassNotFoundException` for Maven extension classes:
 
-1. **Check Java version**: Ensure you're using Java 17+
+1. **Check Java version**: Ensure you're using Java 8+
 2. **Verify dependency**: Make sure the Maven extension is in your classpath
 3. **Clean build**: Run `mvn clean compile` or `gradle clean build`
 

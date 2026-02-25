@@ -131,7 +131,7 @@ Great for analyzing and modifying POMs:
 
 ## Requirements
 
-- **Java 17+** - Built for modern Java
+- **Java 8+** - Compatible with a wide range of Java versions
 - **Maven 3.6+** - Compatible with current Maven versions
 - **domtrip-core** - Automatically included as dependency
 

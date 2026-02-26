@@ -20,7 +20,7 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 | **Numeric Char Refs** | ✅ Perfect | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Attribute Quote Style** | ✅ Preserved | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Attribute Order** | ✅ Preserved | ❌ Lost | ❌ Lost | ❌ Lost | ❌ No |
-| **Modern Java API** | ✅ Java 17+ | ❌ Legacy | ❌ Legacy | ❌ Legacy | ✅ Modern |
+| **Modern Java API** | ✅ Java 8+ | ❌ Legacy | ❌ Legacy | ❌ Legacy | ✅ Modern |
 | **Fluent Builders** | ✅ Full | ❌ No | ❌ No | ❌ No | ⚠️ Limited |
 | **Stream Navigation** | ✅ Native | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Namespace Support** | ✅ Comprehensive | ✅ Good | ✅ Good | ✅ Good | ⚠️ Basic |
@@ -67,7 +67,7 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 **DomTrip Advantages:**
 - **Much simpler API** - No verbose factory patterns or checked exceptions
 - **Perfect preservation** - Java DOM loses many formatting details
-- **Modern design** - Built for Java 17+ with contemporary patterns
+- **Modern design** - Built for Java 8+ with contemporary patterns
 - **Better error handling** - Specific exception types, clear error messages
 
 **Java DOM Advantages:**

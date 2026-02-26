@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -141,7 +142,7 @@ public class Element extends ContainerNode {
         this.precedingWhitespace = original.precedingWhitespace;
 
         // Deep copy children directly to avoid addNode() side effects
-        for (Node child : original.nodes().toList()) {
+        for (Node child : original.nodes().collect(Collectors.toList())) {
             Node clonedChild = child.clone();
             clonedChild.parent(this); // Set parent directly
             this.nodes.add(clonedChild); // Add directly to list

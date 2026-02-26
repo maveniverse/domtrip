@@ -10,7 +10,7 @@ Get started with DomTrip in your Java project using your preferred build tool.
 
 ## Requirements
 
-- **Java 17** or higher
+- **Java 8** or higher
 - **Maven 3.6+** or **Gradle 7.0+** (for build tools)
 
 ## Maven
@@ -165,15 +165,12 @@ Now that DomTrip is installed, choose your path:
 
 **"Package eu.maveniverse.domtrip does not exist"**
 - Verify the dependency is correctly added to your build file
-- Check that you're using Java 17 or higher
+- Check that you're using Java 8 or higher
 - Refresh/reload your project dependencies
 
 **"ClassNotFoundException: eu.maveniverse.domtrip.Editor"**
 - Ensure the JAR is in your classpath
 - For snapshot versions, verify the snapshot repository is configured
-
-**Build fails with "unsupported class file version"**
-- DomTrip requires Java 17+. Update your Java version or use a compatible library version
 
 ### Getting Help
 

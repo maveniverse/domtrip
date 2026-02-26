@@ -132,14 +132,14 @@ public class NavigationDemo {
 
         // Find all books using streams
         List<Element> allBooks =
-                root.descendants().filter(el -> "book".equals(el.name())).collect(Collectors.toList());
+                root.descendants().filter(el -> "book".equals(el.name())).toList();
 
         System.out.println("Total books in library: " + allBooks.size());
 
         // Find available books
         List<Element> availableBooks = allBooks.stream()
                 .filter(book -> "true".equals(book.attribute("available")))
-                .collect(Collectors.toList());
+                .toList();
 
         System.out.println("Available books:");
         availableBooks.forEach(book -> {
@@ -156,7 +156,7 @@ public class NavigationDemo {
                 .map(element1 -> element1.textContent())
                 .distinct()
                 .sorted()
-                .collect(Collectors.toList());
+                .toList();
 
         System.out.println("All authors: " + String.join(", ", authors));
 
@@ -286,7 +286,7 @@ public class NavigationDemo {
                         .map(lib -> lib.child("name")
                                 .map(element -> element.textContent())
                                 .orElse("Unknown"))
-                        .collect(Collectors.toList()))
+                        .toList())
                 .orElse(List.of())
                 .forEach(name -> System.out.println("  - " + name));
 

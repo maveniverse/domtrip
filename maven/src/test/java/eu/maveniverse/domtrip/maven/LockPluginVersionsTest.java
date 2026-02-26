@@ -13,8 +13,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Element;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -343,7 +344,7 @@ class LockPluginVersionsTest {
 
         // Write to file for examination
         try {
-            Files.writeString(Path.of("target/simple-test-output.xml"), result);
+            Files.write(Paths.get("target/simple-test-output.xml"), result.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             // ignore
         }

@@ -5,3 +5,7 @@ target
 # Generated Javadocs (generated during build, not committed)
 website/public/javadoc/
 
+# Eclipse
+.project
+.classpath
+.settings/

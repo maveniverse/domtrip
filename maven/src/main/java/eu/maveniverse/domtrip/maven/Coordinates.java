@@ -55,17 +55,20 @@ import java.util.function.Predicate;
  * @param type the dependency/artifact type/extension (defaults to "jar" if null)
  * @since 0.3.0
  */
-public record Coordinates(String groupId, String artifactId, String version, String classifier, String type) {
+public final class Coordinates {
+    private final String groupId;
+    private final String artifactId;
+    private final String version;
+    private final String classifier;
+    private final String type;
 
     /**
-     * Compact constructor with validation.
-     *
      * <p>Note: groupId and version can be null to support Maven 4's inference mechanism.
      * Only artifactId is strictly required.</p>
      *
      * @throws DomTripException if requirements are not fulfilled.
      */
-    public Coordinates {
+    public Coordinates(String groupId, String artifactId, String version, String classifier, String type) {
         requireNonNull(artifactId, "artifactId cannot be null");
         if (artifactId.trim().isEmpty()) {
             throw new DomTripException("artifactId cannot be empty");
@@ -86,6 +89,11 @@ public record Coordinates(String groupId, String artifactId, String version, Str
         if (classifier != null && classifier.trim().isEmpty()) {
             classifier = null;
         }
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
+        this.classifier = classifier;
+        this.type = type;
     }
 
     /**
@@ -296,5 +304,50 @@ public record Coordinates(String groupId, String artifactId, String version, Str
         }
 
         return Coordinates.of(groupId, artifactId, version, null, "pom");
+    }
+
+    /**
+     * Returns the Maven groupId.
+     *
+     * @return the groupId, or {@code null} if not specified (Maven 4 inference)
+     */
+    public String groupId() {
+        return groupId;
+    }
+
+    /**
+     * Returns the Maven artifactId.
+     *
+     * @return the artifactId (never {@code null})
+     */
+    public String artifactId() {
+        return artifactId;
+    }
+
+    /**
+     * Returns the artifact version.
+     *
+     * @return the version, or {@code null} if not specified
+     */
+    public String version() {
+        return version;
+    }
+
+    /**
+     * Returns the artifact classifier.
+     *
+     * @return the classifier, or {@code null} if not specified
+     */
+    public String classifier() {
+        return classifier;
+    }
+
+    /**
+     * Returns the dependency/artifact type (e.g., "jar", "pom").
+     *
+     * @return the type (defaults to "jar", never {@code null})
+     */
+    public String type() {
+        return type;
     }
 }

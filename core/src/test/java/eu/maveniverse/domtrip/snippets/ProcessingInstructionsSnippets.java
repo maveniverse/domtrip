@@ -6,7 +6,6 @@ import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.ProcessingInstruction;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -68,7 +67,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
         List<ProcessingInstruction> pis = doc.nodes()
                 .filter(node -> node instanceof ProcessingInstruction)
                 .map(node -> (ProcessingInstruction) node)
-                .collect(Collectors.toList());
+                .toList();
 
         // Find specific PI by target
         Optional<ProcessingInstruction> stylesheet = doc.nodes()

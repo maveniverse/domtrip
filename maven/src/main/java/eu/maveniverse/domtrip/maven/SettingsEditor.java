@@ -283,13 +283,19 @@ public class SettingsEditor extends AbstractMavenEditor {
     @Override
     protected List<String> getOrderListForParent(Element parent) {
         String parentName = parent.name();
-        return switch (parentName) {
-            case SETTINGS -> SETTINGS_ELEMENT_ORDER;
-            case PROFILE -> PROFILE_ELEMENT_ORDER;
-            case SERVER -> SERVER_ELEMENT_ORDER;
-            case MIRROR -> MIRROR_ELEMENT_ORDER;
-            case PROXY -> PROXY_ELEMENT_ORDER;
-            default -> null;
-        };
+        switch (parentName) {
+            case SETTINGS:
+                return SETTINGS_ELEMENT_ORDER;
+            case PROFILE:
+                return PROFILE_ELEMENT_ORDER;
+            case SERVER:
+                return SERVER_ELEMENT_ORDER;
+            case MIRROR:
+                return MIRROR_ELEMENT_ORDER;
+            case PROXY:
+                return PROXY_ELEMENT_ORDER;
+            default:
+                return null;
+        }
     }
 }

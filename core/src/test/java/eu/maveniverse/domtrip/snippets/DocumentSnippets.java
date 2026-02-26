@@ -11,7 +11,6 @@ import eu.maveniverse.domtrip.ProcessingInstruction;
 import eu.maveniverse.domtrip.QName;
 import eu.maveniverse.domtrip.Serializer;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -181,13 +180,13 @@ public class DocumentSnippets extends BaseSnippetTest {
         List<Comment> comments = doc.nodes()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
-                .collect(Collectors.toList());
+                .toList();
 
         // Find processing instructions
         List<ProcessingInstruction> pis = doc.nodes()
                 .filter(node -> node instanceof ProcessingInstruction)
                 .map(node -> (ProcessingInstruction) node)
-                .collect(Collectors.toList());
+                .toList();
         // END: document-traversal
 
         Assertions.assertTrue(allNodes.count() > 0);

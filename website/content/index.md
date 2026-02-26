@@ -47,7 +47,7 @@ layout: index
        <div class="feature-icon">☕</div>
        <h3 class="feature-title">Modern Java API</h3>
        <p class="feature-description">
-           Built for Java 17+ with fluent builders, Stream-based navigation, comprehensive
+           Built for Java 8+ with fluent builders, Stream-based navigation, comprehensive
            namespace support, and type-safe configuration. Clean, intuitive API that feels natural.
        </p>
    </div>

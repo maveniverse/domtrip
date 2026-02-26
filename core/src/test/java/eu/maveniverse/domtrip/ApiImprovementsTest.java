@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -105,7 +104,7 @@ public class ApiImprovementsTest {
         assertFalse(notFound.isPresent());
 
         // Test Stream return types
-        List<Element> allChildren = doc.root().descendants("child1").collect(Collectors.toList());
+        List<Element> allChildren = doc.root().descendants("child1").toList();
         assertEquals(1, allChildren.size());
         assertEquals("child1", allChildren.get(0).name());
     }
@@ -206,10 +205,10 @@ public class ApiImprovementsTest {
         assertTrue(firstChild.isPresent());
         assertEquals("content1", firstChild.orElseThrow().textContent());
 
-        List<Element> allChildren = root.children("child").collect(Collectors.toList());
+        List<Element> allChildren = root.children("child").toList();
         assertEquals(2, allChildren.size());
 
-        List<Element> allChildElements = root.children().collect(Collectors.toList());
+        List<Element> allChildElements = root.children().toList();
         assertEquals(3, allChildElements.size());
 
         // Test descendant navigation

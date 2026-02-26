@@ -48,11 +48,6 @@ import java.util.function.Predicate;
  * String full = jar.toFullString(); // "org.junit.jupiter:junit-jupiter:jar:5.9.2"
  * }</pre>
  *
- * @param groupId the Maven groupId (can be null for Maven 4 inference)
- * @param artifactId the Maven artifactId (required)
- * @param version the artifact version (can be null for dependency management or Maven 4 inference)
- * @param classifier the artifact classifier (can be null)
- * @param type the dependency/artifact type/extension (defaults to "jar" if null)
  * @since 0.3.0
  */
 public final class Coordinates {

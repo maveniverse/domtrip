@@ -306,22 +306,47 @@ public final class Coordinates {
         return Coordinates.of(groupId, artifactId, version, null, "pom");
     }
 
+    /**
+     * Returns the Maven groupId.
+     *
+     * @return the groupId, or {@code null} if not specified (Maven 4 inference)
+     */
     public String groupId() {
         return groupId;
     }
 
+    /**
+     * Returns the Maven artifactId.
+     *
+     * @return the artifactId (never {@code null})
+     */
     public String artifactId() {
         return artifactId;
     }
 
+    /**
+     * Returns the artifact version.
+     *
+     * @return the version, or {@code null} if not specified
+     */
     public String version() {
         return version;
     }
 
+    /**
+     * Returns the artifact classifier.
+     *
+     * @return the classifier, or {@code null} if not specified
+     */
     public String classifier() {
         return classifier;
     }
 
+    /**
+     * Returns the dependency/artifact type (e.g., "jar", "pom").
+     *
+     * @return the type (defaults to "jar", never {@code null})
+     */
     public String type() {
         return type;
     }

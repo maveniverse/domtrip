@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write
 
 jobs:
   test:
@@ -29,7 +28,7 @@ jobs:
       run: ./mvnw --no-transfer-progress verify
     
     - name: Test website build
-      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw --no-transfer-progress -f website clean package quarkus:run -DskipTests
+      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw --no-transfer-progress -f website clean package quarkus:run -DskipTests -P include-javadocs
     
     - name: Upload test results
       uses: actions/upload-artifact@v6
@@ -41,31 +40,3 @@ jobs:
           website/target/surefire-reports/
         retention-days: 7
     
-    - name: Comment PR with test results
-      if: github.event_name == 'pull_request' && always()
-      uses: actions/github-script@v8
-      with:
-        script: |
-          // Check if the job succeeded
-          const jobStatus = '${{ job.status }}';
-          const testsPassed = jobStatus === 'success';
-          const emoji = testsPassed ? '✅' : '❌';
-          const status = testsPassed ? 'PASSED' : 'FAILED';
-
-          const comment = `## ${emoji} CI Build ${status}
-
-          **Build Status:** ${status}
-          **Java Version:** 21
-          **Maven Command:** \`./mvnw verify\`
-
-          ${testsPassed ?
-            '🎉 All tests passed! The build is ready for merge.' :
-            '⚠️ Some tests failed. Please check the logs and fix any issues.'}
-          `;
-
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });

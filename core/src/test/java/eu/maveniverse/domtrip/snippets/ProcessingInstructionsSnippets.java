@@ -64,13 +64,13 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
         Document doc = Document.of(xmlWithPIs);
 
         // Find all processing instructions in document (XML declaration is stored separately)
-        List<ProcessingInstruction> pis = doc.nodes()
+        List<ProcessingInstruction> pis = doc.children()
                 .filter(node -> node instanceof ProcessingInstruction)
                 .map(node -> (ProcessingInstruction) node)
                 .toList();
 
         // Find specific PI by target
-        Optional<ProcessingInstruction> stylesheet = doc.nodes()
+        Optional<ProcessingInstruction> stylesheet = doc.children()
                 .filter(node -> node instanceof ProcessingInstruction)
                 .map(node -> (ProcessingInstruction) node)
                 .filter(pi -> "stylesheet".equals(pi.target()))
@@ -133,7 +133,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
         Document doc = Document.of(xml);
 
         // Find stylesheet PI
-        Optional<ProcessingInstruction> stylesheet = doc.nodes()
+        Optional<ProcessingInstruction> stylesheet = doc.children()
                 .filter(node -> node instanceof ProcessingInstruction)
                 .map(node -> (ProcessingInstruction) node)
                 .filter(pi -> "stylesheet".equals(pi.target()))
@@ -158,7 +158,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
                 ProcessingInstruction.of("xml-stylesheet", "type=\"text/xsl\" href=\"transform.xsl\"");
 
         // Insert PI before root element
-        doc.addNode(stylesheet);
+        doc.addChild(stylesheet);
         // END: xml-stylesheet-declaration
 
         String result = editor.toXml();
@@ -199,8 +199,8 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
 
         // Add to document
         Document doc = Document.withRootElement("data");
-        doc.addNode(sortOrder);
-        doc.addNode(cacheHint);
+        doc.addChild(sortOrder);
+        doc.addChild(cacheHint);
         // END: application-specific-instructions
 
         String result = doc.toXml();

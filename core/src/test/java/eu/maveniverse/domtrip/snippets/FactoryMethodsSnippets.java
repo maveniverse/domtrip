@@ -41,19 +41,19 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         // Element with complex structure using fluent API
         Element project = Element.of("project").attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
 
-        project.addNode(Element.text("modelVersion", "4.0.0"));
-        project.addNode(Element.text("groupId", "com.example"));
-        project.addNode(Element.text("artifactId", "my-project"));
-        project.addNode(Element.text("version", "1.0.0"));
+        project.addChild(Element.text("modelVersion", "4.0.0"));
+        project.addChild(Element.text("groupId", "com.example"));
+        project.addChild(Element.text("artifactId", "my-project"));
+        project.addChild(Element.text("version", "1.0.0"));
 
         // Element with CDATA content
         Element script = Element.of("script").attribute("type", "text/javascript");
-        script.addNode(Text.cdata("function test() { return x < y && z > 0; }"));
+        script.addChild(Text.cdata("function test() { return x < y && z > 0; }"));
         // END: advanced-element-creation
 
         Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", project.attribute("xmlns"));
         Assertions.assertEquals(
-                "com.example", project.child("groupId").orElseThrow().textContent());
+                "com.example", project.childElement("groupId").orElseThrow().textContent());
         Assertions.assertTrue(script.textContent().contains("function test()"));
     }
 
@@ -66,7 +66,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
 
         QName soapBody = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap");
         Element body = Element.text(soapBody, "Body content");
-        envelope.addNode(body);
+        envelope.addChild(body);
         // END: namespaced-elements
 
         Assertions.assertEquals("soap:Envelope", envelope.qualifiedName());
@@ -93,7 +93,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         Assertions.assertEquals("1.0", docWithDecl.version());
         Assertions.assertEquals("UTF-8", docWithDecl.encoding());
         Assertions.assertEquals(
-                "value", parsedDoc.root().child("child").orElseThrow().textContent());
+                "value", parsedDoc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -137,11 +137,11 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         editor.add().comment().to(root).withContent(" Configuration section ").build();
         // END: fluent-element-addition
 
-        Element dependency = root.child("dependency").orElseThrow();
+        Element dependency = root.childElement("dependency").orElseThrow();
         Assertions.assertEquals("test", dependency.attribute("scope"));
         Assertions.assertEquals("junit", dependency.textContent());
 
-        Comment comment = root.nodes()
+        Comment comment = root.children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()
@@ -175,29 +175,30 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         // START: complex-structure-creation
         // Create a complete Maven dependency structure
         Element dependency = Element.of("dependency");
-        dependency.addNode(Element.text("groupId", "junit"));
-        dependency.addNode(Element.text("artifactId", "junit"));
-        dependency.addNode(Element.text("version", "4.13.2"));
-        dependency.addNode(Element.text("scope", "test"));
+        dependency.addChild(Element.text("groupId", "junit"));
+        dependency.addChild(Element.text("artifactId", "junit"));
+        dependency.addChild(Element.text("version", "4.13.2"));
+        dependency.addChild(Element.text("scope", "test"));
 
         // Create dependencies container
         Element dependencies = Element.of("dependencies");
-        dependencies.addNode(dependency);
+        dependencies.addChild(dependency);
 
         // Create complete project
         Element project = Element.of("project").attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
-        project.addNode(Element.text("modelVersion", "4.0.0"));
-        project.addNode(Element.text("groupId", "com.example"));
-        project.addNode(Element.text("artifactId", "my-app"));
-        project.addNode(dependencies);
+        project.addChild(Element.text("modelVersion", "4.0.0"));
+        project.addChild(Element.text("groupId", "com.example"));
+        project.addChild(Element.text("artifactId", "my-app"));
+        project.addChild(dependencies);
         // END: complex-structure-creation
 
         Assertions.assertEquals(
-                "junit", dependency.child("groupId").orElseThrow().textContent());
-        Assertions.assertEquals("test", dependency.child("scope").orElseThrow().textContent());
+                "junit", dependency.childElement("groupId").orElseThrow().textContent());
         Assertions.assertEquals(
-                "my-app", project.child("artifactId").orElseThrow().textContent());
-        Assertions.assertTrue(project.child("dependencies").isPresent());
+                "test", dependency.childElement("scope").orElseThrow().textContent());
+        Assertions.assertEquals(
+                "my-app", project.childElement("artifactId").orElseThrow().textContent());
+        Assertions.assertTrue(project.childElement("dependencies").isPresent());
     }
 
     @Test
@@ -211,8 +212,8 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         // ✅ Good - readable fluent chain
         Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
 
-        dependency.addNode(Element.text("groupId", "junit"));
-        dependency.addNode(Element.text("artifactId", "junit"));
+        dependency.addChild(Element.text("groupId", "junit"));
+        dependency.addChild(Element.text("artifactId", "junit"));
 
         // ✅ Good - use appropriate factory methods
         Document withDecl = Document.withXmlDeclaration("1.0", "UTF-8");
@@ -235,14 +236,15 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
 
         // Use in document
         Element dependencies = Element.of("dependencies");
-        dependencies.addNode(junitDep);
-        dependencies.addNode(mockitoDep);
+        dependencies.addChild(junitDep);
+        dependencies.addChild(mockitoDep);
         // END: reusable-factory-methods
 
-        Assertions.assertEquals("junit", junitDep.child("groupId").orElseThrow().textContent());
         Assertions.assertEquals(
-                "org.mockito", mockitoDep.child("groupId").orElseThrow().textContent());
-        Assertions.assertEquals(2, dependencies.children().count());
+                "junit", junitDep.childElement("groupId").orElseThrow().textContent());
+        Assertions.assertEquals(
+                "org.mockito", mockitoDep.childElement("groupId").orElseThrow().textContent());
+        Assertions.assertEquals(2, dependencies.childElements().count());
     }
 
     // Helper method for the reusable factory methods example
@@ -291,7 +293,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         // START: advanced-document-creation
         // Document with processing instructions
         Document doc = Document.withXmlDeclaration("1.0", "UTF-8");
-        doc.addNode(ProcessingInstruction.of("xml-stylesheet", "type=\"text/xsl\" href=\"style.xsl\""));
+        doc.addChild(ProcessingInstruction.of("xml-stylesheet", "type=\"text/xsl\" href=\"style.xsl\""));
         doc.root(Element.of("project"));
         // END: advanced-document-creation
 
@@ -358,8 +360,8 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
         // ✅ Good - readable fluent chain
         Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
 
-        dependency.addNode(Element.text("groupId", "junit"));
-        dependency.addNode(Element.text("artifactId", "junit"));
+        dependency.addChild(Element.text("groupId", "junit"));
+        dependency.addChild(Element.text("artifactId", "junit"));
         // END: fluent-chaining
 
         Assertions.assertEquals("test", dependency.attribute("scope"));
@@ -382,9 +384,9 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
 
     private Element createDependency(String groupId, String artifactId, String version) throws DomTripException {
         Element dependency = Element.of("dependency");
-        dependency.addNode(Element.text("groupId", groupId));
-        dependency.addNode(Element.text("artifactId", artifactId));
-        dependency.addNode(Element.text("version", version));
+        dependency.addChild(Element.text("groupId", groupId));
+        dependency.addChild(Element.text("artifactId", artifactId));
+        dependency.addChild(Element.text("version", version));
         return dependency;
     }
 }

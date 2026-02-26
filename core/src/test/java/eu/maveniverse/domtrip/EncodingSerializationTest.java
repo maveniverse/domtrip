@@ -110,7 +110,7 @@ public class EncodingSerializationTest {
         assertEquals("root", parsedDoc.root().name());
         assertEquals(
                 "Special chars: àáâãäå",
-                parsedDoc.root().child("child").orElseThrow().textContent());
+                parsedDoc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test
@@ -298,7 +298,9 @@ public class EncodingSerializationTest {
         assertEquals("1.0", doc.version());
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
-        assertEquals("Charset parsing", doc.root().child("child").orElseThrow().textContent());
+        assertEquals(
+                "Charset parsing",
+                doc.root().childElement("child").orElseThrow().textContent());
     }
 
     @Test

@@ -97,7 +97,7 @@ class FragmentParsingTest {
         // Verify that Document.of(xml).nodes().toList() gives the same result
         String fragment = "<!-- comment -->\n<foo>bar</foo>\n<bar>baz</bar>";
         List<Node> fromFragment = Document.parseFragment(fragment);
-        List<Node> fromDocument = Document.of(fragment).nodes().toList();
+        List<Node> fromDocument = Document.of(fragment).children().toList();
         assertEquals(fromDocument.size(), fromFragment.size());
         for (int i = 0; i < fromFragment.size(); i++) {
             assertEquals(fromDocument.get(i).toXml(), fromFragment.get(i).toXml());

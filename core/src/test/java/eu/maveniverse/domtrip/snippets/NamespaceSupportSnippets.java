@@ -54,7 +54,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
 
-        Element schemaLocation = doc.root().child("xsi:schemaLocation").orElseThrow();
+        Element schemaLocation = doc.root().childElement("xsi:schemaLocation").orElseThrow();
 
         // Access prefixed element information
         String namespace = schemaLocation.namespaceURI(); // "http://www.w3.org/2001/XMLSchema-instance"
@@ -165,8 +165,8 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
         Element root = doc.root();
 
         // Find elements by qualified name (prefix:localName)
-        Element metadata = root.child("custom:metadata").orElseThrow();
-        Element author = metadata.child("custom:author").orElseThrow();
+        Element metadata = root.childElement("custom:metadata").orElseThrow();
+        Element author = metadata.childElement("custom:author").orElseThrow();
 
         String authorName = author.textContent(); // "John Doe"
         // END: namespace-aware-navigation
@@ -192,9 +192,9 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
 
-        Element dependencies = doc.root().child("dependencies").orElseThrow();
-        Element dependency = dependencies.child("dependency").orElseThrow();
-        Element groupId = dependency.child("groupId").orElseThrow();
+        Element dependencies = doc.root().childElement("dependencies").orElseThrow();
+        Element dependency = dependencies.childElement("dependency").orElseThrow();
+        Element groupId = dependency.childElement("groupId").orElseThrow();
 
         // All inherit the default namespace
         Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", dependencies.namespaceURI());
@@ -242,16 +242,16 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
         // Add body with same namespace
         QName soapBody = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Body", "soap");
         Element body = Element.of(soapBody);
-        envelope.addNode(body);
+        envelope.addChild(body);
 
         // Add custom content with different namespace
         Element customElement = Element.of("GetUserInfo").namespaceDeclaration(null, "http://example.com/userservice");
-        body.addNode(customElement);
+        body.addChild(customElement);
 
         // Create document and editor
         Document doc = new Document();
         doc.root(envelope);
-        doc.addNode(envelope);
+        doc.addChild(envelope);
         Editor editor = new Editor(doc);
 
         String result = editor.toXml();
@@ -280,7 +280,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
                 .count();
 
         // Find with qualified name
-        Element modelVersion = project.child("modelVersion").orElseThrow();
+        Element modelVersion = project.childElement("modelVersion").orElseThrow();
         // END: finding-elements-by-namespace
 
         Assertions.assertEquals("com.example", groupId.textContent());
@@ -325,7 +325,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
                 .attribute("id", "123");
 
         // Add to document
-        parent.addNode(customElement);
+        parent.addChild(customElement);
 
         String result = editor.toXml();
         // END: creating-namespaced-elements
@@ -379,12 +379,12 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
         Document doc = Document.of(soapXml);
         Editor editor = new Editor(doc);
 
-        Element soapBody = editor.root().child("soap:Body").orElseThrow();
+        Element soapBody = editor.root().childElement("soap:Body").orElseThrow();
 
         if (soapBody != null) {
             // Process SOAP body content
-            Element request = soapBody.child("GetUserRequest").orElseThrow();
-            Element userId = request.child("userId").orElseThrow();
+            Element request = soapBody.childElement("GetUserRequest").orElseThrow();
+            Element userId = request.childElement("userId").orElseThrow();
 
             Assertions.assertEquals("123", userId.textContent());
         }
@@ -401,7 +401,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
 
-        Element dependencies = editor.root().child("dependencies").orElse(null);
+        Element dependencies = editor.root().childElement("dependencies").orElse(null);
         if (dependencies == null) {
             // Create dependencies section
             dependencies = editor.addElement(editor.root(), "dependencies");

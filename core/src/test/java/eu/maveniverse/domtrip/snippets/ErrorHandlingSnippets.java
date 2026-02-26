@@ -216,7 +216,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             // Fallback: Add as comment
             try {
                 Comment fallback = Comment.of("Failed to add element: " + name + "=" + content);
-                parent.addNode(fallback);
+                parent.addChild(fallback);
             } catch (Exception fallbackError) {
                 System.err.println("Fallback also failed: " + fallbackError.getMessage());
             }
@@ -300,7 +300,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
 
     public String safeGetElementText(Element parent, String childName) {
         try {
-            return parent.child(childName).map(Element::textContent).orElse("");
+            return parent.childElement(childName).map(Element::textContent).orElse("");
         } catch (Exception e) {
             System.err.println("Failed to access child element '" + childName + "': " + e.getMessage());
             return "";

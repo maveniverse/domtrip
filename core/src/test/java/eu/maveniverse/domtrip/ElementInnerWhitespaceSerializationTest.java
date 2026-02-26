@@ -26,7 +26,7 @@ public class ElementInnerWhitespaceSerializationTest {
         Element parent = Element.of("parent");
         parent.innerPrecedingWhitespace("\n");
 
-        parent.addNode(Element.of("child").textContent("content").precedingWhitespace("\n  "));
+        parent.addChild(Element.of("child").textContent("content").precedingWhitespace("\n  "));
 
         String xml = parent.toXml();
         // Inner whitespace should be preserved even with children
@@ -52,8 +52,8 @@ public class ElementInnerWhitespaceSerializationTest {
     public void testInnerWhitespaceSerializationWithComplexWhitespace() throws DomTripException {
         // Test with more complex whitespace patterns
         Element element = Element.of("config");
-        element.addNode(Comment.of(" comment space ").precedingWhitespace("\n    "));
-        element.addNode(Comment.of(" end comment ").precedingWhitespace("\n    \n    "));
+        element.addChild(Comment.of(" comment space ").precedingWhitespace("\n    "));
+        element.addChild(Comment.of(" end comment ").precedingWhitespace("\n    \n    "));
         element.innerPrecedingWhitespace("\n");
 
         String xml = element.toXml();
@@ -90,9 +90,9 @@ public class ElementInnerWhitespaceSerializationTest {
         Element parent = Element.of("paragraph");
         parent.innerPrecedingWhitespace("\n");
 
-        parent.addNode(new Text("Some text ").precedingWhitespace("\n  "));
-        parent.addNode(Element.of("em").textContent("emphasized"));
-        parent.addNode(new Text(" more text"));
+        parent.addChild(new Text("Some text ").precedingWhitespace("\n  "));
+        parent.addChild(Element.of("em").textContent("emphasized"));
+        parent.addChild(new Text(" more text"));
 
         String xml = parent.toXml();
         assertEquals("<paragraph>\n  Some text <em>emphasized</em> more text\n</paragraph>", xml);

@@ -28,7 +28,7 @@ public class ParserWhitespaceNormalizationTest {
         Element root = doc.root();
 
         // Verify that no whitespace-only text nodes were created
-        for (Node child : root.nodes) {
+        for (Node child : root.children) {
             if (child instanceof Text text) {
                 assertFalse(
                         text.isWhitespaceOnly(),
@@ -37,8 +37,8 @@ public class ParserWhitespaceNormalizationTest {
         }
 
         // Verify that whitespace is captured in element properties
-        Element child1 = (Element) root.nodes.get(0);
-        Element child2 = (Element) root.nodes.get(1);
+        Element child1 = (Element) root.children.get(0);
+        Element child2 = (Element) root.children.get(1);
 
         assertTrue(
                 child1.precedingWhitespace().contains("\n"),
@@ -60,9 +60,9 @@ public class ParserWhitespaceNormalizationTest {
         Element message = doc.root();
 
         // Should have exactly one text node (preserving existing behavior)
-        assertEquals(1, message.nodes.size(), "Mixed content should preserve single text node");
+        assertEquals(1, message.children.size(), "Mixed content should preserve single text node");
 
-        Text textNode = (Text) message.nodes.get(0);
+        Text textNode = (Text) message.children.get(0);
         assertEquals(
                 "   Welcome to our application!   ",
                 textNode.content(),
@@ -121,14 +121,14 @@ public class ParserWhitespaceNormalizationTest {
         Element root = doc.root();
 
         // Verify structure
-        assertEquals(3, root.nodes.size(), "Should have 3 child elements");
+        assertEquals(3, root.children.size(), "Should have 3 child elements");
 
-        for (Node child : root.nodes) {
+        for (Node child : root.children) {
             assertTrue(child instanceof Element, "All children should be elements");
             Element element = (Element) child;
 
             // Check for whitespace-only text nodes in each element
-            for (Node grandchild : element.nodes) {
+            for (Node grandchild : element.children) {
                 if (grandchild instanceof Text text) {
                     assertFalse(
                             text.isWhitespaceOnly(),
@@ -138,7 +138,7 @@ public class ParserWhitespaceNormalizationTest {
         }
 
         // For empty3, the whitespace should be captured as innerPrecedingWhitespace
-        Element empty3 = (Element) root.nodes.get(2);
+        Element empty3 = (Element) root.children.get(2);
         assertEquals(
                 "   ",
                 empty3.innerPrecedingWhitespace(),
@@ -154,7 +154,7 @@ public class ParserWhitespaceNormalizationTest {
 
         // Count whitespace-only text nodes at document level
         int whitespaceOnlyNodes = 0;
-        for (Node node : doc.nodes) {
+        for (Node node : doc.children) {
             if (node instanceof Text text && text.isWhitespaceOnly()) {
                 whitespaceOnlyNodes++;
             }
@@ -179,9 +179,9 @@ public class ParserWhitespaceNormalizationTest {
 
         // Test single newline after root
         Document doc1 = Document.of(xml1);
-        assertEquals(2, doc1.nodes.size(), "Should have root element + trailing whitespace text node");
+        assertEquals(2, doc1.children.size(), "Should have root element + trailing whitespace text node");
 
-        Node lastNode1 = doc1.nodes.get(doc1.nodes.size() - 1);
+        Node lastNode1 = doc1.children.get(doc1.children.size() - 1);
         assertTrue(lastNode1 instanceof Text, "Last node should be a text node for trailing whitespace");
         Text trailingText1 = (Text) lastNode1;
         assertTrue(trailingText1.isWhitespaceOnly(), "Trailing text should be whitespace-only");
@@ -189,9 +189,9 @@ public class ParserWhitespaceNormalizationTest {
 
         // Test double newline after root
         Document doc2 = Document.of(xml2);
-        assertEquals(2, doc2.nodes.size(), "Should have root element + trailing whitespace text node");
+        assertEquals(2, doc2.children.size(), "Should have root element + trailing whitespace text node");
 
-        Node lastNode2 = doc2.nodes.get(doc2.nodes.size() - 1);
+        Node lastNode2 = doc2.children.get(doc2.children.size() - 1);
         assertTrue(lastNode2 instanceof Text, "Last node should be a text node for trailing whitespace");
         Text trailingText2 = (Text) lastNode2;
         assertTrue(trailingText2.isWhitespaceOnly(), "Trailing text should be whitespace-only");
@@ -199,9 +199,9 @@ public class ParserWhitespaceNormalizationTest {
 
         // Test mixed whitespace after root
         Document doc3 = Document.of(xml3);
-        assertEquals(2, doc3.nodes.size(), "Should have root element + trailing whitespace text node");
+        assertEquals(2, doc3.children.size(), "Should have root element + trailing whitespace text node");
 
-        Node lastNode3 = doc3.nodes.get(doc3.nodes.size() - 1);
+        Node lastNode3 = doc3.children.get(doc3.children.size() - 1);
         assertTrue(lastNode3 instanceof Text, "Last node should be a text node for trailing whitespace");
         Text trailingText3 = (Text) lastNode3;
         assertTrue(trailingText3.isWhitespaceOnly(), "Trailing text should be whitespace-only");
@@ -209,9 +209,9 @@ public class ParserWhitespaceNormalizationTest {
 
         // Test whitespace followed by comment
         Document doc4 = Document.of(xml4);
-        assertEquals(2, doc4.nodes.size(), "Should have root element + comment (whitespace assigned to comment)");
+        assertEquals(2, doc4.children.size(), "Should have root element + comment (whitespace assigned to comment)");
 
-        Node secondNode = doc4.nodes.get(1);
+        Node secondNode = doc4.children.get(1);
         assertTrue(secondNode instanceof Comment, "Second node should be comment");
         Comment comment = (Comment) secondNode;
         assertEquals(" comment ", comment.content(), "Comment content should be preserved");
@@ -236,7 +236,7 @@ public class ParserWhitespaceNormalizationTest {
         Element root = doc.root();
 
         // Comment should have precedingWhitespace
-        Comment comment = root.nodes()
+        Comment comment = root.children()
                 .filter(n -> n instanceof Comment)
                 .map(n -> (Comment) n)
                 .findFirst()
@@ -244,7 +244,7 @@ public class ParserWhitespaceNormalizationTest {
         assertEquals("\n    ", comment.precedingWhitespace(), "Comment should have precedingWhitespace set by parser");
 
         // ProcessingInstruction should have precedingWhitespace
-        ProcessingInstruction pi = root.nodes()
+        ProcessingInstruction pi = root.children()
                 .filter(n -> n instanceof ProcessingInstruction)
                 .map(n -> (ProcessingInstruction) n)
                 .findFirst()
@@ -252,7 +252,7 @@ public class ParserWhitespaceNormalizationTest {
         assertEquals("\n    ", pi.precedingWhitespace(), "PI should have precedingWhitespace set by parser");
 
         // CDATA (Text node) should have precedingWhitespace
-        Text cdata = root.nodes()
+        Text cdata = root.children()
                 .filter(n -> n instanceof Text && ((Text) n).cdata())
                 .map(n -> (Text) n)
                 .findFirst()
@@ -260,7 +260,7 @@ public class ParserWhitespaceNormalizationTest {
         assertEquals("\n    ", cdata.precedingWhitespace(), "CDATA should have precedingWhitespace set by parser");
 
         // Element should have precedingWhitespace
-        Element child = root.child("child").orElseThrow();
+        Element child = root.childElement("child").orElseThrow();
         assertEquals("\n    ", child.precedingWhitespace(), "Element should have precedingWhitespace set by parser");
 
         // Verify round-trip preserves all whitespace
@@ -272,7 +272,7 @@ public class ParserWhitespaceNormalizationTest {
      */
     private int countTextNodes(Element element) {
         int count = 0;
-        for (Node child : element.nodes) {
+        for (Node child : element.children) {
             if (child instanceof Text) {
                 count++;
             } else if (child instanceof Element childElement) {
@@ -287,7 +287,7 @@ public class ParserWhitespaceNormalizationTest {
      */
     private int countWhitespaceOnlyTextNodes(Element element) {
         int count = 0;
-        for (Node child : element.nodes) {
+        for (Node child : element.children) {
             if (child instanceof Text text && text.isWhitespaceOnly()) {
                 count++;
             } else if (child instanceof Element childElement) {

@@ -308,7 +308,7 @@ public abstract class Node {
         if (parent == null) {
             return -1;
         }
-        return parent.nodes.indexOf(this);
+        return parent.children.indexOf(this);
     }
 
     /**
@@ -320,9 +320,9 @@ public abstract class Node {
         if (parent == null) {
             return Optional.empty();
         }
-        int index = parent.nodes.indexOf(this);
+        int index = parent.children.indexOf(this);
         if (index > 0) {
-            return Optional.of(parent.nodes.get(index - 1));
+            return Optional.of(parent.children.get(index - 1));
         }
         return Optional.empty();
     }
@@ -336,9 +336,9 @@ public abstract class Node {
         if (parent == null) {
             return Optional.empty();
         }
-        int index = parent.nodes.indexOf(this);
-        if (index >= 0 && index < parent.nodes.size() - 1) {
-            return Optional.of(parent.nodes.get(index + 1));
+        int index = parent.children.indexOf(this);
+        if (index >= 0 && index < parent.children.size() - 1) {
+            return Optional.of(parent.children.get(index + 1));
         }
         return Optional.empty();
     }
@@ -352,9 +352,9 @@ public abstract class Node {
         if (parent == null) {
             return Optional.empty();
         }
-        int index = parent.nodes.indexOf(this);
+        int index = parent.children.indexOf(this);
         for (int i = index - 1; i >= 0; i--) {
-            Node node = parent.nodes.get(i);
+            Node node = parent.children.get(i);
             if (node instanceof Element) {
                 return Optional.of((Element) node);
             }
@@ -371,9 +371,9 @@ public abstract class Node {
         if (parent == null) {
             return Optional.empty();
         }
-        int index = parent.nodes.indexOf(this);
-        for (int i = index + 1; i < parent.nodes.size(); i++) {
-            Node node = parent.nodes.get(i);
+        int index = parent.children.indexOf(this);
+        for (int i = index + 1; i < parent.children.size(); i++) {
+            Node node = parent.children.get(i);
             if (node instanceof Element) {
                 return Optional.of((Element) node);
             }

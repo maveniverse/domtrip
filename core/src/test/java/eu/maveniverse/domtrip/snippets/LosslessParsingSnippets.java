@@ -243,7 +243,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
         Editor editor = new Editor(doc);
 
         // Only modify the version
-        Element version = doc.root().child("version").orElseThrow();
+        Element version = doc.root().childElement("version").orElseThrow();
         editor.setTextContent(version, "2.0.0");
 
         String result = editor.toXml();
@@ -304,7 +304,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
         Editor editor = new Editor(doc);
 
         // Add one element without changing anything else
-        Element dependencies = doc.root().child("dependencies").orElseThrow();
+        Element dependencies = doc.root().childElement("dependencies").orElseThrow();
         Element newDep = editor.addElement(dependencies, "dependency");
         editor.addElement(newDep, "groupId", "mockito");
 

@@ -157,7 +157,7 @@ class PomEditorExampleTest {
         editor.dependencies().addDependency(dependencies, "org.mockito", "mockito-core", "4.6.1");
 
         Element mockitoDep =
-                dependencies.children(DEPENDENCY).skip(1).findFirst().orElseThrow(); // Second dependency
+                dependencies.childElements(DEPENDENCY).skip(1).findFirst().orElseThrow(); // Second dependency
         editor.insertMavenElement(mockitoDep, SCOPE, "test");
 
         String result = editor.toXml();

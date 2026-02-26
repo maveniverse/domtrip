@@ -92,10 +92,12 @@ class PomEditorTest {
 
         // Verify dependency structure
         assertEquals(
-                "org.junit.jupiter", dependency.child(GROUP_ID).orElseThrow().textContent());
+                "org.junit.jupiter",
+                dependency.childElement(GROUP_ID).orElseThrow().textContent());
         assertEquals(
-                "junit-jupiter", dependency.child(ARTIFACT_ID).orElseThrow().textContent());
-        assertEquals("5.9.2", dependency.child(VERSION).orElseThrow().textContent());
+                "junit-jupiter",
+                dependency.childElement(ARTIFACT_ID).orElseThrow().textContent());
+        assertEquals("5.9.2", dependency.childElement(VERSION).orElseThrow().textContent());
 
         String result = editor.toXml();
         assertTrue(result.contains("<groupId>org.junit.jupiter</groupId>"));
@@ -128,10 +130,12 @@ class PomEditorTest {
 
         // Verify plugin structure
         assertEquals(
-                "org.apache.maven.plugins", plugin.child(GROUP_ID).orElseThrow().textContent());
+                "org.apache.maven.plugins",
+                plugin.childElement(GROUP_ID).orElseThrow().textContent());
         assertEquals(
-                "maven-compiler-plugin", plugin.child(ARTIFACT_ID).orElseThrow().textContent());
-        assertEquals("3.11.0", plugin.child(VERSION).orElseThrow().textContent());
+                "maven-compiler-plugin",
+                plugin.childElement(ARTIFACT_ID).orElseThrow().textContent());
+        assertEquals("3.11.0", plugin.childElement(VERSION).orElseThrow().textContent());
     }
 
     @Test
@@ -333,12 +337,12 @@ class PomEditorTest {
         assertNotNull(plugins);
 
         // Verify plugin was added
-        Element plugin = plugins.children(PLUGIN)
+        Element plugin = plugins.childElements(PLUGIN)
                 .filter(compilerPlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
         assertNotNull(plugin);
-        assertEquals("3.11.0", plugin.child(VERSION).orElseThrow().textContent());
+        assertEquals("3.11.0", plugin.childElement(VERSION).orElseThrow().textContent());
     }
 
     @Test
@@ -378,12 +382,12 @@ class PomEditorTest {
         Element build = editor.findChildElement(root, BUILD);
         Element pluginManagement = editor.findChildElement(build, PLUGIN_MANAGEMENT);
         Element plugins = editor.findChildElement(pluginManagement, PLUGINS);
-        Element plugin = plugins.children(PLUGIN)
+        Element plugin = plugins.childElements(PLUGIN)
                 .filter(compilerPlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
         assertNotNull(plugin);
-        assertEquals("3.11.0", plugin.child(VERSION).orElseThrow().textContent());
+        assertEquals("3.11.0", plugin.childElement(VERSION).orElseThrow().textContent());
     }
 
     @Test
@@ -431,11 +435,13 @@ class PomEditorTest {
         Element build = editor.findChildElement(root, BUILD);
         Element pluginManagement = editor.findChildElement(build, PLUGIN_MANAGEMENT);
         Element plugins = editor.findChildElement(pluginManagement, PLUGINS);
-        Element plugin = plugins.children(PLUGIN)
+        Element plugin = plugins.childElements(PLUGIN)
                 .filter(compilerPlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
-        assertEquals("${compiler.version}", plugin.child(VERSION).orElseThrow().textContent());
+        assertEquals(
+                "${compiler.version}",
+                plugin.childElement(VERSION).orElseThrow().textContent());
     }
 
     @Test
@@ -497,7 +503,7 @@ class PomEditorTest {
         Element build = editor.findChildElement(root, BUILD);
         Element pluginManagement = editor.findChildElement(build, PLUGIN_MANAGEMENT);
         Element plugins = editor.findChildElement(pluginManagement, PLUGINS);
-        Element plugin = plugins.children(PLUGIN)
+        Element plugin = plugins.childElements(PLUGIN)
                 .filter(compilerPlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
@@ -505,7 +511,7 @@ class PomEditorTest {
 
         // Verify other plugin still exists
         Coordinates surefirePlugin = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
-        Element surefire = plugins.children(PLUGIN)
+        Element surefire = plugins.childElements(PLUGIN)
                 .filter(surefirePlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
@@ -543,12 +549,12 @@ class PomEditorTest {
         assertNotNull(plugins);
 
         // Verify plugin was added
-        Element plugin = plugins.children(PLUGIN)
+        Element plugin = plugins.childElements(PLUGIN)
                 .filter(compilerPlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
         assertNotNull(plugin);
-        assertEquals("3.11.0", plugin.child(VERSION).orElseThrow().textContent());
+        assertEquals("3.11.0", plugin.childElement(VERSION).orElseThrow().textContent());
     }
 
     @Test
@@ -585,12 +591,12 @@ class PomEditorTest {
         Element root = editor.root();
         Element build = editor.findChildElement(root, BUILD);
         Element plugins = editor.findChildElement(build, PLUGINS);
-        Element plugin = plugins.children(PLUGIN)
+        Element plugin = plugins.childElements(PLUGIN)
                 .filter(compilerPlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
         assertNotNull(plugin);
-        assertEquals("3.11.0", plugin.child(VERSION).orElseThrow().textContent());
+        assertEquals("3.11.0", plugin.childElement(VERSION).orElseThrow().textContent());
     }
 
     @Test
@@ -637,21 +643,21 @@ class PomEditorTest {
         Element pluginManagement = editor.findChildElement(build, PLUGIN_MANAGEMENT);
         Element managedPlugins = editor.findChildElement(pluginManagement, PLUGINS);
         Element managedPlugin = managedPlugins
-                .children(PLUGIN)
+                .childElements(PLUGIN)
                 .filter(compilerPlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
         assertNotNull(managedPlugin);
-        assertEquals("3.11.0", managedPlugin.child(VERSION).orElseThrow().textContent());
+        assertEquals("3.11.0", managedPlugin.childElement(VERSION).orElseThrow().textContent());
 
         // Verify plugin still has no version
         Element plugins = editor.findChildElement(build, PLUGINS);
-        Element plugin = plugins.children(PLUGIN)
+        Element plugin = plugins.childElements(PLUGIN)
                 .filter(compilerPlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
         assertNotNull(plugin);
-        assertFalse(plugin.child(VERSION).isPresent());
+        assertFalse(plugin.childElement(VERSION).isPresent());
     }
 
     @Test
@@ -693,7 +699,7 @@ class PomEditorTest {
         Element root = editor.root();
         Element build = editor.findChildElement(root, BUILD);
         Element plugins = editor.findChildElement(build, PLUGINS);
-        Element plugin = plugins.children(PLUGIN)
+        Element plugin = plugins.childElements(PLUGIN)
                 .filter(compilerPlugin.predicateGA())
                 .findFirst()
                 .orElse(null);
@@ -701,7 +707,7 @@ class PomEditorTest {
 
         // Verify other plugin still exists
         Coordinates surefirePlugin = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
-        Element surefire = plugins.children(PLUGIN)
+        Element surefire = plugins.childElements(PLUGIN)
                 .filter(surefirePlugin.predicateGA())
                 .findFirst()
                 .orElse(null);

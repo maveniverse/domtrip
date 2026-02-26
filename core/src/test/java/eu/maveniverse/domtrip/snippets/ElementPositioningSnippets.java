@@ -61,7 +61,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element build = doc.root().child("build").orElseThrow();
+        Element build = doc.root().childElement("build").orElseThrow();
 
         // Insert properties section before build
         Element properties = editor.insertElementBefore(build, "properties");
@@ -87,7 +87,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element version = doc.root().child("version").orElseThrow();
+        Element version = doc.root().childElement("version").orElseThrow();
 
         // Insert packaging after version
         Element packaging = editor.insertElementAfter(version, "packaging");
@@ -113,11 +113,11 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
 
         Editor editor = new Editor(doc);
         Element root = doc.root();
-        Element version = root.child("version").orElseThrow();
+        Element version = root.childElement("version").orElseThrow();
 
         // Remove and re-add at the end to reorder
-        root.removeNode(version);
-        root.addNode(version);
+        root.removeChild(version);
+        root.addChild(version);
 
         String result = editor.toXml();
         // END: element-reordering
@@ -138,13 +138,13 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
 
         Editor editor = new Editor(doc);
         Element root = doc.root();
-        Element groupId = root.child("groupId").orElseThrow();
-        Element artifactId = root.child("artifactId").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
+        Element artifactId = root.childElement("artifactId").orElseThrow();
 
         // Remove groupId and insert it before artifactId
-        root.removeNode(groupId);
-        int artifactIdIndex = root.nodes().toList().indexOf(artifactId);
-        root.insertNode(artifactIdIndex, groupId);
+        root.removeChild(groupId);
+        int artifactIdIndex = root.children().toList().indexOf(artifactId);
+        root.insertChild(artifactIdIndex, groupId);
 
         String result = editor.toXml();
         // END: element-reordering-before
@@ -165,13 +165,13 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
 
         Editor editor = new Editor(doc);
         Element root = doc.root();
-        Element artifactId = root.child("artifactId").orElseThrow();
-        Element groupId = root.child("groupId").orElseThrow();
+        Element artifactId = root.childElement("artifactId").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
 
         // Remove artifactId and insert it after groupId
-        root.removeNode(artifactId);
-        int groupIdIndex = root.nodes().toList().indexOf(groupId);
-        root.insertNode(groupIdIndex + 1, artifactId);
+        root.removeChild(artifactId);
+        int groupIdIndex = root.children().toList().indexOf(groupId);
+        root.insertChild(groupIdIndex + 1, artifactId);
 
         String result = editor.toXml();
         // END: element-reordering-after
@@ -190,7 +190,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element artifactId = doc.root().child("artifactId").orElseThrow();
+        Element artifactId = doc.root().childElement("artifactId").orElseThrow();
 
         // Insert version between groupId and artifactId
         // Whitespace is automatically inferred from surrounding elements
@@ -222,19 +222,19 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
         Element root = doc.root();
 
         // Move project coordinates to the beginning
-        Element groupId = root.child("groupId").orElseThrow();
-        Element artifactId = root.child("artifactId").orElseThrow();
-        Element version = root.child("version").orElseThrow();
+        Element groupId = root.childElement("groupId").orElseThrow();
+        Element artifactId = root.childElement("artifactId").orElseThrow();
+        Element version = root.childElement("version").orElseThrow();
 
         // Remove all three elements
-        root.removeNode(groupId);
-        root.removeNode(artifactId);
-        root.removeNode(version);
+        root.removeChild(groupId);
+        root.removeChild(artifactId);
+        root.removeChild(version);
 
         // Insert them at the beginning in the correct order
-        root.insertNode(0, groupId);
-        root.insertNode(1, artifactId);
-        root.insertNode(2, version);
+        root.insertChild(0, groupId);
+        root.insertChild(1, artifactId);
+        root.insertChild(2, version);
 
         String result = editor.toXml();
         // END: complex-reordering

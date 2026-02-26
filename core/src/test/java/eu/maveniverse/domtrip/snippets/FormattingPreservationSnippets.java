@@ -29,7 +29,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
         Editor editor = new Editor(doc);
 
         // Make a change
-        Element version = doc.root().child("version").orElseThrow();
+        Element version = doc.root().childElement("version").orElseThrow();
         editor.setTextContent(version, "2.0.0");
 
         String result = editor.toXml();
@@ -54,7 +54,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
 
         // START: whitespace-tracking
         // For this XML: "  <element>content</element>\n"
-        Element element = doc.root().child("groupId").orElseThrow();
+        Element element = doc.root().childElement("groupId").orElseThrow();
         String before = element.precedingWhitespace(); // "\n    " (newline + 4 spaces)
         String after = doc.root().innerPrecedingWhitespace(); // "\n"
         // END: whitespace-tracking
@@ -71,7 +71,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
         Editor editor = new Editor(doc);
 
         // START: element-whitespace
-        Element element = doc.root().child("groupId").orElseThrow();
+        Element element = doc.root().childElement("groupId").orElseThrow();
 
         // Whitespace inside opening tag: <element >
         String openTagWhitespace = element.openTagWhitespace(); // "  "
@@ -175,11 +175,11 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
 
         // START: modification-tracking
         // Unmodified nodes use original formatting
-        Element unchanged = doc.root().child("groupId").orElseThrow();
+        Element unchanged = doc.root().childElement("groupId").orElseThrow();
         Assertions.assertFalse(unchanged.isModified()); // false
 
         // Modified nodes are rebuilt with inferred formatting
-        Element changed = doc.root().child("version").orElseThrow();
+        Element changed = doc.root().childElement("version").orElseThrow();
         editor.setTextContent(changed, "2.0.0");
         Assertions.assertTrue(changed.isModified()); // true
         // END: modification-tracking
@@ -252,7 +252,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
         Editor editor = new Editor(doc);
 
         // Only modify one element
-        Element version = doc.root().child("version").orElseThrow();
+        Element version = doc.root().childElement("version").orElseThrow();
         editor.setTextContent(version, "2.0.0");
 
         String result = editor.toXml();

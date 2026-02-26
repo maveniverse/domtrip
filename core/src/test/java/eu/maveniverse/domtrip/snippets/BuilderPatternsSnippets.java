@@ -258,7 +258,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
         // Processing instructions using direct creation
         ProcessingInstruction stylesheet =
                 ProcessingInstruction.of("xml-stylesheet", "type=\"text/xsl\" href=\"transform.xsl\"");
-        editor.document().addNode(stylesheet);
+        editor.document().addChild(stylesheet);
         // end-snippet:processing-instructions
 
         Document doc = editor.document();
@@ -328,12 +328,12 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
         Element root = editor.root();
 
         // Validate state before building
-        if (root.children().count() == 0) {
+        if (root.childElements().count() == 0) {
             editor.addElement(root, "default-child", "default-value");
         }
 
         // Ensure required elements exist
-        if (root.child("version").isEmpty()) {
+        if (root.childElement("version").isEmpty()) {
             editor.addElement(root, "version", "1.0.0");
         }
 
@@ -341,7 +341,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
         // end-snippet:builder-state-validation
 
         Assertions.assertNotNull(doc);
-        Assertions.assertTrue(root.child("version").isPresent());
+        Assertions.assertTrue(root.childElement("version").isPresent());
     }
 
     @Test
@@ -358,9 +358,9 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
 
         // ✅ Good - combine chaining with method calls
         Element project = Element.of("project").attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
-        project.addNode(Element.of("groupId").textContent("com.example"));
-        project.addNode(Element.of("artifactId").textContent("my-app"));
-        project.addNode(Element.of("version").textContent("1.0.0"));
+        project.addChild(Element.of("groupId").textContent("com.example"));
+        project.addChild(Element.of("artifactId").textContent("my-app"));
+        project.addChild(Element.of("version").textContent("1.0.0"));
         // end-snippet:method-chaining-best-practices
 
         Assertions.assertNotNull(dependency);
@@ -380,13 +380,14 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
         editor.setAttribute(element, "id", "123");
 
         // ✅ Good - leverage Optional for safe navigation
-        String value = root.child("element")
-                .flatMap(e -> e.child("value"))
+        String value = root.childElement("element")
+                .flatMap(e -> e.childElement("value"))
                 .map(Element::textContent)
                 .orElse("default");
 
         // ✅ Good - use streams for type-safe filtering
-        long count = root.children("element").filter(e -> e.hasAttribute("id")).count();
+        long count =
+                root.childElements("element").filter(e -> e.hasAttribute("id")).count();
         // end-snippet:type-safety-best-practices
 
         Assertions.assertEquals("default", value);
@@ -473,7 +474,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
 
         public MavenPomBuilder addDependency(String groupId, String artifactId, String version, String scope)
                 throws DomTripException {
-            Element dependencies = root.child("dependencies").orElse(null);
+            Element dependencies = root.childElement("dependencies").orElse(null);
             if (dependencies == null) {
                 dependencies = editor.addElement(root, "dependencies");
             }

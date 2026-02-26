@@ -15,9 +15,9 @@ class SiblingNavigationTest {
         Document doc = Document.of(xml);
         Element root = doc.root();
 
-        Element a = root.child("a").orElseThrow();
-        Element b = root.child("b").orElseThrow();
-        Element c = root.child("c").orElseThrow();
+        Element a = root.childElement("a").orElseThrow();
+        Element b = root.childElement("b").orElseThrow();
+        Element c = root.childElement("c").orElseThrow();
 
         assertEquals(b, a.nextSibling().orElse(null));
         assertEquals(c, b.nextSibling().orElse(null));
@@ -30,9 +30,9 @@ class SiblingNavigationTest {
         Document doc = Document.of(xml);
         Element root = doc.root();
 
-        Element a = root.child("a").orElseThrow();
-        Element b = root.child("b").orElseThrow();
-        Element c = root.child("c").orElseThrow();
+        Element a = root.childElement("a").orElseThrow();
+        Element b = root.childElement("b").orElseThrow();
+        Element c = root.childElement("c").orElseThrow();
 
         assertTrue(a.previousSibling().isEmpty());
         assertEquals(a, b.previousSibling().orElse(null));
@@ -45,9 +45,9 @@ class SiblingNavigationTest {
         Document doc = Document.of(xml);
         Element root = doc.root();
 
-        Element a = root.child("a").orElseThrow();
-        Element b = root.child("b").orElseThrow();
-        Element c = root.child("c").orElseThrow();
+        Element a = root.childElement("a").orElseThrow();
+        Element b = root.childElement("b").orElseThrow();
+        Element c = root.childElement("c").orElseThrow();
 
         assertEquals(0, a.siblingIndex());
         assertEquals(1, b.siblingIndex());
@@ -66,7 +66,7 @@ class SiblingNavigationTest {
         Document doc = Document.of(xml);
         Element root = doc.root();
 
-        Element a = root.child("a").orElseThrow();
+        Element a = root.childElement("a").orElseThrow();
 
         // a's previous sibling should be the comment
         assertInstanceOf(Comment.class, a.previousSibling().orElseThrow());
@@ -81,9 +81,9 @@ class SiblingNavigationTest {
         Document doc = Document.of(xml);
         Element root = doc.root();
 
-        Element a = root.child("a").orElseThrow();
-        Element b = root.child("b").orElseThrow();
-        Element c = root.child("c").orElseThrow();
+        Element a = root.childElement("a").orElseThrow();
+        Element b = root.childElement("b").orElseThrow();
+        Element c = root.childElement("c").orElseThrow();
 
         // nextSiblingElement skips non-element nodes
         assertEquals(b, a.nextSiblingElement().orElse(null));
@@ -97,9 +97,9 @@ class SiblingNavigationTest {
         Document doc = Document.of(xml);
         Element root = doc.root();
 
-        Element a = root.child("a").orElseThrow();
-        Element b = root.child("b").orElseThrow();
-        Element c = root.child("c").orElseThrow();
+        Element a = root.childElement("a").orElseThrow();
+        Element b = root.childElement("b").orElseThrow();
+        Element c = root.childElement("c").orElseThrow();
 
         assertTrue(a.previousSiblingElement().isEmpty());
         assertEquals(a, b.previousSiblingElement().orElse(null));
@@ -121,9 +121,9 @@ class SiblingNavigationTest {
         Document doc = Document.of(xml);
         Element root = doc.root();
 
-        Element a = root.child("a").orElseThrow();
-        Element b = root.child("b").orElseThrow();
-        Element c = root.child("c").orElseThrow();
+        Element a = root.childElement("a").orElseThrow();
+        Element b = root.childElement("b").orElseThrow();
+        Element c = root.childElement("c").orElseThrow();
 
         // With whitespace normalization, elements should be direct siblings
         assertEquals(b, a.nextSiblingElement().orElse(null));
@@ -136,7 +136,7 @@ class SiblingNavigationTest {
     void testSiblingNavigationSingleChild() throws DomTripException {
         String xml = "<root><only/></root>";
         Document doc = Document.of(xml);
-        Element only = doc.root().child("only").orElseThrow();
+        Element only = doc.root().childElement("only").orElseThrow();
 
         assertTrue(only.nextSibling().isEmpty());
         assertTrue(only.previousSibling().isEmpty());

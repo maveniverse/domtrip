@@ -119,7 +119,7 @@ public enum EmptyElementStyle {
      */
     private static void analyzeElement(Element element, EmptyElementStyleCounter counter) {
         // Check if this element is empty (no child nodes)
-        if (element.nodeCount() == 0) {
+        if (element.childCount() == 0) {
             // Analyze the original formatting to determine style
             String originalTag = element.originalOpenTag();
             if (!originalTag.isEmpty()) {
@@ -146,7 +146,7 @@ public enum EmptyElementStyle {
         }
 
         // Recursively analyze child elements
-        for (Node child : element.nodes().collect(Collectors.toList())) {
+        for (Node child : element.children().collect(Collectors.toList())) {
             if (child instanceof Element) {
                 analyzeElement((Element) child, counter);
             }

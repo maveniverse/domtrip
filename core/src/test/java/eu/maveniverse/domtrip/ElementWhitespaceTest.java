@@ -141,9 +141,9 @@ class ElementWhitespaceTest {
     void testWithMultipleTextNodes() throws Exception {
         // Create element with multiple text nodes manually
         Element element = new Element("mixed");
-        element.addNode(new Text("  first  "));
-        element.addNode(new Element("child"));
-        element.addNode(new Text("  second  "));
+        element.addChild(new Text("  first  "));
+        element.addChild(new Element("child"));
+        element.addChild(new Text("  second  "));
 
         // setTextContentPreservingWhitespace should work with first text node
         element.textPreservingWhitespace("updated");
@@ -153,7 +153,7 @@ class ElementWhitespaceTest {
         assertEquals("  updated    second  ", element.textContent());
 
         // Verify that only the first text node was actually modified
-        Text firstText = (Text) element.nodes.get(0);
+        Text firstText = (Text) element.children.get(0);
         assertEquals("  updated  ", firstText.content());
     }
 
@@ -188,7 +188,7 @@ class ElementWhitespaceTest {
     void testWithCDataContent() throws Exception {
         Element element = new Element("script");
         Text cdata = new Text("   <script>alert('test');</script>   ", true);
-        element.addNode(cdata);
+        element.addChild(cdata);
 
         assertEquals("<script>alert('test');</script>", element.textContentTrimmed());
 

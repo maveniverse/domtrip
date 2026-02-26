@@ -265,7 +265,7 @@ public class Parser {
                             pendingWhitespace.setLength(0);
                         }
                         ContainerNode current = (ContainerNode) nodeStack.peek();
-                        current.addNodeInternal(textNode);
+                        current.addChildInternal(textNode);
                     }
                     precedingWhitespace.setLength(0);
                 }
@@ -283,7 +283,7 @@ public class Parser {
                                 pendingWhitespace.setLength(0);
                             }
                             ContainerNode current = (ContainerNode) nodeStack.peek();
-                            current.addNodeInternal(comment);
+                            current.addChildInternal(comment);
                         } else if (position + 8 < length && xml.startsWith("<![CDATA[", position)) {
                             // Parse CDATA
                             Text cdata = parseCData();
@@ -293,7 +293,7 @@ public class Parser {
                                 pendingWhitespace.setLength(0);
                             }
                             ContainerNode current = (ContainerNode) nodeStack.peek();
-                            current.addNodeInternal(cdata);
+                            current.addChildInternal(cdata);
                         } else if (position + 9 < length && xml.startsWith("<!DOCTYPE", position)) {
                             // Parse DOCTYPE declaration
                             String doctype = parseDoctype();
@@ -324,7 +324,7 @@ public class Parser {
                                 pendingWhitespace.setLength(0);
                             }
                             ContainerNode current = (ContainerNode) nodeStack.peek();
-                            current.addNodeInternal(piNode);
+                            current.addChildInternal(piNode);
                         }
                     } else if (nextChar == '/') {
                         // Before parsing closing tag, handle any pending whitespace as inner whitespace
@@ -350,7 +350,7 @@ public class Parser {
                             pendingWhitespace.setLength(0);
                         }
                         ContainerNode current = (ContainerNode) nodeStack.peek();
-                        current.addNodeInternal(element);
+                        current.addChildInternal(element);
 
                         if (!element.selfClosing()) {
                             nodeStack.push(element);
@@ -380,7 +380,7 @@ public class Parser {
                     textNode.precedingWhitespaceInternal(pendingWhitespace.toString());
                     pendingWhitespace.setLength(0);
                 }
-                document.addNodeInternal(textNode);
+                document.addChildInternal(textNode);
             }
         }
 
@@ -389,11 +389,11 @@ public class Parser {
             // This is trailing whitespace at the document level (after the root element)
             // We need to preserve it as a text node since there's no element to assign it to
             Text trailingWhitespace = new Text(pendingWhitespace.toString());
-            document.addNodeInternal(trailingWhitespace);
+            document.addChildInternal(trailingWhitespace);
         }
 
         // Set the document element (first element child)
-        for (Node child : document.nodes) {
+        for (Node child : document.children) {
             if (child instanceof Element) {
                 document.rootInternal((Element) child);
                 break;

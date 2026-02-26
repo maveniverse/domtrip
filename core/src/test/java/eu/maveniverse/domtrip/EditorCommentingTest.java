@@ -38,7 +38,7 @@ class EditorCommentingTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element dependency = doc.root().child("dependency").orElseThrow();
+        Element dependency = doc.root().childElement("dependency").orElseThrow();
 
         Comment comment = editor.commentOutElement(dependency);
 
@@ -65,8 +65,8 @@ class EditorCommentingTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element first = doc.root().child("first").orElseThrow();
-        Element second = doc.root().child("second").orElseThrow();
+        Element first = doc.root().childElement("first").orElseThrow();
+        Element second = doc.root().childElement("second").orElseThrow();
 
         Comment comment = editor.commentOutElements(first, second);
 
@@ -92,7 +92,7 @@ class EditorCommentingTest {
 
         // Find the comment
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()
@@ -132,10 +132,16 @@ class EditorCommentingTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element child1 =
-                doc.root().child("parent1").orElseThrow().child("child1").orElseThrow();
-        Element child2 =
-                doc.root().child("parent2").orElseThrow().child("child2").orElseThrow();
+        Element child1 = doc.root()
+                .childElement("parent1")
+                .orElseThrow()
+                .childElement("child1")
+                .orElseThrow();
+        Element child2 = doc.root()
+                .childElement("parent2")
+                .orElseThrow()
+                .childElement("child2")
+                .orElseThrow();
 
         assertThrows(DomTripException.class, () -> {
             editor.commentOutElements(child1, child2);
@@ -149,7 +155,7 @@ class EditorCommentingTest {
         editor = new Editor(doc);
 
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()
@@ -167,7 +173,7 @@ class EditorCommentingTest {
         editor = new Editor(doc);
 
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()
@@ -189,7 +195,7 @@ class EditorCommentingTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element dependency = doc.root().child("dependency").orElseThrow();
+        Element dependency = doc.root().childElement("dependency").orElseThrow();
 
         String originalPrecedingWhitespace = dependency.precedingWhitespace();
 
@@ -212,7 +218,7 @@ class EditorCommentingTest {
 
         Document doc = Document.of(xml);
         editor = new Editor(doc);
-        Element dependency = doc.root().child("dependency").orElseThrow();
+        Element dependency = doc.root().childElement("dependency").orElseThrow();
 
         // Comment out and then uncomment
         Comment comment = editor.commentOutElement(dependency);
@@ -241,7 +247,7 @@ class EditorCommentingTest {
 
         // Find the comment
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()

@@ -189,7 +189,7 @@ public class EmptyElementStyleTest {
 
         // Add an empty element
         Element empty = Element.of("empty");
-        root.addNode(empty);
+        root.addChild(empty);
 
         // Configure for expanded style
         DomTripConfig config = DomTripConfig.prettyPrint()
@@ -210,7 +210,7 @@ public class EmptyElementStyleTest {
 
         // Add an empty element
         Element empty = Element.of("empty");
-        root.addNode(empty);
+        root.addChild(empty);
 
         // Configure for self-closing style
         DomTripConfig config = DomTripConfig.prettyPrint()
@@ -231,7 +231,7 @@ public class EmptyElementStyleTest {
 
         // Add an empty element
         Element empty = Element.of("empty");
-        root.addNode(empty);
+        root.addChild(empty);
 
         // Configure for self-closing spaced style
         DomTripConfig config = DomTripConfig.prettyPrint()
@@ -255,7 +255,7 @@ public class EmptyElementStyleTest {
         Element empty = Element.of("empty");
         empty.attribute("id", "test");
         empty.attribute("class", "example");
-        root.addNode(empty);
+        root.addChild(empty);
 
         // Test different styles
         DomTripConfig expandedConfig = DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.EXPANDED);
@@ -328,7 +328,7 @@ public class EmptyElementStyleTest {
 
         // Add a new empty element
         Element newEmpty = Element.of("newElement");
-        doc.root().addNode(newEmpty);
+        doc.root().addChild(newEmpty);
 
         // Configure for expanded style but disable pretty print
         DomTripConfig config = DomTripConfig.defaults().withEmptyElementStyle(EmptyElementStyle.EXPANDED);
@@ -410,7 +410,7 @@ public class EmptyElementStyleTest {
         // Add a non-empty element
         Element nonEmpty = Element.of("child");
         nonEmpty.textContent("some content");
-        root.addNode(nonEmpty);
+        root.addChild(nonEmpty);
 
         // Configure for expanded style
         DomTripConfig config = DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.EXPANDED);
@@ -433,9 +433,9 @@ public class EmptyElementStyleTest {
         Element empty1 = Element.of("empty1");
         Element empty2 = Element.of("empty2");
 
-        parent.addNode(empty1);
-        parent.addNode(empty2);
-        root.addNode(parent);
+        parent.addChild(empty1);
+        parent.addChild(empty2);
+        root.addChild(parent);
 
         // Configure for self-closing spaced style
         DomTripConfig config = DomTripConfig.prettyPrint()
@@ -520,13 +520,13 @@ public class EmptyElementStyleTest {
         Element root = doc.root();
 
         // Create mixed content: text, empty elements, and non-empty elements
-        root.addNode(Text.of("  "));
-        root.addNode(Element.of("empty1"));
-        root.addNode(Text.of("  "));
-        root.addNode(Element.text("nonempty", "content"));
-        root.addNode(Text.of("  "));
-        root.addNode(Element.of("empty2"));
-        root.addNode(Text.of("  "));
+        root.addChild(Text.of("  "));
+        root.addChild(Element.of("empty1"));
+        root.addChild(Text.of("  "));
+        root.addChild(Element.text("nonempty", "content"));
+        root.addChild(Text.of("  "));
+        root.addChild(Element.of("empty2"));
+        root.addChild(Text.of("  "));
 
         DomTripConfig config = DomTripConfig.prettyPrint().withEmptyElementStyle(EmptyElementStyle.SELF_CLOSING_SPACED);
 

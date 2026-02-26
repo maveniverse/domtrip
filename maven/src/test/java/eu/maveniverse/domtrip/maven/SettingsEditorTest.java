@@ -54,7 +54,7 @@ class SettingsEditorTest {
         editor.insertSettingsElement(root, LOCAL_REPOSITORY, "/custom/repo");
 
         // Verify they are ordered correctly
-        var children = root.children().toList();
+        var children = root.childElements().toList();
         assertEquals(LOCAL_REPOSITORY, children.get(0).name());
         assertEquals(OFFLINE, children.get(1).name());
     }
@@ -69,9 +69,9 @@ class SettingsEditorTest {
         Element server = editor.addServer(servers, "my-server", "username", "password");
 
         assertEquals(SERVER, server.name());
-        assertEquals("my-server", server.child(ID).orElseThrow().textContent());
-        assertEquals("username", server.child(USERNAME).orElseThrow().textContent());
-        assertEquals("password", server.child(PASSWORD).orElseThrow().textContent());
+        assertEquals("my-server", server.childElement(ID).orElseThrow().textContent());
+        assertEquals("username", server.childElement(USERNAME).orElseThrow().textContent());
+        assertEquals("password", server.childElement(PASSWORD).orElseThrow().textContent());
     }
 
     @Test
@@ -84,9 +84,9 @@ class SettingsEditorTest {
         Element server = editor.addServer(servers, "my-server", null, null);
 
         assertEquals(SERVER, server.name());
-        assertEquals("my-server", server.child(ID).orElseThrow().textContent());
-        assertTrue(server.child(USERNAME).isEmpty());
-        assertTrue(server.child(PASSWORD).isEmpty());
+        assertEquals("my-server", server.childElement(ID).orElseThrow().textContent());
+        assertTrue(server.childElement(USERNAME).isEmpty());
+        assertTrue(server.childElement(PASSWORD).isEmpty());
     }
 
     @Test
@@ -100,12 +100,12 @@ class SettingsEditorTest {
                 mirrors, "central-mirror", "Central Mirror", "https://repo1.maven.org/maven2", "central");
 
         assertEquals(MIRROR, mirror.name());
-        assertEquals("central-mirror", mirror.child(ID).orElseThrow().textContent());
-        assertEquals("Central Mirror", mirror.child(NAME).orElseThrow().textContent());
+        assertEquals("central-mirror", mirror.childElement(ID).orElseThrow().textContent());
+        assertEquals("Central Mirror", mirror.childElement(NAME).orElseThrow().textContent());
         assertEquals(
                 "https://repo1.maven.org/maven2",
-                mirror.child(URL).orElseThrow().textContent());
-        assertEquals("central", mirror.child(MIRROR_OF).orElseThrow().textContent());
+                mirror.childElement(URL).orElseThrow().textContent());
+        assertEquals("central", mirror.childElement(MIRROR_OF).orElseThrow().textContent());
     }
 
     @Test
@@ -118,10 +118,10 @@ class SettingsEditorTest {
         Element proxy = editor.addProxy(proxies, "my-proxy", "http", "proxy.example.com", 8080);
 
         assertEquals(PROXY, proxy.name());
-        assertEquals("my-proxy", proxy.child(ID).orElseThrow().textContent());
-        assertEquals("http", proxy.child(PROTOCOL).orElseThrow().textContent());
-        assertEquals("proxy.example.com", proxy.child(HOST).orElseThrow().textContent());
-        assertEquals("8080", proxy.child(PORT).orElseThrow().textContent());
+        assertEquals("my-proxy", proxy.childElement(ID).orElseThrow().textContent());
+        assertEquals("http", proxy.childElement(PROTOCOL).orElseThrow().textContent());
+        assertEquals("proxy.example.com", proxy.childElement(HOST).orElseThrow().textContent());
+        assertEquals("8080", proxy.childElement(PORT).orElseThrow().textContent());
     }
 
     @Test
@@ -134,7 +134,7 @@ class SettingsEditorTest {
         Element profile = editor.addProfile(profiles, "dev-profile");
 
         assertEquals(PROFILE, profile.name());
-        assertEquals("dev-profile", profile.child(ID).orElseThrow().textContent());
+        assertEquals("dev-profile", profile.childElement(ID).orElseThrow().textContent());
     }
 
     @Test

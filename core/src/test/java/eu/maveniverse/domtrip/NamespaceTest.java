@@ -55,13 +55,13 @@ public class NamespaceTest {
         assertEquals("http://example.com/default", root.namespaceURI());
         assertTrue(root.inNamespace("http://example.com/default"));
 
-        Element child = root.child("child").orElse(null);
+        Element child = root.childElement("child").orElse(null);
         assertNotNull(child);
         assertEquals("child", child.localName());
         assertNull(child.prefix());
         assertEquals("http://example.com/default", child.namespaceURI());
 
-        Element nsElement = root.child("ns:element").orElse(null);
+        Element nsElement = root.childElement("ns:element").orElse(null);
         assertNotNull(nsElement);
         assertEquals("element", nsElement.localName());
         assertEquals("ns", nsElement.prefix());
@@ -100,10 +100,10 @@ public class NamespaceTest {
         assertEquals("Nested Meta Title", metaTitles.get(1).textContent());
 
         // Find direct children by namespace using QName
-        root.child(QName.of("http://example.com/default", "title"))
+        root.childElement(QName.of("http://example.com/default", "title"))
                 .ifPresent(title -> assertEquals("Default Title", title.textContent()));
 
-        root.child(QName.of("http://example.com/meta", "title"))
+        root.childElement(QName.of("http://example.com/meta", "title"))
                 .ifPresent(title -> assertEquals("Meta Title", title.textContent()));
     }
 
@@ -130,7 +130,7 @@ public class NamespaceTest {
         assertTrue(rootContext.isPrefixDeclared("a"));
         assertFalse(rootContext.isPrefixDeclared("b"));
 
-        Element child = root.child("child").orElse(null);
+        Element child = root.childElement("child").orElse(null);
         assertNotNull(child);
         NamespaceContext childContext = child.namespaceContext();
         assertEquals("http://example.com/default", childContext.defaultNamespaceURI());
@@ -214,7 +214,7 @@ public class NamespaceTest {
         Element element = Element.of("test")
                 .namespaceDeclaration("ex", "http://example.com/ns")
                 .namespaceDeclaration(null, "http://example.com/default");
-        element.addNode(new Text("content"));
+        element.addChild(new Text("content"));
 
         assertEquals("http://example.com/ns", element.attribute("xmlns:ex"));
         assertEquals("http://example.com/default", element.attribute("xmlns"));

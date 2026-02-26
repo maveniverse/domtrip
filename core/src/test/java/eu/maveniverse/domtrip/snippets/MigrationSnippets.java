@@ -48,8 +48,8 @@ public class MigrationSnippets extends BaseSnippetTest {
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
         Element root = editor.root();
-        Optional<Element> child = root.child("child");
-        Stream<Element> children = root.children("item");
+        Optional<Element> child = root.childElement("child");
+        Stream<Element> children = root.childElements("item");
         // END: dom4j-element-navigation
 
         Assertions.assertNotNull(root);
@@ -155,8 +155,8 @@ public class MigrationSnippets extends BaseSnippetTest {
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
         Element root = editor.root();
-        Optional<Element> child = root.child("child");
-        Stream<Element> children = root.children("item");
+        Optional<Element> child = root.childElement("child");
+        Stream<Element> children = root.childElements("item");
 
         // Add new element
         Element newElement = editor.addElement(root, "newChild", "content");
@@ -219,7 +219,7 @@ public class MigrationSnippets extends BaseSnippetTest {
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
         Element root = editor.root();
-        Optional<Element> child = root.child("child");
+        Optional<Element> child = root.childElement("child");
         // END: java-dom-element-navigation
 
         Assertions.assertNotNull(root);
@@ -278,7 +278,7 @@ public class MigrationSnippets extends BaseSnippetTest {
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
         Element root = editor.root();
-        Optional<Element> child = root.child("child");
+        Optional<Element> child = root.childElement("child");
         // END: jackson-xml-simple-parsing
 
         Assertions.assertNotNull(root);
@@ -305,9 +305,9 @@ public class MigrationSnippets extends BaseSnippetTest {
 
         // DomTrip (manual construction)
         Element dependency = Element.of("dependency");
-        dependency.addNode(Element.text("groupId", "junit"));
-        dependency.addNode(Element.text("artifactId", "junit"));
-        dependency.addNode(Element.text("version", "4.13.2"));
+        dependency.addChild(Element.text("groupId", "junit"));
+        dependency.addChild(Element.text("artifactId", "junit"));
+        dependency.addChild(Element.text("version", "4.13.2"));
 
         String xml = dependency.toXml();
         // END: jackson-xml-object-mapping

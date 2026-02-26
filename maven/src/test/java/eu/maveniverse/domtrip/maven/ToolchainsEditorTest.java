@@ -52,15 +52,16 @@ class ToolchainsEditorTest {
         Element toolchain = editor.addJdkToolchain(root, "17", "openjdk", "/path/to/jdk/17");
 
         assertEquals(TOOLCHAIN, toolchain.name());
-        assertEquals(JDK, toolchain.child(TYPE).orElseThrow().textContent());
+        assertEquals(JDK, toolchain.childElement(TYPE).orElseThrow().textContent());
 
-        Element provides = toolchain.child(PROVIDES).orElseThrow();
-        assertEquals("17", provides.child(VERSION).orElseThrow().textContent());
-        assertEquals("openjdk", provides.child(VENDOR).orElseThrow().textContent());
+        Element provides = toolchain.childElement(PROVIDES).orElseThrow();
+        assertEquals("17", provides.childElement(VERSION).orElseThrow().textContent());
+        assertEquals("openjdk", provides.childElement(VENDOR).orElseThrow().textContent());
 
-        Element configuration = toolchain.child(CONFIGURATION).orElseThrow();
+        Element configuration = toolchain.childElement(CONFIGURATION).orElseThrow();
         assertEquals(
-                "/path/to/jdk/17", configuration.child(JDK_HOME).orElseThrow().textContent());
+                "/path/to/jdk/17",
+                configuration.childElement(JDK_HOME).orElseThrow().textContent());
     }
 
     @Test
@@ -72,9 +73,9 @@ class ToolchainsEditorTest {
         Element toolchain = editor.addToolchain(root, PROTOBUF);
 
         assertEquals(TOOLCHAIN, toolchain.name());
-        assertEquals(PROTOBUF, toolchain.child(TYPE).orElseThrow().textContent());
-        assertTrue(toolchain.child(PROVIDES).isEmpty());
-        assertTrue(toolchain.child(CONFIGURATION).isEmpty());
+        assertEquals(PROTOBUF, toolchain.childElement(TYPE).orElseThrow().textContent());
+        assertTrue(toolchain.childElement(PROVIDES).isEmpty());
+        assertTrue(toolchain.childElement(CONFIGURATION).isEmpty());
     }
 
     @Test
@@ -86,15 +87,15 @@ class ToolchainsEditorTest {
         Element toolchain = editor.addNetBeansToolchain(root, "12.0", "/path/to/netbeans");
 
         assertEquals(TOOLCHAIN, toolchain.name());
-        assertEquals(NETBEANS, toolchain.child(TYPE).orElseThrow().textContent());
+        assertEquals(NETBEANS, toolchain.childElement(TYPE).orElseThrow().textContent());
 
-        Element provides = toolchain.child(PROVIDES).orElseThrow();
-        assertEquals("12.0", provides.child(VERSION).orElseThrow().textContent());
+        Element provides = toolchain.childElement(PROVIDES).orElseThrow();
+        assertEquals("12.0", provides.childElement(VERSION).orElseThrow().textContent());
 
-        Element configuration = toolchain.child(CONFIGURATION).orElseThrow();
+        Element configuration = toolchain.childElement(CONFIGURATION).orElseThrow();
         assertEquals(
                 "/path/to/netbeans",
-                configuration.child(INSTALL_DIR).orElseThrow().textContent());
+                configuration.childElement(INSTALL_DIR).orElseThrow().textContent());
     }
 
     @Test
@@ -108,8 +109,8 @@ class ToolchainsEditorTest {
         editor.addProvides(toolchain, VENDOR, "adoptium");
 
         assertEquals(PROVIDES, provides.name());
-        assertEquals("11", provides.child(VERSION).orElseThrow().textContent());
-        assertEquals("adoptium", provides.child(VENDOR).orElseThrow().textContent());
+        assertEquals("11", provides.childElement(VERSION).orElseThrow().textContent());
+        assertEquals("adoptium", provides.childElement(VENDOR).orElseThrow().textContent());
     }
 
     @Test
@@ -123,10 +124,12 @@ class ToolchainsEditorTest {
         editor.addConfiguration(toolchain, "customProperty", "customValue");
 
         assertEquals(CONFIGURATION, configuration.name());
-        assertEquals("/path/to/jdk", configuration.child(JDK_HOME).orElseThrow().textContent());
+        assertEquals(
+                "/path/to/jdk",
+                configuration.childElement(JDK_HOME).orElseThrow().textContent());
         assertEquals(
                 "customValue",
-                configuration.child("customProperty").orElseThrow().textContent());
+                configuration.childElement("customProperty").orElseThrow().textContent());
     }
 
     @Test
@@ -142,7 +145,7 @@ class ToolchainsEditorTest {
         editor.insertToolchainsElement(toolchain, PROVIDES);
 
         // Verify they are ordered correctly: type, provides, configuration
-        var children = toolchain.children().toList();
+        var children = toolchain.childElements().toList();
         assertEquals(TYPE, children.get(0).name());
         assertEquals(PROVIDES, children.get(1).name());
         assertEquals(CONFIGURATION, children.get(2).name());
@@ -181,33 +184,41 @@ class ToolchainsEditorTest {
         editor.addJdkToolchain(root, "11", "adoptium", "/path/to/jdk/11");
         editor.addNetBeansToolchain(root, "12.0", "/path/to/netbeans");
 
-        var toolchains = root.children(TOOLCHAIN).toList();
+        var toolchains = root.childElements(TOOLCHAIN).toList();
         assertEquals(3, toolchains.size());
 
         // Verify first toolchain (JDK 17)
         Element first = toolchains.get(0);
-        assertEquals(JDK, first.child(TYPE).orElseThrow().textContent());
+        assertEquals(JDK, first.childElement(TYPE).orElseThrow().textContent());
         assertEquals(
                 "17",
-                first.child(PROVIDES).orElseThrow().child(VERSION).orElseThrow().textContent());
+                first.childElement(PROVIDES)
+                        .orElseThrow()
+                        .childElement(VERSION)
+                        .orElseThrow()
+                        .textContent());
 
         // Verify second toolchain (JDK 11)
         Element second = toolchains.get(1);
-        assertEquals(JDK, second.child(TYPE).orElseThrow().textContent());
+        assertEquals(JDK, second.childElement(TYPE).orElseThrow().textContent());
         assertEquals(
                 "11",
-                second.child(PROVIDES)
+                second.childElement(PROVIDES)
                         .orElseThrow()
-                        .child(VERSION)
+                        .childElement(VERSION)
                         .orElseThrow()
                         .textContent());
 
         // Verify third toolchain (NetBeans)
         Element third = toolchains.get(2);
-        assertEquals(NETBEANS, third.child(TYPE).orElseThrow().textContent());
+        assertEquals(NETBEANS, third.childElement(TYPE).orElseThrow().textContent());
         assertEquals(
                 "12.0",
-                third.child(PROVIDES).orElseThrow().child(VERSION).orElseThrow().textContent());
+                third.childElement(PROVIDES)
+                        .orElseThrow()
+                        .childElement(VERSION)
+                        .orElseThrow()
+                        .textContent());
     }
 
     @Test

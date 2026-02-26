@@ -115,7 +115,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
         Element root = editor.root();
 
         // Use streaming iteration for large collections
-        root.children().forEach(child -> {
+        root.childElements().forEach(child -> {
             // Process each child individually
             processElement(child);
 
@@ -297,7 +297,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
         Element root = editor.root();
 
         // Process children one at a time
-        Iterator<Element> children = root.children().iterator();
+        Iterator<Element> children = root.childElements().iterator();
         while (children.hasNext()) {
             Element child = children.next();
 

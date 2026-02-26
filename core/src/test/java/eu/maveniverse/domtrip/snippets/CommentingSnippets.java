@@ -28,7 +28,7 @@ public class CommentingSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element dependency = doc.root().child("dependency").orElseThrow();
+        Element dependency = doc.root().childElement("dependency").orElseThrow();
 
         // Comment out the dependency
         Comment comment = editor.commentOutElement(dependency);
@@ -59,8 +59,9 @@ public class CommentingSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element junit = doc.root().children("dependency").findFirst().orElseThrow();
-        Element mockito = doc.root().children("dependency").skip(1).findFirst().orElseThrow();
+        Element junit = doc.root().childElements("dependency").findFirst().orElseThrow();
+        Element mockito =
+                doc.root().childElements("dependency").skip(1).findFirst().orElseThrow();
 
         // Comment out both dependencies as a block
         Comment comment = editor.commentOutElements(junit, mockito);
@@ -87,7 +88,7 @@ public class CommentingSnippets extends BaseSnippetTest {
 
         // Find the comment containing the dependency
         Comment comment = doc.root()
-                .nodes()
+                .children()
                 .filter(node -> node instanceof Comment)
                 .map(node -> (Comment) node)
                 .findFirst()
@@ -115,7 +116,7 @@ public class CommentingSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element dependency = doc.root().child("dependency").orElseThrow();
+        Element dependency = doc.root().childElement("dependency").orElseThrow();
 
         // START: whitespace-preservation
         // Original element with specific indentation
@@ -144,8 +145,8 @@ public class CommentingSnippets extends BaseSnippetTest {
         Editor editor = new Editor(doc);
 
         // START: round-trip-operations
-        Element original = doc.root().child("dependency").orElseThrow();
-        String originalGroupId = original.child("groupId").orElseThrow().textContent();
+        Element original = doc.root().childElement("dependency").orElseThrow();
+        String originalGroupId = original.childElement("groupId").orElseThrow().textContent();
 
         // Comment out
         Comment comment = editor.commentOutElement(original);
@@ -155,7 +156,7 @@ public class CommentingSnippets extends BaseSnippetTest {
 
         // Verify restoration
         Assertions.assertEquals(
-                originalGroupId, restored.child("groupId").orElseThrow().textContent());
+                originalGroupId, restored.childElement("groupId").orElseThrow().textContent());
         // END: round-trip-operations
     }
 
@@ -194,7 +195,7 @@ public class CommentingSnippets extends BaseSnippetTest {
             """);
 
         Editor editor = new Editor(doc);
-        Element dependency = doc.root().child("dependency").orElseThrow();
+        Element dependency = doc.root().childElement("dependency").orElseThrow();
         Element root = doc.root();
 
         // START: commenting-integration

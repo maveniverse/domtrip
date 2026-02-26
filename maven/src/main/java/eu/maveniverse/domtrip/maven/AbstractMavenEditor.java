@@ -134,7 +134,7 @@ public abstract class AbstractMavenEditor extends Editor {
             if (shouldSkipInOrdering(beforeElementName)) {
                 continue; // Skip special markers (like blank lines in POM)
             }
-            Element existing = parent.child(beforeElementName).orElse(null);
+            Element existing = parent.childElement(beforeElementName).orElse(null);
             if (existing != null) {
                 insertAfter = existing;
                 break;
@@ -147,7 +147,7 @@ public abstract class AbstractMavenEditor extends Editor {
             if (shouldSkipInOrdering(afterElementName)) {
                 continue; // Skip special markers (like blank lines in POM)
             }
-            Element existing = parent.child(afterElementName).orElse(null);
+            Element existing = parent.childElement(afterElementName).orElse(null);
             if (existing != null) {
                 insertBefore = existing;
                 break;

@@ -12,7 +12,7 @@ DomTrip is a Java library for lossless XML editing that preserves every detail o
 
 - **🔄 Perfect Round-Trip**: Preserves comments, whitespace, entity encoding, attribute quote styles, and formatting
 - **📝 Easy Editing**: Make changes while keeping original formatting intact
-- **🚀 Modern API**: Built for Java 17+ with fluent builders, Stream-based navigation, and type-safe configuration
+- **🚀 Modern API**: Built for Java 8+ with fluent builders, Stream-based navigation, and type-safe configuration
 - **🌐 Namespace Aware**: Comprehensive XML namespace support with resolution and context management
 - **⚡ Performance**: Minimal-change serialization - only modified sections are reformatted
 

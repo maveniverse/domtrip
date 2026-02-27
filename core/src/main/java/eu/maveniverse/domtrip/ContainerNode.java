@@ -185,6 +185,37 @@ public abstract class ContainerNode extends Node {
     }
 
     /**
+     * Replace the {@code existingNode} {@link Node} with the given {@code replacementNode}, if {@code existingNode} is not {@code null};
+     * otherwise behaves the same as {@link ContainerNode#addChild(Node) addChild(replacementNode)}.
+     *
+     * @param existingNode the {@link Node} to replace
+     * @param replacementNode the {@link Node} to put in place of {@code existingNode}
+     * @throws IllegalArgumentException if {@code replacementNode} is {@code null}
+     * or when {@code existingNode} is not a child of this {@link ContainerNode}
+     * @since 0.6.0
+     */
+    public void replaceChild(Node existingNode, Node replacementNode) {
+        if (existingNode == null) {
+            addChild(replacementNode);
+            return;
+        }
+        if (replacementNode == null) {
+            throw new IllegalArgumentException("replacementNode cannot be null");
+        }
+        int index = children.indexOf(existingNode);
+        if (index < 0) {
+            throw new IllegalArgumentException("existingNode not found in this ContainerNode");
+        }
+        // Remove from previous parent if it exists
+        if (replacementNode.parent() != null) {
+            replacementNode.parent().removeChild(replacementNode);
+        }
+        replacementNode.parent(this);
+        children.set(index, replacementNode);
+        markModified();
+    }
+
+    /**
      * Removes the given child {@link Node} from this {@link ContainerNode}.
      *
      * @param node the {@link Node} to remove

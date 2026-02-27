@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -259,6 +260,43 @@ public class ContainerNodeTest {
         }
         {
             assertFalse(new Element("root").lastChild().isPresent());
+        }
+    }
+
+    @Test
+    void replaceChild() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            root.replaceChild(b, new Element("c"));
+            assertEquals("<root><a></a><c></c></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            root.replaceChild(null, new Element("c"));
+            assertEquals("<root><a></a><b></b><c></c></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            try {
+                root.replaceChild(new Element("d"), new Element("c"));
+                Assertions.fail("IllegalArgumentException expected");
+            } catch (IllegalArgumentException expected) {
+            }
         }
     }
 }

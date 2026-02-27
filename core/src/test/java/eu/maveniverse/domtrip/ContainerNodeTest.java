@@ -3,8 +3,10 @@ package eu.maveniverse.domtrip;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -153,5 +155,148 @@ public class ContainerNodeTest {
         assertFalse(root.isModified());
         assertFalse(child.isModified());
         assertFalse(text.isModified());
+    }
+
+    @Test
+    void insertChildBefore() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* First */
+            root.insertChildBefore(a, new Element("c"));
+            assertEquals("<root><c></c><a></a><b></b></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* Middle */
+            root.insertChildBefore(b, new Element("c"));
+            assertEquals("<root><a></a><c></c><b></b></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* Last */
+            root.insertChildBefore(null, new Element("c"));
+            assertEquals("<root><a></a><b></b><c></c></root>", root.toXml());
+        }
+    }
+
+    @Test
+    void insertChildAfter() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* Middle */
+            root.insertChildAfter(a, new Element("c"));
+            assertEquals("<root><a></a><c></c><b></b></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* After last */
+            root.insertChildAfter(b, new Element("c"));
+            assertEquals("<root><a></a><b></b><c></c></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* Last with null ref */
+            root.insertChildAfter(null, new Element("c"));
+            assertEquals("<root><a></a><b></b><c></c></root>", root.toXml());
+        }
+    }
+
+    @Test
+    void firstChild() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            assertSame(a, root.firstChild().get());
+        }
+        {
+            assertFalse(new Element("root").firstChild().isPresent());
+        }
+    }
+
+    @Test
+    void lastChild() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            assertSame(b, root.lastChild().get());
+        }
+        {
+            assertFalse(new Element("root").lastChild().isPresent());
+        }
+    }
+
+    @Test
+    void replaceChild() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            root.replaceChild(b, new Element("c"));
+            assertEquals("<root><a></a><c></c></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            root.replaceChild(null, new Element("c"));
+            assertEquals("<root><a></a><b></b><c></c></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            try {
+                root.replaceChild(new Element("d"), new Element("c"));
+                Assertions.fail("IllegalArgumentException expected");
+            } catch (IllegalArgumentException expected) {
+            }
+        }
     }
 }

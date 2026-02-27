@@ -36,27 +36,29 @@ public abstract class ContainerNode extends Node {
     }
 
     /**
-     * Adds a child node to this container.
+     * Adds the given {@code node} as a child to this {@link ContainerNode}.
      *
      * @param node the {@link Node} to add
+     * @throws IllegalArgumentException if {@code node} is {@code null}
      */
     public void addChild(Node node) {
-        if (node != null) {
-            // Remove from previous parent if it exists
-            if (node.parent() != null) {
-                node.parent().removeChild(node);
-            }
-            node.parent(this);
-            children.add(node);
-            // If this is an Element and it was self-closing, make it not self-closing
-            if (this instanceof Element) {
-                Element element = (Element) this;
-                if (element.selfClosing()) {
-                    element.selfClosingInternal(false);
-                }
-            }
-            markModified();
+        if (node == null) {
+            throw new IllegalArgumentException("Cannot add null as a child node");
         }
+        // Remove from previous parent if it exists
+        if (node.parent() != null) {
+            node.parent().removeChild(node);
+        }
+        node.parent(this);
+        children.add(node);
+        // If this is an Element and it was self-closing, make it not self-closing
+        if (this instanceof Element) {
+            Element element = (Element) this;
+            if (element.selfClosing()) {
+                element.selfClosingInternal(false);
+            }
+        }
+        markModified();
     }
 
     /**
@@ -104,6 +106,116 @@ public abstract class ContainerNode extends Node {
     }
 
     /**
+     * Inserts a child {@link Node} before the specified {@code referenceNode}, if {@code referenceNode} is not {@code null};
+     * otherwise behaves the same as {@link ContainerNode#addChild(Node) addChild(newNode)}.
+     *
+     * @param referenceNode the node before which the {@code newNode} should be inserted
+     * @param newNode the {@link Node} to insert
+     * @throws IllegalArgumentException if {@code newNode} is {@code} or when {@code referenceNode} is not a child of this {@link ContainerNode}
+     * @since 0.6.0
+     */
+    public void insertChildBefore(Node referenceNode, Node newNode) {
+        if (referenceNode == null) {
+            addChild(newNode);
+            return;
+        }
+        if (newNode == null) {
+            throw new IllegalArgumentException("newNode cannot be null");
+        }
+        int index = children.indexOf(referenceNode);
+        if (index < 0) {
+            throw new IllegalArgumentException("referenceNode not found in this ContainerNode");
+        }
+        // Remove from previous parent if it exists
+        if (newNode.parent() != null) {
+            newNode.parent().removeChild(newNode);
+        }
+        newNode.parent(this);
+        children.add(index, newNode);
+        // If this is an Element and it was self-closing, make it not self-closing
+        if (this instanceof Element) {
+            Element element = (Element) this;
+            if (element.selfClosing()) {
+                element.selfClosingInternal(false);
+            }
+        }
+        markModified();
+    }
+
+    /**
+     * Inserts a child {@link Node} after the specified {@code referenceNode}, if {@code referenceNode} is not {@code null};
+     * otherwise behaves the same as {@link ContainerNode#addChild(Node) addChild(newNode)}.
+     *
+     * @param referenceNode the node after which the {@code newNode} should be inserted
+     * @param newNode the {@link Node} to insert
+     * @throws IllegalArgumentException if {@code newNode} is {@code} or when {@code referenceNode} is not a child of this {@link ContainerNode}
+     * @since 0.6.0
+     */
+    public void insertChildAfter(Node referenceNode, Node newNode) {
+        if (referenceNode == null) {
+            addChild(newNode);
+            return;
+        }
+        if (newNode == null) {
+            throw new IllegalArgumentException("newNode cannot be null");
+        }
+        int index = children.indexOf(referenceNode);
+        if (index < 0) {
+            throw new IllegalArgumentException("referenceNode not found in this ContainerNode");
+        }
+        // Remove from previous parent if it exists
+        if (newNode.parent() != null) {
+            newNode.parent().removeChild(newNode);
+        }
+        newNode.parent(this);
+        index++;
+        if (index < children.size()) {
+            children.add(index, newNode);
+        } else {
+            children.add(newNode);
+        }
+        // If this is an Element and it was self-closing, make it not self-closing
+        if (this instanceof Element) {
+            Element element = (Element) this;
+            if (element.selfClosing()) {
+                element.selfClosingInternal(false);
+            }
+        }
+        markModified();
+    }
+
+    /**
+     * Replace the {@code existingNode} {@link Node} with the given {@code replacementNode}, if {@code existingNode} is not {@code null};
+     * otherwise behaves the same as {@link ContainerNode#addChild(Node) addChild(replacementNode)}.
+     *
+     * @param existingNode the {@link Node} to replace
+     * @param replacementNode the {@link Node} to put in place of {@code existingNode}
+     * @throws IllegalArgumentException if {@code replacementNode} is {@code null}
+     * or when {@code existingNode} is not a child of this {@link ContainerNode}
+     * @since 0.6.0
+     */
+    public void replaceChild(Node existingNode, Node replacementNode) {
+        if (existingNode == null) {
+            addChild(replacementNode);
+            return;
+        }
+        if (replacementNode == null) {
+            throw new IllegalArgumentException("replacementNode cannot be null");
+        }
+        int index = children.indexOf(existingNode);
+        if (index < 0) {
+            throw new IllegalArgumentException("existingNode not found in this ContainerNode");
+        }
+        // Remove from previous parent if it exists
+        if (replacementNode.parent() != null) {
+            replacementNode.parent().removeChild(replacementNode);
+        }
+        replacementNode.parent(this);
+        children.set(index, replacementNode);
+        markModified();
+    }
+
+    /**
      * Removes the given child {@link Node} from this {@link ContainerNode}.
      *
      * @param node the {@link Node} to remove
@@ -127,6 +239,27 @@ public abstract class ContainerNode extends Node {
      */
     public Node child(int index) {
         return children.get(index);
+    }
+
+    /**
+     * Gets the first child.
+     *
+     * @return an {@link Optional} holding the last first if this {@link ContainerNode} has any children or otherwise and empty {@link Optional}
+     * @since 0.6.0
+     */
+    public Optional<Node> firstChild() {
+        return children.size() == 0 ? Optional.empty() : Optional.of(children.get(0));
+    }
+
+    /**
+     * Gets the last child.
+     *
+     * @return an {@link Optional} holding the last child if this {@link ContainerNode} has any children or otherwise and empty {@link Optional}
+     * @since 0.6.0
+     */
+    public Optional<Node> lastChild() {
+        final int cnt = children.size();
+        return cnt == 0 ? Optional.empty() : Optional.of(children.get(cnt - 1));
     }
 
     /** @deprecated Use {@link #child(int)} instead. */

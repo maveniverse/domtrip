@@ -210,6 +210,27 @@ public abstract class ContainerNode extends Node {
         return children.get(index);
     }
 
+    /**
+     * Gets the first child.
+     *
+     * @return an {@link Optional} holding the last first if this {@link ContainerNode} has any children or otherwise and empty {@link Optional}
+     * @since 0.6.0
+     */
+    public Optional<Node> firstChild() {
+        return children.size() == 0 ? Optional.empty() : Optional.of(children.get(0));
+    }
+
+    /**
+     * Gets the last child.
+     *
+     * @return an {@link Optional} holding the last child if this {@link ContainerNode} has any children or otherwise and empty {@link Optional}
+     * @since 0.6.0
+     */
+    public Optional<Node> lastChild() {
+        final int cnt = children.size();
+        return cnt == 0 ? Optional.empty() : Optional.of(children.get(cnt - 1));
+    }
+
     /** @deprecated Use {@link #child(int)} instead. */
     @Deprecated
     public Node getNode(int index) {

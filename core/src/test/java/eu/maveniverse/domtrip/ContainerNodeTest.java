@@ -3,6 +3,7 @@ package eu.maveniverse.domtrip;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -226,6 +227,38 @@ public class ContainerNodeTest {
             /* Last with null ref */
             root.insertChildAfter(null, new Element("c"));
             assertEquals("<root><a></a><b></b><c></c></root>", root.toXml());
+        }
+    }
+
+    @Test
+    void firstChild() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            assertSame(a, root.firstChild().get());
+        }
+        {
+            assertFalse(new Element("root").firstChild().isPresent());
+        }
+    }
+
+    @Test
+    void lastChild() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            assertSame(b, root.lastChild().get());
+        }
+        {
+            assertFalse(new Element("root").lastChild().isPresent());
         }
     }
 }

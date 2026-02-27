@@ -154,4 +154,78 @@ public class ContainerNodeTest {
         assertFalse(child.isModified());
         assertFalse(text.isModified());
     }
+
+    @Test
+    void insertChildBefore() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* First */
+            root.insertChildBefore(a, new Element("c"));
+            assertEquals("<root><c></c><a></a><b></b></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* Middle */
+            root.insertChildBefore(b, new Element("c"));
+            assertEquals("<root><a></a><c></c><b></b></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* Last */
+            root.insertChildBefore(null, new Element("c"));
+            assertEquals("<root><a></a><b></b><c></c></root>", root.toXml());
+        }
+    }
+
+    @Test
+    void insertChildAfter() throws DomTripException {
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* Middle */
+            root.insertChildAfter(a, new Element("c"));
+            assertEquals("<root><a></a><c></c><b></b></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* After last */
+            root.insertChildAfter(b, new Element("c"));
+            assertEquals("<root><a></a><b></b><c></c></root>", root.toXml());
+        }
+        {
+            Element root = new Element("root");
+            final Element a = new Element("a");
+            root.addChild(a);
+            final Element b = new Element("b");
+            root.addChild(b);
+
+            /* Last with null ref */
+            root.insertChildAfter(null, new Element("c"));
+            assertEquals("<root><a></a><b></b><c></c></root>", root.toXml());
+        }
+    }
 }

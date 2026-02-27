@@ -36,27 +36,29 @@ public abstract class ContainerNode extends Node {
     }
 
     /**
-     * Adds a child node to this container.
+     * Adds the given {@code node} as a child to this {@link ContainerNode}.
      *
      * @param node the {@link Node} to add
+     * @throws IllegalArgumentException if {@code node} is {@code null}
      */
     public void addChild(Node node) {
-        if (node != null) {
-            // Remove from previous parent if it exists
-            if (node.parent() != null) {
-                node.parent().removeChild(node);
-            }
-            node.parent(this);
-            children.add(node);
-            // If this is an Element and it was self-closing, make it not self-closing
-            if (this instanceof Element) {
-                Element element = (Element) this;
-                if (element.selfClosing()) {
-                    element.selfClosingInternal(false);
-                }
-            }
-            markModified();
+        if (node == null) {
+            throw new IllegalArgumentException("Cannot add null as a child node");
         }
+        // Remove from previous parent if it exists
+        if (node.parent() != null) {
+            node.parent().removeChild(node);
+        }
+        node.parent(this);
+        children.add(node);
+        // If this is an Element and it was self-closing, make it not self-closing
+        if (this instanceof Element) {
+            Element element = (Element) this;
+            if (element.selfClosing()) {
+                element.selfClosingInternal(false);
+            }
+        }
+        markModified();
     }
 
     /**
@@ -93,6 +95,85 @@ public abstract class ContainerNode extends Node {
         }
         node.parent(this);
         children.add(index, node);
+        // If this is an Element and it was self-closing, make it not self-closing
+        if (this instanceof Element) {
+            Element element = (Element) this;
+            if (element.selfClosing()) {
+                element.selfClosingInternal(false);
+            }
+        }
+        markModified();
+    }
+
+    /**
+     * Inserts a child {@link Node} before the specified {@code referenceNode}, if {@code referenceNode} is not {@code null};
+     * otherwise behaves the same as {@link ContainerNode#addChild(Node) addChild(newNode)}.
+     *
+     * @param referenceNode the node before which the {@code newNode} should be inserted
+     * @param newNode the {@link Node} to insert
+     * @throws IllegalArgumentException if {@code newNode} is {@code} or when {@code referenceNode} is not a child of this {@link ContainerNode}
+     * @since 0.6.0
+     */
+    public void insertChildBefore(Node referenceNode, Node newNode) {
+        if (referenceNode == null) {
+            addChild(newNode);
+            return;
+        }
+        if (newNode == null) {
+            throw new IllegalArgumentException("newNode cannot be null");
+        }
+        int index = children.indexOf(referenceNode);
+        if (index < 0) {
+            throw new IllegalArgumentException("referenceNode not found in this ContainerNode");
+        }
+        // Remove from previous parent if it exists
+        if (newNode.parent() != null) {
+            newNode.parent().removeChild(newNode);
+        }
+        newNode.parent(this);
+        children.add(index, newNode);
+        // If this is an Element and it was self-closing, make it not self-closing
+        if (this instanceof Element) {
+            Element element = (Element) this;
+            if (element.selfClosing()) {
+                element.selfClosingInternal(false);
+            }
+        }
+        markModified();
+    }
+
+    /**
+     * Inserts a child {@link Node} after the specified {@code referenceNode}, if {@code referenceNode} is not {@code null};
+     * otherwise behaves the same as {@link ContainerNode#addChild(Node) addChild(newNode)}.
+     *
+     * @param referenceNode the node after which the {@code newNode} should be inserted
+     * @param newNode the {@link Node} to insert
+     * @throws IllegalArgumentException if {@code newNode} is {@code} or when {@code referenceNode} is not a child of this {@link ContainerNode}
+     * @since 0.6.0
+     */
+    public void insertChildAfter(Node referenceNode, Node newNode) {
+        if (referenceNode == null) {
+            addChild(newNode);
+            return;
+        }
+        if (newNode == null) {
+            throw new IllegalArgumentException("newNode cannot be null");
+        }
+        int index = children.indexOf(referenceNode);
+        if (index < 0) {
+            throw new IllegalArgumentException("referenceNode not found in this ContainerNode");
+        }
+        // Remove from previous parent if it exists
+        if (newNode.parent() != null) {
+            newNode.parent().removeChild(newNode);
+        }
+        newNode.parent(this);
+        index++;
+        if (index < children.size()) {
+            children.add(index, newNode);
+        } else {
+            children.add(newNode);
+        }
         // If this is an Element and it was self-closing, make it not self-closing
         if (this instanceof Element) {
             Element element = (Element) this;

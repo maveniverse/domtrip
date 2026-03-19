@@ -23,7 +23,7 @@
   <properties>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <version.quarkus.platform>3.32.3</version.quarkus.platform>
+    <version.quarkus.platform>3.32.4</version.quarkus.platform>
     <version.quarkus-roq>2.0.5</version.quarkus-roq>
   </properties>
 

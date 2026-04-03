@@ -1299,7 +1299,7 @@ public class Editor {
          * @return a new EditorTextBuilder for fluent text construction
          */
         public EditorTextBuilder text() {
-            return new EditorTextBuilder(editor);
+            return new EditorTextBuilder();
         }
     }
 
@@ -1511,7 +1511,7 @@ public class Editor {
         private final Text text;
         private ContainerNode parent;
 
-        private EditorTextBuilder(Editor editor) {
+        private EditorTextBuilder() {
             this.text = new Text("");
         }
 

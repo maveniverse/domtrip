@@ -5,6 +5,9 @@ target
 # Generated Javadocs (generated during build, not committed)
 website/public/javadoc/
 
+# Nisse inlined POMs
+.inlined-pom.xml
+
 # Eclipse
 .project
 .classpath

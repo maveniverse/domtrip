@@ -14,7 +14,7 @@
   <parent>
     <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip</artifactId>
-    <version>${revision}</version>
+    <version>${nisse.jgit.dynamicVersion}</version>
   </parent>
 
   <artifactId>domtrip-website</artifactId>

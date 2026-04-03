@@ -94,7 +94,7 @@ jobs:
             milestone=$(gh milestone list --json id,title,state --jq "map_values(select(.title == \"${next_version}\" and .state == \"OPEN\")).[].number")
             if [ -z "$milestone" ]; then
               echo "Creating milestone $next_version"
-              gh milestone create --title $next_version
+              gh milestone create --title $next_version || echo "Milestone already exists, skipping"
             fi
           else
             echo "ERROR: Version $version is not a valid semantic version (x.y.z)"

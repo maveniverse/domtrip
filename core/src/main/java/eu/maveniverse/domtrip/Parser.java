@@ -196,14 +196,26 @@ public class Parser {
             // Convert bytes to string using detected encoding
             String xmlString = new String(xmlBytes, detectedCharset);
 
+            // Strip BOM character (U+FEFF) if present at the beginning of the string.
+            // The BOM is encoding-level metadata that has already been used for charset detection.
+            // It should not appear in the parsed XML content.
+            boolean hasBom = !xmlString.isEmpty() && xmlString.charAt(0) == '\uFEFF';
+            if (hasBom) {
+                xmlString = xmlString.substring(1);
+            }
+
             // Parse the XML string
             Document document = parse(xmlString);
-
-            // Update document encoding based on detection
-            document.encoding(detectedCharset.name());
+            document.bom(hasBom);
 
             // Parse XML declaration attributes and update document properties
             updateDocumentFromXmlDeclaration(document, xmlString);
+
+            // Update document encoding based on byte-level detection.
+            // This must happen AFTER updateDocumentFromXmlDeclaration, because the detected
+            // encoding (from BOM or byte patterns) takes precedence over the declared encoding
+            // in the XML declaration (which may be inaccurate).
+            document.encoding(detectedCharset.name());
 
             return document;
 
@@ -339,7 +351,7 @@ public class Parser {
                         }
 
                         // Parse closing tag
-                        Element closedElement = parseClosingTag(nodeStack);
+                        parseClosingTag(nodeStack);
                         // Note: Following whitespace will be captured as preceding whitespace of next sibling
                     } else {
                         // Parse opening tag

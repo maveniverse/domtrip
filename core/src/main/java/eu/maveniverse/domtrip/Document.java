@@ -85,6 +85,7 @@ public class Document extends ContainerNode {
     private String encoding;
     private String version;
     private boolean standalone;
+    private boolean bom;
 
     /**
      * Creates a new empty XML document with default settings.
@@ -102,6 +103,7 @@ public class Document extends ContainerNode {
         this.encoding = "UTF-8";
         this.version = "1.0";
         this.standalone = false;
+        this.bom = false;
     }
 
     /**
@@ -117,6 +119,7 @@ public class Document extends ContainerNode {
         this.encoding = original.encoding;
         this.version = original.version;
         this.standalone = original.standalone;
+        this.bom = original.bom;
 
         // Copy inherited Node properties
         this.precedingWhitespace = original.precedingWhitespace;
@@ -367,6 +370,36 @@ public class Document extends ContainerNode {
     public Document standalone(boolean standalone) {
         this.standalone = standalone;
         markModified();
+        return this;
+    }
+
+    /**
+     * Returns whether this document had a Byte Order Mark (BOM) when it was parsed.
+     *
+     * <p>When true, the BOM will be written back when serializing to an OutputStream
+     * via {@link #toXml(OutputStream)}, {@link #toXml(OutputStream, Charset)}, or
+     * {@link #toXml(OutputStream, String)}. The BOM is never included in the string
+     * output from {@link #toXml()}.</p>
+     *
+     * @return true if the document had a BOM, false otherwise
+     * @see #bom(boolean)
+     * @since 0.7.0
+     */
+    public boolean hasBom() {
+        return bom;
+    }
+
+    /**
+     * Sets whether a Byte Order Mark (BOM) should be written when serializing
+     * to an OutputStream.
+     *
+     * @param bom true to write a BOM, false otherwise
+     * @return this document for method chaining
+     * @see #hasBom()
+     * @since 0.7.0
+     */
+    public Document bom(boolean bom) {
+        this.bom = bom;
         return this;
     }
 

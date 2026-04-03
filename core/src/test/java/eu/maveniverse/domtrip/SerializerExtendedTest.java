@@ -526,21 +526,23 @@ class SerializerExtendedTest {
 
     @Test
     void testSerializeDocumentToOutputStreamUsesDocumentEncoding() {
-        String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<root>text</root>";
+        String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<root>caf\u00e9</root>";
         Document doc = Document.of(xml);
         Serializer s = new Serializer();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        s.serialize(doc, baos); // should use document's encoding
-        assertTrue(baos.size() > 0);
+        s.serialize(doc, baos);
+        byte[] out = baos.toByteArray();
+        assertTrue(new String(out, StandardCharsets.ISO_8859_1).contains("caf\u00e9"));
     }
 
     @Test
     void testSerializeDocumentEmptyEncoding() {
-        String xml = "<?xml version=\"1.0\"?>\n<root>text</root>";
+        String xml = "<?xml version=\"1.0\"?>\n<root>caf\u00e9</root>";
         Document doc = Document.of(xml);
         Serializer s = new Serializer();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        s.serialize(doc, baos); // no encoding attribute -> defaults to UTF-8
-        assertTrue(baos.size() > 0);
+        s.serialize(doc, baos);
+        byte[] out = baos.toByteArray();
+        assertTrue(new String(out, StandardCharsets.UTF_8).contains("caf\u00e9"));
     }
 }

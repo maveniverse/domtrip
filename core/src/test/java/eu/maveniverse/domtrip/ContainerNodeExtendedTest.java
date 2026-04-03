@@ -198,7 +198,9 @@ class ContainerNodeExtendedTest {
         assertTrue(empty.selfClosing());
 
         Element ref = Element.of("ref");
-        empty.addChild(ref);
+        empty.insertChild(0, ref);
+        Element newNode = Element.of("new");
+        empty.insertChildAfter(ref, newNode);
         assertFalse(empty.selfClosing());
     }
 

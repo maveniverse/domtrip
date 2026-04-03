@@ -14,7 +14,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class SerializerExtendedTest {
 
@@ -175,37 +179,23 @@ class SerializerExtendedTest {
         assertTrue(result.contains("<root"));
     }
 
-    @Test
-    void testPrettyPrintEmptyElementSelfClosing() {
-        Document doc = Document.of("<root><empty/></root>");
-        doc.root().markModified(); // force re-serialization
-        Serializer s = new Serializer();
-        s.setPrettyPrint(true);
-        s.setEmptyElementStyle(EmptyElementStyle.SELF_CLOSING);
-        String result = s.serialize(doc);
-        assertTrue(result.contains("/>"));
-    }
-
-    @Test
-    void testPrettyPrintEmptyElementExpanded() {
+    @ParameterizedTest
+    @MethodSource("emptyElementStyleProvider")
+    void testPrettyPrintEmptyElementStyle(EmptyElementStyle style, String expectedPattern) {
         Document doc = Document.of("<root><empty/></root>");
         doc.root().markModified();
         Serializer s = new Serializer();
         s.setPrettyPrint(true);
-        s.setEmptyElementStyle(EmptyElementStyle.EXPANDED);
+        s.setEmptyElementStyle(style);
         String result = s.serialize(doc);
-        assertTrue(result.contains("></empty>"));
+        assertTrue(result.contains(expectedPattern));
     }
 
-    @Test
-    void testPrettyPrintEmptyElementSelfClosingSpaced() {
-        Document doc = Document.of("<root><empty/></root>");
-        doc.root().markModified();
-        Serializer s = new Serializer();
-        s.setPrettyPrint(true);
-        s.setEmptyElementStyle(EmptyElementStyle.SELF_CLOSING_SPACED);
-        String result = s.serialize(doc);
-        assertTrue(result.contains(" />"));
+    static Stream<Arguments> emptyElementStyleProvider() {
+        return Stream.of(
+                Arguments.of(EmptyElementStyle.SELF_CLOSING, "/>"),
+                Arguments.of(EmptyElementStyle.EXPANDED, "></empty>"),
+                Arguments.of(EmptyElementStyle.SELF_CLOSING_SPACED, " />"));
     }
 
     @Test
@@ -395,6 +385,7 @@ class SerializerExtendedTest {
         Serializer s = new Serializer();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         assertDoesNotThrow(() -> s.serialize((Node) null, baos));
+        assertEquals(0, baos.size());
     }
 
     @Test
@@ -524,13 +515,11 @@ class SerializerExtendedTest {
         s.serialize(doc, baos);
 
         byte[] output = baos.toByteArray();
-        if (doc.hasBom()) {
-            // Should start with BOM
-            assertTrue(output.length > 3);
-            assertEquals((byte) 0xEF, output[0]);
-            assertEquals((byte) 0xBB, output[1]);
-            assertEquals((byte) 0xBF, output[2]);
-        }
+        assertTrue(doc.hasBom(), "Document should have detected BOM from input");
+        assertTrue(output.length > 3);
+        assertEquals((byte) 0xEF, output[0]);
+        assertEquals((byte) 0xBB, output[1]);
+        assertEquals((byte) 0xBF, output[2]);
     }
 
     // ===== Document Encoding =====

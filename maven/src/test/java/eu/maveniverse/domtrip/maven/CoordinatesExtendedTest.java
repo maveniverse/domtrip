@@ -11,6 +11,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import eu.maveniverse.domtrip.DomTripException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class CoordinatesExtendedTest {
 
@@ -53,21 +56,11 @@ class CoordinatesExtendedTest {
         assertNull(c.version());
     }
 
-    @Test
-    void testNullTypeDefaultsToJar() {
-        Coordinates c = new Coordinates("g", "a", "1.0", null, null);
-        assertEquals("jar", c.type());
-    }
-
-    @Test
-    void testEmptyTypeDefaultsToJar() {
-        Coordinates c = new Coordinates("g", "a", "1.0", null, "");
-        assertEquals("jar", c.type());
-    }
-
-    @Test
-    void testBlankTypeDefaultsToJar() {
-        Coordinates c = new Coordinates("g", "a", "1.0", null, "  ");
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"  "})
+    void testNullEmptyOrBlankTypeDefaultsToJar(String type) {
+        Coordinates c = new Coordinates("g", "a", "1.0", null, type);
         assertEquals("jar", c.type());
     }
 

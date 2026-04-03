@@ -9,7 +9,11 @@ package eu.maveniverse.domtrip;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class NamespaceResolverTest {
 
@@ -249,73 +253,37 @@ class NamespaceResolverTest {
         assertEquals("http://inner.com", ctx.namespaceURI("ns"));
     }
 
-    @Test
-    void testSplitQualifiedNameNull() {
-        String[] parts = NamespaceResolver.splitQualifiedName(null);
-        assertNull(parts[0]);
-        assertEquals("", parts[1]);
+    @ParameterizedTest
+    @MethodSource("splitQualifiedNameProvider")
+    void testSplitQualifiedName(String input, String expectedPrefix, String expectedLocalName) {
+        String[] parts = NamespaceResolver.splitQualifiedName(input);
+        assertEquals(expectedPrefix, parts[0]);
+        assertEquals(expectedLocalName, parts[1]);
     }
 
-    @Test
-    void testSplitQualifiedNameEmpty() {
-        String[] parts = NamespaceResolver.splitQualifiedName("");
-        assertNull(parts[0]);
-        assertEquals("", parts[1]);
+    static Stream<Arguments> splitQualifiedNameProvider() {
+        return Stream.of(
+                Arguments.of(null, null, ""),
+                Arguments.of("", null, ""),
+                Arguments.of("localName", null, "localName"),
+                Arguments.of("prefix:localName", "prefix", "localName"),
+                Arguments.of(":localName", null, "localName")); // empty prefix becomes null
     }
 
-    @Test
-    void testSplitQualifiedNameNoPrefix() {
-        String[] parts = NamespaceResolver.splitQualifiedName("localName");
-        assertNull(parts[0]);
-        assertEquals("localName", parts[1]);
+    @ParameterizedTest
+    @MethodSource("createQualifiedNameProvider")
+    void testCreateQualifiedName(String prefix, String localName, String expected) {
+        assertEquals(expected, NamespaceResolver.createQualifiedName(prefix, localName));
     }
 
-    @Test
-    void testSplitQualifiedNameWithPrefix() {
-        String[] parts = NamespaceResolver.splitQualifiedName("prefix:localName");
-        assertEquals("prefix", parts[0]);
-        assertEquals("localName", parts[1]);
-    }
-
-    @Test
-    void testSplitQualifiedNameEmptyPrefix() {
-        String[] parts = NamespaceResolver.splitQualifiedName(":localName");
-        assertNull(parts[0]); // empty prefix becomes null
-        assertEquals("localName", parts[1]);
-    }
-
-    @Test
-    void testCreateQualifiedNameBothPresent() {
-        assertEquals("prefix:localName", NamespaceResolver.createQualifiedName("prefix", "localName"));
-    }
-
-    @Test
-    void testCreateQualifiedNameNullPrefix() {
-        assertEquals("localName", NamespaceResolver.createQualifiedName(null, "localName"));
-    }
-
-    @Test
-    void testCreateQualifiedNameEmptyPrefix() {
-        assertEquals("localName", NamespaceResolver.createQualifiedName("", "localName"));
-    }
-
-    @Test
-    void testCreateQualifiedNameNullLocalName() {
-        assertEquals("prefix", NamespaceResolver.createQualifiedName("prefix", null));
-    }
-
-    @Test
-    void testCreateQualifiedNameEmptyLocalName() {
-        assertEquals("prefix", NamespaceResolver.createQualifiedName("prefix", ""));
-    }
-
-    @Test
-    void testCreateQualifiedNameBothNull() {
-        assertEquals("", NamespaceResolver.createQualifiedName(null, null));
-    }
-
-    @Test
-    void testCreateQualifiedNameBothEmpty() {
-        assertEquals("", NamespaceResolver.createQualifiedName("", ""));
+    static Stream<Arguments> createQualifiedNameProvider() {
+        return Stream.of(
+                Arguments.of("prefix", "localName", "prefix:localName"),
+                Arguments.of(null, "localName", "localName"),
+                Arguments.of("", "localName", "localName"),
+                Arguments.of("prefix", null, "prefix"),
+                Arguments.of("prefix", "", "prefix"),
+                Arguments.of(null, null, ""),
+                Arguments.of("", "", ""));
     }
 }

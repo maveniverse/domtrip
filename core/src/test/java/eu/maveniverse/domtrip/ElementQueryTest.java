@@ -100,7 +100,7 @@ class ElementQueryTest {
         List<Element> mavenElements =
                 root.query().withNamespace("http://maven.apache.org/POM/4.0.0").toList();
         // All elements should be in the Maven namespace
-        assertTrue(mavenElements.size() > 0);
+        assertFalse(mavenElements.isEmpty());
     }
 
     @Test
@@ -237,7 +237,7 @@ class ElementQueryTest {
 
         // Depth 1 = children of direct children (dependency, plugins)
         List<Element> depth1 = root.query().atDepth(1).toList();
-        assertTrue(depth1.size() > 0);
+        assertFalse(depth1.isEmpty());
     }
 
     @Test
@@ -252,7 +252,7 @@ class ElementQueryTest {
     void testWithChildren() {
         List<Element> withKids = root.query().withChildren().toList();
         // Elements like dependencies, dependency, build, plugins should have children
-        assertTrue(withKids.size() > 0);
+        assertFalse(withKids.isEmpty());
         for (Element el : withKids) {
             assertTrue(el.hasChildElements());
         }
@@ -262,7 +262,7 @@ class ElementQueryTest {
     void testWithoutChildren() {
         List<Element> leaves = root.query().withoutChildren().toList();
         // Leaf elements like groupId, artifactId, version, scope, artifactId (plugin)
-        assertTrue(leaves.size() > 0);
+        assertFalse(leaves.isEmpty());
         for (Element el : leaves) {
             assertFalse(el.hasChildElements());
         }
@@ -273,7 +273,7 @@ class ElementQueryTest {
         List<Element> results = root.query()
                 .where(el -> el.name().endsWith("Id") || el.localName().endsWith("Id"))
                 .toList();
-        assertTrue(results.size() > 0);
+        assertFalse(results.isEmpty());
     }
 
     @Test
@@ -345,6 +345,6 @@ class ElementQueryTest {
     void testChainingDepthAndName() {
         // depth 2 = grandchildren of direct children
         List<Element> results = root.query().atDepth(2).withName("groupId").toList();
-        assertTrue(results.size() > 0);
+        assertFalse(results.isEmpty());
     }
 }

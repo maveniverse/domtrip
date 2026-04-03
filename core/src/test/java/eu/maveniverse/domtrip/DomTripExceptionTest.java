@@ -98,6 +98,6 @@ class DomTripExceptionTest {
     @Test
     void testIsRuntimeException() {
         DomTripException ex = new DomTripException("test");
-        assertTrue(ex instanceof RuntimeException);
+        assertInstanceOf(RuntimeException.class, ex);
     }
 }

@@ -10,6 +10,9 @@ package eu.maveniverse.domtrip;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class QNameTest {
 
@@ -50,23 +53,11 @@ class QNameTest {
         assertFalse(qname.hasNamespace());
     }
 
-    @Test
-    void testOfNullPrefix() {
-        QName qname = QName.of("http://example.com", "element", null);
-        assertNull(qname.prefix());
-        assertFalse(qname.hasPrefix());
-    }
-
-    @Test
-    void testOfEmptyPrefix() {
-        QName qname = QName.of("http://example.com", "element", "");
-        assertNull(qname.prefix());
-        assertFalse(qname.hasPrefix());
-    }
-
-    @Test
-    void testOfBlankPrefix() {
-        QName qname = QName.of("http://example.com", "element", "  ");
+    @ParameterizedTest
+    @NullAndEmptySource
+    @ValueSource(strings = {"  "})
+    void testOfNullEmptyOrBlankPrefix(String prefix) {
+        QName qname = QName.of("http://example.com", "element", prefix);
         assertNull(qname.prefix());
         assertFalse(qname.hasPrefix());
     }

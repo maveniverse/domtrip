@@ -198,34 +198,21 @@ class SerializerExtendedTest {
                 Arguments.of(EmptyElementStyle.SELF_CLOSING_SPACED, " />"));
     }
 
-    @Test
-    void testPrettyPrintComments() {
-        String xml = "<root><!-- comment --><child/></root>";
+    @ParameterizedTest
+    @MethodSource("prettyPrintSpecialNodeProvider")
+    void testPrettyPrintSpecialNodes(String xml, String expectedContent) {
         Document doc = Document.of(xml);
         Serializer s = new Serializer();
         s.setPrettyPrint(true);
         String result = s.serialize(doc);
-        assertTrue(result.contains("<!-- comment -->"));
+        assertTrue(result.contains(expectedContent));
     }
 
-    @Test
-    void testPrettyPrintProcessingInstructions() {
-        String xml = "<root><?target data?><child/></root>";
-        Document doc = Document.of(xml);
-        Serializer s = new Serializer();
-        s.setPrettyPrint(true);
-        String result = s.serialize(doc);
-        assertTrue(result.contains("<?target data?>"));
-    }
-
-    @Test
-    void testPrettyPrintProcessingInstructionNoData() {
-        String xml = "<root><?target?><child/></root>";
-        Document doc = Document.of(xml);
-        Serializer s = new Serializer();
-        s.setPrettyPrint(true);
-        String result = s.serialize(doc);
-        assertTrue(result.contains("<?target?>"));
+    static Stream<Arguments> prettyPrintSpecialNodeProvider() {
+        return Stream.of(
+                Arguments.of("<root><!-- comment --><child/></root>", "<!-- comment -->"),
+                Arguments.of("<root><?target data?><child/></root>", "<?target data?>"),
+                Arguments.of("<root><?target?><child/></root>", "<?target?>"));
     }
 
     @Test

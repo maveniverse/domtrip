@@ -62,13 +62,15 @@ class ContainerNodeExtendedTest {
     @Test
     void testInsertChildNegativeIndexThrows() {
         Element parent = Element.of("parent");
-        assertThrows(IndexOutOfBoundsException.class, () -> parent.insertChild(-1, Element.of("child")));
+        Element child = Element.of("child");
+        assertThrows(IndexOutOfBoundsException.class, () -> parent.insertChild(-1, child));
     }
 
     @Test
     void testInsertChildTooLargeIndexThrows() {
         Element parent = Element.of("parent");
-        assertThrows(IndexOutOfBoundsException.class, () -> parent.insertChild(1, Element.of("child")));
+        Element child = Element.of("child");
+        assertThrows(IndexOutOfBoundsException.class, () -> parent.insertChild(1, child));
     }
 
     @Test

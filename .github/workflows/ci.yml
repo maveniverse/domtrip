@@ -27,14 +27,10 @@ jobs:
         cache: 'maven'
 
     - name: Run tests and verify build
-      env:
-        MVX_USE_SYSTEM_JAVA: true
-      run: ./mvx mvn -- --no-transfer-progress verify
+      run: ./mvnw --no-transfer-progress verify
 
     - name: Test website build
-      env:
-        MVX_USE_SYSTEM_JAVA: true
-      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvx mvn -- --no-transfer-progress -f website clean package quarkus:run -DskipTests -P include-javadocs
+      run: QUARKUS_ROQ_GENERATOR_BATCH=true ./mvnw --no-transfer-progress -f website clean package quarkus:run -DskipTests -P include-javadocs
 
     - name: Upload test results
       uses: actions/upload-artifact@v7

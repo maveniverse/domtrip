@@ -61,9 +61,8 @@ jobs:
           MAVEN_GPG_KEY_FINGERPRINT: ${{ secrets.GPG_KEY_FINGERPRINT }}
           MAVEN_USER: ${{ secrets.MAVEN_USER }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-          MVX_USE_SYSTEM_JAVA: true
         run: |
-          ./mvx mvn -- -B deploy -Dnjord.autoPublish -Pbundle,javadoc,sign -s .github/release-settings.xml
+          ./mvnw -B deploy -Dnjord.autoPublish -Pbundle,javadoc,sign -s .github/release-settings.xml
 
       - name: Post release
         env:

@@ -199,7 +199,7 @@ public class Parser {
             // Strip BOM character (U+FEFF) if present at the beginning of the string.
             // The BOM is encoding-level metadata that has already been used for charset detection.
             // It should not appear in the parsed XML content.
-            boolean hasBom = xmlString.length() > 0 && xmlString.charAt(0) == '\uFEFF';
+            boolean hasBom = !xmlString.isEmpty() && xmlString.charAt(0) == '\uFEFF';
             if (hasBom) {
                 xmlString = xmlString.substring(1);
             }

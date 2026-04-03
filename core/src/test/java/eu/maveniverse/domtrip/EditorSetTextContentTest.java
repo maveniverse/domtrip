@@ -25,6 +25,35 @@ class EditorSetTextContentTest {
     }
 
     @Test
+    void testSetTextContent_preservesEmptyCDataFlag() throws Exception {
+        String xml = "<root><version><![CDATA[]]></version></root>";
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+
+        Element version = doc.root().childElement("version").orElseThrow();
+        editor.setTextContent(version, "2.0");
+
+        String result = editor.toXml();
+        assertTrue(
+                result.contains("<version><![CDATA[2.0]]></version>"),
+                "Empty CDATA should be preserved, got: " + result);
+    }
+
+    @Test
+    void testSetTextContent_preservesWhitespaceOnlyCDataFlag() throws Exception {
+        String xml = "<root><version><![CDATA[  ]]></version></root>";
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+
+        Element version = doc.root().childElement("version").orElseThrow();
+        editor.setTextContent(version, "2.0");
+
+        String result = editor.toXml();
+        assertTrue(result.contains("<![CDATA["), "Whitespace-only CDATA should be preserved, got: " + result);
+        assertTrue(result.contains("2.0"), "New content should be present");
+    }
+
+    @Test
     void testSetTextContent_plainTextRemainsPlain() throws Exception {
         String xml = "<root>\n  <version>1.0</version>\n</root>";
         Document doc = Document.of(xml);

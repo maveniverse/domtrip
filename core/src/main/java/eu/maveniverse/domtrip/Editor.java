@@ -548,21 +548,27 @@ public class Editor {
 
         // Try to preserve the text node type (CDATA vs plain) and surrounding whitespace
         if (content != null && !content.isEmpty()) {
-            // Find the first non-whitespace-only text child
-            Text firstNonWhitespace = null;
+            // Prefer non-whitespace text nodes, but also accept whitespace-only CDATA nodes
+            // so that empty/whitespace-only CDATA sections keep their node type.
+            Text target = null;
             for (Node child : element.children) {
-                if (child instanceof Text && !((Text) child).isWhitespaceOnly()) {
-                    if (firstNonWhitespace == null) {
-                        firstNonWhitespace = (Text) child;
+                if (child instanceof Text) {
+                    Text text = (Text) child;
+                    if (!text.isWhitespaceOnly()) {
+                        target = text;
+                        break;
+                    }
+                    if (target == null && text.cdata()) {
+                        target = text;
                     }
                 }
             }
 
-            if (firstNonWhitespace != null) {
+            if (target != null) {
                 // Preserve CDATA flag and surrounding whitespace
-                firstNonWhitespace.contentPreservingWhitespace(content);
+                target.contentPreservingWhitespace(content);
                 // Remove any other non-whitespace text nodes (mixed content cleanup)
-                final Text kept = firstNonWhitespace;
+                final Text kept = target;
                 element.children.removeIf(
                         child -> child instanceof Text && child != kept && !((Text) child).isWhitespaceOnly());
                 return;

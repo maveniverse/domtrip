@@ -513,13 +513,63 @@ public class Editor {
     }
 
     /**
-     * Sets the text content of an element
+     * Sets the text content of an element, preserving the node type (CDATA vs plain text)
+     * and surrounding whitespace of the existing content.
+     *
+     * <p>If the element currently contains a CDATA section, the replacement text will also
+     * be wrapped in CDATA. If the element contains plain text, the replacement will be plain
+     * text. Surrounding whitespace patterns are preserved in both cases.</p>
+     *
+     * <p>When the element contains mixed content (multiple non-whitespace text nodes),
+     * only the first non-whitespace text node is updated and extra non-whitespace text
+     * nodes are removed.</p>
+     *
+     * <h3>Examples:</h3>
+     * <pre>{@code
+     * // CDATA preservation:
+     * // Before: <version><![CDATA[1.0]]></version>
+     * editor.setTextContent(versionElement, "2.0");
+     * // After:  <version><![CDATA[2.0]]></version>
+     *
+     * // Plain text:
+     * // Before: <version>1.0</version>
+     * editor.setTextContent(versionElement, "2.0");
+     * // After:  <version>2.0</version>
+     * }</pre>
+     *
+     * @param element the element whose text content to set
+     * @param content the new text content
+     * @throws DomTripException if element is null
      */
     public void setTextContent(Element element, String content) throws DomTripException {
         if (element == null) {
             throw new DomTripException("Element cannot be null");
         }
 
+        // Try to preserve the text node type (CDATA vs plain) and surrounding whitespace
+        if (content != null && !content.isEmpty()) {
+            // Find the first non-whitespace-only text child
+            Text firstNonWhitespace = null;
+            for (Node child : element.children) {
+                if (child instanceof Text && !((Text) child).isWhitespaceOnly()) {
+                    if (firstNonWhitespace == null) {
+                        firstNonWhitespace = (Text) child;
+                    }
+                }
+            }
+
+            if (firstNonWhitespace != null) {
+                // Preserve CDATA flag and surrounding whitespace
+                firstNonWhitespace.contentPreservingWhitespace(content);
+                // Remove any other non-whitespace text nodes (mixed content cleanup)
+                final Text kept = firstNonWhitespace;
+                element.children.removeIf(
+                        child -> child instanceof Text && child != kept && !((Text) child).isWhitespaceOnly());
+                return;
+            }
+        }
+
+        // Fall back to default behavior: replace all text children
         element.textContent(content);
     }
 

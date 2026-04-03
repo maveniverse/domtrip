@@ -62,7 +62,7 @@ jobs:
           MAVEN_USER: ${{ secrets.MAVEN_USER }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
         run: |
-          ./mvnw -B deploy -Dnjord.autoPublish -Pbundle,javadoc,sign -s .github/release-settings.xml
+          ./mvnw -B deploy -Dnjord.autoPublish -Pmaveniverse-release -s .github/release-settings.xml
 
       - name: Post release
         env:
@@ -103,4 +103,4 @@ jobs:
 
           name="DomTrip"
           echo "Creating release \"$name $version\" from tag"
-          gh release create $version --verify-tag --notes-from-tag --title "$name $version"
+          gh release create $version --verify-tag --notes-from-tag --title "$name $version" || echo "Release already exists, skipping creation"

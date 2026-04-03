@@ -725,4 +725,380 @@ class PomEditorTest {
         boolean result = editor.plugins().deletePlugin(compilerPlugin);
         assertFalse(result);
     }
+
+    // ========== EXCLUSION TESTS ==========
+
+    // ========== Exclusion test fixtures ==========
+
+    private static final Coordinates SPRING_CORE = Coordinates.of("org.springframework", "spring-core", "5.3.20");
+    private static final Coordinates COMMONS_LOGGING_EXCL = Coordinates.of("commons-logging", "commons-logging", null);
+    private static final Coordinates LOG4J_EXCL = Coordinates.of("log4j", "log4j", null);
+    private static final Coordinates NONEXISTENT_DEP = Coordinates.of("com.nonexistent", "nonexistent", "1.0");
+    private static final Coordinates NULL_GROUP_EXCL = Coordinates.of(null, "commons-logging", null);
+
+    private static final String POM_BARE = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+            </project>
+            """;
+
+    private static final String POM_WITH_DEPENDENCY = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <dependencies>
+                <dependency>
+                  <groupId>org.springframework</groupId>
+                  <artifactId>spring-core</artifactId>
+                  <version>5.3.20</version>
+                </dependency>
+              </dependencies>
+            </project>
+            """;
+
+    private static final String POM_WITH_DEPENDENCY_AND_EXCLUSION = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <dependencies>
+                <dependency>
+                  <groupId>org.springframework</groupId>
+                  <artifactId>spring-core</artifactId>
+                  <version>5.3.20</version>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>commons-logging</groupId>
+                      <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
+              </dependencies>
+            </project>
+            """;
+
+    private static final String POM_WITH_DEPENDENCY_AND_TWO_EXCLUSIONS = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <dependencies>
+                <dependency>
+                  <groupId>org.springframework</groupId>
+                  <artifactId>spring-core</artifactId>
+                  <version>5.3.20</version>
+                  <exclusions>
+                    <exclusion>
+                      <groupId>commons-logging</groupId>
+                      <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                      <groupId>log4j</groupId>
+                      <artifactId>log4j</artifactId>
+                    </exclusion>
+                  </exclusions>
+                </dependency>
+              </dependencies>
+            </project>
+            """;
+
+    private static final String POM_WITH_MANAGED_DEPENDENCY = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <dependencyManagement>
+                <dependencies>
+                  <dependency>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
+                    <version>5.3.20</version>
+                  </dependency>
+                </dependencies>
+              </dependencyManagement>
+            </project>
+            """;
+
+    private static final String POM_WITH_MANAGED_DEPENDENCY_AND_EXCLUSION = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <dependencyManagement>
+                <dependencies>
+                  <dependency>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
+                    <version>5.3.20</version>
+                    <exclusions>
+                      <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                      </exclusion>
+                    </exclusions>
+                  </dependency>
+                </dependencies>
+              </dependencyManagement>
+            </project>
+            """;
+
+    private static final String POM_WITH_EMPTY_DEPENDENCY_MANAGEMENT = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <dependencyManagement>
+              </dependencyManagement>
+            </project>
+            """;
+
+    private PomEditor editorOf(String pomXml) {
+        return new PomEditor(Document.of(pomXml));
+    }
+
+    // ========== Exclusion tests ==========
+
+    @Test
+    void testAddExclusion() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_DEPENDENCY);
+
+        Element exclElement = editor.dependencies().addExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL);
+
+        assertNotNull(exclElement);
+        assertEquals("exclusion", exclElement.name());
+
+        String result = editor.toXml();
+        assertTrue(result.contains("<exclusions>"));
+        assertTrue(result.contains("<exclusion>"));
+        assertTrue(result.contains("<groupId>commons-logging</groupId>"));
+        assertTrue(result.contains("<artifactId>commons-logging</artifactId>"));
+    }
+
+    @Test
+    void testAddExclusionCreatesExclusionsWrapper() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_DEPENDENCY);
+
+        // Verify no exclusions exist yet
+        Element root = editor.root();
+        Element dependencies = editor.findChildElement(root, DEPENDENCIES);
+        Element dependency = editor.findChildElement(dependencies, DEPENDENCY);
+        assertNull(editor.findChildElement(dependency, EXCLUSIONS));
+
+        editor.dependencies().addExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL);
+
+        // Verify exclusions wrapper was created
+        Element exclusions = editor.findChildElement(dependency, EXCLUSIONS);
+        assertNotNull(exclusions);
+        assertEquals("exclusions", exclusions.name());
+    }
+
+    @Test
+    void testDeleteExclusion() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_DEPENDENCY_AND_TWO_EXCLUSIONS);
+
+        boolean result = editor.dependencies().deleteExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL);
+        assertTrue(result);
+
+        // Verify the exclusion was removed
+        assertFalse(editor.dependencies().hasExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+
+        // Verify the other exclusion still exists
+        assertTrue(editor.dependencies().hasExclusion(SPRING_CORE, LOG4J_EXCL));
+
+        // Verify exclusions wrapper still exists (since there's still one exclusion)
+        assertTrue(editor.toXml().contains("<exclusions>"));
+    }
+
+    @Test
+    void testDeleteLastExclusionRemovesWrapper() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_DEPENDENCY_AND_EXCLUSION);
+
+        boolean result = editor.dependencies().deleteExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL);
+        assertTrue(result);
+
+        // Verify exclusions wrapper was removed since it's now empty
+        String xml = editor.toXml();
+        assertFalse(xml.contains("<exclusions>"));
+        assertFalse(xml.contains("<exclusion>"));
+    }
+
+    @Test
+    void testHasExclusion() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_DEPENDENCY_AND_EXCLUSION);
+
+        assertTrue(editor.dependencies().hasExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+        assertFalse(editor.dependencies().hasExclusion(SPRING_CORE, LOG4J_EXCL));
+
+        // Non-existing dependency
+        Coordinates nonExistingDep = Coordinates.of("org.example", "nonexistent", null);
+        assertFalse(editor.dependencies().hasExclusion(nonExistingDep, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testAddManagedExclusion() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_MANAGED_DEPENDENCY);
+
+        Element exclElement = editor.dependencies().addManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL);
+
+        assertNotNull(exclElement);
+        assertEquals("exclusion", exclElement.name());
+        assertTrue(editor.dependencies().hasManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+
+        String result = editor.toXml();
+        assertTrue(result.contains("<exclusions>"));
+        assertTrue(result.contains("<exclusion>"));
+    }
+
+    @Test
+    void testMultipleExclusionsOnSameDependency() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_DEPENDENCY);
+
+        Coordinates excl3 = Coordinates.of("org.slf4j", "slf4j-api", null);
+
+        editor.dependencies().addExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL);
+        editor.dependencies().addExclusion(SPRING_CORE, LOG4J_EXCL);
+        editor.dependencies().addExclusion(SPRING_CORE, excl3);
+
+        assertTrue(editor.dependencies().hasExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+        assertTrue(editor.dependencies().hasExclusion(SPRING_CORE, LOG4J_EXCL));
+        assertTrue(editor.dependencies().hasExclusion(SPRING_CORE, excl3));
+
+        // Delete one and verify others remain
+        assertTrue(editor.dependencies().deleteExclusion(SPRING_CORE, LOG4J_EXCL));
+        assertTrue(editor.dependencies().hasExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+        assertFalse(editor.dependencies().hasExclusion(SPRING_CORE, LOG4J_EXCL));
+        assertTrue(editor.dependencies().hasExclusion(SPRING_CORE, excl3));
+    }
+
+    @Test
+    void testDeleteManagedExclusion() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_MANAGED_DEPENDENCY_AND_EXCLUSION);
+
+        assertTrue(editor.dependencies().hasManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+
+        boolean result = editor.dependencies().deleteManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL);
+        assertTrue(result);
+        assertFalse(editor.dependencies().hasManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+        assertFalse(editor.toXml().contains("<exclusions>"));
+    }
+
+    @Test
+    void testDeleteExclusionNotFound() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_DEPENDENCY);
+        assertFalse(editor.dependencies().deleteExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testAddExclusionWithNullGroupIdThrows() throws DomTripException {
+        PomEditor.Dependencies deps = editorOf(POM_WITH_DEPENDENCY).dependencies();
+        assertThrows(DomTripException.class, () -> deps.addExclusion(SPRING_CORE, NULL_GROUP_EXCL));
+    }
+
+    @Test
+    void testAddExclusionDependencyNotFoundThrows() throws DomTripException {
+        PomEditor.Dependencies deps = editorOf(POM_WITH_DEPENDENCY).dependencies();
+        assertThrows(DomTripException.class, () -> deps.addExclusion(NONEXISTENT_DEP, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testAddExclusionNoDependenciesThrows() throws DomTripException {
+        PomEditor.Dependencies deps = editorOf(POM_BARE).dependencies();
+        assertThrows(DomTripException.class, () -> deps.addExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testDeleteExclusionNoDependenciesReturnsFalse() throws DomTripException {
+        assertFalse(editorOf(POM_BARE).dependencies().deleteExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testDeleteExclusionDependencyNotFoundReturnsFalse() throws DomTripException {
+        assertFalse(
+                editorOf(POM_WITH_DEPENDENCY).dependencies().deleteExclusion(NONEXISTENT_DEP, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testHasExclusionNoDependenciesReturnsFalse() throws DomTripException {
+        assertFalse(editorOf(POM_BARE).dependencies().hasExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testAddManagedExclusionNoDependencyManagementThrows() throws DomTripException {
+        PomEditor.Dependencies deps = editorOf(POM_BARE).dependencies();
+        assertThrows(DomTripException.class, () -> deps.addManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testAddManagedExclusionWithNullGroupIdThrows() throws DomTripException {
+        PomEditor.Dependencies deps = editorOf(POM_WITH_MANAGED_DEPENDENCY).dependencies();
+        assertThrows(DomTripException.class, () -> deps.addManagedExclusion(SPRING_CORE, NULL_GROUP_EXCL));
+    }
+
+    @Test
+    void testDeleteManagedExclusionNoDependencyManagementReturnsFalse() throws DomTripException {
+        assertFalse(editorOf(POM_BARE).dependencies().deleteManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testDeleteManagedExclusionNoDependenciesReturnsFalse() throws DomTripException {
+        assertFalse(editorOf(POM_WITH_EMPTY_DEPENDENCY_MANAGEMENT)
+                .dependencies()
+                .deleteManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testDeleteManagedExclusionDependencyNotFoundReturnsFalse() throws DomTripException {
+        assertFalse(editorOf(POM_WITH_MANAGED_DEPENDENCY)
+                .dependencies()
+                .deleteManagedExclusion(NONEXISTENT_DEP, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testHasManagedExclusionNoDependencyManagementReturnsFalse() throws DomTripException {
+        assertFalse(editorOf(POM_BARE).dependencies().hasManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testHasManagedExclusionNoDependenciesReturnsFalse() throws DomTripException {
+        assertFalse(editorOf(POM_WITH_EMPTY_DEPENDENCY_MANAGEMENT)
+                .dependencies()
+                .hasManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testHasManagedExclusionDependencyNotFoundReturnsFalse() throws DomTripException {
+        assertFalse(editorOf(POM_WITH_MANAGED_DEPENDENCY)
+                .dependencies()
+                .hasManagedExclusion(NONEXISTENT_DEP, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testAddManagedExclusionDependencyNotFoundThrows() throws DomTripException {
+        PomEditor.Dependencies deps = editorOf(POM_WITH_MANAGED_DEPENDENCY).dependencies();
+        assertThrows(DomTripException.class, () -> deps.addManagedExclusion(NONEXISTENT_DEP, COMMONS_LOGGING_EXCL));
+    }
+
+    @Test
+    void testAddManagedExclusionNoDependenciesInManagementThrows() throws DomTripException {
+        PomEditor.Dependencies deps =
+                editorOf(POM_WITH_EMPTY_DEPENDENCY_MANAGEMENT).dependencies();
+        assertThrows(DomTripException.class, () -> deps.addManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
+    }
 }

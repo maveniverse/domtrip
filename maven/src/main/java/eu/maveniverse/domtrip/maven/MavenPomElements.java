@@ -105,6 +105,7 @@ public final class MavenPomElements {
         public static final String SYSTEM_PATH = "systemPath";
         public static final String OPTIONAL = "optional";
         public static final String EXCLUSIONS = "exclusions";
+        public static final String EXCLUSION = "exclusion";
 
         // Profile elements
         public static final String PROFILES = "profiles";

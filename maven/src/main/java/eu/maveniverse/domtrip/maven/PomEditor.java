@@ -154,6 +154,9 @@ public class PomEditor extends AbstractMavenEditor {
         ELEMENT_ORDER.put(
                 DEPENDENCY,
                 asList(GROUP_ID, ARTIFACT_ID, VERSION, CLASSIFIER, TYPE, SCOPE, SYSTEM_PATH, OPTIONAL, EXCLUSIONS));
+
+        // Exclusion element order
+        ELEMENT_ORDER.put(EXCLUSION, asList(GROUP_ID, ARTIFACT_ID));
     }
 
     /**
@@ -301,6 +304,63 @@ public class PomEditor extends AbstractMavenEditor {
     }
 
     public class Dependencies {
+
+        private void requireGA(String label, Coordinates coordinates) {
+            if (coordinates.groupId() == null || coordinates.groupId().trim().isEmpty()) {
+                throw new DomTripException(label + " groupId cannot be null or empty");
+            }
+            if (coordinates.artifactId() == null
+                    || coordinates.artifactId().trim().isEmpty()) {
+                throw new DomTripException(label + " artifactId cannot be null or empty");
+            }
+        }
+
+        private Element findDependencyElement(Element dependencies, Coordinates dependency) {
+            return dependencies
+                    .childElements(DEPENDENCY)
+                    .filter(dependency.predicateGA())
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        private Element addExclusionToElement(Element dep, Coordinates exclusion) {
+            Element exclusions = findChildElement(dep, EXCLUSIONS);
+            if (exclusions == null) {
+                exclusions = insertMavenElement(dep, EXCLUSIONS);
+            }
+            Element exclElement = insertMavenElement(exclusions, EXCLUSION);
+            insertMavenElement(exclElement, GROUP_ID, exclusion.groupId());
+            insertMavenElement(exclElement, ARTIFACT_ID, exclusion.artifactId());
+            return exclElement;
+        }
+
+        private boolean deleteExclusionFromElement(Element dep, Coordinates exclusion) {
+            Element exclusions = findChildElement(dep, EXCLUSIONS);
+            if (exclusions == null) {
+                return false;
+            }
+            Element excl = exclusions
+                    .childElements(EXCLUSION)
+                    .filter(exclusion.predicateGA())
+                    .findFirst()
+                    .orElse(null);
+            if (excl != null) {
+                removeElement(excl);
+                if (!exclusions.childElements(EXCLUSION).findFirst().isPresent()) {
+                    removeElement(exclusions);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private boolean hasExclusionInElement(Element dep, Coordinates exclusion) {
+            Element exclusions = findChildElement(dep, EXCLUSIONS);
+            if (exclusions == null) {
+                return false;
+            }
+            return exclusions.childElements(EXCLUSION).anyMatch(exclusion.predicateGA());
+        }
 
         /**
          * Adds a dependency element with the specified coordinates.
@@ -531,6 +591,194 @@ public class PomEditor extends AbstractMavenEditor {
                 }
             }
             return false;
+        }
+
+        /**
+         * Adds an exclusion to a dependency. Creates the {@code <exclusions>} wrapper if absent.
+         * The dependency is found by matching on groupId:artifactId (GA).
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates dep = Coordinates.of("org.example", "my-lib", "1.0.0");
+         * Coordinates excl = Coordinates.of("commons-logging", "commons-logging", null);
+         * editor.dependencies().addExclusion(dep, excl);
+         * }</pre>
+         *
+         * @param dependency the dependency coordinates (matched by GA)
+         * @param exclusion the exclusion coordinates (groupId and artifactId)
+         * @return the newly created exclusion element
+         * @throws DomTripException if the dependency is not found or an error occurs
+         * @since 0.7.0
+         */
+        public Element addExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
+            requireGA("Dependency", dependency);
+            requireGA("Exclusion", exclusion);
+            Element dependencies = findChildElement(root(), DEPENDENCIES);
+            if (dependencies == null) {
+                throw new DomTripException("No dependencies element found");
+            }
+            Element dep = findDependencyElement(dependencies, dependency);
+            if (dep == null) {
+                throw new DomTripException("Dependency not found: " + dependency.toGA());
+            }
+            return addExclusionToElement(dep, exclusion);
+        }
+
+        /**
+         * Removes an exclusion from a dependency. Removes the {@code <exclusions>} wrapper if it becomes empty.
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates dep = Coordinates.of("org.example", "my-lib", "1.0.0");
+         * Coordinates excl = Coordinates.of("commons-logging", "commons-logging", null);
+         * editor.dependencies().deleteExclusion(dep, excl);
+         * }</pre>
+         *
+         * @param dependency the dependency coordinates (matched by GA)
+         * @param exclusion the exclusion coordinates (matched by GA)
+         * @return true if the exclusion was removed, false if it didn't exist
+         * @since 0.7.0
+         */
+        public boolean deleteExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
+            Element dependencies = findChildElement(root(), DEPENDENCIES);
+            if (dependencies == null) {
+                return false;
+            }
+            Element dep = findDependencyElement(dependencies, dependency);
+            if (dep == null) {
+                return false;
+            }
+            return deleteExclusionFromElement(dep, exclusion);
+        }
+
+        /**
+         * Checks whether a dependency has a specific exclusion.
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates dep = Coordinates.of("org.example", "my-lib", "1.0.0");
+         * Coordinates excl = Coordinates.of("commons-logging", "commons-logging", null);
+         * boolean has = editor.dependencies().hasExclusion(dep, excl);
+         * }</pre>
+         *
+         * @param dependency the dependency coordinates (matched by GA)
+         * @param exclusion the exclusion coordinates (matched by GA)
+         * @return true if the dependency has the specified exclusion
+         * @since 0.7.0
+         */
+        public boolean hasExclusion(Coordinates dependency, Coordinates exclusion) {
+            Element dependencies = findChildElement(root(), DEPENDENCIES);
+            if (dependencies == null) {
+                return false;
+            }
+            Element dep = findDependencyElement(dependencies, dependency);
+            if (dep == null) {
+                return false;
+            }
+            return hasExclusionInElement(dep, exclusion);
+        }
+
+        /**
+         * Adds an exclusion to a managed dependency. Creates the {@code <exclusions>} wrapper if absent.
+         * The dependency is found by matching on groupId:artifactId (GA).
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates dep = Coordinates.of("org.example", "my-lib", "1.0.0");
+         * Coordinates excl = Coordinates.of("commons-logging", "commons-logging", null);
+         * editor.dependencies().addManagedExclusion(dep, excl);
+         * }</pre>
+         *
+         * @param dependency the dependency coordinates (matched by GA)
+         * @param exclusion the exclusion coordinates (groupId and artifactId)
+         * @return the newly created exclusion element
+         * @throws DomTripException if the dependency is not found or an error occurs
+         * @since 0.7.0
+         */
+        public Element addManagedExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
+            requireGA("Managed dependency", dependency);
+            requireGA("Exclusion", exclusion);
+            Element dependencyManagement = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+            if (dependencyManagement == null) {
+                throw new DomTripException("No dependencyManagement element found");
+            }
+            Element dependencies = findChildElement(dependencyManagement, DEPENDENCIES);
+            if (dependencies == null) {
+                throw new DomTripException("No dependencies element found in dependencyManagement");
+            }
+            Element dep = findDependencyElement(dependencies, dependency);
+            if (dep == null) {
+                throw new DomTripException("Managed dependency not found: " + dependency.toGA());
+            }
+            return addExclusionToElement(dep, exclusion);
+        }
+
+        /**
+         * Removes an exclusion from a managed dependency. Removes the {@code <exclusions>} wrapper if it becomes empty.
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates dep = Coordinates.of("org.example", "my-lib", "1.0.0");
+         * Coordinates excl = Coordinates.of("commons-logging", "commons-logging", null);
+         * editor.dependencies().deleteManagedExclusion(dep, excl);
+         * }</pre>
+         *
+         * @param dependency the dependency coordinates (matched by GA)
+         * @param exclusion the exclusion coordinates (matched by GA)
+         * @return true if the exclusion was removed, false if it didn't exist
+         * @since 0.7.0
+         */
+        public boolean deleteManagedExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
+            Element dependencyManagement = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+            if (dependencyManagement == null) {
+                return false;
+            }
+            Element dependencies = findChildElement(dependencyManagement, DEPENDENCIES);
+            if (dependencies == null) {
+                return false;
+            }
+            Element dep = findDependencyElement(dependencies, dependency);
+            if (dep == null) {
+                return false;
+            }
+            return deleteExclusionFromElement(dep, exclusion);
+        }
+
+        /**
+         * Checks whether a managed dependency has a specific exclusion.
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates dep = Coordinates.of("org.example", "my-lib", "1.0.0");
+         * Coordinates excl = Coordinates.of("commons-logging", "commons-logging", null);
+         * boolean has = editor.dependencies().hasManagedExclusion(dep, excl);
+         * }</pre>
+         *
+         * @param dependency the dependency coordinates (matched by GA)
+         * @param exclusion the exclusion coordinates (matched by GA)
+         * @return true if the managed dependency has the specified exclusion
+         * @since 0.7.0
+         */
+        public boolean hasManagedExclusion(Coordinates dependency, Coordinates exclusion) {
+            Element dependencyManagement = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+            if (dependencyManagement == null) {
+                return false;
+            }
+            Element dependencies = findChildElement(dependencyManagement, DEPENDENCIES);
+            if (dependencies == null) {
+                return false;
+            }
+            Element dep = findDependencyElement(dependencies, dependency);
+            if (dep == null) {
+                return false;
+            }
+            return hasExclusionInElement(dep, exclusion);
         }
     }
 

@@ -552,21 +552,7 @@ public class Editor {
 
         // Try to preserve the text node type (CDATA vs plain) and surrounding whitespace
         if (content != null && !content.isEmpty()) {
-            // Prefer non-whitespace text nodes, but also accept whitespace-only CDATA nodes
-            // so that empty/whitespace-only CDATA sections keep their node type.
-            Text target = null;
-            for (Node child : element.children) {
-                if (child instanceof Text) {
-                    Text text = (Text) child;
-                    if (!text.isWhitespaceOnly()) {
-                        target = text;
-                        break;
-                    }
-                    if (target == null && text.cdata()) {
-                        target = text;
-                    }
-                }
-            }
+            Text target = findReusableTextNode(element);
 
             if (target != null) {
                 // Preserve CDATA flag and surrounding whitespace
@@ -581,6 +567,30 @@ public class Editor {
 
         // Fall back to default behavior: replace all text children
         element.textContent(content);
+    }
+
+    /**
+     * Finds the best Text node to reuse when updating text content.
+     * Prefers non-whitespace text nodes, but also accepts whitespace-only CDATA nodes
+     * so that empty/whitespace-only CDATA sections keep their node type.
+     *
+     * @param element the element to search within
+     * @return the best Text node to reuse, or null if none found
+     */
+    private Text findReusableTextNode(Element element) {
+        Text cdataFallback = null;
+        for (Node child : element.children) {
+            if (child instanceof Text) {
+                Text text = (Text) child;
+                if (!text.isWhitespaceOnly()) {
+                    return text;
+                }
+                if (cdataFallback == null && text.cdata()) {
+                    cdataFallback = text;
+                }
+            }
+        }
+        return cdataFallback;
     }
 
     /**

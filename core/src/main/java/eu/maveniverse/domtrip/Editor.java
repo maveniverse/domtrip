@@ -1030,7 +1030,7 @@ public class Editor {
         }
 
         // Fallback: if we can't calculate the unit, try to detect from the full indentation
-        if (childIndent == null || childIndent.isEmpty()) {
+        if (childIndent.isEmpty()) {
             return config.indentString();
         }
 
@@ -1508,12 +1508,10 @@ public class Editor {
      *
      */
     public static class EditorTextBuilder {
-        private final Editor editor;
         private final Text text;
         private ContainerNode parent;
 
         private EditorTextBuilder(Editor editor) {
-            this.editor = editor;
             this.text = new Text("");
         }
 

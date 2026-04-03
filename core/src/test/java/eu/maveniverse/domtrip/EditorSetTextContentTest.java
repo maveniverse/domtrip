@@ -175,8 +175,8 @@ class EditorSetTextContentTest {
 
         // Verify the CDATA node was updated
         Text cdataNode = element.children()
-                .filter(c -> c instanceof Text)
-                .map(c -> (Text) c)
+                .filter(Text.class::isInstance)
+                .map(Text.class::cast)
                 .filter(t -> !t.isWhitespaceOnly())
                 .findFirst()
                 .orElseThrow();

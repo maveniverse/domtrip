@@ -483,10 +483,6 @@ public class Serializer {
             return new byte[] {(byte) 0xFE, (byte) 0xFF};
         } else if (name.equals("UTF-16LE")) {
             return new byte[] {(byte) 0xFF, (byte) 0xFE};
-        } else if (name.equals("UTF-32BE") || name.equals("UTF-32")) {
-            return new byte[] {0x00, 0x00, (byte) 0xFE, (byte) 0xFF};
-        } else if (name.equals("UTF-32LE")) {
-            return new byte[] {(byte) 0xFF, (byte) 0xFE, 0x00, 0x00};
         }
         return new byte[0];
     }

@@ -162,6 +162,25 @@ public class InputStreamParsingTest {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root/>";
         Document doc = Document.of(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
         assertFalse(doc.hasBom(), "BOM flag should not be set when no BOM present");
+
+        // No BOM should be written in binary output
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        doc.toXml(out);
+        byte[] output = out.toByteArray();
+        assertTrue(output.length > 0);
+        assertEquals((byte) '<', output[0], "Output should start with '<', not a BOM");
+    }
+
+    @Test
+    void testBomNotWrittenForNonUnicodeCharset() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<root/>";
+        Document doc = Document.of(xml);
+        doc.bom(true); // manually set BOM flag
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        doc.toXml(out, "ISO-8859-1");
+        byte[] output = out.toByteArray();
+        assertEquals((byte) '<', output[0], "No BOM should be written for ISO-8859-1");
     }
 
     @Test

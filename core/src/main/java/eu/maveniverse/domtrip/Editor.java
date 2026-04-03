@@ -500,7 +500,11 @@ public class Editor {
     }
 
     /**
-     * Removes an attribute from an element
+     * Remove the specified attribute from the provided element.
+     *
+     * @param element the element from which to remove the attribute; if `null` no action is taken
+     * @param name the name of the attribute to remove; if `null` no action is taken
+     * @return `true` if the attribute existed on the element and was removed, `false` otherwise
      */
     public boolean removeAttribute(Element element, String name) {
         if (element == null || name == null) {

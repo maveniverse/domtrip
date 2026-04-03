@@ -351,7 +351,7 @@ public class Parser {
                         }
 
                         // Parse closing tag
-                        Element closedElement = parseClosingTag(nodeStack);
+                        parseClosingTag(nodeStack);
                         // Note: Following whitespace will be captured as preceding whitespace of next sibling
                     } else {
                         // Parse opening tag

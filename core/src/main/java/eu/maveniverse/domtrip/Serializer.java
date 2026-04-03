@@ -641,7 +641,7 @@ public class Serializer {
             // but handle gracefully by treating as regular element
             sb.append(">");
 
-            boolean hasElementChildren = element.children.stream().anyMatch(child -> child instanceof Element);
+            boolean hasElementChildren = element.children.stream().anyMatch(Element.class::isInstance);
 
             // Children
             for (Node child : element.children) {
@@ -663,7 +663,7 @@ public class Serializer {
         } else {
             sb.append(">");
 
-            boolean hasElementChildren = element.children.stream().anyMatch(child -> child instanceof Element);
+            boolean hasElementChildren = element.children.stream().anyMatch(Element.class::isInstance);
 
             // Children
             for (Node child : element.children) {

@@ -151,7 +151,7 @@ class EditorSetTextContentTest {
 
         assertEquals("replacement", element.textContent());
         // Should have only one text child remaining
-        long textChildCount = element.children().filter(c -> c instanceof Text).count();
+        long textChildCount = element.children().filter(Text.class::isInstance).count();
         assertEquals(1, textChildCount, "Should have exactly one text child after mixed content cleanup");
     }
 
@@ -170,7 +170,7 @@ class EditorSetTextContentTest {
         editor.setTextContent(element, "new-value");
 
         // The CDATA node should be updated, whitespace nodes should be preserved
-        long textChildCount = element.children().filter(c -> c instanceof Text).count();
+        long textChildCount = element.children().filter(Text.class::isInstance).count();
         assertEquals(3, textChildCount, "Whitespace-only text nodes should be preserved");
 
         // Verify the CDATA node was updated

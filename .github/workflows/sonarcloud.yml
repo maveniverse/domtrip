@@ -31,8 +31,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        MVX_USE_SYSTEM_JAVA: true
       run: >-
-        ./mvnw --no-transfer-progress
+        ./mvx mvn -- --no-transfer-progress
         org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report sonar:sonar
         -Dsonar.projectKey=maveniverse_domtrip
         -Dsonar.organization=maveniverse
@@ -46,8 +47,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        MVX_USE_SYSTEM_JAVA: true
       run: >-
-        ./mvnw --no-transfer-progress
+        ./mvx mvn -- --no-transfer-progress
         org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report sonar:sonar
         -Dsonar.projectKey=maveniverse_domtrip
         -Dsonar.organization=maveniverse

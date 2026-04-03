@@ -609,7 +609,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param exclusion the exclusion coordinates (groupId and artifactId)
          * @return the newly created exclusion element
          * @throws DomTripException if the dependency is not found or an error occurs
-         * @since 0.7.0
+         * @since 1.0.0
          */
         public Element addExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
             requireGA("Dependency", dependency);
@@ -639,7 +639,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param dependency the dependency coordinates (matched by GA)
          * @param exclusion the exclusion coordinates (matched by GA)
          * @return true if the exclusion was removed, false if it didn't exist
-         * @since 0.7.0
+         * @since 1.0.0
          */
         public boolean deleteExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
             Element dependencies = findChildElement(root(), DEPENDENCIES);
@@ -667,7 +667,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param dependency the dependency coordinates (matched by GA)
          * @param exclusion the exclusion coordinates (matched by GA)
          * @return true if the dependency has the specified exclusion
-         * @since 0.7.0
+         * @since 1.0.0
          */
         public boolean hasExclusion(Coordinates dependency, Coordinates exclusion) {
             Element dependencies = findChildElement(root(), DEPENDENCIES);
@@ -697,7 +697,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param exclusion the exclusion coordinates (groupId and artifactId)
          * @return the newly created exclusion element
          * @throws DomTripException if the dependency is not found or an error occurs
-         * @since 0.7.0
+         * @since 1.0.0
          */
         public Element addManagedExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
             requireGA("Managed dependency", dependency);
@@ -731,7 +731,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param dependency the dependency coordinates (matched by GA)
          * @param exclusion the exclusion coordinates (matched by GA)
          * @return true if the exclusion was removed, false if it didn't exist
-         * @since 0.7.0
+         * @since 1.0.0
          */
         public boolean deleteManagedExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
             Element dependencyManagement = findChildElement(root(), DEPENDENCY_MANAGEMENT);
@@ -763,7 +763,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param dependency the dependency coordinates (matched by GA)
          * @param exclusion the exclusion coordinates (matched by GA)
          * @return true if the managed dependency has the specified exclusion
-         * @since 0.7.0
+         * @since 1.0.0
          */
         public boolean hasManagedExclusion(Coordinates dependency, Coordinates exclusion) {
             Element dependencyManagement = findChildElement(root(), DEPENDENCY_MANAGEMENT);

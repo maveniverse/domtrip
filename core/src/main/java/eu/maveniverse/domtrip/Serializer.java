@@ -366,6 +366,10 @@ public class Serializer {
         }
 
         try {
+            // Write BOM if the document had one when parsed
+            if (document.hasBom()) {
+                outputStream.write(bomBytesFor(charset));
+            }
             try (Writer writer = new OutputStreamWriter(outputStream, charset)) {
                 String xmlContent = serialize(document);
                 writer.write(xmlContent);
@@ -466,6 +470,25 @@ public class Serializer {
         } catch (Exception e) {
             throw new DomTripException("Invalid encoding name: " + encoding, e);
         }
+    }
+
+    /**
+     * Returns the BOM byte sequence for the given charset.
+     */
+    private static byte[] bomBytesFor(Charset charset) {
+        String name = charset.name().toUpperCase();
+        if (name.equals("UTF-8")) {
+            return new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
+        } else if (name.equals("UTF-16BE") || name.equals("UTF-16")) {
+            return new byte[] {(byte) 0xFE, (byte) 0xFF};
+        } else if (name.equals("UTF-16LE")) {
+            return new byte[] {(byte) 0xFF, (byte) 0xFE};
+        } else if (name.equals("UTF-32BE") || name.equals("UTF-32")) {
+            return new byte[] {0x00, 0x00, (byte) 0xFE, (byte) 0xFF};
+        } else if (name.equals("UTF-32LE")) {
+            return new byte[] {(byte) 0xFF, (byte) 0xFE, 0x00, 0x00};
+        }
+        return new byte[0];
     }
 
     /**

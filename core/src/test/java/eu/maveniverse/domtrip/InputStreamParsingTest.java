@@ -79,9 +79,89 @@ public class InputStreamParsingTest {
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding());
         assertEquals("1.0", doc.version());
+        assertTrue(doc.hasBom(), "BOM flag should be set");
         assertNotNull(doc.root());
         assertEquals("root", doc.root().name());
         assertEquals("Hello BOM", doc.root().childElement("child").orElseThrow().textContent());
+        // BOM character should not appear in string output
+        assertFalse(doc.toXml().contains("\uFEFF"), "BOM character should not appear in toXml() output");
+
+        // BOM should be written back in binary output
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        doc.toXml(out);
+        byte[] output = out.toByteArray();
+        assertEquals((byte) 0xEF, output[0], "UTF-8 BOM byte 1");
+        assertEquals((byte) 0xBB, output[1], "UTF-8 BOM byte 2");
+        assertEquals((byte) 0xBF, output[2], "UTF-8 BOM byte 3");
+    }
+
+    @Test
+    void testParseFromInputStreamWithUTF16BEBOM() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root><child>Hello UTF-16 BE</child></root>";
+        byte[] xmlBytes = xml.getBytes(StandardCharsets.UTF_16BE);
+
+        // Add UTF-16 BE BOM
+        byte[] bomBytes = {(byte) 0xFE, (byte) 0xFF};
+        byte[] xmlWithBom = new byte[bomBytes.length + xmlBytes.length];
+        System.arraycopy(bomBytes, 0, xmlWithBom, 0, bomBytes.length);
+        System.arraycopy(xmlBytes, 0, xmlWithBom, bomBytes.length, xmlBytes.length);
+
+        Document doc = Document.of(new ByteArrayInputStream(xmlWithBom));
+
+        assertNotNull(doc);
+        assertTrue(doc.hasBom(), "BOM flag should be set");
+        assertNotNull(doc.root());
+        assertEquals("root", doc.root().name());
+        assertEquals(
+                "Hello UTF-16 BE",
+                doc.root().childElement("child").orElseThrow().textContent());
+        // BOM character should not appear in string output
+        assertFalse(doc.toXml().contains("\uFEFF"), "BOM character should not appear in toXml() output");
+
+        // BOM should be written back in binary output
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        doc.toXml(out);
+        byte[] output = out.toByteArray();
+        assertEquals((byte) 0xFE, output[0], "UTF-16 BE BOM byte 1");
+        assertEquals((byte) 0xFF, output[1], "UTF-16 BE BOM byte 2");
+    }
+
+    @Test
+    void testParseFromInputStreamWithUTF16LEBOM() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-16\"?>\n<root><child>Hello UTF-16 LE</child></root>";
+        byte[] xmlBytes = xml.getBytes(StandardCharsets.UTF_16LE);
+
+        // Add UTF-16 LE BOM
+        byte[] bomBytes = {(byte) 0xFF, (byte) 0xFE};
+        byte[] xmlWithBom = new byte[bomBytes.length + xmlBytes.length];
+        System.arraycopy(bomBytes, 0, xmlWithBom, 0, bomBytes.length);
+        System.arraycopy(xmlBytes, 0, xmlWithBom, bomBytes.length, xmlBytes.length);
+
+        Document doc = Document.of(new ByteArrayInputStream(xmlWithBom));
+
+        assertNotNull(doc);
+        assertTrue(doc.hasBom(), "BOM flag should be set");
+        assertNotNull(doc.root());
+        assertEquals("root", doc.root().name());
+        assertEquals(
+                "Hello UTF-16 LE",
+                doc.root().childElement("child").orElseThrow().textContent());
+        // BOM character should not appear in string output
+        assertFalse(doc.toXml().contains("\uFEFF"), "BOM character should not appear in toXml() output");
+
+        // BOM should be written back in binary output
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        doc.toXml(out);
+        byte[] output = out.toByteArray();
+        assertEquals((byte) 0xFF, output[0], "UTF-16 LE BOM byte 1");
+        assertEquals((byte) 0xFE, output[1], "UTF-16 LE BOM byte 2");
+    }
+
+    @Test
+    void testNoBomFlagWhenNoBomPresent() throws DomTripException {
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root/>";
+        Document doc = Document.of(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+        assertFalse(doc.hasBom(), "BOM flag should not be set when no BOM present");
     }
 
     @Test

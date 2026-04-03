@@ -383,6 +383,7 @@ public class Document extends ContainerNode {
      *
      * @return true if the document had a BOM, false otherwise
      * @see #bom(boolean)
+     * @since 0.7.0
      */
     public boolean hasBom() {
         return bom;
@@ -395,6 +396,7 @@ public class Document extends ContainerNode {
      * @param bom true to write a BOM, false otherwise
      * @return this document for method chaining
      * @see #hasBom()
+     * @since 0.7.0
      */
     public Document bom(boolean bom) {
         this.bom = bom;

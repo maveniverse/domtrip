@@ -18,7 +18,6 @@ import eu.maveniverse.domtrip.Element;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -253,12 +252,11 @@ public class ExtensionsEditor extends AbstractMavenEditor {
      * @return true if the extension was removed, false if it didn't exist
      */
     public boolean deleteExtension(Coordinates coordinates) throws DomTripException {
-        AtomicInteger counter = new AtomicInteger(0);
-        root().childElements(EXTENSION)
+        List<Element> matched = root().childElements(EXTENSION)
                 .filter(coordinates.predicateGA())
-                .peek(e -> counter.incrementAndGet())
-                .forEach(this::removeElement);
-        return counter.get() != 0;
+                .collect(Collectors.toList());
+        matched.forEach(this::removeElement);
+        return !matched.isEmpty();
     }
 
     /**

@@ -500,7 +500,11 @@ public class Editor {
     }
 
     /**
-     * Removes an attribute from an element
+     * Remove the specified attribute from the provided element.
+     *
+     * @param element the element from which to remove the attribute; if `null` no action is taken
+     * @param name the name of the attribute to remove; if `null` no action is taken
+     * @return `true` if the attribute existed on the element and was removed, `false` otherwise
      */
     public boolean removeAttribute(Element element, String name) {
         if (element == null || name == null) {
@@ -513,14 +517,80 @@ public class Editor {
     }
 
     /**
-     * Sets the text content of an element
+     * Sets the text content of an element, preserving the node type (CDATA vs plain text)
+     * and surrounding whitespace of the existing content.
+     *
+     * <p>If the element currently contains a CDATA section, the replacement text will also
+     * be wrapped in CDATA. If the element contains plain text, the replacement will be plain
+     * text. Surrounding whitespace patterns are preserved in both cases.</p>
+     *
+     * <p>When the element contains mixed content (multiple non-whitespace text nodes),
+     * only the first non-whitespace text node is updated and extra non-whitespace text
+     * nodes are removed.</p>
+     *
+     * <h3>Examples:</h3>
+     * <pre>{@code
+     * // CDATA preservation:
+     * // Before: <version><![CDATA[1.0]]></version>
+     * editor.setTextContent(versionElement, "2.0");
+     * // After:  <version><![CDATA[2.0]]></version>
+     *
+     * // Plain text:
+     * // Before: <version>1.0</version>
+     * editor.setTextContent(versionElement, "2.0");
+     * // After:  <version>2.0</version>
+     * }</pre>
+     *
+     * @param element the element whose text content to set
+     * @param content the new text content
+     * @throws DomTripException if element is null
      */
     public void setTextContent(Element element, String content) throws DomTripException {
         if (element == null) {
             throw new DomTripException("Element cannot be null");
         }
 
+        // Try to preserve the text node type (CDATA vs plain) and surrounding whitespace
+        if (content != null && !content.isEmpty()) {
+            Text target = findReusableTextNode(element);
+
+            if (target != null) {
+                // Preserve CDATA flag and surrounding whitespace
+                target.contentPreservingWhitespace(content);
+                // Remove any other non-whitespace text nodes (mixed content cleanup)
+                final Text kept = target;
+                element.children.removeIf(
+                        child -> child instanceof Text && child != kept && !((Text) child).isWhitespaceOnly());
+                return;
+            }
+        }
+
+        // Fall back to default behavior: replace all text children
         element.textContent(content);
+    }
+
+    /**
+     * Finds the best Text node to reuse when updating text content.
+     * Prefers non-whitespace text nodes, but also accepts whitespace-only CDATA nodes
+     * so that empty/whitespace-only CDATA sections keep their node type.
+     *
+     * @param element the element to search within
+     * @return the best Text node to reuse, or null if none found
+     */
+    private Text findReusableTextNode(Element element) {
+        Text cdataFallback = null;
+        for (Node child : element.children) {
+            if (child instanceof Text) {
+                Text text = (Text) child;
+                if (!text.isWhitespaceOnly()) {
+                    return text;
+                }
+                if (cdataFallback == null && text.cdata()) {
+                    cdataFallback = text;
+                }
+            }
+        }
+        return cdataFallback;
     }
 
     /**
@@ -960,7 +1030,7 @@ public class Editor {
         }
 
         // Fallback: if we can't calculate the unit, try to detect from the full indentation
-        if (childIndent == null || childIndent.isEmpty()) {
+        if (childIndent.isEmpty()) {
             return config.indentString();
         }
 
@@ -1229,7 +1299,7 @@ public class Editor {
          * @return a new EditorTextBuilder for fluent text construction
          */
         public EditorTextBuilder text() {
-            return new EditorTextBuilder(editor);
+            return new EditorTextBuilder();
         }
     }
 
@@ -1438,12 +1508,10 @@ public class Editor {
      *
      */
     public static class EditorTextBuilder {
-        private final Editor editor;
         private final Text text;
         private ContainerNode parent;
 
-        private EditorTextBuilder(Editor editor) {
-            this.editor = editor;
+        private EditorTextBuilder() {
             this.text = new Text("");
         }
 

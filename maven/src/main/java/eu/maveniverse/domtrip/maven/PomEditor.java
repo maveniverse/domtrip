@@ -813,15 +813,17 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Detects whether most version elements use property references or literal values.
-         *
-         * <p>Analyzes version elements in both {@code project/dependencies} and
-         * {@code project/dependencyManagement/dependencies}. Returns
-         * {@link AlignOptions.VersionSource#PROPERTY} if the strict majority use {@code ${...}} references.</p>
-         *
-         * @return the detected version source
-         * @since 1.1.0
-         */
+                 * Determine whether dependency versions predominantly use property references or literal values.
+                 *
+                 * <p>Analyzes `<project>/dependencies` and `<project>/dependencyManagement/dependencies`. If a strict
+                 * majority of observed `<version>` elements are property references of the form `${...}`, the method
+                 * returns {@link AlignOptions.VersionSource#PROPERTY}; otherwise it returns
+                 * {@link AlignOptions.VersionSource#LITERAL}.</p>
+                 *
+                 * @return {@link AlignOptions.VersionSource#PROPERTY} if strictly more versioned dependencies use `${...}` property
+                 *         references, {@link AlignOptions.VersionSource#LITERAL} otherwise
+                 * @since 1.1.0
+                 */
         public AlignOptions.VersionSource detectVersionSource() {
             long propertyCount = 0;
             long totalVersioned = 0;
@@ -882,16 +884,10 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Detects all conventions and returns them as a fully-resolved {@link AlignOptions}.
+         * Detects the project's dominant dependency version style, version source, and property naming convention
+         * and returns an AlignOptions instance with all corresponding fields populated.
          *
-         * <p>Combines the results of {@link #detectVersionStyle()}, {@link #detectVersionSource()},
-         * and {@link #detectPropertyNamingConvention()} into a single {@link AlignOptions} instance
-         * where all fields are populated (no nulls).</p>
-         *
-         * @return align options with all detected conventions
-         * @see #detectVersionStyle()
-         * @see #detectVersionSource()
-         * @see #detectPropertyNamingConvention()
+         * @return an AlignOptions populated with the detected version style, version source, and naming convention
          * @since 1.1.0
          */
         public AlignOptions detectConventions() {
@@ -1009,18 +1005,14 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Aligns an existing dependency to match the project's auto-detected conventions.
+         * Aligns the specified dependency to the project's detected dependency/version conventions.
          *
-         * <p>Transforms the dependency's version management to match the dominant style.
-         * Only dependencies with inline versions are modified. Version-less (already managed)
-         * dependencies are left unchanged.</p>
+         * <p>Applies the project's inferred version style and source (property vs literal) to the
+         * dependency's version handling. Only dependencies that currently have a `<version>` element
+         * may be modified; dependencies without a `<version>` are left unchanged.</p>
          *
-         * <p>Equivalent to calling {@code alignDependency(coords, AlignOptions.defaults())}.</p>
-         *
-         * @param coords the dependency coordinates (matched by groupId and artifactId)
-         * @return true if the dependency was modified, false if not found or no change was needed
-         * @see #alignDependency(Coordinates, AlignOptions)
-         * @see #alignAllDependencies()
+         * @param coords the dependency coordinates matched by groupId and artifactId
+         * @return `true` if the dependency was modified; `false` if the dependency was not found or no change was necessary
          * @since 1.1.0
          */
         public boolean alignDependency(Coordinates coords) {
@@ -1151,7 +1143,21 @@ public class PomEditor extends AbstractMavenEditor {
             return count;
         }
 
-        // ========== PRIVATE HELPERS FOR ALIGNMENT ==========
+        /**
+         * Aligns a single dependency element's version representation to the specified style and source.
+         *
+         * Updates the dependency element or project state when converting a literal version into a property
+         * reference (creates or updates the corresponding property) and/or moving an inline version into
+         * dependencyManagement (ensures the managed entry exists and removes the dependency's `<version>`).
+         *
+         * @param dep the `<dependency>` element to align
+         * @param coords coordinates identifying the dependency (groupId/artifactId/type/classifier as used)
+         * @param targetStyle desired version placement strategy (`INLINE` or `MANAGED`)
+         * @param targetSource desired version value source (`LITERAL` or `PROPERTY`)
+         * @param naming property naming convention to use when creating a version property
+         * @param options alignment options that may supply explicit property names or generators
+         * @return `true` if any change was made to the dependency or project (property upserted, version replaced, or version element removed), `false` if the dependency was already aligned (no `<version>` present or no conversion needed)
+         */
 
         private boolean alignDependencyElement(
                 Element dep,
@@ -1189,6 +1195,20 @@ public class PomEditor extends AbstractMavenEditor {
             return changed;
         }
 
+        /**
+         * Ensure a managed dependency with the given coordinates exists under
+         * `dependencyManagement/dependencies`, creating or updating the entry as needed.
+         *
+         * If the managed dependency is missing this inserts it (including `version` when non-null)
+         * and adds `type` when non-`jar` and `classifier` when non-null. If the managed dependency
+         * already exists its `<version>` child is overwritten or added when `version` is non-null.
+         *
+         * @param groupId    the dependency groupId
+         * @param artifactId the dependency artifactId
+         * @param version    the dependency version (may be null)
+         * @param classifier the dependency classifier (may be null)
+         * @param type       the dependency type/packaging (may be null; `"jar"` is treated as default)
+         */
         private void ensureManagedDependency(
                 String groupId, String artifactId, String version, String classifier, String type) {
             Element root = root();
@@ -1224,6 +1244,17 @@ public class PomEditor extends AbstractMavenEditor {
             }
         }
 
+        /**
+         * Insert optional dependency sub-elements into the given dependency element when specified.
+         *
+         * Inserts a `<type>` element if the coordinate's type is non-null and not "jar",
+         * a `<classifier>` element if the coordinate's classifier is non-null, and
+         * a `<scope>` element if the provided align options include a non-null scope.
+         *
+         * @param dep the `<dependency>` element to modify
+         * @param coords the dependency coordinates providing `type` and `classifier`
+         * @param options alignment options providing an optional `scope`
+         */
         private void addOptionalDependencyElements(Element dep, Coordinates coords, AlignOptions options) {
             if (coords.type() != null && !"jar".equals(coords.type())) {
                 insertMavenElement(dep, TYPE, coords.type());
@@ -1236,6 +1267,12 @@ public class PomEditor extends AbstractMavenEditor {
             }
         }
 
+        /**
+         * Count dependency elements that contain a `version` child.
+         *
+         * @param dependencies the `<dependencies>` container element to inspect
+         * @return the number of `<dependency>` children that have a `<version>` child element
+         */
         private long countVersionedDependencies(Element dependencies) {
             return dependencies
                     .childElements(DEPENDENCY)
@@ -1243,6 +1280,12 @@ public class PomEditor extends AbstractMavenEditor {
                     .count();
         }
 
+        /**
+         * Counts dependency entries whose <version> value is a property reference (for example `${...}`).
+         *
+         * @param dependencies the `<dependencies>` container element to inspect
+         * @return the number of dependency elements whose `<version>` text is a property reference
+         */
         private long countPropertyVersionedDependencies(Element dependencies) {
             return dependencies
                     .childElements(DEPENDENCY)
@@ -1251,6 +1294,17 @@ public class PomEditor extends AbstractMavenEditor {
                     .count();
         }
 
+        /**
+         * Tally property-naming convention votes from dependency version property references into the provided map.
+         *
+         * Scans each `<dependency>` child of the given `dependencies` element; for any `<version>` whose text is a
+         * property reference of the form `${...}`, extracts the property name, classifies its naming convention, and
+         * increments the corresponding count in `votes` when a convention is recognized. If `dependencies` is null,
+         * the method returns without modifying `votes`.
+         *
+         * @param dependencies the `<dependencies>` element containing `<dependency>` children (may be null)
+         * @param votes        map that will be updated: keys are detected conventions and values are their vote counts
+         */
         private void collectPropertyConventionVotes(
                 Element dependencies, Map<AlignOptions.PropertyNamingConvention, Integer> votes) {
             if (dependencies == null) {
@@ -1269,6 +1323,12 @@ public class PomEditor extends AbstractMavenEditor {
                     }));
         }
 
+        /**
+         * Determines the property-naming convention of a version property name.
+         *
+         * @param propName the property name to classify (e.g. "project.version", "artifact-version", "myVersion")
+         * @return the matching PropertyNamingConvention, or `null` if the name does not match any known convention
+         */
         private AlignOptions.PropertyNamingConvention classifyPropertyName(String propName) {
             if (propName.endsWith(".version")) {
                 return AlignOptions.PropertyNamingConvention.DOT_SUFFIX;
@@ -1284,6 +1344,14 @@ public class PomEditor extends AbstractMavenEditor {
             return null;
         }
 
+        /**
+         * Resolve the effective property name to use for the given dependency coordinates.
+         *
+         * @param coords  dependency coordinates used when generating a name if none is supplied
+         * @param naming  naming convention to apply when a name is generated
+         * @param options alignment options that may supply an explicit property name or a generator
+         * @return        the resolved property name; preferring an explicit name from {@code options}, then a generated name from {@code options.propertyNameGenerator()}, and finally a name produced via {@link AlignOptions#generatePropertyName(Coordinates, AlignOptions.PropertyNamingConvention)}
+         */
         private String resolvePropertyName(
                 Coordinates coords, AlignOptions.PropertyNamingConvention naming, AlignOptions options) {
             if (options.propertyName() != null) {
@@ -1295,6 +1363,17 @@ public class PomEditor extends AbstractMavenEditor {
             return AlignOptions.generatePropertyName(coords, naming);
         }
 
+        /**
+         * Ensure a version-like property with the given key exists and set its value.
+         *
+         * If the project's `<properties>` container is missing it will be created. If a property element with
+         * the given key already exists its text will be overwritten; otherwise a new property element will
+         * be inserted. New properties are placed alphabetically (case-insensitive) among existing
+         * version-like properties when any are present; if none are present the property is appended.
+         *
+         * @param key   the property name to create or update (e.g. "my.artifact.version")
+         * @param value the value to assign to the property
+         */
         private void upsertVersionProperty(String key, String value) {
             Element properties = root().childElement(PROPERTIES).orElse(null);
             if (properties == null) {
@@ -1328,6 +1407,15 @@ public class PomEditor extends AbstractMavenEditor {
             prop.textContent(value);
         }
 
+        /**
+         * Detects whether a property name follows common "version-like" naming patterns.
+         *
+         * Patterns considered: ends with ".version" or "-version", starts with "version.",
+         * or ends with "Version" while the first character is lowercase (e.g., "artifactVersion").
+         *
+         * @param name the property name to test
+         * @return `true` if the name matches a version-like pattern, `false` otherwise
+         */
         private boolean isVersionProperty(String name) {
             return name.endsWith(".version")
                     || name.endsWith("-version")
@@ -1337,11 +1425,25 @@ public class PomEditor extends AbstractMavenEditor {
                             && Character.isLowerCase(name.charAt(0)));
         }
 
+        /**
+         * Checks whether the given string is a Maven-style property reference wrapped in `${...}`.
+         *
+         * @param value the string to inspect
+         * @return `true` if `value` is non-null and begins with `"${"` and ends with `"}"`, `false` otherwise
+         */
         private boolean isPropertyReference(String value) {
             return value != null && value.startsWith("${") && value.endsWith("}");
         }
     }
 
+    /**
+     * Create a helper for managing regular and managed Maven dependencies within this POM.
+     *
+     * Provides high-level operations for adding, updating, deleting, aligning, and inspecting dependencies,
+     * including support for exclusions, dependencyManagement, and convention detection.
+     *
+     * @return a Dependencies helper bound to this PomEditor instance
+     */
     public Dependencies dependencies() {
         return new Dependencies();
     }

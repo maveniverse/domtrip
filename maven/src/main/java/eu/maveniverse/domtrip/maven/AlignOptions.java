@@ -90,6 +90,19 @@ public final class AlignOptions {
     private final String propertyName;
     private final String scope;
 
+    /**
+     * Create an AlignOptions instance using the provided option values.
+     *
+     * <p>Each parameter may be {@code null} to indicate “auto-detect from existing POM conventions.”
+     * This constructor initializes the instance state directly without validation.
+     *
+     * @param versionStyle         placement of dependency versions (inline vs managed); {@code null} means auto-detect
+     * @param versionSource        whether versions are literal or property references; {@code null} means auto-detect
+     * @param namingConvention     property naming convention to use; {@code null} means auto-detect
+     * @param propertyNameGenerator optional custom generator for property names; {@code null} to use convention-based generation
+     * @param propertyName         explicit property name override; {@code null} to allow auto-generation
+     * @param scope                Maven dependency scope override; {@code null} to use the default scope
+     */
     private AlignOptions(
             VersionStyle versionStyle,
             VersionSource versionSource,
@@ -106,58 +119,58 @@ public final class AlignOptions {
     }
 
     /**
-     * Returns default options where all conventions are auto-detected.
+     * Create an AlignOptions instance with all conventions set to auto-detect.
      *
-     * @return default align options
+     * @return an AlignOptions whose fields are all `null`, indicating auto-detection of conventions
      */
     public static AlignOptions defaults() {
         return new AlignOptions(null, null, null, null, null, null);
     }
 
     /**
-     * Returns a new builder for constructing align options.
+     * Create a new Builder for constructing AlignOptions.
      *
-     * @return a new builder
+     * @return a new Builder instance for configuring and building an AlignOptions object
      */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * Returns the version style, or null for auto-detection.
+     * Gets the configured version placement style or defers to auto-detection when unspecified.
      *
-     * @return the version style override, or null
+     * @return the configured version style, or null to indicate auto-detection
      */
     public VersionStyle versionStyle() {
         return versionStyle;
     }
 
     /**
-     * Returns the version source, or null for auto-detection.
+     * The configured version source, or null to indicate auto-detection.
      *
-     * @return the version source override, or null
+     * @return the version source override, or null if auto-detection is used
      */
     public VersionSource versionSource() {
         return versionSource;
     }
 
     /**
-     * Returns the property naming convention, or null for auto-detection.
+     * The property naming convention to use, or null to indicate auto-detection.
      *
-     * @return the naming convention override, or null
+     * @return the naming convention override, or null if it should be auto-detected
      */
     public PropertyNamingConvention namingConvention() {
         return namingConvention;
     }
 
     /**
-     * Returns the custom property name generator function, or null for convention-based generation.
+     * Custom function that generates property names from dependency coordinates, or null to use convention-based generation.
      *
-     * <p>When set, this function is used to generate property names from dependency coordinates,
-     * allowing arbitrary naming patterns beyond the built-in {@link PropertyNamingConvention} options.</p>
+     * <p>When provided, this function is used to derive property names allowing arbitrary naming patterns beyond the
+     * built-in {@link PropertyNamingConvention} options.</p>
      *
-     * <p>Precedence: {@link #propertyName()} &gt; {@link #propertyNameGenerator()} &gt;
-     * {@link #namingConvention()} &gt; auto-detected convention.</p>
+     * <p>Precedence: an explicit property name overrides this generator, which overrides an explicit naming convention,
+     * which in turn falls back to auto-detection.</p>
      *
      * @return the property name generator, or null
      * @since 1.1.0
@@ -167,18 +180,20 @@ public final class AlignOptions {
     }
 
     /**
-     * Returns the explicit property name override, or null for auto-generation.
+     * Provides the explicit property name override.
      *
-     * @return the property name override, or null
+     * @return the explicit property name override, or null to indicate auto-generation
      */
     public String propertyName() {
         return propertyName;
     }
 
     /**
-     * Returns the dependency scope (e.g., "test", "provided"), or null for default scope.
+     * Get the Maven dependency scope configured for this instance.
      *
-     * @return the scope, or null
+     * May be `null` to indicate the default scope.
+     *
+     * @return the dependency scope (e.g., "test", "provided"), or `null` to use the default
      */
     public String scope() {
         return scope;
@@ -215,10 +230,12 @@ public final class AlignOptions {
     }
 
     /**
-     * Converts a hyphenated or dotted string to camelCase.
+     * Convert a hyphenated or dotted identifier to camelCase.
      *
-     * @param input the input string (e.g., "junit-jupiter")
-     * @return the camelCase version (e.g., "junitJupiter")
+     * <p>Removes '-' and '.' characters and capitalizes the character immediately following each removed delimiter.
+     *
+     * @param input the input string (for example, "junit-jupiter")
+     * @return the input converted to camelCase (for example, "junitJupiter")
      */
     static String toCamelCase(String input) {
         StringBuilder sb = new StringBuilder();
@@ -248,7 +265,10 @@ public final class AlignOptions {
         private String propertyName;
         private String scope;
 
-        private Builder() {}
+        /**
+ * Creates an empty Builder with all option fields unset (null).
+ */
+private Builder() {}
 
         /**
          * Sets the version style override.
@@ -284,10 +304,9 @@ public final class AlignOptions {
         }
 
         /**
-         * Sets a custom function to generate property names from dependency coordinates.
+         * Set a custom function that generates property names from dependency coordinates.
          *
-         * <p>This allows arbitrary naming patterns beyond the built-in conventions.
-         * Overridden by {@link #propertyName(String)} if both are set.</p>
+         * <p>Allows arbitrary naming patterns beyond the built-in conventions.</p>
          *
          * <p>Example:</p>
          * <pre>{@code
@@ -327,9 +346,12 @@ public final class AlignOptions {
         }
 
         /**
-         * Builds the {@link AlignOptions} instance.
+         * Create an AlignOptions configured with the builder's current settings.
          *
-         * @return a new AlignOptions instance
+         * No validation or additional processing is performed; the builder's field
+         * values (which may be `null`) are copied directly into the created instance.
+         *
+         * @return the constructed AlignOptions
          */
         public AlignOptions build() {
             return new AlignOptions(

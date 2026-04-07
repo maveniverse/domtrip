@@ -51,6 +51,8 @@ public final class AlignOptions {
 
     /**
      * Whether the dependency version is inline or delegated to dependency management.
+     *
+     * @since 1.1.0
      */
     public enum VersionStyle {
         /** Version specified directly in the {@code <dependency>} element. */
@@ -61,6 +63,8 @@ public final class AlignOptions {
 
     /**
      * Whether the version value is a literal or a property reference.
+     *
+     * @since 1.1.0
      */
     public enum VersionSource {
         /** Literal version value (e.g., {@code 5.9.2}). */
@@ -71,6 +75,8 @@ public final class AlignOptions {
 
     /**
      * Naming convention for version properties.
+     *
+     * @since 1.1.0
      */
     public enum PropertyNamingConvention {
         /** Dot suffix: {@code artifactId.version} (e.g., {@code guava.version}). */
@@ -121,7 +127,8 @@ public final class AlignOptions {
     /**
      * Create an AlignOptions instance with all conventions set to auto-detect.
      *
-     * @return an AlignOptions whose fields are all `null`, indicating auto-detection of conventions
+     * @return an AlignOptions whose fields are all {@code null}, indicating auto-detection of conventions
+     * @since 1.1.0
      */
     public static AlignOptions defaults() {
         return new AlignOptions(null, null, null, null, null, null);
@@ -131,6 +138,7 @@ public final class AlignOptions {
      * Create a new Builder for constructing AlignOptions.
      *
      * @return a new Builder instance for configuring and building an AlignOptions object
+     * @since 1.1.0
      */
     public static Builder builder() {
         return new Builder();
@@ -139,7 +147,8 @@ public final class AlignOptions {
     /**
      * Gets the configured version placement style or defers to auto-detection when unspecified.
      *
-     * @return the configured version style, or null to indicate auto-detection
+     * @return the configured version style, or {@code null} to indicate auto-detection
+     * @since 1.1.0
      */
     public VersionStyle versionStyle() {
         return versionStyle;
@@ -148,7 +157,8 @@ public final class AlignOptions {
     /**
      * The configured version source, or null to indicate auto-detection.
      *
-     * @return the version source override, or null if auto-detection is used
+     * @return the version source override, or {@code null} if auto-detection is used
+     * @since 1.1.0
      */
     public VersionSource versionSource() {
         return versionSource;
@@ -157,7 +167,8 @@ public final class AlignOptions {
     /**
      * The property naming convention to use, or null to indicate auto-detection.
      *
-     * @return the naming convention override, or null if it should be auto-detected
+     * @return the naming convention override, or {@code null} if it should be auto-detected
+     * @since 1.1.0
      */
     public PropertyNamingConvention namingConvention() {
         return namingConvention;
@@ -182,7 +193,8 @@ public final class AlignOptions {
     /**
      * Provides the explicit property name override.
      *
-     * @return the explicit property name override, or null to indicate auto-generation
+     * @return the explicit property name override, or {@code null} to indicate auto-generation
+     * @since 1.1.0
      */
     public String propertyName() {
         return propertyName;
@@ -191,9 +203,10 @@ public final class AlignOptions {
     /**
      * Get the Maven dependency scope configured for this instance.
      *
-     * May be `null` to indicate the default scope.
+     * <p>May be {@code null} to indicate the default scope.</p>
      *
-     * @return the dependency scope (e.g., "test", "provided"), or `null` to use the default
+     * @return the dependency scope (e.g., "test", "provided"), or {@code null} to use the default
+     * @since 1.1.0
      */
     public String scope() {
         return scope;
@@ -213,6 +226,7 @@ public final class AlignOptions {
      * @param coords the dependency coordinates (artifactId is used as the base name)
      * @param convention the naming convention to apply
      * @return the generated property name
+     * @since 1.1.0
      */
     public static String generatePropertyName(Coordinates coords, PropertyNamingConvention convention) {
         String base = coords.artifactId();
@@ -236,6 +250,7 @@ public final class AlignOptions {
      *
      * @param input the input string (for example, "junit-jupiter")
      * @return the input converted to camelCase (for example, "junitJupiter")
+     * @since 1.1.0
      */
     static String toCamelCase(String input) {
         StringBuilder sb = new StringBuilder();
@@ -256,6 +271,8 @@ public final class AlignOptions {
 
     /**
      * Builder for {@link AlignOptions}.
+     *
+     * @since 1.1.0
      */
     public static final class Builder {
         private VersionStyle versionStyle;
@@ -348,8 +365,8 @@ public final class AlignOptions {
         /**
          * Create an AlignOptions configured with the builder's current settings.
          *
-         * No validation or additional processing is performed; the builder's field
-         * values (which may be `null`) are copied directly into the created instance.
+         * <p>No validation or additional processing is performed; the builder's field
+         * values (which may be {@code null}) are copied directly into the created instance.</p>
          *
          * @return the constructed AlignOptions
          */

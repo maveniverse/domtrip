@@ -1444,6 +1444,109 @@ class PomEditorTest {
         String xml = editor.toXml();
         assertTrue(xml.contains("<guava.version>32.1.2-jre</guava.version>"));
         assertTrue(xml.contains("<version>${guava.version}</version>"));
+        // Old property is intentionally preserved — other dependencies may still reference it
+        assertTrue(xml.contains("<old-guava-prop>32.1.2-jre</old-guava-prop>"));
+    }
+
+    @Test
+    void testAlignDependencySkipsParentInheritedProperty() {
+        // Property is NOT defined locally — simulates inheritance from parent POM
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>${parent.guava.version}</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """;
+        PomEditor editor = editorOf(pom);
+
+        // Re-alignment should be skipped since the property can't be resolved locally
+        boolean changed = editor.dependencies()
+                .alignDependency(
+                        Coordinates.of("com.google.guava", "guava", null),
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+                                .build());
+        assertFalse(changed);
+
+        // Original reference should be preserved
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<version>${parent.guava.version}</version>"));
+    }
+
+    @Test
+    void testAddAlignedWithClassifierAndType() {
+        PomEditor editor = editorOf(POM_MANAGED_PROPERTY);
+
+        Coordinates coords = Coordinates.of("org.example", "my-lib", "2.0.0", "sources", "jar");
+        boolean added = editor.dependencies().addAligned(coords);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<artifactId>my-lib</artifactId>"));
+        assertTrue(xml.contains("<classifier>sources</classifier>"));
+    }
+
+    @Test
+    void testAddAlignedWithNonJarType() {
+        PomEditor editor = editorOf(POM_MANAGED_PROPERTY);
+
+        Coordinates coords = Coordinates.of("org.example", "my-bom", "1.0.0", null, "pom");
+        boolean added = editor.dependencies().addAligned(coords);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<artifactId>my-bom</artifactId>"));
+        assertTrue(xml.contains("<type>pom</type>"));
+    }
+
+    @Test
+    void testIsPropertyReferenceRejectsCompoundExpressions() {
+        // Compound expression like ${a}${b} should NOT be treated as a single property reference
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        // Verify that a dep with compound version is treated as literal, not property
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.example</groupId>
+                      <artifactId>compound</artifactId>
+                      <version>${major}.${minor}</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """;
+        editor = editorOf(pom);
+
+        // Aligning should treat the compound expression as a literal — create a property for it
+        boolean changed = editor.dependencies()
+                .alignDependency(
+                        Coordinates.of("org.example", "compound", null),
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+                                .build());
+        assertTrue(changed);
+
+        String xml = editor.toXml();
+        // The compound expression is treated as a literal value stored in a property
+        assertTrue(xml.contains("<compound.version>${major}.${minor}</compound.version>"));
+        assertTrue(xml.contains("<version>${compound.version}</version>"));
     }
 
     @Test

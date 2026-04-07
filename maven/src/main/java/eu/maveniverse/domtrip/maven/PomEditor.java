@@ -973,12 +973,10 @@ public class PomEditor extends AbstractMavenEditor {
             }
 
             // Resolve conventions
-            AlignOptions.VersionStyle versionStyle =
-                    options.versionStyle() != null ? options.versionStyle() : detectVersionStyle();
-            AlignOptions.VersionSource versionSource =
-                    options.versionSource() != null ? options.versionSource() : detectVersionSource();
-            AlignOptions.PropertyNamingConvention naming =
-                    options.namingConvention() != null ? options.namingConvention() : detectPropertyNamingConvention();
+            Object[] conventions = resolveConventions(options);
+            AlignOptions.VersionStyle versionStyle = (AlignOptions.VersionStyle) conventions[0];
+            AlignOptions.VersionSource versionSource = (AlignOptions.VersionSource) conventions[1];
+            AlignOptions.PropertyNamingConvention naming = (AlignOptions.PropertyNamingConvention) conventions[2];
 
             String actualVersion = coords.version();
             String versionForElement = actualVersion;
@@ -1072,12 +1070,10 @@ public class PomEditor extends AbstractMavenEditor {
                 return false;
             }
 
-            AlignOptions.VersionStyle versionStyle =
-                    options.versionStyle() != null ? options.versionStyle() : detectVersionStyle();
-            AlignOptions.VersionSource versionSource =
-                    options.versionSource() != null ? options.versionSource() : detectVersionSource();
-            AlignOptions.PropertyNamingConvention naming =
-                    options.namingConvention() != null ? options.namingConvention() : detectPropertyNamingConvention();
+            Object[] conventions = resolveConventions(options);
+            AlignOptions.VersionStyle versionStyle = (AlignOptions.VersionStyle) conventions[0];
+            AlignOptions.VersionSource versionSource = (AlignOptions.VersionSource) conventions[1];
+            AlignOptions.PropertyNamingConvention naming = (AlignOptions.PropertyNamingConvention) conventions[2];
 
             return alignDependencyElement(dep, coords, versionStyle, versionSource, naming, options);
         }
@@ -1126,12 +1122,10 @@ public class PomEditor extends AbstractMavenEditor {
                 return 0;
             }
 
-            AlignOptions.VersionStyle versionStyle =
-                    options.versionStyle() != null ? options.versionStyle() : detectVersionStyle();
-            AlignOptions.VersionSource versionSource =
-                    options.versionSource() != null ? options.versionSource() : detectVersionSource();
-            AlignOptions.PropertyNamingConvention naming =
-                    options.namingConvention() != null ? options.namingConvention() : detectPropertyNamingConvention();
+            Object[] conventions = resolveConventions(options);
+            AlignOptions.VersionStyle versionStyle = (AlignOptions.VersionStyle) conventions[0];
+            AlignOptions.VersionSource versionSource = (AlignOptions.VersionSource) conventions[1];
+            AlignOptions.PropertyNamingConvention naming = (AlignOptions.PropertyNamingConvention) conventions[2];
 
             List<Element> depList = deps.childElements(DEPENDENCY).collect(Collectors.toList());
             int count = 0;
@@ -1394,12 +1388,31 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
+         * Resolves the effective conventions by filling in {@code null} fields from the given options
+         * with auto-detected values from the current POM.
+         *
+         * @param options alignment options (fields may be {@code null} to indicate auto-detection)
+         * @return a three-element array: {@code [VersionStyle, VersionSource, PropertyNamingConvention]}
+         * @since 1.1.0
+         */
+        private Object[] resolveConventions(AlignOptions options) {
+            AlignOptions.VersionStyle versionStyle =
+                    options.versionStyle() != null ? options.versionStyle() : detectVersionStyle();
+            AlignOptions.VersionSource versionSource =
+                    options.versionSource() != null ? options.versionSource() : detectVersionSource();
+            AlignOptions.PropertyNamingConvention naming =
+                    options.namingConvention() != null ? options.namingConvention() : detectPropertyNamingConvention();
+            return new Object[] {versionStyle, versionSource, naming};
+        }
+
+        /**
          * Resolve the effective property name to use for the given dependency coordinates.
          *
          * @param coords  dependency coordinates used when generating a name if none is supplied
          * @param naming  naming convention to apply when a name is generated
          * @param options alignment options that may supply an explicit property name or a generator
          * @return        the resolved property name; preferring an explicit name from {@code options}, then a generated name from {@code options.propertyNameGenerator()}, and finally a name produced via {@link AlignOptions#generatePropertyName(Coordinates, AlignOptions.PropertyNamingConvention)}
+         * @since 1.1.0
          */
         private String resolvePropertyName(
                 Coordinates coords, AlignOptions.PropertyNamingConvention naming, AlignOptions options) {
@@ -1415,13 +1428,15 @@ public class PomEditor extends AbstractMavenEditor {
         /**
          * Ensure a version-like property with the given key exists and set its value.
          *
-         * If the project's `<properties>` container is missing it will be created. If a property element with
-         * the given key already exists its text will be overwritten; otherwise a new property element will
-         * be inserted. New properties are placed alphabetically (case-insensitive) among existing
-         * version-like properties when any are present; if none are present the property is appended.
+         * <p>If the project's {@code <properties>} container is missing it will be created. If a property
+         * element with the given key already exists its text will be overwritten; otherwise a new property
+         * element will be inserted. New properties are placed alphabetically (case-insensitive) among
+         * existing version-like properties when any are present; if none are present the property is
+         * appended.</p>
          *
-         * @param key   the property name to create or update (e.g. "my.artifact.version")
+         * @param key   the property name to create or update (e.g. {@code "my.artifact.version"})
          * @param value the value to assign to the property
+         * @since 1.1.0
          */
         private void upsertVersionProperty(String key, String value) {
             Element properties = root().childElement(PROPERTIES).orElse(null);
@@ -1459,11 +1474,12 @@ public class PomEditor extends AbstractMavenEditor {
         /**
          * Detects whether a property name follows common "version-like" naming patterns.
          *
-         * Patterns considered: ends with ".version" or "-version", starts with "version.",
-         * or ends with "Version" while the first character is lowercase (e.g., "artifactVersion").
+         * <p>Patterns considered: ends with ".version" or "-version", starts with "version.",
+         * or ends with "Version" while the first character is lowercase (e.g., "artifactVersion").</p>
          *
          * @param name the property name to test
-         * @return `true` if the name matches a version-like pattern, `false` otherwise
+         * @return {@code true} if the name matches a version-like pattern, {@code false} otherwise
+         * @since 1.1.0
          */
         private boolean isVersionProperty(String name) {
             return name.endsWith(".version")
@@ -1475,13 +1491,20 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Checks whether the given string is a Maven-style property reference wrapped in `${...}`.
+         * Checks whether the given string is a single Maven-style property reference of the form {@code ${name}}.
+         *
+         * <p>Returns {@code false} for compound expressions (e.g. {@code ${a}-${b}}),
+         * interpolated strings (e.g. {@code ${version}-SNAPSHOT}), or null/empty values.</p>
          *
          * @param value the string to inspect
-         * @return `true` if `value` is non-null and begins with `"${"` and ends with `"}"`, `false` otherwise
+         * @return {@code true} if {@code value} is a single property reference, {@code false} otherwise
+         * @since 1.1.0
          */
         private boolean isPropertyReference(String value) {
-            return value != null && value.startsWith("${") && value.endsWith("}");
+            return value != null
+                    && value.startsWith("${")
+                    && value.endsWith("}")
+                    && value.indexOf('}') == value.length() - 1;
         }
     }
 

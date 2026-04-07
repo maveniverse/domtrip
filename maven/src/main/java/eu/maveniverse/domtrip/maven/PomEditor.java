@@ -1228,13 +1228,17 @@ public class PomEditor extends AbstractMavenEditor {
             if (currentPropName.equals(desiredPropName)) {
                 return null; // Already aligned
             }
+            // Only re-align if the property is defined locally — if it's inherited from a
+            // parent POM we can't resolve the value, so leave the reference unchanged.
             Element props = root().childElement(PROPERTIES).orElse(null);
-            if (props != null) {
-                String currentValue = props.childTextOr(currentPropName, null);
-                if (currentValue != null) {
-                    upsertVersionProperty(desiredPropName, currentValue);
-                }
+            if (props == null) {
+                return null;
             }
+            String currentValue = props.childTextOr(currentPropName, null);
+            if (currentValue == null) {
+                return null;
+            }
+            upsertVersionProperty(desiredPropName, currentValue);
             String ref = "${" + desiredPropName + "}";
             versionEl.textContent(ref);
             return ref;

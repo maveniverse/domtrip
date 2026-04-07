@@ -110,6 +110,7 @@ public final class MavenPomElements {
         // Profile elements
         public static final String PROFILES = "profiles";
         public static final String PROFILE = "profile";
+        public static final String ID = "id";
 
         // Project information elements
         public static final String PROPERTIES = "properties";

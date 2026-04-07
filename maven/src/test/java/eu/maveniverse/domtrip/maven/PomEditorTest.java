@@ -1484,7 +1484,8 @@ class PomEditorTest {
     void testAddAlignedWithoutVersionThrows() {
         PomEditor editor = editorOf(POM_INLINE_LITERAL);
         Coordinates noVersion = Coordinates.of("com.example", "no-version", null);
+        PomEditor.Dependencies deps = editor.dependencies();
 
-        assertThrows(DomTripException.class, () -> editor.dependencies().addAligned(noVersion));
+        assertThrows(DomTripException.class, () -> deps.addAligned(noVersion));
     }
 }

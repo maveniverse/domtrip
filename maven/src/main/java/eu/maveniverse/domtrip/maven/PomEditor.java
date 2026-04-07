@@ -70,6 +70,9 @@ public class PomEditor extends AbstractMavenEditor {
     /** CamelCase version suffix used in property naming convention detection. */
     private static final String VERSION_SUFFIX = "Version";
 
+    /** Label for dependency coordinate validation in {@code requireGA} calls. */
+    private static final String DEPENDENCY_LABEL = "Dependency";
+
     // Element ordering configuration for Maven POM elements
     private static final Map<String, List<String>> ELEMENT_ORDER = new HashMap<>();
 
@@ -616,7 +619,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @since 1.0.0
          */
         public Element addExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
-            requireGA("Dependency", dependency);
+            requireGA(DEPENDENCY_LABEL, dependency);
             requireGA("Exclusion", exclusion);
             Element dependencies = findChildElement(root(), DEPENDENCIES);
             if (dependencies == null) {
@@ -952,7 +955,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @since 1.1.0
          */
         public boolean addAligned(Coordinates coords, AlignOptions options) {
-            requireGA("Dependency", coords);
+            requireGA(DEPENDENCY_LABEL, coords);
             if (coords.version() == null) {
                 throw new DomTripException("Version is required for addAligned");
             }
@@ -1058,7 +1061,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @since 1.1.0
          */
         public boolean alignDependency(Coordinates coords, AlignOptions options) {
-            requireGA("Dependency", coords);
+            requireGA(DEPENDENCY_LABEL, coords);
             Element deps = findChildElement(root(), DEPENDENCIES);
             if (deps == null) {
                 return false;
@@ -1176,33 +1179,15 @@ public class PomEditor extends AbstractMavenEditor {
             }
 
             String versionText = versionEl.get().textContent();
-            boolean isPropertyRef = isPropertyReference(versionText);
             boolean changed = false;
 
             // Convert literal → property or re-align existing property reference if needed
             if (targetSource == AlignOptions.VersionSource.PROPERTY) {
                 String desiredPropName = resolvePropertyName(coords, naming, options);
-                if (!isPropertyRef) {
-                    // Literal → property
-                    upsertVersionProperty(desiredPropName, versionText);
-                    versionEl.get().textContent("${" + desiredPropName + "}");
-                    versionText = "${" + desiredPropName + "}";
+                String aligned = alignVersionToProperty(versionEl.get(), versionText, desiredPropName);
+                if (aligned != null) {
+                    versionText = aligned;
                     changed = true;
-                } else {
-                    // Already a property reference — re-align if the name doesn't match
-                    String currentPropName = versionText.substring(2, versionText.length() - 1);
-                    if (!currentPropName.equals(desiredPropName)) {
-                        Element props = root().childElement(PROPERTIES).orElse(null);
-                        if (props != null) {
-                            String currentValue = props.childTextOr(currentPropName, null);
-                            if (currentValue != null) {
-                                upsertVersionProperty(desiredPropName, currentValue);
-                            }
-                        }
-                        versionEl.get().textContent("${" + desiredPropName + "}");
-                        versionText = "${" + desiredPropName + "}";
-                        changed = true;
-                    }
                 }
             }
 
@@ -1215,6 +1200,44 @@ public class PomEditor extends AbstractMavenEditor {
             }
 
             return changed;
+        }
+
+        /**
+         * Aligns a version element to use the desired property reference.
+         *
+         * <p>If the version is a literal value, creates the property and updates the element
+         * to reference it. If it already references a different property, copies the value
+         * to the desired property name and updates the reference.</p>
+         *
+         * @param versionEl the {@code <version>} element to update
+         * @param versionText the current text content of the version element
+         * @param desiredPropName the property name that should be referenced
+         * @return the new version text (e.g. {@code "${prop.version}"}) if a change was made, or {@code null} if already aligned
+         * @since 1.1.0
+         */
+        private String alignVersionToProperty(Element versionEl, String versionText, String desiredPropName) {
+            if (!isPropertyReference(versionText)) {
+                // Literal → property
+                upsertVersionProperty(desiredPropName, versionText);
+                String ref = "${" + desiredPropName + "}";
+                versionEl.textContent(ref);
+                return ref;
+            }
+            // Already a property reference — re-align if the name doesn't match
+            String currentPropName = versionText.substring(2, versionText.length() - 1);
+            if (currentPropName.equals(desiredPropName)) {
+                return null; // Already aligned
+            }
+            Element props = root().childElement(PROPERTIES).orElse(null);
+            if (props != null) {
+                String currentValue = props.childTextOr(currentPropName, null);
+                if (currentValue != null) {
+                    upsertVersionProperty(desiredPropName, currentValue);
+                }
+            }
+            String ref = "${" + desiredPropName + "}";
+            versionEl.textContent(ref);
+            return ref;
         }
 
         /**

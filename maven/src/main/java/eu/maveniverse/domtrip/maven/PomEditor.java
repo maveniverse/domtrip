@@ -1179,13 +1179,31 @@ public class PomEditor extends AbstractMavenEditor {
             boolean isPropertyRef = isPropertyReference(versionText);
             boolean changed = false;
 
-            // Convert literal → property if needed
-            if (targetSource == AlignOptions.VersionSource.PROPERTY && !isPropertyRef) {
-                String propName = resolvePropertyName(coords, naming, options);
-                upsertVersionProperty(propName, versionText);
-                versionEl.get().textContent("${" + propName + "}");
-                versionText = "${" + propName + "}";
-                changed = true;
+            // Convert literal → property or re-align existing property reference if needed
+            if (targetSource == AlignOptions.VersionSource.PROPERTY) {
+                String desiredPropName = resolvePropertyName(coords, naming, options);
+                if (!isPropertyRef) {
+                    // Literal → property
+                    upsertVersionProperty(desiredPropName, versionText);
+                    versionEl.get().textContent("${" + desiredPropName + "}");
+                    versionText = "${" + desiredPropName + "}";
+                    changed = true;
+                } else {
+                    // Already a property reference — re-align if the name doesn't match
+                    String currentPropName = versionText.substring(2, versionText.length() - 1);
+                    if (!currentPropName.equals(desiredPropName)) {
+                        Element props = root().childElement(PROPERTIES).orElse(null);
+                        if (props != null) {
+                            String currentValue = props.childTextOr(currentPropName, null);
+                            if (currentValue != null) {
+                                upsertVersionProperty(desiredPropName, currentValue);
+                            }
+                        }
+                        versionEl.get().textContent("${" + desiredPropName + "}");
+                        versionText = "${" + desiredPropName + "}";
+                        changed = true;
+                    }
+                }
             }
 
             // Convert inline → managed if needed

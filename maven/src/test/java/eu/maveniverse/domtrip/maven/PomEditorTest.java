@@ -1409,6 +1409,78 @@ class PomEditorTest {
     }
 
     @Test
+    void testAlignDependencyRealignsExistingPropertyReference() {
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                  <properties>
+                    <old-guava-prop>32.1.2-jre</old-guava-prop>
+                  </properties>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>${old-guava-prop}</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """;
+        PomEditor editor = editorOf(pom);
+
+        // Align to DOT_SUFFIX convention — should rename old-guava-prop → guava.version
+        boolean changed = editor.dependencies()
+                .alignDependency(
+                        Coordinates.of("com.google.guava", "guava", null),
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+                                .build());
+        assertTrue(changed);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<guava.version>32.1.2-jre</guava.version>"));
+        assertTrue(xml.contains("<version>${guava.version}</version>"));
+    }
+
+    @Test
+    void testAlignDependencySkipsMatchingPropertyReference() {
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                  <properties>
+                    <guava.version>32.1.2-jre</guava.version>
+                  </properties>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>${guava.version}</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """;
+        PomEditor editor = editorOf(pom);
+
+        // Align guava which already uses ${guava.version} with DOT_SUFFIX — should be a no-op
+        boolean changed = editor.dependencies()
+                .alignDependency(
+                        Coordinates.of("com.google.guava", "guava", null),
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+                                .build());
+        assertFalse(changed);
+    }
+
+    @Test
     void testAddAlignedWithoutVersionThrows() {
         PomEditor editor = editorOf(POM_INLINE_LITERAL);
         Coordinates noVersion = Coordinates.of("com.example", "no-version", null);

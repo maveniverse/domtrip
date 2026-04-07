@@ -266,9 +266,9 @@ public final class AlignOptions {
         private String scope;
 
         /**
- * Creates an empty Builder with all option fields unset (null).
- */
-private Builder() {}
+         * Creates an empty Builder with all option fields unset (null).
+         */
+        private Builder() {}
 
         /**
          * Sets the version style override.

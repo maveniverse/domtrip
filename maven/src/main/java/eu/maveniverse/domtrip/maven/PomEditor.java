@@ -15,6 +15,7 @@ import eu.maveniverse.domtrip.DomTripConfig;
 import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,9 @@ import java.util.stream.Collectors;
  * @since 0.1
  */
 public class PomEditor extends AbstractMavenEditor {
+
+    /** CamelCase version suffix used in property naming convention detection. */
+    private static final String VERSION_SUFFIX = "Version";
 
     // Element ordering configuration for Maven POM elements
     private static final Map<String, List<String>> ELEMENT_ORDER = new HashMap<>();
@@ -813,17 +817,17 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-                 * Determine whether dependency versions predominantly use property references or literal values.
-                 *
-                 * <p>Analyzes `<project>/dependencies` and `<project>/dependencyManagement/dependencies`. If a strict
-                 * majority of observed `<version>` elements are property references of the form `${...}`, the method
-                 * returns {@link AlignOptions.VersionSource#PROPERTY}; otherwise it returns
-                 * {@link AlignOptions.VersionSource#LITERAL}.</p>
-                 *
-                 * @return {@link AlignOptions.VersionSource#PROPERTY} if strictly more versioned dependencies use `${...}` property
-                 *         references, {@link AlignOptions.VersionSource#LITERAL} otherwise
-                 * @since 1.1.0
-                 */
+         * Determine whether dependency versions predominantly use property references or literal values.
+         *
+         * <p>Analyzes `<project>/dependencies` and `<project>/dependencyManagement/dependencies`. If a strict
+         * majority of observed `<version>` elements are property references of the form `${...}`, the method
+         * returns {@link AlignOptions.VersionSource#PROPERTY}; otherwise it returns
+         * {@link AlignOptions.VersionSource#LITERAL}.</p>
+         *
+         * @return {@link AlignOptions.VersionSource#PROPERTY} if strictly more versioned dependencies use `${...}` property
+         *         references, {@link AlignOptions.VersionSource#LITERAL} otherwise
+         * @since 1.1.0
+         */
         public AlignOptions.VersionSource detectVersionSource() {
             long propertyCount = 0;
             long totalVersioned = 0;
@@ -863,7 +867,8 @@ public class PomEditor extends AbstractMavenEditor {
          * @since 1.1.0
          */
         public AlignOptions.PropertyNamingConvention detectPropertyNamingConvention() {
-            Map<AlignOptions.PropertyNamingConvention, Integer> votes = new HashMap<>();
+            Map<AlignOptions.PropertyNamingConvention, Integer> votes =
+                    new EnumMap<>(AlignOptions.PropertyNamingConvention.class);
 
             collectPropertyConventionVotes(findChildElement(root(), DEPENDENCIES), votes);
 
@@ -1158,7 +1163,6 @@ public class PomEditor extends AbstractMavenEditor {
          * @param options alignment options that may supply explicit property names or generators
          * @return `true` if any change was made to the dependency or project (property upserted, version replaced, or version element removed), `false` if the dependency was already aligned (no `<version>` present or no conversion needed)
          */
-
         private boolean alignDependencyElement(
                 Element dep,
                 Coordinates coords,
@@ -1334,8 +1338,8 @@ public class PomEditor extends AbstractMavenEditor {
                 return AlignOptions.PropertyNamingConvention.DOT_SUFFIX;
             } else if (propName.endsWith("-version")) {
                 return AlignOptions.PropertyNamingConvention.DASH_SUFFIX;
-            } else if (propName.endsWith("Version")
-                    && propName.length() > "Version".length()
+            } else if (propName.endsWith(VERSION_SUFFIX)
+                    && propName.length() > VERSION_SUFFIX.length()
                     && Character.isLowerCase(propName.charAt(0))) {
                 return AlignOptions.PropertyNamingConvention.CAMEL_CASE;
             } else if (propName.startsWith("version.")) {
@@ -1420,8 +1424,8 @@ public class PomEditor extends AbstractMavenEditor {
             return name.endsWith(".version")
                     || name.endsWith("-version")
                     || name.startsWith("version.")
-                    || (name.endsWith("Version")
-                            && name.length() > "Version".length()
+                    || (name.endsWith(VERSION_SUFFIX)
+                            && name.length() > VERSION_SUFFIX.length()
                             && Character.isLowerCase(name.charAt(0)));
         }
 

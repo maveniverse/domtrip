@@ -780,6 +780,566 @@ public class PomEditor extends AbstractMavenEditor {
             }
             return hasExclusionInElement(dep, exclusion);
         }
+
+        // ========== CONVENTION DETECTION ==========
+
+        /**
+         * Detects whether most dependencies use managed versions (version-less) or inline versions.
+         *
+         * <p>Analyzes {@code project/dependencies/dependency[]} to count how many have inline versions
+         * versus how many delegate to {@code dependencyManagement}. Returns
+         * {@link AlignOptions.VersionStyle#MANAGED} if the strict majority of dependencies are version-less.</p>
+         *
+         * @return the detected version style
+         * @since 1.1.0
+         */
+        public AlignOptions.VersionStyle detectVersionStyle() {
+            Element dependencies = findChildElement(root(), DEPENDENCIES);
+            if (dependencies == null) {
+                Element depMgmt = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+                return depMgmt != null ? AlignOptions.VersionStyle.MANAGED : AlignOptions.VersionStyle.INLINE;
+            }
+
+            long total = dependencies.childElements(DEPENDENCY).count();
+            if (total == 0) {
+                Element depMgmt = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+                return depMgmt != null ? AlignOptions.VersionStyle.MANAGED : AlignOptions.VersionStyle.INLINE;
+            }
+
+            long withVersion = countVersionedDependencies(dependencies);
+            long withoutVersion = total - withVersion;
+
+            return withoutVersion > withVersion ? AlignOptions.VersionStyle.MANAGED : AlignOptions.VersionStyle.INLINE;
+        }
+
+        /**
+         * Detects whether most version elements use property references or literal values.
+         *
+         * <p>Analyzes version elements in both {@code project/dependencies} and
+         * {@code project/dependencyManagement/dependencies}. Returns
+         * {@link AlignOptions.VersionSource#PROPERTY} if the strict majority use {@code ${...}} references.</p>
+         *
+         * @return the detected version source
+         * @since 1.1.0
+         */
+        public AlignOptions.VersionSource detectVersionSource() {
+            long propertyCount = 0;
+            long totalVersioned = 0;
+
+            Element dependencies = findChildElement(root(), DEPENDENCIES);
+            if (dependencies != null) {
+                propertyCount += countPropertyVersionedDependencies(dependencies);
+                totalVersioned += countVersionedDependencies(dependencies);
+            }
+
+            Element depMgmt = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+            if (depMgmt != null) {
+                Element managedDeps = findChildElement(depMgmt, DEPENDENCIES);
+                if (managedDeps != null) {
+                    propertyCount += countPropertyVersionedDependencies(managedDeps);
+                    totalVersioned += countVersionedDependencies(managedDeps);
+                }
+            }
+
+            if (totalVersioned == 0) {
+                return AlignOptions.VersionSource.LITERAL;
+            }
+
+            return propertyCount > totalVersioned - propertyCount
+                    ? AlignOptions.VersionSource.PROPERTY
+                    : AlignOptions.VersionSource.LITERAL;
+        }
+
+        /**
+         * Detects the dominant property naming convention from existing version property references.
+         *
+         * <p>Analyzes {@code ${...}} version references in both regular and managed dependencies
+         * to determine the naming pattern. Falls back to
+         * {@link AlignOptions.PropertyNamingConvention#DOT_SUFFIX} if no pattern can be detected.</p>
+         *
+         * @return the detected naming convention
+         * @since 1.1.0
+         */
+        public AlignOptions.PropertyNamingConvention detectPropertyNamingConvention() {
+            Map<AlignOptions.PropertyNamingConvention, Integer> votes = new HashMap<>();
+
+            collectPropertyConventionVotes(findChildElement(root(), DEPENDENCIES), votes);
+
+            Element depMgmt = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+            if (depMgmt != null) {
+                collectPropertyConventionVotes(findChildElement(depMgmt, DEPENDENCIES), votes);
+            }
+
+            AlignOptions.PropertyNamingConvention best = AlignOptions.PropertyNamingConvention.DOT_SUFFIX;
+            int bestCount = 0;
+            for (Map.Entry<AlignOptions.PropertyNamingConvention, Integer> entry : votes.entrySet()) {
+                if (entry.getValue() > bestCount) {
+                    bestCount = entry.getValue();
+                    best = entry.getKey();
+                }
+            }
+            return best;
+        }
+
+        /**
+         * Detects all conventions and returns them as a fully-resolved {@link AlignOptions}.
+         *
+         * <p>Combines the results of {@link #detectVersionStyle()}, {@link #detectVersionSource()},
+         * and {@link #detectPropertyNamingConvention()} into a single {@link AlignOptions} instance
+         * where all fields are populated (no nulls).</p>
+         *
+         * @return align options with all detected conventions
+         * @see #detectVersionStyle()
+         * @see #detectVersionSource()
+         * @see #detectPropertyNamingConvention()
+         * @since 1.1.0
+         */
+        public AlignOptions detectConventions() {
+            return AlignOptions.builder()
+                    .versionStyle(detectVersionStyle())
+                    .versionSource(detectVersionSource())
+                    .namingConvention(detectPropertyNamingConvention())
+                    .build();
+        }
+
+        // ========== ALIGNED OPERATIONS ==========
+
+        /**
+         * Adds a dependency aligned with the project's auto-detected conventions.
+         *
+         * <p>Detects the project's dependency management style (managed vs inline, property vs literal,
+         * property naming convention) and adds the dependency accordingly. If the dependency already
+         * exists, returns false.</p>
+         *
+         * @param coords the dependency coordinates (version is required)
+         * @return true if the dependency was added, false if it already existed
+         * @throws DomTripException if the coordinates are invalid or version is null
+         * @since 1.1.0
+         */
+        public boolean addAligned(Coordinates coords) {
+            return addAligned(coords, AlignOptions.defaults());
+        }
+
+        /**
+         * Adds a dependency aligned with the specified options, auto-detecting any unspecified conventions.
+         *
+         * <p>Example usage:</p>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates guava = Coordinates.of("com.google.guava", "guava", "32.1.2-jre");
+         *
+         * // Auto-detect all conventions
+         * editor.dependencies().addAligned(guava);
+         *
+         * // Force managed + property with explicit property name
+         * editor.dependencies().addAligned(guava, AlignOptions.builder()
+         *     .versionStyle(AlignOptions.VersionStyle.MANAGED)
+         *     .versionSource(AlignOptions.VersionSource.PROPERTY)
+         *     .propertyName("guava.version")
+         *     .build());
+         *
+         * // Add as test dependency
+         * editor.dependencies().addAligned(junit, AlignOptions.builder()
+         *     .scope("test")
+         *     .build());
+         * }</pre>
+         *
+         * @param coords the dependency coordinates (version is required)
+         * @param options alignment options (null fields are auto-detected)
+         * @return true if the dependency was added, false if it already existed
+         * @throws DomTripException if the coordinates are invalid or version is null
+         * @since 1.1.0
+         */
+        public boolean addAligned(Coordinates coords, AlignOptions options) {
+            requireGA("Dependency", coords);
+            if (coords.version() == null) {
+                throw new DomTripException("Version is required for addAligned");
+            }
+
+            // Check if dependency already exists
+            Element deps = findChildElement(root(), DEPENDENCIES);
+            if (deps != null) {
+                Element existing = deps.childElements(DEPENDENCY)
+                        .filter(coords.predicateGATC())
+                        .findFirst()
+                        .orElse(null);
+                if (existing != null) {
+                    return false;
+                }
+            }
+
+            // Resolve conventions
+            AlignOptions.VersionStyle versionStyle =
+                    options.versionStyle() != null ? options.versionStyle() : detectVersionStyle();
+            AlignOptions.VersionSource versionSource =
+                    options.versionSource() != null ? options.versionSource() : detectVersionSource();
+            AlignOptions.PropertyNamingConvention naming =
+                    options.namingConvention() != null ? options.namingConvention() : detectPropertyNamingConvention();
+
+            String actualVersion = coords.version();
+            String versionForElement = actualVersion;
+
+            // Create property if needed
+            if (versionSource == AlignOptions.VersionSource.PROPERTY) {
+                String propName = resolvePropertyName(coords, naming, options);
+                upsertVersionProperty(propName, actualVersion);
+                versionForElement = "${" + propName + "}";
+            }
+
+            // Add to dependencyManagement if managed style
+            if (versionStyle == AlignOptions.VersionStyle.MANAGED) {
+                ensureManagedDependency(
+                        coords.groupId(), coords.artifactId(), versionForElement, coords.classifier(), coords.type());
+                // Add version-less dependency
+                if (deps == null) {
+                    deps = insertMavenElement(root(), DEPENDENCIES);
+                }
+                Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), null);
+                addOptionalDependencyElements(dep, coords, options);
+            } else {
+                // Add with inline version
+                if (deps == null) {
+                    deps = insertMavenElement(root(), DEPENDENCIES);
+                }
+                Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), versionForElement);
+                addOptionalDependencyElements(dep, coords, options);
+            }
+
+            return true;
+        }
+
+        /**
+         * Aligns an existing dependency to match the project's auto-detected conventions.
+         *
+         * <p>Transforms the dependency's version management to match the dominant style.
+         * Only dependencies with inline versions are modified. Version-less (already managed)
+         * dependencies are left unchanged.</p>
+         *
+         * <p>Equivalent to calling {@code alignDependency(coords, AlignOptions.defaults())}.</p>
+         *
+         * @param coords the dependency coordinates (matched by groupId and artifactId)
+         * @return true if the dependency was modified, false if not found or no change was needed
+         * @see #alignDependency(Coordinates, AlignOptions)
+         * @see #alignAllDependencies()
+         * @since 1.1.0
+         */
+        public boolean alignDependency(Coordinates coords) {
+            return alignDependency(coords, AlignOptions.defaults());
+        }
+
+        /**
+         * Aligns an existing dependency to match the specified options, auto-detecting any
+         * unspecified conventions.
+         *
+         * <p>This method transforms the version management of an existing dependency to match
+         * the target style. The following transformations may be applied:</p>
+         * <ul>
+         *   <li><b>Literal → Property</b>: creates a version property and replaces the literal
+         *       version with a {@code ${property}} reference</li>
+         *   <li><b>Inline → Managed</b>: moves the version to {@code dependencyManagement} and
+         *       removes the version element from the dependency</li>
+         * </ul>
+         *
+         * <p>Dependencies that are already version-less (managed) are not modified.</p>
+         *
+         * <p>Example usage:</p>
+         * <pre>{@code
+         * // Align a specific dependency to use managed + property style
+         * editor.dependencies().alignDependency(
+         *     Coordinates.of("com.google.guava", "guava"),
+         *     AlignOptions.builder()
+         *         .versionStyle(AlignOptions.VersionStyle.MANAGED)
+         *         .versionSource(AlignOptions.VersionSource.PROPERTY)
+         *         .build());
+         * }</pre>
+         *
+         * @param coords the dependency coordinates (matched by groupId and artifactId)
+         * @param options alignment options (null fields are auto-detected from the POM)
+         * @return true if the dependency was modified, false if not found or no change was needed
+         * @see #alignDependency(Coordinates)
+         * @see #alignAllDependencies(AlignOptions)
+         * @since 1.1.0
+         */
+        public boolean alignDependency(Coordinates coords, AlignOptions options) {
+            requireGA("Dependency", coords);
+            Element deps = findChildElement(root(), DEPENDENCIES);
+            if (deps == null) {
+                return false;
+            }
+
+            Element dep = findDependencyElement(deps, coords);
+            if (dep == null) {
+                return false;
+            }
+
+            AlignOptions.VersionStyle versionStyle =
+                    options.versionStyle() != null ? options.versionStyle() : detectVersionStyle();
+            AlignOptions.VersionSource versionSource =
+                    options.versionSource() != null ? options.versionSource() : detectVersionSource();
+            AlignOptions.PropertyNamingConvention naming =
+                    options.namingConvention() != null ? options.namingConvention() : detectPropertyNamingConvention();
+
+            return alignDependencyElement(dep, coords, versionStyle, versionSource, naming, options);
+        }
+
+        /**
+         * Aligns all existing dependencies to match the project's auto-detected conventions.
+         *
+         * <p>Equivalent to calling {@code alignAllDependencies(AlignOptions.defaults())}.</p>
+         *
+         * @return the number of dependencies that were modified
+         * @see #alignAllDependencies(AlignOptions)
+         * @see #alignDependency(Coordinates)
+         * @since 1.1.0
+         */
+        public int alignAllDependencies() {
+            return alignAllDependencies(AlignOptions.defaults());
+        }
+
+        /**
+         * Aligns all existing dependencies to match the specified options.
+         *
+         * <p>Conventions are detected once before aligning, then applied consistently
+         * to all dependencies. This avoids convention drift that could occur if conventions
+         * were re-detected after each individual alignment.</p>
+         *
+         * <p>Example usage:</p>
+         * <pre>{@code
+         * // Align all dependencies to use managed + property style
+         * int changed = editor.dependencies().alignAllDependencies(
+         *     AlignOptions.builder()
+         *         .versionStyle(AlignOptions.VersionStyle.MANAGED)
+         *         .versionSource(AlignOptions.VersionSource.PROPERTY)
+         *         .build());
+         * System.out.println(changed + " dependencies aligned");
+         * }</pre>
+         *
+         * @param options alignment options (null fields are auto-detected from the POM)
+         * @return the number of dependencies that were modified
+         * @see #alignAllDependencies()
+         * @see #alignDependency(Coordinates, AlignOptions)
+         * @since 1.1.0
+         */
+        public int alignAllDependencies(AlignOptions options) {
+            Element deps = findChildElement(root(), DEPENDENCIES);
+            if (deps == null) {
+                return 0;
+            }
+
+            AlignOptions.VersionStyle versionStyle =
+                    options.versionStyle() != null ? options.versionStyle() : detectVersionStyle();
+            AlignOptions.VersionSource versionSource =
+                    options.versionSource() != null ? options.versionSource() : detectVersionSource();
+            AlignOptions.PropertyNamingConvention naming =
+                    options.namingConvention() != null ? options.namingConvention() : detectPropertyNamingConvention();
+
+            List<Element> depList = deps.childElements(DEPENDENCY).collect(Collectors.toList());
+            int count = 0;
+            for (Element dep : depList) {
+                String groupId = dep.childTextOr(GROUP_ID, null);
+                String artifactId = dep.childTextOr(ARTIFACT_ID, null);
+                if (artifactId == null) {
+                    continue;
+                }
+                String type = dep.childTextOr(TYPE, "jar");
+                String classifier = dep.childTextOr(CLASSIFIER, null);
+                Coordinates depCoords = Coordinates.of(groupId, artifactId, null, classifier, type);
+                if (alignDependencyElement(dep, depCoords, versionStyle, versionSource, naming, options)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        // ========== PRIVATE HELPERS FOR ALIGNMENT ==========
+
+        private boolean alignDependencyElement(
+                Element dep,
+                Coordinates coords,
+                AlignOptions.VersionStyle targetStyle,
+                AlignOptions.VersionSource targetSource,
+                AlignOptions.PropertyNamingConvention naming,
+                AlignOptions options) {
+            java.util.Optional<Element> versionEl = dep.childElement(VERSION);
+            if (!versionEl.isPresent()) {
+                return false; // Already version-less (managed)
+            }
+
+            String versionText = versionEl.get().textContent();
+            boolean isPropertyRef = isPropertyReference(versionText);
+            boolean changed = false;
+
+            // Convert literal → property if needed
+            if (targetSource == AlignOptions.VersionSource.PROPERTY && !isPropertyRef) {
+                String propName = resolvePropertyName(coords, naming, options);
+                upsertVersionProperty(propName, versionText);
+                versionEl.get().textContent("${" + propName + "}");
+                versionText = "${" + propName + "}";
+                changed = true;
+            }
+
+            // Convert inline → managed if needed
+            if (targetStyle == AlignOptions.VersionStyle.MANAGED) {
+                ensureManagedDependency(
+                        coords.groupId(), coords.artifactId(), versionText, coords.classifier(), coords.type());
+                removeElement(versionEl.get());
+                changed = true;
+            }
+
+            return changed;
+        }
+
+        private void ensureManagedDependency(
+                String groupId, String artifactId, String version, String classifier, String type) {
+            Element root = root();
+            Element depMgmt = findChildElement(root, DEPENDENCY_MANAGEMENT);
+            if (depMgmt == null) {
+                depMgmt = insertMavenElement(root, DEPENDENCY_MANAGEMENT);
+            }
+            Element managedDeps = findChildElement(depMgmt, DEPENDENCIES);
+            if (managedDeps == null) {
+                managedDeps = insertMavenElement(depMgmt, DEPENDENCIES);
+            }
+            Coordinates lookupCoords = Coordinates.of(groupId, artifactId, version, classifier, type);
+            Element managedDep = managedDeps
+                    .childElements(DEPENDENCY)
+                    .filter(lookupCoords.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (managedDep == null) {
+                managedDep = addDependency(managedDeps, groupId, artifactId, version);
+                if (type != null && !"jar".equals(type)) {
+                    insertMavenElement(managedDep, TYPE, type);
+                }
+                if (classifier != null) {
+                    insertMavenElement(managedDep, CLASSIFIER, classifier);
+                }
+            } else {
+                java.util.Optional<Element> versionEl = managedDep.childElement(VERSION);
+                if (versionEl.isPresent()) {
+                    versionEl.get().textContent(version);
+                } else if (version != null) {
+                    insertMavenElement(managedDep, VERSION, version);
+                }
+            }
+        }
+
+        private void addOptionalDependencyElements(Element dep, Coordinates coords, AlignOptions options) {
+            if (coords.type() != null && !"jar".equals(coords.type())) {
+                insertMavenElement(dep, TYPE, coords.type());
+            }
+            if (coords.classifier() != null) {
+                insertMavenElement(dep, CLASSIFIER, coords.classifier());
+            }
+            if (options.scope() != null) {
+                insertMavenElement(dep, SCOPE, options.scope());
+            }
+        }
+
+        private long countVersionedDependencies(Element dependencies) {
+            return dependencies
+                    .childElements(DEPENDENCY)
+                    .filter(dep -> dep.childElement(VERSION).isPresent())
+                    .count();
+        }
+
+        private long countPropertyVersionedDependencies(Element dependencies) {
+            return dependencies
+                    .childElements(DEPENDENCY)
+                    .map(dep -> dep.childElement(VERSION).orElse(null))
+                    .filter(v -> v != null && isPropertyReference(v.textContent()))
+                    .count();
+        }
+
+        private void collectPropertyConventionVotes(
+                Element dependencies, Map<AlignOptions.PropertyNamingConvention, Integer> votes) {
+            if (dependencies == null) {
+                return;
+            }
+            dependencies.childElements(DEPENDENCY).forEach(dep -> dep.childElement(VERSION)
+                    .ifPresent(version -> {
+                        String v = version.textContent();
+                        if (isPropertyReference(v)) {
+                            String propName = v.substring(2, v.length() - 1);
+                            AlignOptions.PropertyNamingConvention conv = classifyPropertyName(propName);
+                            if (conv != null) {
+                                votes.merge(conv, 1, Integer::sum);
+                            }
+                        }
+                    }));
+        }
+
+        private AlignOptions.PropertyNamingConvention classifyPropertyName(String propName) {
+            if (propName.endsWith(".version")) {
+                return AlignOptions.PropertyNamingConvention.DOT_SUFFIX;
+            } else if (propName.endsWith("-version")) {
+                return AlignOptions.PropertyNamingConvention.DASH_SUFFIX;
+            } else if (propName.endsWith("Version")
+                    && propName.length() > "Version".length()
+                    && Character.isLowerCase(propName.charAt(0))) {
+                return AlignOptions.PropertyNamingConvention.CAMEL_CASE;
+            } else if (propName.startsWith("version.")) {
+                return AlignOptions.PropertyNamingConvention.DOT_PREFIX;
+            }
+            return null;
+        }
+
+        private String resolvePropertyName(
+                Coordinates coords, AlignOptions.PropertyNamingConvention naming, AlignOptions options) {
+            if (options.propertyName() != null) {
+                return options.propertyName();
+            }
+            if (options.propertyNameGenerator() != null) {
+                return options.propertyNameGenerator().apply(coords);
+            }
+            return AlignOptions.generatePropertyName(coords, naming);
+        }
+
+        private void upsertVersionProperty(String key, String value) {
+            Element properties = root().childElement(PROPERTIES).orElse(null);
+            if (properties == null) {
+                properties = insertMavenElement(root(), PROPERTIES);
+            }
+            Element existing = properties.childElement(key).orElse(null);
+            if (existing != null) {
+                existing.textContent(value);
+                return;
+            }
+            // Find existing version properties and insert alphabetically among them
+            Element lastVersionProp = null;
+            Element insertBefore = null;
+            for (java.util.Iterator<Element> it = properties.childElements().iterator(); it.hasNext(); ) {
+                Element el = it.next();
+                if (isVersionProperty(el.name())) {
+                    if (el.name().compareToIgnoreCase(key) > 0 && insertBefore == null) {
+                        insertBefore = el;
+                    }
+                    lastVersionProp = el;
+                }
+            }
+            Element prop;
+            if (insertBefore != null) {
+                prop = insertElementBefore(insertBefore, key);
+            } else if (lastVersionProp != null) {
+                prop = insertElementAfter(lastVersionProp, key);
+            } else {
+                prop = addElement(properties, key);
+            }
+            prop.textContent(value);
+        }
+
+        private boolean isVersionProperty(String name) {
+            return name.endsWith(".version")
+                    || name.endsWith("-version")
+                    || name.startsWith("version.")
+                    || (name.endsWith("Version")
+                            && name.length() > "Version".length()
+                            && Character.isLowerCase(name.charAt(0)));
+        }
+
+        private boolean isPropertyReference(String value) {
+            return value != null && value.startsWith("${") && value.endsWith("}");
+        }
     }
 
     public Dependencies dependencies() {

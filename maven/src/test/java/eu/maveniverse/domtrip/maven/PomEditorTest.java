@@ -1101,4 +1101,318 @@ class PomEditorTest {
                 editorOf(POM_WITH_EMPTY_DEPENDENCY_MANAGEMENT).dependencies();
         assertThrows(DomTripException.class, () -> deps.addManagedExclusion(SPRING_CORE, COMMONS_LOGGING_EXCL));
     }
+
+    // ========== ALIGNED DEPENDENCY TESTS ==========
+
+    private static final String POM_MANAGED_PROPERTY = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <properties>
+                <guava.version>32.1.2-jre</guava.version>
+                <slf4j.version>2.0.9</slf4j.version>
+              </properties>
+              <dependencyManagement>
+                <dependencies>
+                  <dependency>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                    <version>${guava.version}</version>
+                  </dependency>
+                  <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                    <version>${slf4j.version}</version>
+                  </dependency>
+                </dependencies>
+              </dependencyManagement>
+              <dependencies>
+                <dependency>
+                  <groupId>com.google.guava</groupId>
+                  <artifactId>guava</artifactId>
+                </dependency>
+                <dependency>
+                  <groupId>org.slf4j</groupId>
+                  <artifactId>slf4j-api</artifactId>
+                </dependency>
+              </dependencies>
+            </project>
+            """;
+
+    private static final String POM_INLINE_LITERAL = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <dependencies>
+                <dependency>
+                  <groupId>com.google.guava</groupId>
+                  <artifactId>guava</artifactId>
+                  <version>32.1.2-jre</version>
+                </dependency>
+                <dependency>
+                  <groupId>org.slf4j</groupId>
+                  <artifactId>slf4j-api</artifactId>
+                  <version>2.0.9</version>
+                </dependency>
+              </dependencies>
+            </project>
+            """;
+
+    @Test
+    void testDetectConventionsManagedProperty() {
+        PomEditor editor = editorOf(POM_MANAGED_PROPERTY);
+        AlignOptions options = editor.dependencies().detectConventions();
+
+        assertEquals(AlignOptions.VersionStyle.MANAGED, options.versionStyle());
+        assertEquals(AlignOptions.VersionSource.PROPERTY, options.versionSource());
+        assertEquals(AlignOptions.PropertyNamingConvention.DOT_SUFFIX, options.namingConvention());
+    }
+
+    @Test
+    void testDetectConventionsInlineLiteral() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        AlignOptions options = editor.dependencies().detectConventions();
+
+        assertEquals(AlignOptions.VersionStyle.INLINE, options.versionStyle());
+        assertEquals(AlignOptions.VersionSource.LITERAL, options.versionSource());
+    }
+
+    @Test
+    void testAddAlignedFollowsManagedPropertyConvention() {
+        PomEditor editor = editorOf(POM_MANAGED_PROPERTY);
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+
+        boolean added = editor.dependencies().addAligned(jackson);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        // Should create property
+        assertTrue(xml.contains("<jackson-databind.version>2.15.0</jackson-databind.version>"));
+        // Dependency should be version-less
+        assertTrue(xml.contains("<artifactId>jackson-databind</artifactId>"));
+        // Managed dependency should reference property
+        assertTrue(xml.contains("${jackson-databind.version}"));
+    }
+
+    @Test
+    void testAddAlignedFollowsInlineLiteralConvention() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+
+        boolean added = editor.dependencies().addAligned(jackson);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        // Should have inline version, no property, no managed dep
+        assertTrue(xml.contains("<version>2.15.0</version>"));
+        assertFalse(xml.contains("<dependencyManagement>"));
+        assertFalse(xml.contains("jackson-databind.version"));
+    }
+
+    @Test
+    void testAddAlignedReturnsFalseForExisting() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", "33.0.0-jre");
+
+        assertFalse(editor.dependencies().addAligned(guava));
+    }
+
+    @Test
+    void testAddAlignedWithScope() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+
+        boolean added = editor.dependencies()
+                .addAligned(junit, AlignOptions.builder().scope("test").build());
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<scope>test</scope>"));
+    }
+
+    @Test
+    void testAlignDependencyLiteralToProperty() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        boolean changed = editor.dependencies()
+                .alignDependency(
+                        guava,
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .build());
+        assertTrue(changed);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<guava.version>32.1.2-jre</guava.version>"));
+        assertTrue(xml.contains("<version>${guava.version}</version>"));
+    }
+
+    @Test
+    void testAlignAllDependencies() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+
+        int count = editor.dependencies()
+                .alignAllDependencies(AlignOptions.builder()
+                        .versionStyle(AlignOptions.VersionStyle.MANAGED)
+                        .versionSource(AlignOptions.VersionSource.PROPERTY)
+                        .build());
+        assertEquals(2, count);
+
+        String xml = editor.toXml();
+        // Both dependencies should now be managed with properties
+        assertTrue(xml.contains("<dependencyManagement>"));
+        assertTrue(xml.contains("<guava.version>32.1.2-jre</guava.version>"));
+        assertTrue(xml.contains("<slf4j-api.version>2.0.9</slf4j-api.version>"));
+    }
+
+    @Test
+    void testAlignDependencyNotFoundReturnsFalse() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates nonExistent = Coordinates.of("com.nonexistent", "nonexistent", null);
+
+        assertFalse(editor.dependencies().alignDependency(nonExistent));
+    }
+
+    @Test
+    void testAddAlignedWithPropertyNameGenerator() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+
+        boolean added = editor.dependencies()
+                .addAligned(
+                        jackson,
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .propertyNameGenerator(coords -> coords.groupId() + "." + coords.artifactId())
+                                .build());
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains(
+                "<com.fasterxml.jackson.core.jackson-databind>2.15.0</com.fasterxml.jackson.core.jackson-databind>"));
+        assertTrue(xml.contains("${com.fasterxml.jackson.core.jackson-databind}"));
+    }
+
+    @Test
+    void testAlignAllWithPropertyNameGenerator() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+
+        int count = editor.dependencies()
+                .alignAllDependencies(AlignOptions.builder()
+                        .versionSource(AlignOptions.VersionSource.PROPERTY)
+                        .propertyNameGenerator(coords -> "v." + coords.artifactId())
+                        .build());
+        assertEquals(2, count);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<v.guava>32.1.2-jre</v.guava>"));
+        assertTrue(xml.contains("<v.slf4j-api>2.0.9</v.slf4j-api>"));
+    }
+
+    @Test
+    void testPropertyNameOverridesGenerator() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+
+        boolean added = editor.dependencies()
+                .addAligned(
+                        jackson,
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .propertyNameGenerator(coords -> "generated." + coords.artifactId())
+                                .propertyName("jackson.version")
+                                .build());
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        // Explicit propertyName should win over generator
+        assertTrue(xml.contains("<jackson.version>2.15.0</jackson.version>"));
+        assertFalse(xml.contains("generated."));
+    }
+
+    @Test
+    void testAlignedVersionPropertiesInsertedAlphabetically() {
+        PomEditor editor = editorOf(POM_MANAGED_PROPERTY);
+
+        // Existing version properties: guava.version, slf4j.version
+        // Add dependencies that create new version properties via addAligned
+        editor.dependencies().addAligned(Coordinates.of("com.aaa", "aaa-lib", "1.0"));
+        editor.dependencies().addAligned(Coordinates.of("com.zzz", "zzz-lib", "2.0"));
+        editor.dependencies().addAligned(Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0"));
+
+        String xml = editor.toXml();
+        int aaa = xml.indexOf("<aaa-lib.version>");
+        int guava = xml.indexOf("<guava.version>");
+        int jackson = xml.indexOf("<jackson-databind.version>");
+        int slf4j = xml.indexOf("<slf4j.version>");
+        int zzz = xml.indexOf("<zzz-lib.version>");
+
+        assertTrue(aaa < guava, "aaa-lib should come before guava");
+        assertTrue(guava < jackson, "guava should come before jackson-databind");
+        assertTrue(jackson < slf4j, "jackson-databind should come before slf4j");
+        assertTrue(slf4j < zzz, "slf4j should come before zzz-lib");
+    }
+
+    @Test
+    void testAlignedPropertyPreservesBuildProperties() {
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                  <properties>
+                    <maven.compiler.source>17</maven.compiler.source>
+                    <maven.compiler.target>17</maven.compiler.target>
+                    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+                    <guava.version>32.1.2-jre</guava.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                        <version>${guava.version}</version>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """;
+        PomEditor editor = editorOf(pom);
+
+        // Add a dependency — new version property should be placed near guava.version, not among build props
+        editor.dependencies().addAligned(Coordinates.of("org.slf4j", "slf4j-api", "2.0.9"));
+
+        String xml = editor.toXml();
+        int buildProp = xml.indexOf("<project.build.sourceEncoding>");
+        int guavaProp = xml.indexOf("<guava.version>");
+        int slf4jProp = xml.indexOf("<slf4j-api.version>");
+
+        // Build properties stay before version properties
+        assertTrue(buildProp < guavaProp, "build properties should remain before version properties");
+        // New version property inserted after existing version properties (alphabetically after guava)
+        assertTrue(guavaProp < slf4jProp, "guava.version should come before slf4j-api.version");
+    }
+
+    @Test
+    void testAddAlignedWithoutVersionThrows() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates noVersion = Coordinates.of("com.example", "no-version", null);
+
+        assertThrows(DomTripException.class, () -> editor.dependencies().addAligned(noVersion));
+    }
 }

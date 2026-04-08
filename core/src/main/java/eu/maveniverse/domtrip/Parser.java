@@ -282,7 +282,12 @@ public class Parser {
                     precedingWhitespace.setLength(0);
                 }
 
-                if (position + 1 < length) {
+                if (position + 1 >= length) {
+                    throw new DomTripException(
+                            "Unexpected end of XML at position " + position + ": truncated '<' character");
+                }
+
+                {
                     char nextChar = xml.charAt(position + 1);
 
                     if (nextChar == '!') {

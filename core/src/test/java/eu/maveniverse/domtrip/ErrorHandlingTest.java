@@ -295,4 +295,11 @@ public class ErrorHandlingTest {
         assertEquals("value2", root.attribute("attr_underscore"));
         assertEquals("value3", root.attribute("attr.dot"));
     }
+
+    @Test
+    void testTruncatedXmlEndingWithLessThan() {
+        // XML ending with '<' should throw, not loop infinitely
+        String xml = "<root>text<";
+        assertThrows(DomTripException.class, () -> Document.of(xml));
+    }
 }

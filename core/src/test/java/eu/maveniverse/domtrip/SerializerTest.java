@@ -342,7 +342,7 @@ class SerializerTest {
         long duration = System.nanoTime() - start;
 
         assertNotNull(result);
-        assertTrue(result.length() > 0);
+        assertFalse(result.isEmpty());
         // Should complete in reasonable time (less than 10ms)
         assertTrue(duration < 10_000_000, "Serialization took too long: " + duration + "ns");
     }

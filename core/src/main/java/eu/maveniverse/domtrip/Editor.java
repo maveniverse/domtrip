@@ -725,24 +725,6 @@ public class Editor {
         // Insert the comment at the first position
         parent.insertChild(firstIndex, comment);
 
-        /*
-        // If the last element had following whitespace, preserve it as a separate text node
-        // We preserve any whitespace that contains newlines, even if it's just whitespace
-        if (lastElementFollowingWhitespace != null && !lastElementFollowingWhitespace.isEmpty()) {
-            Text whitespaceNode = new Text(lastElementFollowingWhitespace);
-            parent.insertNode(firstIndex + 1, whitespaceNode);
-
-            // Ensure the next element (if any) has proper preceding whitespace
-            if ((firstIndex + 2) < parent.nodeCount()) {
-                Node nextNode = parent.node(firstIndex + 2);
-                if (nextNode instanceof Element nextElement
-                        && nextElement.precedingWhitespace().isEmpty()) {
-                    nextElement.precedingWhitespaceInternal(lastElementFollowingWhitespace);
-                }
-            }
-        }
-         */
-
         return comment;
     }
 
@@ -1105,12 +1087,9 @@ public class Editor {
 
         // Basic validation - check that we have a root element
         Element root = document.root();
-        if (root == null) {
-            return false;
-        }
 
         // Could add more validation rules here
-        return true;
+        return root != null;
     }
 
     /**
@@ -2000,6 +1979,7 @@ public class Editor {
      *
      * @param parent the parent element to normalize
      */
+    @SuppressWarnings("java:S127") // Loop counter adjustment is necessary when removing nodes during iteration
     private int normalizeWhitespaces(ContainerNode parent, int index) {
         if (!(parent instanceof Element)) {
             return index;

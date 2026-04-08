@@ -273,7 +273,7 @@ public class Attribute {
      * @deprecated Use {@link #copy()} instead.
      */
     @Deprecated
-    @SuppressWarnings({"java:S2975", "java:S1133"})
+    @SuppressWarnings({"java:S2975", "java:S1133", "java:S1182"})
     public Attribute clone() {
         return copy();
     }

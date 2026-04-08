@@ -85,7 +85,7 @@ class TextNodeTest {
         Text text = new Text("decoded");
         // Note: Text class doesn't have setRawValue method in current implementation
         // This test is removed as the method doesn't exist
-        assertTrue(text.content().equals("decoded"));
+        assertEquals("decoded", text.content());
         assertFalse(text.isModified()); // Initially not modified
     }
 

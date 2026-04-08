@@ -1,5 +1,7 @@
 package eu.maveniverse.domtrip;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -95,6 +97,8 @@ class SerializationModesDemoTest {
         String modifiedRaw = rawSerializer.serialize(document);
         System.out.println(modifiedRaw);
         System.out.println("Contains line breaks: " + modifiedRaw.contains("\n"));
+
+        assertNotNull(modifiedRaw);
     }
 
     @Test
@@ -130,5 +134,7 @@ class SerializationModesDemoTest {
         String prettyOutput = prettySerializer.serialize(logDoc);
         System.out.println("Same content, pretty printed:");
         System.out.println(prettyOutput);
+
+        assertNotNull(prettyOutput);
     }
 }

@@ -176,10 +176,8 @@ class EnhancedNavigationTest {
         assertTrue(textChild.isPresent());
         assertEquals("com.example", textChild.orElseThrow().content());
 
-        // Test element without text child
-        Element dependencies = root.childElement("dependencies").orElseThrow();
-        Optional<Text> noTextChild = dependencies.textChild();
-        // May or may not have text child depending on whitespace handling
+        // Test element without text child - may or may not have text child depending on whitespace handling
+        root.childElement("dependencies").orElseThrow().textChild();
     }
 
     @Test

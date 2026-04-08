@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Migration Guide documentation.
  */
+@SuppressWarnings({"java:S5976", "java:S4144"})
 class MigrationSnippetsTest extends BaseSnippetTest {
 
     @Test

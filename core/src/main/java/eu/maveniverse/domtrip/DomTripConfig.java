@@ -65,7 +65,6 @@ public class DomTripConfig {
     private boolean preserveProcessingInstructions = true;
     private QuoteStyle defaultQuoteStyle = QuoteStyle.DOUBLE;
     private EmptyElementStyle emptyElementStyle = EmptyElementStyle.SELF_CLOSING;
-    private boolean forceEmptyElementStyle = false;
     private boolean prettyPrint = false;
     private String indentString = "    ";
     private String lineEnding = "\n";

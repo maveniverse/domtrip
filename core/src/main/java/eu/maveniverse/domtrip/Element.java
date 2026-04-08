@@ -673,30 +673,6 @@ public class Element extends ContainerNode {
     }
 
     /**
-     * Escapes special characters in attribute values
-     */
-    private String escapeAttributeValue(String value) {
-        return escapeAttributeValue(value, '"');
-    }
-
-    /**
-     * Escapes special characters in attribute values with specific quote character
-     */
-    private String escapeAttributeValue(String value, char quoteChar) {
-        if (value == null) return "";
-        String result = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-
-        // Only escape the quote character that's being used
-        if (quoteChar == '"') {
-            result = result.replace("\"", "&quot;");
-        } else if (quoteChar == '\'') {
-            result = result.replace("'", "&apos;");
-        }
-
-        return result;
-    }
-
-    /**
      * Gets the text content of this element (concatenates all text children)
      */
     @Override
@@ -748,7 +724,7 @@ public class Element extends ContainerNode {
      */
     public Element textContent(String content) {
         // Remove all existing text children
-        children.removeIf(child -> child instanceof Text);
+        children.removeIf(Text.class::isInstance);
 
         // Add new text content if not empty
         if (content != null && !content.isEmpty()) {
@@ -945,8 +921,8 @@ public class Element extends ContainerNode {
      */
     public Stream<Element> descendants() {
         return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child)
+                .filter(Element.class::isInstance)
+                .map(Element.class::cast)
                 .flatMap(element -> Stream.concat(Stream.of(element), element.descendants()));
     }
 
@@ -963,8 +939,8 @@ public class Element extends ContainerNode {
             return Optional.empty();
         }
         return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child)
+                .filter(Element.class::isInstance)
+                .map(Element.class::cast)
                 .filter(element -> qname.matches(element.namespaceURI(), element.localName()))
                 .findFirst();
     }
@@ -977,8 +953,8 @@ public class Element extends ContainerNode {
      */
     public Optional<Element> childElement(String name) {
         return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child)
+                .filter(Element.class::isInstance)
+                .map(Element.class::cast)
                 .filter(element -> name.equals(element.name()))
                 .findFirst();
     }
@@ -1078,8 +1054,8 @@ public class Element extends ContainerNode {
             return Stream.empty();
         }
         return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child)
+                .filter(Element.class::isInstance)
+                .map(Element.class::cast)
                 .filter(element -> qname.matches(element.namespaceURI(), element.localName()));
     }
 
@@ -1091,8 +1067,8 @@ public class Element extends ContainerNode {
      */
     public Stream<Element> childElements(String name) {
         return children.stream()
-                .filter(child -> child instanceof Element)
-                .map(child -> (Element) child)
+                .filter(Element.class::isInstance)
+                .map(Element.class::cast)
                 .filter(element -> name.equals(element.name()));
     }
 
@@ -1102,7 +1078,7 @@ public class Element extends ContainerNode {
      * @return a Stream of all child elements
      */
     public Stream<Element> childElements() {
-        return children.stream().filter(child -> child instanceof Element).map(child -> (Element) child);
+        return children.stream().filter(Element.class::isInstance).map(Element.class::cast);
     }
 
     /**
@@ -1161,8 +1137,8 @@ public class Element extends ContainerNode {
      */
     public Optional<Text> textChild() {
         return children.stream()
-                .filter(child -> child instanceof Text)
-                .map(child -> (Text) child)
+                .filter(Text.class::isInstance)
+                .map(Text.class::cast)
                 .findFirst();
     }
 
@@ -1260,7 +1236,7 @@ public class Element extends ContainerNode {
      * @deprecated Use {@link #copy()} instead.
      */
     @Deprecated
-    @SuppressWarnings({"java:S2975", "java:S1133"})
+    @SuppressWarnings({"java:S2975", "java:S1133", "java:S1182"})
     @Override
     public Element clone() {
         return copy();

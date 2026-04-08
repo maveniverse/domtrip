@@ -339,7 +339,7 @@ class ElementApiSnippetsTest {
         // snippet:removing-elements
         // Find and remove specific element
         Optional<Element> toRemove = project.childElement("dependency");
-        toRemove.ifPresent(element -> project.removeChild(element));
+        toRemove.ifPresent(project::removeChild);
 
         // Remove all elements with specific name (collect to list first to avoid ConcurrentModificationException)
         project.childElements("dependency").toList().forEach(project::removeChild);

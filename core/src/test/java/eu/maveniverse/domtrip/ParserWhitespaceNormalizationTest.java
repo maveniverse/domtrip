@@ -152,14 +152,6 @@ class ParserWhitespaceNormalizationTest {
 
         Document doc = Document.of(xml);
 
-        // Count whitespace-only text nodes at document level
-        int whitespaceOnlyNodes = 0;
-        for (Node node : doc.children) {
-            if (node instanceof Text text && text.isWhitespaceOnly()) {
-                whitespaceOnlyNodes++;
-            }
-        }
-
         // Document level whitespace handling may still create some text nodes
         // as they're not between elements, but the key is that element-level
         // whitespace should be normalized

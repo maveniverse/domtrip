@@ -389,9 +389,8 @@ public class Parser {
      * Handles a closing tag, applying pending whitespace as inner whitespace to the current element.
      */
     private void parseClosingTagWithWhitespace(Deque<Node> nodeStack, StringBuilder pendingWhitespace) {
-        Node currentNode;
-        if (!nodeStack.isEmpty() && (currentNode = nodeStack.peek()) instanceof Element) {
-            Element currentElement = (Element) currentNode;
+        if (!nodeStack.isEmpty() && nodeStack.peek() instanceof Element) {
+            Element currentElement = (Element) nodeStack.peek();
             if (pendingWhitespace.length() > 0) {
                 currentElement.innerPrecedingWhitespaceInternal(pendingWhitespace.toString());
                 pendingWhitespace.setLength(0);
@@ -741,9 +740,8 @@ public class Parser {
 
         // Pop from stack if names match
         String closingName = name.toString();
-        Node currentNode;
-        if (!nodeStack.isEmpty() && (currentNode = nodeStack.peek()) instanceof Element) {
-            Element element = (Element) currentNode;
+        if (!nodeStack.isEmpty() && nodeStack.peek() instanceof Element) {
+            Element element = (Element) nodeStack.peek();
             if (element.name().equals(closingName)) {
                 // Capture the original close tag for whitespace preservation (AFTER consuming all content)
                 element.originalCloseTag(xml.substring(start, position));

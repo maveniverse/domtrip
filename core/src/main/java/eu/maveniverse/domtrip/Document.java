@@ -408,15 +408,6 @@ public class Document extends ContainerNode {
     }
 
     /**
-     * Serializes this document to an XML string.
-     *
-     * <p>Creates a complete XML representation of the document including
-     * XML declaration, DOCTYPE, and all child nodes with preserved formatting.</p>
-     *
-     * @return the complete XML string representation of this document
-     * @see #toXml(StringBuilder)
-     */
-    /**
      * Serializes this document to XML, appending to the provided StringBuilder.
      *
      * <p>This method preserves the original formatting including XML declaration,
@@ -737,7 +728,7 @@ public class Document extends ContainerNode {
      * @deprecated Use {@link #copy()} instead.
      */
     @Deprecated
-    @SuppressWarnings({"java:S2975", "java:S1133"})
+    @SuppressWarnings({"java:S2975", "java:S1133", "java:S1182"})
     @Override
     public Document clone() {
         return copy();

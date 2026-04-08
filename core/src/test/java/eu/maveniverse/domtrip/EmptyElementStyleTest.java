@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for empty element style configuration and auto-detection functionality.
  */
+@SuppressWarnings("java:S5976")
 class EmptyElementStyleTest {
 
     @Test

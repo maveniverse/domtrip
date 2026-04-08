@@ -23,6 +23,7 @@ class MavenPomElementsTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5961")
     void testElementConstants() {
         // Test core POM elements
         assertEquals("modelVersion", MavenPomElements.Elements.MODEL_VERSION);

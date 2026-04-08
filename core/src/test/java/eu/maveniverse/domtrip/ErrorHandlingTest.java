@@ -176,6 +176,7 @@ class ErrorHandlingTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5778")
     void testFindElementWithNullName() throws DomTripException {
         String xml = "<root><child/></root>";
         Document doc = Document.of(xml);

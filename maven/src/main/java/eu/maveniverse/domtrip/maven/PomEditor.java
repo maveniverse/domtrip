@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -2054,12 +2053,13 @@ public class PomEditor extends AbstractMavenEditor {
             if (modules == null) {
                 return false;
             }
-            AtomicBoolean removed = new AtomicBoolean(false);
-            modules.childElements(MODULE)
+            List<Element> matched = modules.childElements(MODULE)
                     .filter(e -> Objects.equals(moduleName, e.textContent()))
-                    .peek(e -> removed.set(true))
-                    .forEach(PomEditor.this::removeElement);
-            return removed.get();
+                    .collect(Collectors.toList());
+            for (Element e : matched) {
+                PomEditor.this.removeElement(e);
+            }
+            return !matched.isEmpty();
         }
     }
 

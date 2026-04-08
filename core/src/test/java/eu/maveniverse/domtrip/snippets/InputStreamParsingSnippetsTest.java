@@ -145,7 +145,6 @@ class InputStreamParsingSnippetsTest extends BaseSnippetTest {
     void demonstrateLargeFileProcessing() throws Exception {
         // START: large-file-processing
         // Memory-efficient processing of large XML files
-        // Path largeXmlFile = Path.of("large-dataset.xml");
 
         try {
             // For testing, use regular content
@@ -241,7 +240,6 @@ class InputStreamParsingSnippetsTest extends BaseSnippetTest {
     void demonstrateMemoryManagement() throws DomTripException {
         // START: memory-management
         // For very large files, consider processing in sections
-        // Path hugefile = Path.of("huge-dataset.xml");
 
         // Check file size first (simulated)
         long fileSize = 50_000_000; // Simulated file size

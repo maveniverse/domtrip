@@ -19,7 +19,7 @@ public abstract class ContainerNode extends Node {
 
     protected List<Node> children;
 
-    public ContainerNode() {
+    protected ContainerNode() {
         super();
         this.children = new ArrayList<>();
     }
@@ -248,7 +248,7 @@ public abstract class ContainerNode extends Node {
      * @since 0.6.0
      */
     public Optional<Node> firstChild() {
-        return children.size() == 0 ? Optional.empty() : Optional.of(children.get(0));
+        return children.isEmpty() ? Optional.empty() : Optional.of(children.get(0));
     }
 
     /**
@@ -286,8 +286,8 @@ public abstract class ContainerNode extends Node {
      */
     public Optional<Text> findTextNode() {
         return children.stream()
-                .filter(node -> node instanceof Text)
-                .map(node -> (Text) node)
+                .filter(Text.class::isInstance)
+                .map(Text.class::cast)
                 .findFirst();
     }
 
@@ -309,14 +309,14 @@ public abstract class ContainerNode extends Node {
      * @return {@code true} if this {@link ContainerNode} has any child {@link Element}s or {@code false} otherwise
      */
     public boolean hasChildElements() {
-        return children.stream().anyMatch(node -> node instanceof Element);
+        return children.stream().anyMatch(Element.class::isInstance);
     }
 
     /**
      * @return {@code true} if this {@link ContainerNode} has any child {@link Text} nodes or {@code false} otherwise
      */
     public boolean hasTextContent() {
-        return children.stream().anyMatch(node -> node instanceof Text);
+        return children.stream().anyMatch(Text.class::isInstance);
     }
 
     /**

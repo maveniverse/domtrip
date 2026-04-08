@@ -16,6 +16,7 @@ import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -295,7 +296,7 @@ public class SettingsEditor extends AbstractMavenEditor {
             case PROXY:
                 return PROXY_ELEMENT_ORDER;
             default:
-                return null;
+                return Collections.emptyList();
         }
     }
 }

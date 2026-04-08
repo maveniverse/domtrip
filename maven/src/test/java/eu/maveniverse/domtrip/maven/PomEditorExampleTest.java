@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 class PomEditorExampleTest {
 
     @Test
+    @SuppressWarnings("java:S5961")
     void testCompleteExampleFromScratch() throws Exception {
         // Create a new POM from scratch
         PomEditor editor = new PomEditor();
@@ -61,8 +62,7 @@ class PomEditorExampleTest {
         editor.addElement(compilerConfig, "source", "17");
         editor.addElement(compilerConfig, "target", "17");
 
-        Element surefirePlugin =
-                editor.plugins().addPlugin(plugins, "org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
+        editor.plugins().addPlugin(plugins, "org.apache.maven.plugins", "maven-surefire-plugin", "3.0.0");
 
         // Generate the XML
         String result = editor.toXml();

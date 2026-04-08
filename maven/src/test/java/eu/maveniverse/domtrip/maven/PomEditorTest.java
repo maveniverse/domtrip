@@ -1513,7 +1513,6 @@ class PomEditorTest {
     @Test
     void testIsPropertyReferenceRejectsCompoundExpressions() {
         // Compound expression like ${a}${b} should NOT be treated as a single property reference
-        PomEditor editor = editorOf(POM_INLINE_LITERAL);
         // Verify that a dep with compound version is treated as literal, not property
         String pom = """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -1531,7 +1530,7 @@ class PomEditorTest {
                   </dependencies>
                 </project>
                 """;
-        editor = editorOf(pom);
+        PomEditor editor = editorOf(pom);
 
         // Aligning should treat the compound expression as a literal — create a property for it
         boolean changed = editor.dependencies()

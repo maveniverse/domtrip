@@ -272,12 +272,9 @@ class LockPluginVersionsTest {
             String artifactId = getPluginCoordinate(plugin, ARTIFACT_ID);
             String version = getPluginCoordinate(plugin, VERSION);
 
-            if (artifactId != null && version != null) {
-                // Check if this plugin is already managed
-                if (!isPluginAlreadyManaged(managedPlugins, groupId, artifactId)) {
-                    // Add to pluginManagement
-                    editor.plugins().addPlugin(managedPlugins, groupId, artifactId, version);
-                }
+            if (artifactId != null && version != null && !isPluginAlreadyManaged(managedPlugins, groupId, artifactId)) {
+                // Add to pluginManagement
+                editor.plugins().addPlugin(managedPlugins, groupId, artifactId, version);
             }
         }
     }

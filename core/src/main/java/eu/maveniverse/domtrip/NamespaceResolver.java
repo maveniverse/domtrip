@@ -16,6 +16,10 @@ import java.util.Map;
  */
 public class NamespaceResolver {
 
+    private NamespaceResolver() {
+        // Utility class
+    }
+
     /** The standard XML namespace URI. */
     static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
 

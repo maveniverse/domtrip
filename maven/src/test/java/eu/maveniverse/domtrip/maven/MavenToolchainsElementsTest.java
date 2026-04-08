@@ -104,6 +104,7 @@ class MavenToolchainsElementsTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5961")
     void testConstantsAreNotNull() {
         // Verify all constants are properly initialized
         assertNotNull(MavenToolchainsElements.Elements.TOOLCHAINS);

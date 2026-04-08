@@ -91,7 +91,7 @@ public abstract class Node {
      * modification flag to false.</p>
      *
      */
-    public Node() {
+    protected Node() {
         this.precedingWhitespace = "";
         this.modified = false;
     }

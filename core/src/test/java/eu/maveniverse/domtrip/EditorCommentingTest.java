@@ -110,6 +110,7 @@ class EditorCommentingTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5778")
     void testCommentOutRootElement() throws DomTripException {
         String xml = "<root><child/></root>";
         Document doc = Document.of(xml);

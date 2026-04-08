@@ -49,11 +49,8 @@ public class ErrorHandlingTest {
 
     @Test
     void testParseMalformedXml() {
-        // Test unclosed tag - parser may handle this gracefully
-        assertDoesNotThrow(() -> {
-            Document doc = parser.parse("<root><unclosed>");
-            assertNotNull(doc);
-        });
+        // Test unclosed tag - parser should throw
+        assertThrows(DomTripException.class, () -> parser.parse("<root><unclosed>"));
     }
 
     @Test
@@ -294,5 +291,45 @@ public class ErrorHandlingTest {
         assertEquals("value1", root.attribute("attr-dash"));
         assertEquals("value2", root.attribute("attr_underscore"));
         assertEquals("value3", root.attribute("attr.dot"));
+    }
+
+    @Test
+    void testTruncatedXmlEndingWithLessThan() {
+        // XML ending with '<' should throw, not loop infinitely
+        String xml = "<root>text<";
+        assertThrows(DomTripException.class, () -> Document.of(xml));
+    }
+
+    @Test
+    void testUnclosedDeclaration() {
+        // Declaration without closing '>' should throw
+        assertThrows(DomTripException.class, () -> Document.of("<!foo"));
+    }
+
+    @Test
+    void testUnclosedOpeningTag() {
+        // Opening tag without closing '>' should throw
+        assertThrows(DomTripException.class, () -> Document.of("<root"));
+        assertThrows(DomTripException.class, () -> Document.of("<root attr=\"value\""));
+    }
+
+    @Test
+    void testMismatchedClosingTag() {
+        // Closing tag that doesn't match the open element should throw
+        assertThrows(DomTripException.class, () -> Document.of("<root><child></root>"));
+    }
+
+    @Test
+    void testUnexpectedClosingTag() {
+        // Closing tag with no matching open element should throw
+        assertThrows(DomTripException.class, () -> Document.of("</root>"));
+        assertThrows(DomTripException.class, () -> Document.of("<root></root></extra>"));
+    }
+
+    @Test
+    void testUnclosedElementAtEof() {
+        // Element that is never closed should throw
+        assertThrows(DomTripException.class, () -> Document.of("<root><child>text"));
+        assertThrows(DomTripException.class, () -> Document.of("<root>"));
     }
 }

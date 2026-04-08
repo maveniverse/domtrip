@@ -1,17 +1,21 @@
 package eu.maveniverse.domtrip.demos;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
+import org.junit.jupiter.api.Test;
 
 /**
  * Demonstration of the lossless XML editor capabilities.
  * Shows how formatting is preserved during round-trip editing.
  */
-class EditorDemo {
+class EditorDemoTest {
 
-    public static void main(String[] args) throws DomTripException {
+    @Test
+    void demonstrateEditorCapabilities() throws DomTripException {
         // Sample XML with various formatting styles
         String originalXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!-- Sample XML document -->\n"
                 + "<project xmlns=\"http://maven.apache.org/POM/4.0.0\">\n"
@@ -37,28 +41,16 @@ class EditorDemo {
                 + "    \n"
                 + "</project>";
 
-        System.out.println("=== XML Round-Trip Editor Demo ===\n");
-
         // Create editor and load XML
         Document doc = Document.of(originalXml);
         Editor editor = new Editor(doc);
-
-        System.out.println("1. Original XML:");
-        System.out.println(originalXml);
-        System.out.println("\n" + editor.documentStats());
+        assertNotNull(editor.documentStats());
 
         // Test 1: Round-trip without modifications
-        System.out.println("\n2. Round-trip without modifications:");
         String roundTrip = editor.toXml();
-        boolean identical = originalXml.equals(roundTrip);
-        System.out.println("Identical to original: " + identical);
-        if (!identical) {
-            System.out.println("Round-trip result:");
-            System.out.println(roundTrip);
-        }
+        assertEquals(originalXml, roundTrip, "Round-trip should be identical to original");
 
         // Test 2: Add a new dependency
-        System.out.println("\n3. Adding new dependency...");
         Element dependencies = doc.root().descendant("dependencies").orElseThrow();
         Element newDep = editor.addElement(dependencies, "dependency");
         editor.addElement(newDep, "groupId", "org.mockito");
@@ -66,72 +58,60 @@ class EditorDemo {
         editor.addElement(newDep, "version", "4.6.1");
         editor.addElement(newDep, "scope", "test");
 
-        System.out.println("Result after adding dependency:");
-        System.out.println(editor.toXml());
+        String afterAdd = editor.toXml();
+        assertTrue(afterAdd.contains("mockito-core"));
 
         // Test 3: Modify existing element
-        System.out.println("\n4. Modifying version...");
         Element version = doc.root().descendant("version").orElseThrow();
         editor.setTextContent(version, "1.0.1-SNAPSHOT");
 
-        System.out.println("Result after version change:");
-        System.out.println(editor.toXml());
+        String afterModify = editor.toXml();
+        assertTrue(afterModify.contains("1.0.1-SNAPSHOT"));
 
         // Test 4: Add comment
-        System.out.println("\n5. Adding comment...");
         Element properties = doc.root().descendant("properties").orElseThrow();
         editor.addComment(properties, " Updated compiler settings ");
 
-        System.out.println("Result after adding comment:");
-        System.out.println(editor.toXml());
+        String afterComment = editor.toXml();
+        assertTrue(afterComment.contains("Updated compiler settings"));
 
         // Test 5: Add attribute
-        System.out.println("\n6. Adding attribute...");
         Element project = editor.root();
         project.attribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
 
-        System.out.println("Final result:");
-        System.out.println(editor.toXml());
+        String finalResult = editor.toXml();
+        assertTrue(finalResult.contains("xmlns:xsi"));
 
-        // Test 6: Pretty print comparison
-        System.out.println("\n7. Pretty printed version:");
-        System.out.println(editor.toXmlPretty());
-
-        System.out.println("\n=== Demo Complete ===");
+        // Test 6: Pretty print
+        String prettyPrinted = editor.toXmlPretty();
+        assertNotNull(prettyPrinted);
+        assertFalse(prettyPrinted.isEmpty());
 
         // Demonstrate key features
-        demonstrateKeyFeatures();
+        verifyKeyFeatures();
     }
 
-    private static void demonstrateKeyFeatures() throws DomTripException {
-        System.out.println("\n=== Key Features Demonstration ===");
-
+    private static void verifyKeyFeatures() throws DomTripException {
         // Feature 1: Whitespace preservation
-        System.out.println("\n1. Whitespace Preservation:");
         String xmlWithSpaces = "<root>\n" + "    <element   attr=\"value\"   >\n"
                 + "        <nested>  content  </nested>\n"
                 + "    </element>\n"
                 + "</root>";
 
         Editor editor = new Editor(Document.of(xmlWithSpaces));
-        System.out.println("Original: " + xmlWithSpaces.replace("\n", "\\n"));
-        System.out.println("Round-trip: " + editor.toXml().replace("\n", "\\n"));
-        System.out.println("Preserved: " + xmlWithSpaces.equals(editor.toXml()));
+        assertEquals(xmlWithSpaces, editor.toXml(), "Whitespace should be preserved");
 
         // Feature 2: Comment preservation
-        System.out.println("\n2. Comment Preservation:");
         String xmlWithComments = "<!-- Header -->\n<root>\n  <!-- Inline -->\n  <element/>\n</root>";
         editor = new Editor(Document.of(xmlWithComments));
-        System.out.println("Comments preserved: " + xmlWithComments.equals(editor.toXml()));
+        assertEquals(xmlWithComments, editor.toXml(), "Comments should be preserved");
 
         // Feature 3: CDATA preservation
-        System.out.println("\n3. CDATA Preservation:");
         String xmlWithCData = "<root><script><![CDATA[if (x < y) { alert(\"test\"); }]]></script></root>";
         editor = new Editor(Document.of(xmlWithCData));
-        System.out.println("CDATA preserved: " + xmlWithCData.equals(editor.toXml()));
+        assertEquals(xmlWithCData, editor.toXml(), "CDATA should be preserved");
 
         // Feature 4: Minimal change serialization
-        System.out.println("\n4. Minimal Change Serialization:");
         String complexXml = "<root>\n  <unchanged>content</unchanged>\n  <toModify>old</toModify>\n</root>";
         Document doc = Document.of(complexXml);
         editor = new Editor(doc);
@@ -139,9 +119,8 @@ class EditorDemo {
         editor.setTextContent(toModify, "new");
 
         String result = editor.toXml();
-        System.out.println("Only modified element changed:");
-        System.out.println("- Unchanged element preserved: " + result.contains("  <unchanged>content</unchanged>"));
-        System.out.println("- Modified element updated: " + result.contains("<toModify>new</toModify>"));
-        System.out.println("- Overall structure preserved: " + result.startsWith("<root>\n"));
+        assertTrue(result.contains("  <unchanged>content</unchanged>"), "Unchanged element should be preserved");
+        assertTrue(result.contains("<toModify>new</toModify>"), "Modified element should be updated");
+        assertTrue(result.startsWith("<root>\n"), "Overall structure should be preserved");
     }
 }

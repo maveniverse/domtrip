@@ -8,12 +8,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 class LinkValidationTest {
+
+    private static final Logger LOGGER = Logger.getLogger(LinkValidationTest.class.getName());
 
     private static final Pattern INTERNAL_LINK_PATTERN =
             Pattern.compile("href=[\"']([^\"']*)[\"']", Pattern.CASE_INSENSITIVE);
@@ -25,23 +28,24 @@ class LinkValidationTest {
     void testInternalLinksAreValid() throws IOException {
         Path outputDir = findOutputDirectory();
         if (outputDir == null || !Files.exists(outputDir)) {
-            System.out.println("Output directory not found, skipping link validation");
+            LOGGER.info("Output directory not found, skipping link validation");
             return;
         }
 
         List<BrokenLink> brokenLinks = validateInternalLinks(outputDir);
 
         if (!brokenLinks.isEmpty()) {
-            System.err.printf("Found %d broken internal links:%n", brokenLinks.size());
+            LOGGER.warning(String.format("Found %d broken internal links", brokenLinks.size()));
             for (BrokenLink link : brokenLinks) {
-                System.err.printf("  %s -> %s (in file: %s)%n", link.targetUrl, link.targetUrl, link.sourceFile);
+                LOGGER.warning(
+                        String.format("  %s -> %s (in file: %s)", link.targetUrl, link.targetUrl, link.sourceFile));
             }
         } else {
-            System.out.println("All internal links are valid!");
+            LOGGER.info("All internal links are valid!");
         }
 
         // Report the results but don't fail for now
-        System.out.println("Final result: " + brokenLinks.size() + " broken links found");
+        LOGGER.info("Final result: " + brokenLinks.size() + " broken links found");
     }
 
     private Path findOutputDirectory() {
@@ -50,7 +54,7 @@ class LinkValidationTest {
         for (String pathStr : possiblePaths) {
             Path path = Path.of(pathStr);
             if (Files.exists(path)) {
-                System.out.printf("Found output directory: %s%n", path.toAbsolutePath());
+                LOGGER.info(String.format("Found output directory: %s", path.toAbsolutePath()));
                 return path;
             }
         }
@@ -61,12 +65,12 @@ class LinkValidationTest {
         List<BrokenLink> brokenLinks = new ArrayList<>();
         Set<String> existingFiles = collectExistingFiles(outputDir);
 
-        System.out.printf("Collected %d existing files/paths%n", existingFiles.size());
+        LOGGER.info(String.format("Collected %d existing files/paths", existingFiles.size()));
 
         try (Stream<Path> paths = Files.walk(outputDir)) {
             List<Path> htmlFiles =
                     paths.filter(path -> path.toString().endsWith(".html")).toList();
-            System.out.printf("Validating links in %d HTML files...%n", htmlFiles.size());
+            LOGGER.info(String.format("Validating links in %d HTML files...", htmlFiles.size()));
 
             for (Path htmlFile : htmlFiles) {
                 brokenLinks.addAll(validateLinksInFile(htmlFile, outputDir, existingFiles));

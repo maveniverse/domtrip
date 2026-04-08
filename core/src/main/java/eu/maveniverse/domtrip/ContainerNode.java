@@ -262,7 +262,13 @@ public abstract class ContainerNode extends Node {
         return cnt == 0 ? Optional.empty() : Optional.of(children.get(cnt - 1));
     }
 
-    /** @deprecated Use {@link #child(int)} instead. */
+    /**
+     * Gets the child node at the specified index.
+     *
+     * @param index the index of the child node
+     * @return the child node at the specified index
+     * @deprecated Use {@link #child(int)} instead.
+     */
     @Deprecated
     public Node getNode(int index) {
         return child(index);

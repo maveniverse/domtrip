@@ -30,10 +30,6 @@ class SnippetEscapingIntegrationTest {
 
         // The key test: verify this is a RawString, which prevents HTML escaping
         assertInstanceOf(RawString.class, result, "snippet() method should return RawString to prevent HTML escaping");
-
-        System.out.println("✅ Test passed: Snippet returned as RawString");
-        System.out.println("Snippet content preview (first 100 chars):");
-        System.out.println(content.substring(0, Math.min(100, content.length())) + "...");
     }
 
     @Test
@@ -60,8 +56,6 @@ class SnippetEscapingIntegrationTest {
             // Note: we need to be careful here as the snippet might legitimately contain &amp;
             // So we'll just verify the RawString type which is the main fix
         }
-
-        System.out.println("✅ Test passed: No HTML escaping detected in RawString content");
     }
 
     @Test

@@ -11,6 +11,7 @@ import io.quarkus.qute.RawString;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import java.util.logging.Logger;
 
 /**
  * Qute template extension that provides access to code snippets in templates.
@@ -55,6 +56,8 @@ import jakarta.inject.Named;
 @Named("snippets")
 public class SnippetTemplateExtension {
 
+    private static final Logger LOGGER = Logger.getLogger(SnippetTemplateExtension.class.getName());
+
     @Inject
     SnippetProcessor snippetProcessor;
 
@@ -71,9 +74,9 @@ public class SnippetTemplateExtension {
         if (snippet != null) {
             return new RawString(snippet);
         } else {
-            String errorMessage = "❌ ERROR: Snippet '" + snippetName + "' not found. Available snippets: "
+            String errorMessage = "Snippet '" + snippetName + "' not found. Available snippets: "
                     + String.join(", ", snippetProcessor.getAvailableSnippets());
-            System.err.println(errorMessage);
+            LOGGER.severe(errorMessage);
             throw new IllegalArgumentException(errorMessage);
         }
     }

@@ -91,7 +91,12 @@ public class DomTripException extends RuntimeException {
         return position;
     }
 
-    /** @deprecated Use {@link #position()} instead. */
+    /**
+     * Gets the character position where the parsing error occurred.
+     *
+     * @return the character position, or -1 if position is not available
+     * @deprecated Use {@link #position()} instead.
+     */
     @Deprecated
     public int getPosition() {
         return position();
@@ -109,7 +114,12 @@ public class DomTripException extends RuntimeException {
         return xmlContent;
     }
 
-    /** @deprecated Use {@link #xmlContent()} instead. */
+    /**
+     * Gets the XML content that was being parsed when the error occurred.
+     *
+     * @return the XML content, or null if not available
+     * @deprecated Use {@link #xmlContent()} instead.
+     */
     @Deprecated
     public String getXmlContent() {
         return xmlContent();

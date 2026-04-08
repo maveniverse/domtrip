@@ -136,12 +136,6 @@ class LockPluginVersionsTest {
                 </project>
                 """;
 
-        System.out.println("=== ACTUAL RESULT ===");
-        System.out.println(result);
-        System.out.println("=== EXPECTED RESULT ===");
-        System.out.println(expected);
-        System.out.println("=== END COMPARISON ===");
-
         // Assert the full formatted XML
         assertEquals(expected.trim(), result.trim(), "The formatted XML should match expected output");
     }
@@ -241,12 +235,6 @@ class LockPluginVersionsTest {
                   </build>
                 </project>
                 """;
-
-        System.out.println("=== ACTUAL RESULT WITH EXISTING PLUGIN MANAGEMENT ===");
-        System.out.println(result);
-        System.out.println("=== EXPECTED RESULT ===");
-        System.out.println(expected);
-        System.out.println("=== END COMPARISON ===");
 
         // Assert the full formatted XML
         assertEquals(

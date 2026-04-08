@@ -302,6 +302,7 @@ class MigrationSnippetsTest extends BaseSnippetTest {
 
         Assertions.assertNotNull(document);
         Assertions.assertNotNull(editor);
+        Assertions.assertNotNull(editor.root());
     }
 
     @Test
@@ -344,6 +345,7 @@ class MigrationSnippetsTest extends BaseSnippetTest {
 
         Assertions.assertNotNull(document);
         Assertions.assertNotNull(editor);
+        Assertions.assertNotNull(editor.toXml());
     }
 
     private String createSoapXml() {

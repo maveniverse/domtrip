@@ -1,5 +1,7 @@
 package eu.maveniverse.domtrip.demos;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import eu.maveniverse.domtrip.Attribute;
 import eu.maveniverse.domtrip.Document;
 import eu.maveniverse.domtrip.DomTripConfig;
@@ -8,36 +10,23 @@ import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import eu.maveniverse.domtrip.QuoteStyle;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 /**
  * Demonstration of the improved DomTrip API features.
  */
-class ImprovedApiDemo {
+class ImprovedApiDemoTest {
 
-    public static void main(String[] args) throws DomTripException {
-        System.out.println("=== DomTrip Improved API Demo ===\n");
-
-        // Demo 1: Using factory methods
-        demonstrateFactoryMethods();
-
-        // Demo 2: Using fluent builders
-        demonstrateFluentBuilders();
-
-        // Demo 3: Using configuration options
-        demonstrateConfigurationOptions();
-
-        // Demo 4: Using enhanced navigation
-        demonstrateEnhancedNavigation();
-
-        // Demo 5: Using serialization options
-        demonstrateSerializationOptions();
-
-        System.out.println("\n=== Demo Complete ===");
+    @Test
+    void demonstrateImprovedApi() throws DomTripException {
+        verifyFactoryMethods();
+        verifyFluentBuilders();
+        verifyConfigurationOptions();
+        verifyEnhancedNavigation();
+        verifySerializationOptions();
     }
 
-    private static void demonstrateFactoryMethods() throws DomTripException {
-        System.out.println("1. Factory Methods Demo:");
-
+    private static void verifyFactoryMethods() throws DomTripException {
         // Create document using factory
         Document doc = Document.of()
                 .version("1.0")
@@ -58,14 +47,13 @@ class ImprovedApiDemo {
         dependency.addChild(Element.text("artifactId", "junit"));
         dependency.addChild(Element.text("version", "4.13.2"));
 
-        System.out.println("Created document using factories:");
-        System.out.println(doc.toXml());
-        System.out.println();
+        String result = doc.toXml();
+        assertNotNull(result);
+        assertTrue(result.contains("junit"));
+        assertTrue(result.contains("4.13.2"));
     }
 
-    private static void demonstrateFluentBuilders() throws DomTripException {
-        System.out.println("2. Fluent Builders Demo:");
-
+    private static void verifyFluentBuilders() throws DomTripException {
         // Create editor with configuration
         Editor editor = new Editor(DomTripConfig.defaults());
         editor.createDocument("configuration");
@@ -81,6 +69,7 @@ class ImprovedApiDemo {
                 .build();
 
         Element database = root.childElement("database").orElse(null);
+        assertNotNull(database);
 
         editor.add()
                 .element("connection")
@@ -99,36 +88,30 @@ class ImprovedApiDemo {
 
         // Show how to work with attribute objects for advanced formatting
         Attribute originalAttr = database.attributeObject("custom-attr");
-        if (originalAttr != null) {
-            // Create a modified version with different quote style (immutable operation)
-            Attribute customAttr = originalAttr.withQuoteStyle(QuoteStyle.SINGLE);
-            System.out.println("Original attribute: " + originalAttr);
-            System.out.println("Modified attribute: " + customAttr);
-        }
+        assertNotNull(originalAttr);
 
-        System.out.println("Created using fluent builders:");
-        System.out.println(editor.toXml());
-        System.out.println();
+        // Create a modified version with different quote style (immutable operation)
+        Attribute customAttr = originalAttr.withQuoteStyle(QuoteStyle.SINGLE);
+        assertNotEquals(originalAttr.quoteStyle(), customAttr.quoteStyle());
+
+        String result = editor.toXml();
+        assertTrue(result.contains("postgresql"));
+        assertTrue(result.contains("Database configuration"));
     }
 
-    private static void demonstrateConfigurationOptions() throws DomTripException {
-        System.out.println("3. Configuration Options Demo:");
-
+    private static void verifyConfigurationOptions() throws DomTripException {
         String xml = "<root><element attr=\"value\">content</element></root>";
 
         // Default configuration
         Editor defaultEditor = new Editor(Document.of(xml), DomTripConfig.defaults());
-        System.out.println("Default config: " + defaultEditor.toXml());
+        assertNotNull(defaultEditor.toXml());
 
         // Pretty print configuration
         Editor prettyEditor = new Editor(Document.of(xml), DomTripConfig.prettyPrint());
-        System.out.println("Pretty print config: " + prettyEditor.toXml());
-        System.out.println();
+        assertNotNull(prettyEditor.toXml());
     }
 
-    private static void demonstrateEnhancedNavigation() throws DomTripException {
-        System.out.println("4. Enhanced Navigation Demo:");
-
+    private static void verifyEnhancedNavigation() throws DomTripException {
         String xml = """
             <project>
                 <dependencies>
@@ -151,54 +134,50 @@ class ImprovedApiDemo {
         Element root = editor.root();
 
         // Enhanced navigation methods
-        System.out.println("Finding dependencies using new navigation:");
+        assertTrue(root.childElement("dependencies").isPresent());
         root.childElement("dependencies").ifPresent(deps -> {
-            System.out.println("Found dependencies element");
+            long depCount = deps.childElements("dependency").count();
+            assertEquals(2, depCount);
 
             // Stream-based navigation
             deps.childElements("dependency").forEach(dep -> {
-                dep.childElement("groupId")
-                        .ifPresent(groupId -> System.out.println("  GroupId: " + groupId.textContent()));
+                assertTrue(dep.childElement("groupId").isPresent());
             });
         });
 
         // Find all descendants
-        System.out.println("All groupId elements in document:");
-        root.descendants()
-                .filter(el -> "groupId".equals(el.name()))
-                .forEach(el -> System.out.println("  " + el.textContent()));
+        long groupIdCount =
+                root.descendants().filter(el -> "groupId".equals(el.name())).count();
+        assertEquals(2, groupIdCount);
 
         // Check relationships
         Element properties = root.descendant("properties").orElse(null);
-        if (properties != null) {
-            System.out.println("Properties depth: " + properties.depth());
-            System.out.println("Is descendant of root: " + properties.isDescendantOf(root));
-        }
-        System.out.println();
+        assertNotNull(properties);
+        assertTrue(properties.depth() > 0);
+        assertTrue(properties.isDescendantOf(root));
     }
 
-    private static void demonstrateSerializationOptions() throws DomTripException {
-        System.out.println("5. Serialization Options Demo:");
-
+    private static void verifySerializationOptions() throws DomTripException {
         String xml = "<?xml version=\"1.0\"?>\n<!-- Comment -->\n<root attr=\"value\">content</root>";
         Editor editor = new Editor(Document.of(xml));
 
         // Different serialization options
-        System.out.println("Default serialization:");
-        System.out.println(editor.toXml(DomTripConfig.defaults()));
+        String defaultResult = editor.toXml(DomTripConfig.defaults());
+        assertNotNull(defaultResult);
 
-        System.out.println("\nPretty print:");
-        System.out.println(editor.toXml(DomTripConfig.prettyPrint()));
+        String prettyResult = editor.toXml(DomTripConfig.prettyPrint());
+        assertNotNull(prettyResult);
 
-        System.out.println("\nMinimal (no comments, no declaration):");
-        System.out.println(editor.toXml(DomTripConfig.minimal()));
+        String minimalResult = editor.toXml(DomTripConfig.minimal());
+        assertNotNull(minimalResult);
+        assertFalse(minimalResult.contains("<!--"));
 
-        System.out.println("\nCustom options:");
         DomTripConfig custom = DomTripConfig.defaults()
                 .withPrettyPrint(true)
                 .withIndentString("\t")
                 .withCommentPreservation(false);
-        System.out.println(editor.toXml(custom));
-        System.out.println();
+        String customResult = editor.toXml(custom);
+        assertNotNull(customResult);
+        assertFalse(customResult.contains("<!--"));
     }
 }

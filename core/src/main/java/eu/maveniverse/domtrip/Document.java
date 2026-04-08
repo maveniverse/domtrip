@@ -143,6 +143,7 @@ public class Document extends ContainerNode {
         // Note: parent is intentionally not copied - clone has no parent
         // Note: modified flag is not copied - clone starts as unmodified
     }
+
     /**
      * {@inheritDoc}
      *
@@ -415,13 +416,6 @@ public class Document extends ContainerNode {
      * @return the complete XML string representation of this document
      * @see #toXml(StringBuilder)
      */
-    @Override
-    public String toXml() {
-        StringBuilder sb = new StringBuilder();
-        toXml(sb);
-        return sb.toString();
-    }
-
     /**
      * Serializes this document to XML, appending to the provided StringBuilder.
      *

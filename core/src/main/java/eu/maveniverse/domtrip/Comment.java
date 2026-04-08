@@ -111,6 +111,7 @@ public class Comment extends Node {
     public String content() {
         return content;
     }
+
     /**
      * {@inheritDoc}
      *
@@ -158,13 +159,6 @@ public class Comment extends Node {
      * @return the XML string representation of this comment
      * @see #toXml(StringBuilder)
      */
-    @Override
-    public String toXml() {
-        StringBuilder sb = new StringBuilder();
-        toXml(sb);
-        return sb.toString();
-    }
-
     /**
      * Serializes this comment to XML, appending to the provided StringBuilder.
      *

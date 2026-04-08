@@ -702,13 +702,12 @@ public class Parser {
         }
 
         if (position >= length) {
-            throw new DomTripException(
-                    "Unclosed closing tag '</" + name.toString().trim() + ">'", position, xml);
+            throw new DomTripException("Unclosed closing tag '</" + name + ">'", position, xml);
         }
         position++; // Skip '>'
 
         // Pop from stack if names match
-        String closingName = name.toString().trim();
+        String closingName = name.toString();
         Node currentNode;
         if (!nodeStack.isEmpty() && (currentNode = nodeStack.peek()) instanceof Element) {
             Element element = (Element) currentNode;

@@ -82,6 +82,12 @@ import java.util.stream.Stream;
  */
 public class Element extends ContainerNode {
 
+    /** The XML namespace attribute name for default namespace declarations. */
+    static final String XMLNS = "xmlns";
+
+    /** The XML namespace attribute prefix for prefixed namespace declarations. */
+    static final String XMLNS_PREFIX = "xmlns:";
+
     private String name;
     private Map<String, Attribute> attributes;
     private String openTagWhitespace; // Whitespace within the opening tag
@@ -128,7 +134,7 @@ public class Element extends ContainerNode {
         // Deep copy attributes to avoid sharing Attribute objects
         this.attributes = new LinkedHashMap<>();
         for (Map.Entry<String, Attribute> entry : original.attributes.entrySet()) {
-            this.attributes.put(entry.getKey(), entry.getValue().clone());
+            this.attributes.put(entry.getKey(), entry.getValue().copy());
         }
 
         this.openTagWhitespace = original.openTagWhitespace;
@@ -143,9 +149,9 @@ public class Element extends ContainerNode {
 
         // Deep copy children directly to avoid addNode() side effects
         for (Node child : original.children().collect(Collectors.toList())) {
-            Node clonedChild = child.clone();
-            clonedChild.parent(this); // Set parent directly
-            this.children.add(clonedChild); // Add directly to list
+            Node copiedChild = child.copy();
+            copiedChild.parent(this); // Set parent directly
+            this.children.add(copiedChild); // Add directly to list
         }
 
         // Note: parent is intentionally not copied - clone has no parent
@@ -605,40 +611,33 @@ public class Element extends ContainerNode {
 
     @Override
     public void toXml(StringBuilder sb) {
-        // If not modified and we have original formatting, use it
         if (!isModified() && !originalOpenTag.isEmpty()) {
-            sb.append(precedingWhitespace);
+            toXmlPreserved(sb);
+        } else {
+            toXmlFromScratch(sb);
+        }
+    }
 
-            if (selfClosing) {
-                sb.append(originalOpenTag);
-            } else {
-                // Extract opening tag from original
-                int closeIndex = originalOpenTag.indexOf('>');
-                if (closeIndex > 0) {
-                    sb.append(originalOpenTag, 0, closeIndex + 1);
-                } else {
-                    sb.append(originalOpenTag);
-                }
+    /**
+     * Serializes using preserved original formatting.
+     */
+    private void toXmlPreserved(StringBuilder sb) {
+        sb.append(precedingWhitespace);
 
-                // Add children (they have their own preceding whitespace)
-                for (Node child : children) {
-                    child.toXml(sb);
-                }
-
-                // Add inner preceding whitespace (before closing tag)
-                sb.append(innerPrecedingWhitespace);
-
-                // Add closing tag - use original if available, otherwise build from scratch
-                if (!originalCloseTag.isEmpty()) {
-                    sb.append(originalCloseTag);
-                } else {
-                    sb.append("</").append(name).append(">");
-                }
-            }
+        if (selfClosing) {
+            sb.append(originalOpenTag);
             return;
         }
 
-        // Build tag from scratch
+        sb.append(originalOpenTag);
+
+        appendChildrenAndCloseTag(sb);
+    }
+
+    /**
+     * Serializes by building the tag from scratch.
+     */
+    private void toXmlFromScratch(StringBuilder sb) {
         sb.append(precedingWhitespace);
         sb.append("<").append(name);
 
@@ -651,17 +650,32 @@ public class Element extends ContainerNode {
             sb.append(openTagWhitespace).append("/>");
         } else {
             sb.append(openTagWhitespace).append(">");
-
-            // Add children (they have their own preceding whitespace)
-            for (Node child : children) {
-                child.toXml(sb);
-            }
-
-            // Add inner preceding whitespace (before closing tag)
+            appendChildren(sb);
             sb.append(innerPrecedingWhitespace);
-
-            // Add closing tag
             sb.append("</").append(closeTagWhitespace).append(name).append(">");
+        }
+    }
+
+    /**
+     * Appends children and closing tag for preserved formatting mode.
+     */
+    private void appendChildrenAndCloseTag(StringBuilder sb) {
+        appendChildren(sb);
+        sb.append(innerPrecedingWhitespace);
+
+        if (!originalCloseTag.isEmpty()) {
+            sb.append(originalCloseTag);
+        } else {
+            sb.append("</").append(name).append(">");
+        }
+    }
+
+    /**
+     * Appends all children XML to the builder.
+     */
+    private void appendChildren(StringBuilder sb) {
+        for (Node child : children) {
+            child.toXml(sb);
         }
     }
 
@@ -903,9 +917,9 @@ public class Element extends ContainerNode {
      */
     public Element namespaceDeclaration(String prefix, String namespaceURI) {
         if (prefix == null || prefix.isEmpty()) {
-            attribute("xmlns", namespaceURI);
+            attribute(XMLNS, namespaceURI);
         } else {
-            attribute("xmlns:" + prefix, namespaceURI);
+            attribute(XMLNS_PREFIX + prefix, namespaceURI);
         }
         return this;
     }
@@ -916,9 +930,9 @@ public class Element extends ContainerNode {
      */
     public String namespaceDeclaration(String prefix) {
         if (prefix == null || prefix.isEmpty()) {
-            return attribute("xmlns");
+            return attribute(XMLNS);
         } else {
-            return attribute("xmlns:" + prefix);
+            return attribute(XMLNS_PREFIX + prefix);
         }
     }
 
@@ -927,9 +941,9 @@ public class Element extends ContainerNode {
      */
     public void removeNamespaceDeclaration(String prefix) {
         if (prefix == null || prefix.isEmpty()) {
-            removeAttribute("xmlns");
+            removeAttribute(XMLNS);
         } else {
-            removeAttribute("xmlns:" + prefix);
+            removeAttribute(XMLNS_PREFIX + prefix);
         }
     }
 
@@ -1237,9 +1251,26 @@ public class Element extends ContainerNode {
         return false; // Namespace not found in hierarchy
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.1.0
+     */
+    @Override
+    public Element copy() {
+        return new Element(this);
+    }
+
+    /**
+     * Creates a deep copy of this element.
+     *
+     * @return a new element that is a copy of this element
+     * @deprecated Use {@link #copy()} instead.
+     */
+    @Deprecated
+    @SuppressWarnings({"java:S2975", "java:S1133"})
     @Override
     public Element clone() {
-        return new Element(this);
+        return copy();
     }
 
     @Override

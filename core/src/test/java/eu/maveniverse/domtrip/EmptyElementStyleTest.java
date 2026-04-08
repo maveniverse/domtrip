@@ -608,4 +608,51 @@ public class EmptyElementStyleTest {
         // Since we're not using pretty print, new element uses default Element.toXml()
         assertTrue(result.contains("<newSetting></newSetting>") || result.contains("<newSetting/>"));
     }
+
+    @Test
+    void testAutoDetectWithEmptyOriginalTagOnSelfClosing() {
+        // When originalTag is empty but element is self-closing, should still count
+        Element element = Element.of("test");
+        element.selfClosing(true);
+        // originalOpenTag is empty for programmatically created elements
+        assertEquals("", element.originalOpenTag());
+
+        // Detecting style on a document with programmatic self-closing elements
+        String xml = "<root><a/><b/></root>";
+        Document doc = Document.of(xml);
+        EmptyElementStyle detected = EmptyElementStyle.detectFromDocument(doc);
+        assertEquals(EmptyElementStyle.SELF_CLOSING, detected);
+    }
+
+    @Test
+    void testDetectionWithProgrammaticSelfClosingElements() throws DomTripException {
+        // Create a document with programmatic self-closing elements (no originalOpenTag)
+        Document doc = Document.withRootElement("root");
+        Element root = doc.root();
+        Element child = Element.of("child");
+        child.selfClosing(true);
+        root.addChild(child);
+        Element child2 = Element.of("child2");
+        child2.selfClosing(true);
+        root.addChild(child2);
+
+        // Detection should classify programmatic self-closing elements
+        EmptyElementStyle detected = EmptyElementStyle.detectFromDocument(doc);
+        assertEquals(EmptyElementStyle.SELF_CLOSING, detected);
+    }
+
+    @Test
+    void testDetectionWithProgrammaticExpandedElements() throws DomTripException {
+        // Programmatic empty elements that are NOT self-closing (expanded)
+        Document doc = Document.withRootElement("root");
+        Element root = doc.root();
+        Element child = Element.of("child");
+        // selfClosing defaults to false, and no originalOpenTag
+        root.addChild(child);
+        Element child2 = Element.of("child2");
+        root.addChild(child2);
+
+        EmptyElementStyle detected = EmptyElementStyle.detectFromDocument(doc);
+        assertEquals(EmptyElementStyle.EXPANDED, detected);
+    }
 }

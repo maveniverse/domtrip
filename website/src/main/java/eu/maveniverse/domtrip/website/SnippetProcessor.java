@@ -7,6 +7,7 @@
  */
 package eu.maveniverse.domtrip.website;
 
+import io.quarkus.logging.Log;
 import io.quarkus.runtime.StartupEvent;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -48,6 +49,9 @@ import java.util.stream.Stream;
 @RegisterForReflection
 public class SnippetProcessor {
 
+    /** Log message suffix for snippet count messages. */
+    private static final String SNIPPETS_SUFFIX = " snippets";
+
     private static final Pattern SNIPPET_START_PATTERN =
             Pattern.compile("\\s*//\\s*(?:START:|snippet:)\\s*([a-zA-Z0-9-_]+)\\s*");
     private static final Pattern SNIPPET_END_PATTERN =
@@ -61,9 +65,9 @@ public class SnippetProcessor {
      * Initialize snippets on startup for better performance.
      */
     void onStart(@Observes StartupEvent ev) {
-        System.out.println("🚀 Starting dynamic snippet processor...");
+        Log.info("Starting dynamic snippet processor...");
         loadSnippetsIfNeeded();
-        System.out.println("✅ Dynamic snippet processor ready with " + snippetCache.size() + " snippets");
+        Log.infof("Dynamic snippet processor ready with %d%s", snippetCache.size(), SNIPPETS_SUFFIX);
     }
 
     /**
@@ -73,23 +77,25 @@ public class SnippetProcessor {
     private synchronized void loadSnippetsIfNeeded() {
         try {
             if (snippetsDirectories == null) {
-                snippetsDirectories = findSnippetsDirectories();
-                if (snippetsDirectories.length == 0) {
-                    System.out.println("⚠️  Warning: Could not find any snippets directories");
+                Path[] dirs = findSnippetsDirectories();
+                if (dirs.length == 0) {
+                    Log.warn("Could not find any snippets directories");
                     return;
                 }
+                snippetsDirectories = dirs;
             }
 
             long currentModified = getDirectoriesLastModified(snippetsDirectories);
             if (currentModified > lastModified) {
-                System.out.println("🔄 Reloading snippets (files changed)...");
+                Log.info("Reloading snippets (files changed)...");
+                Map<String, String> newCache = loadSnippetsIntoNewMap();
                 snippetCache.clear();
-                loadSnippets();
+                snippetCache.putAll(newCache);
                 lastModified = currentModified;
-                System.out.println("✅ Reloaded " + snippetCache.size() + " snippets");
+                Log.infof("Reloaded %d%s", snippetCache.size(), SNIPPETS_SUFFIX);
             }
         } catch (IOException e) {
-            System.err.println("❌ Failed to load code snippets: " + e.getMessage());
+            Log.error("Failed to load code snippets", e);
         }
     }
 
@@ -155,21 +161,39 @@ public class SnippetProcessor {
 
     private void loadSnippets() throws IOException {
         if (snippetsDirectories == null || snippetsDirectories.length == 0) {
-            System.out.println("⚠️  Warning: No snippets directories available");
+            Log.warn("No snippets directories available");
             return;
         }
 
         for (Path snippetsDirectory : snippetsDirectories) {
             if (Files.exists(snippetsDirectory)) {
                 try (Stream<Path> files = Files.walk(snippetsDirectory)) {
-                    files.filter(path -> path.toString().endsWith(".java")).forEach(this::processFile);
+                    files.filter(path -> path.toString().endsWith(".java"))
+                            .forEach(path -> processFile(path, snippetCache));
                 }
-                System.out.println("📝 Loaded snippets from " + snippetsDirectory);
+                Log.infof("Loaded snippets from %s", snippetsDirectory);
             }
         }
 
-        System.out.println("📝 Total loaded " + snippetCache.size() + " code snippets from "
-                + snippetsDirectories.length + " directories");
+        Log.infof("Total loaded %d code snippets from %d directories", snippetCache.size(), snippetsDirectories.length);
+    }
+
+    private Map<String, String> loadSnippetsIntoNewMap() throws IOException {
+        Map<String, String> tempMap = new HashMap<>();
+        if (snippetsDirectories == null || snippetsDirectories.length == 0) {
+            return tempMap;
+        }
+
+        for (Path snippetsDirectory : snippetsDirectories) {
+            if (Files.exists(snippetsDirectory)) {
+                try (Stream<Path> files = Files.walk(snippetsDirectory)) {
+                    files.filter(path -> path.toString().endsWith(".java")).forEach(path -> processFile(path, tempMap));
+                }
+            }
+        }
+
+        Log.infof("Total loaded %d code snippets from %d directories", tempMap.size(), snippetsDirectories.length);
+        return tempMap;
     }
 
     private Path[] findSnippetsDirectories() {
@@ -197,7 +221,7 @@ public class SnippetProcessor {
             for (String pathStr : modulePathOptions) {
                 Path path = Paths.get(pathStr);
                 if (Files.exists(path) && Files.isDirectory(path)) {
-                    System.out.println("📁 Found snippets directory: " + path.toAbsolutePath());
+                    Log.infof("Found snippets directory: %s", path.toAbsolutePath());
                     foundDirectories.add(path);
                     break; // Found this module's directory, move to next module
                 }
@@ -205,28 +229,29 @@ public class SnippetProcessor {
         }
 
         if (foundDirectories.isEmpty()) {
-            System.err.println("❌ Could not find any snippets directories.");
+            Log.error("Could not find any snippets directories.");
         }
 
         return foundDirectories.toArray(new Path[0]);
     }
 
-    private void processFile(Path filePath) {
+    private void processFile(Path filePath, Map<String, String> targetCache) {
         try {
             String content = new String(Files.readAllBytes(filePath), StandardCharsets.UTF_8);
-            int snippetsBefore = snippetCache.size();
-            extractSnippetsFromContent(content, filePath.getFileName().toString());
-            int snippetsAfter = snippetCache.size();
+            int snippetsBefore = targetCache.size();
+            extractSnippetsFromContent(content, filePath.getFileName().toString(), targetCache);
+            int snippetsAfter = targetCache.size();
             if (snippetsAfter > snippetsBefore) {
-                System.out.println("📄 Processed " + filePath.getFileName() + " - found "
-                        + (snippetsAfter - snippetsBefore) + " snippets");
+                Log.infof(
+                        "Processed %s - found %d%s",
+                        filePath.getFileName(), snippetsAfter - snippetsBefore, SNIPPETS_SUFFIX);
             }
         } catch (IOException e) {
-            System.err.println("❌ Error processing file " + filePath + ": " + e.getMessage());
+            Log.error("Error processing file " + filePath, e);
         }
     }
 
-    private void extractSnippetsFromContent(String content, String fileName) {
+    private void extractSnippetsFromContent(String content, String fileName, Map<String, String> targetCache) {
         String[] lines = content.split("\n");
         String currentSnippetName = null;
         StringBuilder currentSnippet = new StringBuilder();
@@ -245,11 +270,12 @@ public class SnippetProcessor {
                 if (snippetName.equals(currentSnippetName)) {
                     // Store the snippet with normalized indentation
                     String snippetContent = normalizeIndentation(currentSnippet.toString());
-                    snippetCache.put(currentSnippetName, snippetContent);
-                    System.out.println("✨ Extracted snippet: " + currentSnippetName + " from " + fileName);
+                    targetCache.put(currentSnippetName, snippetContent);
+                    Log.infof("Extracted snippet: %s from %s", currentSnippetName, fileName);
                 } else {
-                    System.err.println("⚠️  Warning: Mismatched snippet markers in " + fileName + ": START "
-                            + currentSnippetName + " but END " + snippetName);
+                    Log.warnf(
+                            "Mismatched snippet markers in %s: START %s but END %s",
+                            fileName, currentSnippetName, snippetName);
                 }
                 currentSnippetName = null;
                 currentSnippet = new StringBuilder();
@@ -264,7 +290,7 @@ public class SnippetProcessor {
 
         // Check for unclosed snippets
         if (currentSnippetName != null) {
-            System.err.println("⚠️  Warning: Unclosed snippet '" + currentSnippetName + "' in " + fileName);
+            Log.warnf("Unclosed snippet '%s' in %s", currentSnippetName, fileName);
         }
     }
 
@@ -278,24 +304,38 @@ public class SnippetProcessor {
         }
 
         String[] lines = content.split("\n");
+        int[] bounds = findContentBounds(lines);
+        int start = bounds[0];
+        int end = bounds[1];
 
-        // Remove leading and trailing empty lines
+        if (start > end) {
+            return ""; // All lines were empty
+        }
+
+        int minIndent = findMinimalIndentation(lines, start, end);
+        return buildNormalizedContent(lines, start, end, minIndent);
+    }
+
+    /**
+     * Finds the first and last non-empty line indices.
+     */
+    private int[] findContentBounds(String[] lines) {
         int start = 0;
         int end = lines.length - 1;
 
         while (start <= end && lines[start].trim().isEmpty()) {
             start++;
         }
-
         while (end >= start && lines[end].trim().isEmpty()) {
             end--;
         }
+        return new int[] {start, end};
+    }
 
-        if (start > end) {
-            return ""; // All lines were empty
-        }
-
-        // Find minimal indentation (excluding empty lines)
+    /**
+     * Finds the minimal indentation level across non-empty lines.
+     */
+    private int findMinimalIndentation(String[] lines, int start, int end) {
         int minIndent = Integer.MAX_VALUE;
         for (int i = start; i <= end; i++) {
             String line = lines[i];
@@ -307,31 +347,23 @@ public class SnippetProcessor {
                 minIndent = Math.min(minIndent, indent);
             }
         }
+        return minIndent == Integer.MAX_VALUE ? 0 : minIndent;
+    }
 
-        // If no indentation found, use 0
-        if (minIndent == Integer.MAX_VALUE) {
-            minIndent = 0;
-        }
-
-        // Remove minimal indentation from all lines
+    /**
+     * Builds the normalized content by removing minimal indentation from all lines.
+     */
+    private String buildNormalizedContent(String[] lines, int start, int end, int minIndent) {
         StringBuilder result = new StringBuilder();
         for (int i = start; i <= end; i++) {
+            if (i > start) {
+                result.append("\n");
+            }
             String line = lines[i];
-            if (line.trim().isEmpty()) {
-                // Keep empty lines as empty
-                if (i > start) {
-                    result.append("\n");
-                }
-            } else {
-                // Remove minimal indentation
-                String normalizedLine = line.length() >= minIndent ? line.substring(minIndent) : line;
-                if (i > start) {
-                    result.append("\n");
-                }
-                result.append(normalizedLine);
+            if (!line.trim().isEmpty()) {
+                result.append(line.length() >= minIndent ? line.substring(minIndent) : line);
             }
         }
-
         return result.toString();
     }
 }

@@ -105,65 +105,61 @@ public abstract class AbstractMavenEditor extends Editor {
     protected Element insertElementAtCorrectPosition(
             Element parent, String elementName, String textContent, List<String> order) throws DomTripException {
         if (order == null) {
-            // No specific ordering defined, just append at the end
-            Element element = addElement(parent, elementName);
-            if (textContent != null && !textContent.isEmpty()) {
-                element.textContent(textContent);
-            }
-            return element;
+            return addElementWithContent(parent, elementName, textContent);
         }
 
-        // Find the position of the new element in the ordering
         int newElementIndex = order.indexOf(elementName);
         if (newElementIndex == -1) {
-            // Element not in ordering, append at the end
-            Element element = addElement(parent, elementName);
-            if (textContent != null && !textContent.isEmpty()) {
-                element.textContent(textContent);
-            }
-            return element;
+            return addElementWithContent(parent, elementName, textContent);
         }
 
-        // Find the correct insertion position by looking at existing children
-        Element insertAfter = null;
-        Element insertBefore = null;
+        Element insertAfter = findPredecessorElement(parent, order, newElementIndex);
+        Element insertBefore = findSuccessorElement(parent, order, newElementIndex);
 
-        // Look for elements that should come before this one
-        for (int i = newElementIndex - 1; i >= 0; i--) {
-            String beforeElementName = order.get(i);
-            if (shouldSkipInOrdering(beforeElementName)) {
-                continue; // Skip special markers (like blank lines in POM)
-            }
-            Element existing = parent.childElement(beforeElementName).orElse(null);
-            if (existing != null) {
-                insertAfter = existing;
-                break;
-            }
-        }
-
-        // Look for elements that should come after this one
-        for (int i = newElementIndex + 1; i < order.size(); i++) {
-            String afterElementName = order.get(i);
-            if (shouldSkipInOrdering(afterElementName)) {
-                continue; // Skip special markers (like blank lines in POM)
-            }
-            Element existing = parent.childElement(afterElementName).orElse(null);
-            if (existing != null) {
-                insertBefore = existing;
-                break;
-            }
-        }
-
-        // Insert the element at the correct position
         Element element =
                 insertElementAtPosition(parent, elementName, insertBefore, insertAfter, order, newElementIndex);
 
-        // Set text content if provided
         if (textContent != null && !textContent.isEmpty()) {
             element.textContent(textContent);
         }
-
         return element;
+    }
+
+    private Element addElementWithContent(Element parent, String elementName, String textContent)
+            throws DomTripException {
+        Element element = addElement(parent, elementName);
+        if (textContent != null && !textContent.isEmpty()) {
+            element.textContent(textContent);
+        }
+        return element;
+    }
+
+    private Element findPredecessorElement(Element parent, List<String> order, int newElementIndex) {
+        for (int i = newElementIndex - 1; i >= 0; i--) {
+            String name = order.get(i);
+            if (shouldSkipInOrdering(name)) {
+                continue;
+            }
+            Element existing = parent.childElement(name).orElse(null);
+            if (existing != null) {
+                return existing;
+            }
+        }
+        return null;
+    }
+
+    private Element findSuccessorElement(Element parent, List<String> order, int newElementIndex) {
+        for (int i = newElementIndex + 1; i < order.size(); i++) {
+            String name = order.get(i);
+            if (shouldSkipInOrdering(name)) {
+                continue;
+            }
+            Element existing = parent.childElement(name).orElse(null);
+            if (existing != null) {
+                return existing;
+            }
+        }
+        return null;
     }
 
     /**

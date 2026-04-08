@@ -186,9 +186,26 @@ public class ProcessingInstruction extends Node {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.1.0
+     */
+    @Override
+    public ProcessingInstruction copy() {
+        return new ProcessingInstruction(this);
+    }
+
+    /**
+     * Creates a deep copy of this processing instruction.
+     *
+     * @return a new processing instruction that is a copy of this processing instruction
+     * @deprecated Use {@link #copy()} instead.
+     */
+    @Deprecated
+    @SuppressWarnings({"java:S2975", "java:S1133"})
     @Override
     public ProcessingInstruction clone() {
-        return new ProcessingInstruction(this);
+        return copy();
     }
 
     @Override

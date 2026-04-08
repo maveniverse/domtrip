@@ -597,87 +597,72 @@ public class Serializer {
     }
 
     private void serializeElementPretty(Element element, StringBuilder sb, int depth) {
-        // Indentation
+        appendPrettyIndentation(sb, depth);
+
+        // Opening tag with attributes
+        sb.append("<").append(element.name());
+        appendPrettyAttributes(element, sb);
+
+        // Check if element is empty (no child nodes)
+        if (element.childCount() == 0) {
+            appendEmptyElementClose(element, sb);
+        } else {
+            // Element has content (handles both normal and self-closing-with-content cases)
+            sb.append(">");
+            serializeChildrenPretty(element, sb, depth);
+            sb.append("</").append(element.name()).append(">");
+        }
+    }
+
+    private void appendPrettyIndentation(StringBuilder sb, int depth) {
         if (depth > 0 && !lineEnding.isEmpty()) {
             sb.append(lineEnding);
             for (int i = 0; i < depth; i++) {
                 sb.append(indentString);
             }
         }
+    }
 
-        // Opening tag
-        sb.append("<").append(element.name());
-
-        // Attributes - use Attribute objects with pretty print formatting
+    private void appendPrettyAttributes(Element element, StringBuilder sb) {
         for (String attrName : element.attributes().keySet()) {
             Attribute attr = element.attributeObject(attrName);
             if (attr != null) {
                 attr.toXml(sb, false); // Don't preserve original formatting in pretty print mode
             }
         }
+    }
 
-        // Check if element is empty (no child nodes)
-        boolean isEmpty = element.childCount() == 0;
+    private void appendEmptyElementClose(Element element, StringBuilder sb) {
+        switch (emptyElementStyle) {
+            case EXPANDED:
+                sb.append(">").append("</").append(element.name()).append(">");
+                break;
+            case SELF_CLOSING:
+                sb.append("/>");
+                break;
+            case SELF_CLOSING_SPACED:
+                sb.append(" />");
+                break;
+        }
+    }
 
-        if (isEmpty) {
-            // Apply configured empty element style
-            switch (emptyElementStyle) {
-                case EXPANDED:
-                    sb.append(">").append("</").append(element.name()).append(">");
-                    break;
-                case SELF_CLOSING:
-                    sb.append("/>");
-                    break;
-                case SELF_CLOSING_SPACED:
-                    sb.append(" />");
-                    break;
+    private void serializeChildrenPretty(Element element, StringBuilder sb, int depth) {
+        boolean hasElementChildren = element.children.stream().anyMatch(Element.class::isInstance);
+
+        for (Node child : element.children) {
+            if (hasElementChildren && child instanceof Element) {
+                serializeNodePretty(child, sb, depth + 1);
+            } else {
+                serializeNode(child, sb);
             }
-        } else if (element.selfClosing()) {
-            // Element is marked as self-closing but has content - this shouldn't happen
-            // but handle gracefully by treating as regular element
-            sb.append(">");
+        }
 
-            boolean hasElementChildren = element.children.stream().anyMatch(Element.class::isInstance);
-
-            // Children
-            for (Node child : element.children) {
-                if (hasElementChildren && child instanceof Element) {
-                    serializeNodePretty(child, sb, depth + 1);
-                } else {
-                    serializeNode(child, sb);
-                }
+        // Closing tag indentation
+        if (hasElementChildren && !lineEnding.isEmpty()) {
+            sb.append(lineEnding);
+            for (int i = 0; i < depth; i++) {
+                sb.append(indentString);
             }
-
-            // Closing tag
-            if (hasElementChildren && !lineEnding.isEmpty()) {
-                sb.append(lineEnding);
-                for (int i = 0; i < depth; i++) {
-                    sb.append(indentString);
-                }
-            }
-            sb.append("</").append(element.name()).append(">");
-        } else {
-            sb.append(">");
-
-            boolean hasElementChildren = element.children.stream().anyMatch(Element.class::isInstance);
-
-            // Children
-            for (Node child : element.children) {
-                if (hasElementChildren && child instanceof Element) {
-                    serializeNodePretty(child, sb, depth + 1);
-                } else {
-                    serializeNode(child, sb);
-                }
-            }
-
-            // Closing tag
-            if (hasElementChildren && !lineEnding.isEmpty()) {
-                sb.append(lineEnding);
-                for (int i = 0; i < depth; i++) {
-                    sb.append(indentString);
-                }
-            }
-            sb.append("</").append(element.name()).append(">");
         }
     }
 

@@ -343,59 +343,50 @@ public class Editor {
     private void removeElementWithWhitespaceHandling(ContainerNode container, int elementIndex) {
         Element element = (Element) container.children.get(elementIndex);
         int totalElements = container.children.size();
-
-        // Capture the removed element's preceding whitespace
         String precedingWs = element.precedingWhitespace();
 
-        // Determine the removal scenario
+        boolean isOnly = totalElements == 1;
         boolean isFirst = elementIndex == 0;
         boolean isLast = elementIndex == totalElements - 1;
-        boolean isOnly = totalElements == 1;
+
+        container.removeChild(element);
 
         if (isOnly) {
-            // Only element: remove and set appropriate inner whitespace
-            container.removeChild(element);
-            if (container instanceof Element) {
-                Element parentElement = (Element) container;
-                // Always preserve a newline structure when removing the only element
-                // This maintains the expected formatting for empty containers
-                parentElement.innerPrecedingWhitespace("\n");
-            }
+            handleOnlyElementRemoval(container);
         } else if (isFirst) {
-            // First element: remove and clean up any extra blank lines
-            container.removeChild(element);
+            handleFirstElementRemoval(container, elementIndex);
+        } else if (!isLast) {
+            handleMiddleElementRemoval(container, elementIndex, precedingWs);
+        }
+        // Last element: no whitespace adjustment needed
+    }
 
-            // If there's a next element, clean up its preceding whitespace to avoid double blank lines
-            if (elementIndex < container.children.size()) {
-                Node nextNode = container.children.get(elementIndex); // Index shifts after removal
-                if (nextNode instanceof Element) {
-                    Element nextElement = (Element) nextNode;
-                    String nextWs = nextElement.precedingWhitespace();
-                    // Remove extra blank lines but preserve proper indentation
-                    String cleanedWs = cleanupExtraBlankLines(nextWs);
-                    nextElement.precedingWhitespace(cleanedWs);
-                }
+    private void handleOnlyElementRemoval(ContainerNode container) {
+        if (container instanceof Element) {
+            ((Element) container).innerPrecedingWhitespace("\n");
+        }
+    }
+
+    private void handleFirstElementRemoval(ContainerNode container, int elementIndex) {
+        if (elementIndex < container.children.size()) {
+            Node nextNode = container.children.get(elementIndex);
+            if (nextNode instanceof Element) {
+                Element nextElement = (Element) nextNode;
+                String cleanedWs = cleanupExtraBlankLines(nextElement.precedingWhitespace());
+                nextElement.precedingWhitespace(cleanedWs);
             }
-        } else if (isLast) {
-            // Last element: remove and don't need to transfer whitespace
-            container.removeChild(element);
-        } else {
-            // Middle element: remove and avoid creating double whitespace
-            container.removeChild(element);
+        }
+    }
 
-            // For middle elements, we need to be careful not to create double whitespace
-            // The next element should maintain its proper indentation
-            if (elementIndex < container.children.size()) {
-                Node nextNode = container.children.get(elementIndex); // Index shifts after removal
-                if (nextNode instanceof Element) {
-                    Element nextElement = (Element) nextNode;
-                    // Only transfer whitespace if the next element doesn't have proper indentation
-                    String nextWs = nextElement.precedingWhitespace();
-                    if (nextWs.isEmpty() || !nextWs.contains("\n")) {
-                        // Extract just the indentation part from the removed element's whitespace
-                        String indentationOnly = extractIndentationFromWhitespace(precedingWs);
-                        nextElement.precedingWhitespace(indentationOnly);
-                    }
+    private void handleMiddleElementRemoval(ContainerNode container, int elementIndex, String precedingWs) {
+        if (elementIndex < container.children.size()) {
+            Node nextNode = container.children.get(elementIndex);
+            if (nextNode instanceof Element) {
+                Element nextElement = (Element) nextNode;
+                String nextWs = nextElement.precedingWhitespace();
+                if (nextWs.isEmpty() || !nextWs.contains("\n")) {
+                    String indentationOnly = extractIndentationFromWhitespace(precedingWs);
+                    nextElement.precedingWhitespace(indentationOnly);
                 }
             }
         }
@@ -1155,6 +1146,9 @@ public class Editor {
             case COMMENT:
                 counts[2]++;
                 break;
+            default:
+                // Other node types (DOCUMENT, PROCESSING_INSTRUCTION) are counted in total only
+                break;
         }
         counts[3]++;
 
@@ -1695,56 +1689,53 @@ public class Editor {
      * Recursively searches for line endings in a node and its children.
      */
     private String detectLineEndingInNode(Node node) {
-        // Check preceding whitespace
-        String precedingWs = node.precedingWhitespace();
-        if (precedingWs != null) {
-            String detected = extractLineEnding(precedingWs);
-            if (detected != null) {
-                return detected;
-            }
+        String detected = extractLineEnding(node.precedingWhitespace());
+        if (detected != null) {
+            return detected;
         }
 
-        // For elements, also check inner whitespace and original tag content
-        if (node instanceof Element) {
-            Element element = (Element) node;
-            String innerWs = element.innerPrecedingWhitespace();
-            if (innerWs != null) {
-                String detected = extractLineEnding(innerWs);
-                if (detected != null) {
-                    return detected;
-                }
-            }
-
-            // Check original tag content for line breaks (attribute alignment)
-            String originalTag = element.originalOpenTag();
-            if (originalTag != null) {
-                String detected = extractLineEnding(originalTag);
-                if (detected != null) {
-                    return detected;
-                }
-            }
+        detected = detectLineEndingInElementFields(node);
+        if (detected != null) {
+            return detected;
         }
 
-        // Check text content
+        detected = detectLineEndingInTextContent(node);
+        if (detected != null) {
+            return detected;
+        }
+
+        return detectLineEndingInChildren(node);
+    }
+
+    private String detectLineEndingInElementFields(Node node) {
+        if (!(node instanceof Element)) {
+            return null;
+        }
+        Element element = (Element) node;
+
+        String detected = extractLineEnding(element.innerPrecedingWhitespace());
+        if (detected != null) {
+            return detected;
+        }
+        return extractLineEnding(element.originalOpenTag());
+    }
+
+    private String detectLineEndingInTextContent(Node node) {
         if (node instanceof Text) {
-            Text text = (Text) node;
-            String detected = extractLineEnding(text.content());
-            if (detected != null) {
-                return detected;
-            }
+            return extractLineEnding(((Text) node).content());
         }
+        return null;
+    }
 
-        // Check children recursively
+    private String detectLineEndingInChildren(Node node) {
         if (node instanceof ContainerNode) {
-            ContainerNode container = (ContainerNode) node;
-            for (Node child : container.children) {
+            for (Node child : ((ContainerNode) node).children) {
                 String detected = detectLineEndingInNode(child);
                 if (detected != null) {
                     return detected;
                 }
             }
         }
-
         return null;
     }
 
@@ -1852,40 +1843,51 @@ public class Editor {
      * Checks if the document has any significant whitespace patterns.
      */
     private boolean hasAnySignificantWhitespace(Node node) {
-        // Check preceding whitespace
-        String precedingWs = node.precedingWhitespace();
-        if (precedingWs != null && !precedingWs.isEmpty() && !precedingWs.equals(" ")) {
+        if (hasSignificantPrecedingWhitespace(node)) {
             return true;
         }
+        if (hasSignificantElementWhitespace(node)) {
+            return true;
+        }
+        if (hasSignificantTextWhitespace(node)) {
+            return true;
+        }
+        return hasSignificantWhitespaceInChildren(node);
+    }
 
-        // For elements, check various whitespace fields
-        if (node instanceof Element) {
-            Element element = (Element) node;
-            if (!element.openTagWhitespace().isEmpty()
-                    || !element.closeTagWhitespace().isEmpty()
-                    || !element.innerPrecedingWhitespace().isEmpty()) {
-                return true;
+    private boolean hasSignificantPrecedingWhitespace(Node node) {
+        String precedingWs = node.precedingWhitespace();
+        return precedingWs != null && !precedingWs.isEmpty() && !precedingWs.equals(" ");
+    }
+
+    private boolean hasSignificantElementWhitespace(Node node) {
+        if (!(node instanceof Element)) {
+            return false;
+        }
+        Element element = (Element) node;
+        return !element.openTagWhitespace().isEmpty()
+                || !element.closeTagWhitespace().isEmpty()
+                || !element.innerPrecedingWhitespace().isEmpty();
+    }
+
+    private boolean hasSignificantTextWhitespace(Node node) {
+        if (node instanceof Text) {
+            Text text = (Text) node;
+            if (text.isWhitespaceOnly()) {
+                return !text.content().isEmpty() && !text.content().equals(" ");
             }
         }
+        return false;
+    }
 
-        // Check text content for whitespace-only nodes with significant content
-        Text text;
-        if (node instanceof Text && (text = (Text) node).isWhitespaceOnly()) {
-            if (!text.content().isEmpty() && !text.content().equals(" ")) {
-                return true;
-            }
-        }
-
-        // Check children recursively
+    private boolean hasSignificantWhitespaceInChildren(Node node) {
         if (node instanceof ContainerNode) {
-            ContainerNode container = (ContainerNode) node;
-            for (Node child : container.children) {
+            for (Node child : ((ContainerNode) node).children) {
                 if (hasAnySignificantWhitespace(child)) {
                     return true;
                 }
             }
         }
-
         return false;
     }
 
@@ -2008,31 +2010,45 @@ public class Editor {
         for (int i = 0; i < parent.children.size(); i++) {
             Node node = parent.children.get(i);
 
-            Text textNode;
-            if (node instanceof Text && isWhitespaceOnly((textNode = (Text) node).content())) {
-                // This is a whitespace-only text node
-                String whitespace = textNode.content();
-                if (index > i) {
-                    index--;
-                }
-                if (i == parent.children.size() - 1) {
-                    // Last node - this is inner preceding whitespace for the parent
-                    parentElement.innerPrecedingWhitespaceInternal(whitespace);
-                    parent.removeChild(textNode);
-                    i--; // Adjust index since we removed a node
-                } else {
-                    // Middle node - transfer to preceding whitespace of next element
-                    Node nextNode = parent.children.get(i + 1);
-                    if (nextNode instanceof Element) {
-                        Element nextElement = (Element) nextNode;
-                        nextElement.precedingWhitespaceInternal(whitespace);
-                        parent.removeChild(textNode);
-                        i--; // Adjust index since we removed a node
+            if (node instanceof Text && isWhitespaceOnly(((Text) node).content())) {
+                Text textNode = (Text) node;
+                boolean removed = transferWhitespaceAndRemove(parent, parentElement, textNode, i);
+                if (removed) {
+                    if (index > i) {
+                        index--;
                     }
+                    i--; // Adjust index since we removed a node
                 }
             }
         }
         return index;
+    }
+
+    /**
+     * Transfers whitespace from a whitespace-only text node to the appropriate element property,
+     * then removes the text node.
+     *
+     * @return true if the text node was removed
+     */
+    private boolean transferWhitespaceAndRemove(
+            ContainerNode parent, Element parentElement, Text textNode, int nodeIndex) {
+        String whitespace = textNode.content();
+
+        if (nodeIndex == parent.children.size() - 1) {
+            // Last node - this is inner preceding whitespace for the parent
+            parentElement.innerPrecedingWhitespaceInternal(whitespace);
+            parent.removeChild(textNode);
+            return true;
+        }
+
+        // Middle node - transfer to preceding whitespace of next element
+        Node nextNode = parent.children.get(nodeIndex + 1);
+        if (nextNode instanceof Element) {
+            nextNode.precedingWhitespaceInternal(whitespace);
+            parent.removeChild(textNode);
+            return true;
+        }
+        return false;
     }
 
     public void addBlankLineBefore(Element element) {

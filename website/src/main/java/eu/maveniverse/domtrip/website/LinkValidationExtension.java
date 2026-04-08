@@ -34,6 +34,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 @ApplicationScoped
 public class LinkValidationExtension {
 
+    /** The index file suffix used for directory-style URLs. */
+    private static final String INDEX_HTML_SUFFIX = "/index.html";
+
     @ConfigProperty(name = "domtrip.links.validate", defaultValue = "true")
     boolean validateLinks;
 
@@ -177,8 +180,8 @@ public class LinkValidationExtension {
                 files.add(normalizedPath);
 
                 // Also add directory paths for index.html files
-                if (normalizedPath.endsWith("/index.html")) {
-                    String dirPath = normalizedPath.substring(0, normalizedPath.length() - "/index.html".length());
+                if (normalizedPath.endsWith(INDEX_HTML_SUFFIX)) {
+                    String dirPath = normalizedPath.substring(0, normalizedPath.length() - INDEX_HTML_SUFFIX.length());
                     if (!dirPath.equals("")) {
                         // Add directory with trailing slash
                         files.add(dirPath + "/");
@@ -244,7 +247,7 @@ public class LinkValidationExtension {
         }
 
         // For relative URLs, try multiple resolution strategies for index.html files
-        if (currentFilePath.endsWith("/index.html")) {
+        if (currentFilePath.endsWith(INDEX_HTML_SUFFIX)) {
             // Strategy 1: Resolve relative to parent directory (e.g., javadoc/snapshot/index.html -> javadoc/snapshot/)
             String resolvedUrl = resolveRelativeUrlFromParent(url, currentFilePath);
             if (isValidInternalLink(resolvedUrl, existingFiles)) {
@@ -321,9 +324,9 @@ public class LinkValidationExtension {
         // For index.html files, resolve relative to the parent directory
         // e.g., docs/features/namespace-support/index.html should resolve links relative to docs/features/
         String baseDir = "/";
-        if (currentFilePath.endsWith("/index.html")) {
+        if (currentFilePath.endsWith(INDEX_HTML_SUFFIX)) {
             // Remove /index.html to get the directory containing the index.html
-            String dirPath = currentFilePath.substring(0, currentFilePath.length() - "/index.html".length());
+            String dirPath = currentFilePath.substring(0, currentFilePath.length() - INDEX_HTML_SUFFIX.length());
             // Then get the parent of that directory
             int lastSlash = dirPath.lastIndexOf('/');
             if (lastSlash >= 0) {
@@ -359,7 +362,7 @@ public class LinkValidationExtension {
         }
 
         // Remove /index.html to get the directory containing the index.html
-        String dirPath = currentFilePath.substring(0, currentFilePath.length() - "/index.html".length());
+        String dirPath = currentFilePath.substring(0, currentFilePath.length() - INDEX_HTML_SUFFIX.length());
         String baseDir = "/" + dirPath + "/";
 
         // Combine base directory with relative URL
@@ -379,7 +382,7 @@ public class LinkValidationExtension {
         }
 
         // Remove /index.html to get the directory containing the index.html
-        String dirPath = currentFilePath.substring(0, currentFilePath.length() - "/index.html".length());
+        String dirPath = currentFilePath.substring(0, currentFilePath.length() - INDEX_HTML_SUFFIX.length());
 
         // Get the parent of that directory (grandparent)
         int lastSlash = dirPath.lastIndexOf('/');
@@ -417,7 +420,7 @@ public class LinkValidationExtension {
             }
         } else {
             // For URLs without trailing slash, try both as file and as directory
-            String indexPath = normalizedUrl + "/index.html";
+            String indexPath = normalizedUrl + INDEX_HTML_SUFFIX;
             if (existingFiles.contains(indexPath)) {
                 return true;
             }

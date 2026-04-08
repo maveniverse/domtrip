@@ -24,7 +24,7 @@ public class ElementCloneTest {
         original.addChild(Text.of("some text"));
 
         // Clone the element
-        Element clone = original.clone();
+        Element clone = original.copy();
 
         // Verify basic properties
         assertEquals("parent", clone.name());
@@ -118,7 +118,7 @@ public class ElementCloneTest {
         original.innerPrecedingWhitespace("\n  ");
         original.selfClosing(true);
 
-        Element clone = original.clone();
+        Element clone = original.copy();
 
         assertEquals("  ", clone.precedingWhitespace());
         assertEquals(" ", clone.openTagWhitespace());
@@ -133,7 +133,7 @@ public class ElementCloneTest {
         original.addChild(Text.cdata("<script>alert('test');</script>"));
         original.addChild(ProcessingInstruction.of("xml-stylesheet", "type=\"text/css\""));
 
-        Element clone = original.clone();
+        Element clone = original.copy();
 
         Text clonedCData = (Text) clone.child(0);
         assertTrue(clonedCData.cdata());
@@ -156,7 +156,7 @@ public class ElementCloneTest {
         body.addChild(Text.of("Hello World"));
         original.root().addChild(body);
 
-        Document clone = original.clone();
+        Document clone = original.copy();
 
         // Verify document properties
         assertEquals("1.1", clone.version());
@@ -186,5 +186,70 @@ public class ElementCloneTest {
         clone.version("2.0");
         assertEquals("1.1", original.version());
         assertEquals("2.0", clone.version());
+    }
+
+    @Test
+    void testDocumentCloneWithoutRoot() {
+        Document original = new Document();
+        original.version("1.0");
+        original.encoding("UTF-8");
+
+        Document clone = original.copy();
+
+        assertEquals("1.0", clone.version());
+        assertEquals("UTF-8", clone.encoding());
+        assertNull(clone.root());
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    void testDeprecatedCloneDelegatesToCopy() throws DomTripException {
+        Element original = Element.of("test").attribute("id", "1");
+        original.addChild(Text.of("content"));
+
+        Element cloned = original.clone();
+
+        assertEquals("test", cloned.name());
+        assertEquals("1", cloned.attribute("id"));
+        assertEquals(1, cloned.childCount());
+        assertNull(cloned.parent());
+        assertNotSame(original, cloned);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    void testDeprecatedCloneOnAllNodeTypes() throws DomTripException {
+        // Attribute
+        Attribute attr = Attribute.of("name", "value");
+        Attribute attrClone = attr.clone();
+        assertEquals("name", attrClone.name());
+        assertEquals("value", attrClone.value());
+        assertNotSame(attr, attrClone);
+
+        // Comment
+        Comment comment = Comment.of("test comment");
+        Comment commentClone = comment.clone();
+        assertEquals("test comment", commentClone.content());
+        assertNotSame(comment, commentClone);
+
+        // Text
+        Text text = Text.of("hello");
+        Text textClone = text.clone();
+        assertEquals("hello", textClone.content());
+        assertNotSame(text, textClone);
+
+        // ProcessingInstruction
+        ProcessingInstruction pi = ProcessingInstruction.of("target", "data");
+        ProcessingInstruction piClone = pi.clone();
+        assertEquals("target", piClone.target());
+        assertEquals("data", piClone.data());
+        assertNotSame(pi, piClone);
+
+        // Document
+        Document doc = Document.of("<root/>");
+        Document docClone = doc.clone();
+        assertNotNull(docClone.root());
+        assertEquals("root", docClone.root().name());
+        assertNotSame(doc, docClone);
     }
 }

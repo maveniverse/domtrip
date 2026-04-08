@@ -40,7 +40,7 @@ class EditorCommentingTest {
         editor = new Editor(doc);
         Element dependency = doc.root().childElement("dependency").orElseThrow();
 
-        Comment comment = editor.commentOutElement(dependency);
+        editor.commentOutElement(dependency);
 
         String result = editor.toXml();
         assertEquals(expected, result);
@@ -68,7 +68,7 @@ class EditorCommentingTest {
         Element first = doc.root().childElement("first").orElseThrow();
         Element second = doc.root().childElement("second").orElseThrow();
 
-        Comment comment = editor.commentOutElements(first, second);
+        editor.commentOutElements(first, second);
 
         String result = editor.toXml();
         assertEquals(expected, result);
@@ -98,7 +98,7 @@ class EditorCommentingTest {
                 .findFirst()
                 .orElseThrow();
 
-        Element restored = editor.uncommentElement(comment);
+        editor.uncommentElement(comment);
 
         String result = editor.toXml();
         assertEquals(expected, result);
@@ -222,7 +222,7 @@ class EditorCommentingTest {
 
         // Comment out and then uncomment
         Comment comment = editor.commentOutElement(dependency);
-        Element restored = editor.uncommentElement(comment);
+        editor.uncommentElement(comment);
 
         // Verify the XML is identical to the original
         String result = editor.toXml();
@@ -253,7 +253,7 @@ class EditorCommentingTest {
                 .findFirst()
                 .orElseThrow();
 
-        Element restored = editor.uncommentElement(comment);
+        editor.uncommentElement(comment);
 
         String result = editor.toXml();
         assertEquals(expected, result);

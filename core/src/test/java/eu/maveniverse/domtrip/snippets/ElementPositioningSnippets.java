@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for element positioning features documentation.
  */
-public class ElementPositioningSnippets extends BaseSnippetTest {
+class ElementPositioningSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateInsertElementAt() throws DomTripException {
+    void demonstrateInsertElementAt() throws DomTripException {
         // START: insert-element-at
         Document doc = Document.of("""
             <dependencies>
@@ -44,7 +44,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateInsertElementBefore() throws DomTripException {
+    void demonstrateInsertElementBefore() throws DomTripException {
         // START: insert-element-before
         Document doc = Document.of("""
             <project>
@@ -76,7 +76,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateInsertElementAfter() throws DomTripException {
+    void demonstrateInsertElementAfter() throws DomTripException {
         // START: insert-element-after
         Document doc = Document.of("""
             <project>
@@ -101,7 +101,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementReordering() throws DomTripException {
+    void demonstrateElementReordering() throws DomTripException {
         // START: element-reordering
         Document doc = Document.of("""
             <project>
@@ -126,7 +126,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementReorderingBefore() throws DomTripException {
+    void demonstrateElementReorderingBefore() throws DomTripException {
         // START: element-reordering-before
         Document doc = Document.of("""
             <project>
@@ -153,7 +153,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementReorderingAfter() throws DomTripException {
+    void demonstrateElementReorderingAfter() throws DomTripException {
         // START: element-reordering-after
         Document doc = Document.of("""
             <project>
@@ -180,7 +180,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWhitespaceInference() throws DomTripException {
+    void demonstrateWhitespaceInference() throws DomTripException {
         // START: whitespace-inference
         Document doc = Document.of("""
             <project>
@@ -206,7 +206,7 @@ public class ElementPositioningSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateComplexReordering() throws DomTripException {
+    void demonstrateComplexReordering() throws DomTripException {
         // START: complex-reordering
         Document doc = Document.of("""
             <project>

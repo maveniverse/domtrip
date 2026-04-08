@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the new ContainerNode architecture.
  */
-public class ContainerNodeTest {
+class ContainerNodeTest {
 
     @Test
     void testOnlyContainerNodesCanHaveChildren() throws DomTripException {
@@ -98,8 +98,8 @@ public class ContainerNodeTest {
         assertEquals("ns:test", element.qualifiedName());
 
         // Leaf nodes don't have these methods (enforced by type system)
-        Text text = new Text("content");
-        Comment comment = new Comment("comment");
+        new Text("content");
+        new Comment("comment");
 
         // These would be compilation errors:
         // text.localName();  // Method not available
@@ -110,8 +110,8 @@ public class ContainerNodeTest {
     void testMemoryEfficiency() throws DomTripException {
         // Leaf nodes should not have children list
         Text text = new Text("content");
-        Comment comment = new Comment("comment");
-        ProcessingInstruction pi = new ProcessingInstruction("target", "data");
+        new Comment("comment");
+        new ProcessingInstruction("target", "data");
 
         // These nodes should not have child management methods
         // This is enforced by the type system - they don't extend ContainerNode

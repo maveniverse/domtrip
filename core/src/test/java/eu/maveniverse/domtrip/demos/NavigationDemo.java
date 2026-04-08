@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 /**
  * Demonstrates the enhanced navigation features.
  */
-public class NavigationDemo {
+class NavigationDemo {
 
     public static void main(String[] args) throws DomTripException {
         System.out.println("=== Enhanced Navigation Demo ===\n");
@@ -93,12 +93,10 @@ public class NavigationDemo {
         // Find direct children
         root.childElement("metadata").ifPresent(metadata -> {
             System.out.println("Library name: "
-                    + metadata.childElement("name")
-                            .map(element1 -> element1.textContent())
-                            .orElse("Unknown"));
+                    + metadata.childElement("name").map(Element::textContent).orElse("Unknown"));
             System.out.println("Established: "
                     + metadata.childElement("established")
-                            .map(element -> element.textContent())
+                            .map(Element::textContent)
                             .orElse("Unknown"));
         });
 
@@ -110,9 +108,8 @@ public class NavigationDemo {
             sectionList.forEach(section -> {
                 String id = section.attribute("id");
                 String floor = section.attribute("floor");
-                String name = section.childElement("name")
-                        .map(element -> element.textContent())
-                        .orElse("Unknown");
+                String name =
+                        section.childElement("name").map(Element::textContent).orElse("Unknown");
                 System.out.println("  Section: " + name + " (ID: " + id + ", Floor: " + floor + ")");
             });
         });
@@ -143,19 +140,16 @@ public class NavigationDemo {
 
         System.out.println("Available books:");
         availableBooks.forEach(book -> {
-            String title = book.childElement("title")
-                    .map(element1 -> element1.textContent())
-                    .orElse("Unknown");
-            String author = book.childElement("author")
-                    .map(element -> element.textContent())
-                    .orElse("Unknown");
+            String title = book.childElement("title").map(Element::textContent).orElse("Unknown");
+            String author =
+                    book.childElement("author").map(Element::textContent).orElse("Unknown");
             System.out.println("  - " + title + " by " + author);
         });
 
         // Find all authors
         List<String> authors = root.descendants()
                 .filter(el -> "author".equals(el.name()))
-                .map(element1 -> element1.textContent())
+                .map(Element::textContent)
                 .distinct()
                 .sorted()
                 .toList();
@@ -170,9 +164,8 @@ public class NavigationDemo {
                         .map(genre -> "Classic".equals(genre.textContent()))
                         .orElse(false))
                 .forEach(book -> {
-                    String title = book.childElement("title")
-                            .map(element -> element.textContent())
-                            .orElse("Unknown");
+                    String title =
+                            book.childElement("title").map(Element::textContent).orElse("Unknown");
                     System.out.println("  - " + title);
                 });
 
@@ -229,7 +222,7 @@ public class NavigationDemo {
                 .filter(book -> "true".equals(book.attribute("available")))
                 .filter(book -> {
                     return book.childElement("year")
-                            .map(element -> element.textContent())
+                            .map(Element::textContent)
                             .map(year -> {
                                 try {
                                     return Integer.parseInt(year) > 1950;
@@ -240,14 +233,12 @@ public class NavigationDemo {
                             .orElse(false);
                 })
                 .forEach(book -> {
-                    String title = book.childElement("title")
-                            .map(element2 -> element2.textContent())
-                            .orElse("Unknown");
-                    String year = book.childElement("year")
-                            .map(element1 -> element1.textContent())
-                            .orElse("Unknown");
+                    String title =
+                            book.childElement("title").map(Element::textContent).orElse("Unknown");
+                    String year =
+                            book.childElement("year").map(Element::textContent).orElse("Unknown");
                     String author = book.childElement("author")
-                            .map(element -> element.textContent())
+                            .map(Element::textContent)
                             .orElse("Unknown");
                     System.out.println("  - " + title + " (" + year + ") by " + author);
                 });
@@ -263,7 +254,7 @@ public class NavigationDemo {
                     })
                     .forEach(section -> {
                         String name = section.childElement("name")
-                                .map(element -> element.textContent())
+                                .map(Element::textContent)
                                 .orElse("Unknown");
                         long bookCount = section.childElement("books")
                                 .map(books -> books.childElements().count())
@@ -286,7 +277,7 @@ public class NavigationDemo {
                                 .map(dept -> "Reference".equals(dept.textContent()))
                                 .orElse(false))
                         .map(lib -> lib.childElement("name")
-                                .map(element -> element.textContent())
+                                .map(Element::textContent)
                                 .orElse("Unknown"))
                         .toList())
                 .orElse(List.of())

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for parsing XML from InputStream with encoding detection.
  */
-public class InputStreamParsingTest {
+class InputStreamParsingTest {
 
     @Test
     void testParseFromInputStreamWithUTF8() throws DomTripException {

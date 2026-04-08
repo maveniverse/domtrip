@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for formatting preservation features documentation.
  */
-public class FormattingPreservationSnippets extends BaseSnippetTest {
+class FormattingPreservationSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicFormatPreservation() throws DomTripException {
+    void demonstrateBasicFormatPreservation() throws DomTripException {
         // START: basic-format-preservation
         // Original XML with specific formatting
         String xml = """
@@ -42,7 +42,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWhitespaceTracking() throws DomTripException {
+    void demonstrateWhitespaceTracking() throws DomTripException {
         String xml = """
             <project>
                 <groupId>com.example</groupId>
@@ -50,7 +50,6 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         // START: whitespace-tracking
         // For this XML: "  <element>content</element>\n"
@@ -64,11 +63,10 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementWhitespace() throws DomTripException {
+    void demonstrateElementWhitespace() throws DomTripException {
         String xml = "<project>  <groupId  >com.example</  groupId>  </project>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         // START: element-whitespace
         Element element = doc.root().childElement("groupId").orElseThrow();
@@ -85,11 +83,10 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateInnerElementWhitespace() throws DomTripException {
+    void demonstrateInnerElementWhitespace() throws DomTripException {
         String xml = "<parent>\n    \n</parent>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         // START: inner-element-whitespace
         Element element = doc.root();
@@ -105,7 +102,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateIntelligentInference() throws DomTripException {
+    void demonstrateIntelligentInference() throws DomTripException {
         // START: intelligent-inference
         // Existing structure:
         //   <dependencies>
@@ -139,9 +136,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfigurationControl() throws DomTripException {
-        String xml = "<project><groupId>com.example</groupId></project>";
-
+    void demonstrateConfigurationControl() throws DomTripException {
         // START: configuration-control
         // Preset configurations
         DomTripConfig defaults = DomTripConfig.defaults(); // Default preservation
@@ -153,16 +148,13 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
                 .withCommentPreservation(true); // Keep comments
         // END: configuration-control
 
-        Document doc = Document.of(xml);
-        Editor editor = new Editor(doc, custom);
-
         Assertions.assertNotNull(defaults);
         Assertions.assertNotNull(pretty);
         Assertions.assertNotNull(custom);
     }
 
     @Test
-    public void demonstrateModificationTracking() throws DomTripException {
+    void demonstrateModificationTracking() throws DomTripException {
         String xml = """
             <project>
                 <groupId>com.example</groupId>
@@ -186,7 +178,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeFormatting() throws DomTripException {
+    void demonstrateAttributeFormatting() throws DomTripException {
         String xml = "<dependency scope='test'  optional=\"true\" />";
 
         Document doc = Document.of(xml);
@@ -211,7 +203,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentPreservation() throws DomTripException {
+    void demonstrateCommentPreservation() throws DomTripException {
         // START: comment-preservation
         String xml = """
             <project>
@@ -238,7 +230,7 @@ public class FormattingPreservationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMinimalChangeSerialization() throws DomTripException {
+    void demonstrateMinimalChangeSerialization() throws DomTripException {
         // START: minimal-change-serialization
         String originalXml = """
             <project>

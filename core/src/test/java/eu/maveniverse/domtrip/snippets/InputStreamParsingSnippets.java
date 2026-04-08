@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Input Stream Parsing documentation.
  */
-public class InputStreamParsingSnippets extends BaseSnippetTest {
+class InputStreamParsingSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateParsingFromFile() throws Exception {
+    void demonstrateParsingFromFile() throws Exception {
         // START: parsing-from-file
         // Parse XML file with automatic encoding detection
         // Path xmlFile = Path.of("config.xml");
@@ -37,7 +37,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateParsingFromInputStream() throws Exception {
+    void demonstrateParsingFromInputStream() throws Exception {
         // START: parsing-from-inputstream
         // Parse from any InputStream
         String xmlContent = createTestXml("data");
@@ -46,7 +46,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
             Editor editor = new Editor(doc);
 
             // Process the document
-            Element root = editor.root();
+            editor.root();
             // ... edit operations
         }
         // END: parsing-from-inputstream
@@ -56,7 +56,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateParsingFromNetwork() throws Exception {
+    void demonstrateParsingFromNetwork() throws Exception {
         // START: parsing-from-network
         // Parse XML from network resource
         // URL xmlUrl = new URL("https://example.com/api/data.xml");
@@ -70,8 +70,6 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
         // For testing, simulate network content
         String xmlContent = createTestXml("networkData");
         try (InputStream stream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8))) {
-            Document doc = Document.of(stream);
-            Editor editor = new Editor(doc);
 
             // Network XML is parsed with encoding detection
         }
@@ -82,7 +80,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAutomaticEncodingDetection() throws Exception {
+    void demonstrateAutomaticEncodingDetection() throws Exception {
         // START: automatic-encoding-detection
         // Encoding detected from:
         // 1. Byte Order Mark (BOM)
@@ -102,22 +100,22 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSupportedEncodings() throws Exception {
+    void demonstrateSupportedEncodings() throws Exception {
         // START: supported-encodings
         // UTF-8 (most common)
         String utf8Content = createTestXml("utf8");
         try (InputStream utf8Stream = new ByteArrayInputStream(utf8Content.getBytes(StandardCharsets.UTF_8))) {
-            Document utf8Doc = Document.of(utf8Stream);
+            Assertions.assertNotNull(Document.of(utf8Stream));
         }
 
         // UTF-16 with BOM
         try (InputStream utf16Stream = new ByteArrayInputStream(utf8Content.getBytes(StandardCharsets.UTF_16))) {
-            Document utf16Doc = Document.of(utf16Stream);
+            Assertions.assertNotNull(Document.of(utf16Stream));
         }
 
         // ISO-8859-1 (Latin-1)
         try (InputStream isoStream = new ByteArrayInputStream(utf8Content.getBytes(StandardCharsets.ISO_8859_1))) {
-            Document isoDoc = Document.of(isoStream);
+            Assertions.assertNotNull(Document.of(isoStream));
         }
 
         // All Java-supported encodings work
@@ -128,7 +126,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBOMHandling() throws Exception {
+    void demonstrateBOMHandling() throws Exception {
         // START: bom-handling
         // BOM is automatically detected and handled
         byte[] utf8WithBom = {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
@@ -148,7 +146,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateLargeFileProcessing() throws Exception {
+    void demonstrateLargeFileProcessing() throws Exception {
         // START: large-file-processing
         // Memory-efficient processing of large XML files
         // Path largeXmlFile = Path.of("large-dataset.xml");
@@ -178,7 +176,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCustomStreamSources() throws Exception {
+    void demonstrateCustomStreamSources() throws Exception {
         // START: custom-stream-sources
         // Parse from compressed streams
         // try (InputStream gzipStream = new GZIPInputStream(
@@ -190,7 +188,6 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
         // For testing, simulate compressed content
         String xmlContent = createTestXml("compressed");
         try (InputStream stream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8))) {
-            Document doc = Document.of(stream);
             // Simulated compressed XML processing
         }
 
@@ -206,13 +203,12 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorHandling() throws Exception {
+    void demonstrateErrorHandling() throws Exception {
         // START: inputstream-error-handling
         try {
             String xmlContent = createTestXml("root");
             try (InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8))) {
-                Document doc = Document.of(inputStream);
-                Editor editor = new Editor(doc);
+                Assertions.assertNotNull(Document.of(inputStream));
             }
 
         } catch (Exception e) {
@@ -234,13 +230,12 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBufferedStreams() throws Exception {
+    void demonstrateBufferedStreams() throws Exception {
         // START: buffered-streams
         // Use BufferedInputStream for better performance
         String xmlContent = createTestXml("large");
         try (InputStream buffered =
                 new BufferedInputStream(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)), 8192)) {
-            Document doc = Document.of(buffered);
             // Buffering improves read performance
         }
         // END: buffered-streams
@@ -250,7 +245,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMemoryManagement() throws DomTripException {
+    void demonstrateMemoryManagement() throws DomTripException {
         // START: memory-management
         // For very large files, consider processing in sections
         // Path hugefile = Path.of("huge-dataset.xml");
@@ -271,7 +266,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfigurationFiles() throws DomTripException {
+    void demonstrateConfigurationFiles() throws DomTripException {
         // START: configuration-files
         // Load application configuration
         // Path configPath = Path.of("app-config.xml");
@@ -303,7 +298,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWebServiceResponses() throws Exception {
+    void demonstrateWebServiceResponses() throws Exception {
         // START: web-service-responses
         // Parse XML response from web service
         // HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -323,7 +318,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
             Editor editor = new Editor(doc);
 
             // Process response data
-            Element result = editor.root().childElement("result").orElse(null);
+            editor.root().childElement("result").orElse(null);
             // ... extract data
         }
         // END: web-service-responses
@@ -333,7 +328,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBatchProcessing() throws DomTripException {
+    void demonstrateBatchProcessing() throws DomTripException {
         // START: batch-processing
         // Process multiple XML files
         // List<Path> xmlFiles = Files.list(Path.of("xml-data"))
@@ -365,7 +360,7 @@ public class InputStreamParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEditorIntegration() throws Exception {
+    void demonstrateEditorIntegration() throws Exception {
         // START: editor-integration
         // Parse from stream and edit
         String xmlContent = createTestXml("source");

@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for encoding-aware serialization functionality.
  */
-public class EncodingSerializationTest {
+class EncodingSerializationTest {
 
     @Test
     void testSerializeToOutputStreamWithDocumentEncoding() throws DomTripException {

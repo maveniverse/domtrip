@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Processing Instructions documentation.
  */
-public class ProcessingInstructionsSnippets extends BaseSnippetTest {
+class ProcessingInstructionsSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateCreatingProcessingInstructions() {
+    void demonstrateCreatingProcessingInstructions() {
         // START: creating-processing-instructions
         // Create a new processing instruction
         ProcessingInstruction pi = ProcessingInstruction.of("xml-stylesheet", "type=\"text/xsl\" href=\"style.xsl\"");
@@ -30,7 +30,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateParsingDocumentsWithPIs() throws DomTripException {
+    void demonstrateParsingDocumentsWithPIs() throws DomTripException {
         // START: parsing-documents-with-pis
         String xml = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -54,7 +54,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFindingProcessingInstructions() throws DomTripException {
+    void demonstrateFindingProcessingInstructions() throws DomTripException {
         // START: finding-processing-instructions
         String xmlWithPIs = """
             <?xml version="1.0"?>
@@ -83,7 +83,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateModifyingProcessingInstructions() {
+    void demonstrateModifyingProcessingInstructions() {
         // START: modifying-processing-instructions
         ProcessingInstruction pi = ProcessingInstruction.of("target", "old-data");
 
@@ -101,7 +101,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSpecialCharacters() throws DomTripException {
+    void demonstrateSpecialCharacters() throws DomTripException {
         // START: special-characters
         String xml = """
             <?target data with <special> &amp; characters?>
@@ -120,7 +120,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePositionAndWhitespace() throws DomTripException {
+    void demonstratePositionAndWhitespace() throws DomTripException {
         // START: position-whitespace-preservation
         String xml = """
             <?xml version="1.0"?>
@@ -148,7 +148,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateXmlStylesheetDeclaration() throws DomTripException {
+    void demonstrateXmlStylesheetDeclaration() throws DomTripException {
         // START: xml-stylesheet-declaration
         // Add stylesheet PI to document
         Document doc = Document.withRootElement("html");
@@ -167,7 +167,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePhpProcessingInstructions() throws DomTripException {
+    void demonstratePhpProcessingInstructions() throws DomTripException {
         // START: php-processing-instructions
         String phpXml = """
             <?xml version="1.0"?>
@@ -191,7 +191,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateApplicationSpecificInstructions() throws DomTripException {
+    void demonstrateApplicationSpecificInstructions() throws DomTripException {
         // START: application-specific-instructions
         // Custom processing instructions for application logic
         ProcessingInstruction sortOrder = ProcessingInstruction.of("sort-order", "alpha-ascending");
@@ -210,7 +210,7 @@ public class ProcessingInstructionsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEditorIntegration() throws DomTripException {
+    void demonstrateEditorIntegration() throws DomTripException {
         // START: editor-integration
         String xmlWithPIs = """
             <?xml version="1.0"?>

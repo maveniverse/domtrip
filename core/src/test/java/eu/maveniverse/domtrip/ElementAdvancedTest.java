@@ -8,20 +8,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Advanced test cases for Element functionality.
  */
-public class ElementAdvancedTest {
-
-    private Editor editor;
-
-    @BeforeEach
-    void setUp() {
-        editor = new Editor(Document.of());
-    }
+class ElementAdvancedTest {
 
     @Test
     void testElementNameChange() throws DomTripException {

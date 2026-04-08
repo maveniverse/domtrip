@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
  * (quote style, whitespace) when updating existing attributes, while using
  * sensible defaults for new attributes.</p>
  */
-public class AttributeFormattingPreservationTest {
+class AttributeFormattingPreservationTest {
 
     @Test
     void testSetAttributePreservesQuoteStyle() throws DomTripException {
@@ -39,7 +39,6 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root  attr1=\"value1\"   attr2=\"value2\"/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Get original whitespace patterns
@@ -61,7 +60,6 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root   attr1='value1'    attr2=\"value2\"/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Get original whitespace patterns
@@ -84,7 +82,6 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root existing='value'/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Add new attributes
@@ -129,7 +126,6 @@ public class AttributeFormattingPreservationTest {
         String xml = "<element\n" + "    attr1=\"value1\"\n" + "  attr2='value2'\n" + "     attr3=\"value3\"/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element element = doc.root();
 
         // Store original formatting
@@ -192,7 +188,6 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root attr='existing'/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Test null value
@@ -228,7 +223,6 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root attr1=\"value1\" attr2=\"value2\" attr3='value3'/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Add new attribute via Editor - should infer double quotes (majority)
@@ -355,7 +349,6 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Add attribute to element with no existing attributes
@@ -372,7 +365,6 @@ public class AttributeFormattingPreservationTest {
         String xml = "<root attr1='existing'/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Update existing attribute via Editor - should preserve formatting

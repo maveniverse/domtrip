@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for different serialization modes: preserve formatting, pretty print, and raw mode.
  */
-public class SerializationModesTest {
+class SerializationModesTest {
 
     private Document document;
     private String originalXml;
@@ -363,7 +363,7 @@ public class SerializationModesTest {
         Editor emptyEditor = new Editor(emptyDoc); // Uses default config
         emptyEditor.createDocument("root");
         emptyEditor.addElement(emptyEditor.root(), "child", "content");
-        String emptyResult = emptyEditor.toXml();
+        emptyEditor.toXml();
         // Default config has prettyPrint = false, so it should preserve formatting
         // But since there's no existing formatting, it uses minimal formatting
 

@@ -10,7 +10,7 @@ import eu.maveniverse.domtrip.QName;
 /**
  * Demonstrates the comprehensive namespace handling features in DomTrip.
  */
-public class NamespaceDemo {
+class NamespaceDemo {
 
     public static void main(String[] args) throws DomTripException {
         System.out.println("=== DomTrip Namespace Handling Demo ===\n");

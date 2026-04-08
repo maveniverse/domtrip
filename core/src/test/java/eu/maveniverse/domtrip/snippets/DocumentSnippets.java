@@ -18,10 +18,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Document API documentation.
  */
-public class DocumentSnippets extends BaseSnippetTest {
+class DocumentSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateDocumentCreation() throws DomTripException {
+    void demonstrateDocumentCreation() throws DomTripException {
         // START: document-creation
         // Create empty document
         Document doc = Document.of();
@@ -44,7 +44,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFluentAPI() throws DomTripException {
+    void demonstrateFluentAPI() throws DomTripException {
         // START: fluent-api
         // Build document using fluent API
         Document doc = Document.withXmlDeclaration("1.1", "UTF-8");
@@ -55,7 +55,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateXmlDeclaration() {
+    void demonstrateXmlDeclaration() {
         // START: xml-declaration
         Document doc = Document.of();
 
@@ -75,7 +75,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEncodingManagement() {
+    void demonstrateEncodingManagement() {
         // START: encoding-management
         Document doc = Document.withXmlDeclaration("1.0", "UTF-16");
 
@@ -93,7 +93,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateVersionControl() {
+    void demonstrateVersionControl() {
         // START: version-control
         Document doc = Document.withXmlDeclaration("1.1", "UTF-8");
 
@@ -108,7 +108,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRootElementManagement() throws DomTripException {
+    void demonstrateRootElementManagement() throws DomTripException {
         // START: root-element-management
         Document doc = Document.of();
 
@@ -124,7 +124,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRootElementWithNamespaces() throws DomTripException {
+    void demonstrateRootElementWithNamespaces() throws DomTripException {
         // START: root-element-namespaces
         Document doc = Document.of();
 
@@ -141,7 +141,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAddingTopLevelNodes() throws DomTripException {
+    void demonstrateAddingTopLevelNodes() throws DomTripException {
         // START: adding-top-level-nodes
         Document doc = Document.withRootElement("html");
 
@@ -161,7 +161,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentTraversal() throws DomTripException {
+    void demonstrateDocumentTraversal() throws DomTripException {
         // START: document-traversal
         String xml = """
             <?xml version="1.0"?>
@@ -194,7 +194,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDoctypeSupport() {
+    void demonstrateDoctypeSupport() {
         // START: doctype-support
         Document doc = Document.of();
 
@@ -210,7 +210,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDoctypePreservation() throws DomTripException {
+    void demonstrateDoctypePreservation() throws DomTripException {
         // START: doctype-preservation
         String xmlWithDoctype = """
             <?xml version="1.0"?>
@@ -229,7 +229,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNodeCounting() throws DomTripException {
+    void demonstrateNodeCounting() throws DomTripException {
         // START: node-counting
         String complexXml = """
             <?xml version="1.0"?>
@@ -258,7 +258,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBasicSerialization() throws DomTripException {
+    void demonstrateBasicSerialization() throws DomTripException {
         // START: basic-serialization
         Document doc = Document.withRootElement("root");
 
@@ -270,7 +270,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCustomSerialization() throws DomTripException {
+    void demonstrateCustomSerialization() throws DomTripException {
         // START: custom-serialization
         Document doc = Document.withRootElement("root");
 
@@ -286,7 +286,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentCloning() throws DomTripException {
+    void demonstrateDocumentCloning() throws DomTripException {
         // START: document-cloning
         String xmlString = "<root><child>value</child></root>";
         Document original = Document.of(xmlString);
@@ -301,7 +301,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentValidation() throws DomTripException {
+    void demonstrateDocumentValidation() throws DomTripException {
         // START: document-validation
         Document doc = Document.withRootElement("root");
 
@@ -319,7 +319,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEditorIntegration() throws DomTripException {
+    void demonstrateEditorIntegration() throws DomTripException {
         // START: editor-integration
         // Create document and edit
         Document doc = Document.withRootElement("config");
@@ -337,7 +337,7 @@ public class DocumentSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorHandling() {
+    void demonstrateErrorHandling() {
         // START: document-error-handling
         try {
             String xmlString = "<root><child>value</child></root>";

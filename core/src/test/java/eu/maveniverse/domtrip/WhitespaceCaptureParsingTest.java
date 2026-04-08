@@ -47,7 +47,7 @@ class WhitespaceCaptureParsingTest {
 
         Document doc = Document.of(xml);
         Element root = doc.root();
-        Element child = root.childElement("child").orElseThrow();
+        root.childElement("child").orElseThrow();
 
         assertEquals("\n", root.innerPrecedingWhitespace(), "Should capture following whitespace");
     }

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  * NOTE: Some tests in this class are expected to fail and document known limitations.
  * See XmlConformanceLimitationsTest for tests that verify the documented behavior.
  */
-public class XmlConformanceDetailedTest {
+class XmlConformanceDetailedTest {
 
     @Test
     void testDoctypeRoundTrip() throws DomTripException {

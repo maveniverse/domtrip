@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the Attribute class functionality.
  */
-public class AttributeClassTest {
+class AttributeClassTest {
 
     private Attribute attribute;
 

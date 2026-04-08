@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
  * Test cases demonstrating the lossless XML round-trip capabilities.
  * These tests show how formatting is preserved when making changes.
  */
-public class XmlRoundTripTest {
+class XmlRoundTripTest {
 
     private Editor editor;
 
@@ -28,8 +28,8 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
-        String roundTripXml = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String roundTripXml = localEditor.toXml();
 
         // Should preserve exact formatting for unmodified content
         assertEquals(originalXml, roundTripXml);
@@ -43,8 +43,8 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
-        String roundTripXml = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String roundTripXml = localEditor.toXml();
 
         assertEquals(originalXml, roundTripXml);
     }
@@ -60,8 +60,8 @@ public class XmlRoundTripTest {
                 + "<!-- Footer comment -->";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
-        String roundTripXml = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String roundTripXml = localEditor.toXml();
 
         assertEquals(originalXml, roundTripXml);
     }
@@ -78,8 +78,8 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
-        String roundTripXml = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String roundTripXml = localEditor.toXml();
 
         assertEquals(originalXml, roundTripXml);
     }
@@ -89,11 +89,11 @@ public class XmlRoundTripTest {
         String originalXml = "<root>\n" + "  <existing>content</existing>\n" + "</root>";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
-        Element newElement = editor.addElement(root, "newElement", "new content");
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
+        localEditor.addElement(root, "newElement", "new content");
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // Should preserve original formatting and add new element with appropriate indentation
         assertTrue(result.contains("<existing>content</existing>"));
@@ -109,11 +109,11 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
+        Editor localEditor = new Editor(doc);
         Element element = doc.root().descendant("element").orElseThrow();
         element.attribute("attr1", "modified");
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // Should preserve structure and other attributes
         assertTrue(result.contains("attr1=\"modified\""));
@@ -129,11 +129,11 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
-        Element toRemove = editor.root().childElement("remove").orElseThrow();
-        editor.removeElement(toRemove);
+        Editor localEditor = new Editor(doc);
+        Element toRemove = localEditor.root().childElement("remove").orElseThrow();
+        localEditor.removeElement(toRemove);
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // Should preserve formatting of remaining elements
         assertTrue(result.contains("<keep>content1</keep>"));
@@ -160,20 +160,20 @@ public class XmlRoundTripTest {
                 + "</project>";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
+        Editor localEditor = new Editor(doc);
 
         // Add a new dependency
         Element dependencies = doc.root().descendant("dependencies").orElseThrow();
-        Element newDep = editor.addElement(dependencies, "dependency");
-        editor.addElement(newDep, "groupId", "org.mockito");
-        editor.addElement(newDep, "artifactId", "mockito-core");
-        editor.addElement(newDep, "version", "4.6.1");
+        Element newDep = localEditor.addElement(dependencies, "dependency");
+        localEditor.addElement(newDep, "groupId", "org.mockito");
+        localEditor.addElement(newDep, "artifactId", "mockito-core");
+        localEditor.addElement(newDep, "version", "4.6.1");
 
         // Modify version
         Element version = doc.root().descendant("version").orElseThrow();
-        editor.setTextContent(version, "1.0.1");
+        localEditor.setTextContent(version, "1.0.1");
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // Verify original structure is preserved
         assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
@@ -197,8 +197,8 @@ public class XmlRoundTripTest {
                 "<root>\n" + "  <self-closing attr=\"value\"/>\n" + "  <normal>content</normal>\n" + "</root>";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
-        String roundTripXml = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String roundTripXml = localEditor.toXml();
 
         assertEquals(originalXml, roundTripXml);
     }
@@ -210,8 +210,8 @@ public class XmlRoundTripTest {
                 + "</root>";
 
         Document doc = Document.of(originalXml);
-        Editor editor = new Editor(doc);
-        String roundTripXml = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String roundTripXml = localEditor.toXml();
 
         // Entities should be preserved in output
         assertTrue(roundTripXml.contains("&lt;entities&gt;"));
@@ -241,8 +241,8 @@ public class XmlRoundTripTest {
         String xml = "<root>\n" + "  <element>text</element>\n" + "  <!-- comment -->\n" + "  <another/>\n" + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        String stats = editor.documentStats();
+        Editor localEditor = new Editor(doc);
+        String stats = localEditor.documentStats();
 
         assertTrue(stats.contains("3 elements")); // root, element, another
         assertTrue(stats.contains("comment"));

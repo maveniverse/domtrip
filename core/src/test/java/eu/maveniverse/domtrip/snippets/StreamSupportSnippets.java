@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for stream support features documentation.
  */
-public class StreamSupportSnippets extends BaseSnippetTest {
+class StreamSupportSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicStreamNavigation() throws DomTripException {
+    void demonstrateBasicStreamNavigation() throws DomTripException {
         // START: basic-stream-navigation
         Document doc = Document.of("""
             <dependencies>
@@ -34,7 +34,6 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             </dependencies>
             """);
 
-        Editor editor = new Editor(doc);
         Element dependencies = doc.root();
 
         // Stream over child elements
@@ -53,7 +52,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFilteringStreams() throws DomTripException {
+    void demonstrateFilteringStreams() throws DomTripException {
         // START: filtering-streams
         Document doc = Document.of("""
             <dependencies>
@@ -75,7 +74,6 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             </dependencies>
             """);
 
-        Editor editor = new Editor(doc);
         Element dependencies = doc.root();
 
         // Find all test dependencies
@@ -98,7 +96,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDescendantStreams() throws DomTripException {
+    void demonstrateDescendantStreams() throws DomTripException {
         // START: descendant-streams
         Document doc = Document.of("""
             <project>
@@ -119,7 +117,6 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             </project>
             """);
 
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Find all groupId elements anywhere in the document
@@ -135,7 +132,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamTransformations() throws DomTripException {
+    void demonstrateStreamTransformations() throws DomTripException {
         // START: stream-transformations
         Document doc = Document.of("""
             <dependencies>
@@ -152,7 +149,6 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             </dependencies>
             """);
 
-        Editor editor = new Editor(doc);
         Element dependencies = doc.root();
 
         // Transform dependency information
@@ -176,7 +172,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamAggregation() throws DomTripException {
+    void demonstrateStreamAggregation() throws DomTripException {
         // START: stream-aggregation
         Document doc = Document.of("""
             <project>
@@ -189,7 +185,6 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             </project>
             """);
 
-        Editor editor = new Editor(doc);
         Element dependencies = doc.root().childElement("dependencies").orElseThrow();
 
         // Count dependencies by scope
@@ -221,7 +216,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamModification() throws DomTripException {
+    void demonstrateStreamModification() throws DomTripException {
         // START: stream-modification
         Document doc = Document.of("""
             <dependencies>
@@ -263,7 +258,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateComplexStreamQueries() throws DomTripException {
+    void demonstrateComplexStreamQueries() throws DomTripException {
         // START: complex-stream-queries
         Document doc = Document.of("""
             <project>
@@ -292,7 +287,6 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             </project>
             """);
 
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Complex query: Find all Apache Maven plugins
@@ -321,7 +315,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamWithOptionals() throws DomTripException {
+    void demonstrateStreamWithOptionals() throws DomTripException {
         // START: stream-with-optionals
         Document doc = Document.of("""
             <dependencies>
@@ -338,7 +332,6 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             </dependencies>
             """);
 
-        Editor editor = new Editor(doc);
         Element dependencies = doc.root();
 
         // Handle optional elements gracefully
@@ -369,7 +362,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateParallelStreams() throws DomTripException {
+    void demonstrateParallelStreams() throws DomTripException {
         // START: parallel-streams
         Document doc = Document.of("""
             <project>
@@ -382,7 +375,6 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             </project>
             """);
 
-        Editor editor = new Editor(doc);
         Element dependencies = doc.root().childElement("dependencies").orElseThrow();
 
         // Process dependencies in parallel for performance
@@ -407,7 +399,7 @@ public class StreamSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamChaining() throws DomTripException {
+    void demonstrateStreamChaining() throws DomTripException {
         // START: stream-chaining
         Document doc = Document.of("""
             <project>
@@ -436,7 +428,6 @@ public class StreamSupportSnippets extends BaseSnippetTest {
             </project>
             """);
 
-        Editor editor = new Editor(doc);
         Element root = doc.root();
 
         // Chain multiple stream operations

@@ -11,7 +11,7 @@ import java.nio.file.Path;
 /**
  * Demonstration of parsing XML from Path using Document.of(Path).
  */
-public class PathParsingDemo {
+class PathParsingDemo {
 
     public static void main(String[] args) {
         System.out.println("=== DomTrip Path Parsing Demo ===\n");

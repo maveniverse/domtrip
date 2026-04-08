@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for configuration features documentation.
  */
-public class ConfigurationSnippets extends BaseSnippetTest {
+class ConfigurationSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicConfiguration() throws DomTripException {
+    void demonstrateBasicConfiguration() throws DomTripException {
         // START: basic-configuration
         // Use preset configurations
         DomTripConfig defaults = DomTripConfig.defaults();
@@ -33,7 +33,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePresetConfigurations() {
+    void demonstratePresetConfigurations() {
         // START: preset-configurations
         DomTripConfig defaults = DomTripConfig.defaults();
         // - Preserves all comments
@@ -60,7 +60,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWhitespaceConfiguration() {
+    void demonstrateWhitespaceConfiguration() {
         // START: whitespace-configuration
         DomTripConfig config = DomTripConfig.defaults()
                 .withIndentString("    ") // 4 spaces for new content
@@ -71,7 +71,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateIndentationOptions() {
+    void demonstrateIndentationOptions() {
         // START: indentation-options
         // Different indentation styles
         DomTripConfig spaces = DomTripConfig.defaults().withIndentString("  "); // 2 spaces
@@ -87,7 +87,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateQuoteStyleConfiguration() {
+    void demonstrateQuoteStyleConfiguration() {
         // START: quote-style-configuration
         // Use double quotes for new attributes
         DomTripConfig doubleQuotes = DomTripConfig.defaults().withDefaultQuoteStyle(QuoteStyle.DOUBLE);
@@ -101,7 +101,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentAndPIHandling() {
+    void demonstrateCommentAndPIHandling() {
         // START: comment-pi-handling
         DomTripConfig config = DomTripConfig.defaults()
                 .withCommentPreservation(true) // Keep all comments
@@ -117,7 +117,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateLineEndingConfiguration() {
+    void demonstrateLineEndingConfiguration() {
         // START: line-ending-configuration
         // Use Unix line endings
         DomTripConfig unix = DomTripConfig.defaults().withLineEnding("\n");
@@ -135,7 +135,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateXmlDeclarationHandling() {
+    void demonstrateXmlDeclarationHandling() {
         // START: xml-declaration-handling
         // Include XML declaration (default)
         DomTripConfig withDeclaration = DomTripConfig.defaults().withXmlDeclaration(true);
@@ -149,7 +149,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCompleteConfiguration() {
+    void demonstrateCompleteConfiguration() {
         // START: complete-configuration
         DomTripConfig config = DomTripConfig.defaults()
                 // Formatting settings
@@ -172,7 +172,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfigurationPatterns() {
+    void demonstrateConfigurationPatterns() {
         // START: configuration-patterns
         // Development configuration - readable output
         DomTripConfig development =
@@ -191,7 +191,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEnvironmentSpecificConfigurations() throws DomTripException {
+    void demonstrateEnvironmentSpecificConfigurations() throws DomTripException {
         // START: environment-specific-configurations
         // Different configurations for different environments
         DomTripConfig devConfig = forDevelopment();
@@ -210,7 +210,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfigurationBestPractices() {
+    void demonstrateConfigurationBestPractices() {
         // START: configuration-best-practices
         // ✅ Good - start with appropriate preset
         DomTripConfig config = DomTripConfig.defaults() // For config files
@@ -239,7 +239,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAvailableConfigurationMethods() {
+    void demonstrateAvailableConfigurationMethods() {
         // START: available-configuration-methods
         DomTripConfig config = DomTripConfig.defaults()
                 // Formatting control
@@ -260,7 +260,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEmptyElementStyles() {
+    void demonstrateEmptyElementStyles() {
         // START: empty-element-styles
         // Configure different empty element styles
 
@@ -281,7 +281,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEmptyElementAutoDetection() throws DomTripException {
+    void demonstrateEmptyElementAutoDetection() throws DomTripException {
         // START: empty-element-auto-detection
         // XML with self-closing spaced empty elements
         String xml = """
@@ -313,7 +313,7 @@ public class ConfigurationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEmptyElementStyleComparison() throws DomTripException {
+    void demonstrateEmptyElementStyleComparison() throws DomTripException {
         // START: empty-element-style-comparison
         Document doc = Document.withRootElement("root");
         Element empty = Element.of("empty");

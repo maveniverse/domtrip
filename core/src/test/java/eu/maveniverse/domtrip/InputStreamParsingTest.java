@@ -461,4 +461,31 @@ public class InputStreamParsingTest {
                 "Null charset test",
                 doc.root().childElement("child").orElseThrow().textContent());
     }
+
+    @Test
+    void testParseWithNullEncodingString() throws DomTripException {
+        String xml = "<root><child>test</child></root>";
+        InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
+        Parser parser = new Parser();
+        Document doc = parser.parse(inputStream, (String) null);
+        assertNotNull(doc);
+        assertEquals("test", doc.root().childElement("child").orElseThrow().textContent());
+    }
+
+    @Test
+    void testParseWithEmptyEncodingString() throws DomTripException {
+        String xml = "<root><child>test</child></root>";
+        InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
+        Parser parser = new Parser();
+        Document doc = parser.parse(inputStream, "");
+        assertNotNull(doc);
+    }
+
+    @Test
+    void testParseWithInvalidEncodingString() {
+        String xml = "<root/>";
+        InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
+        Parser parser = new Parser();
+        assertThrows(DomTripException.class, () -> parser.parse(inputStream, "INVALID-ENCODING-XYZ"));
+    }
 }

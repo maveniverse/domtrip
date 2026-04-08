@@ -1,5 +1,7 @@
 package eu.maveniverse.domtrip;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,93 +27,62 @@ public class SerializationModesDemo {
 
         Document document = Document.of(originalXml);
 
-        System.out.println("=== ORIGINAL XML ===");
-        System.out.println(originalXml);
-        System.out.println();
-
         // 1. Preserve Formatting Mode (Default)
-        System.out.println("=== PRESERVE FORMATTING MODE (Default) ===");
         Serializer preserveSerializer = new Serializer();
         String preserveResult = preserveSerializer.serialize(document);
-        System.out.println(preserveResult);
-        System.out.println("Same as original: " + originalXml.equals(preserveResult));
-        System.out.println();
+        assertEquals(originalXml, preserveResult, "Preserve mode should produce identical output");
 
         // 2. Pretty Print Mode
-        System.out.println("=== PRETTY PRINT MODE ===");
         Serializer prettySerializer = new Serializer();
         prettySerializer.setPrettyPrint(true);
         prettySerializer.setIndentString("  "); // 2 spaces
         prettySerializer.setLineEnding("\n");
         String prettyResult = prettySerializer.serialize(document);
-        System.out.println(prettyResult);
-        System.out.println();
+        assertNotNull(prettyResult, "Pretty print result should not be null");
+        assertTrue(prettyResult.contains("<root"), "Pretty print should contain root element");
 
         // 3. Raw Mode (No Formatting)
-        System.out.println("=== RAW MODE (No Formatting) ===");
         Serializer rawSerializer = new Serializer(DomTripConfig.raw());
         String rawResult = rawSerializer.serialize(document);
-        System.out.println(rawResult);
-        System.out.println("Contains line breaks: " + rawResult.contains("\n"));
-        System.out.println("Length: " + rawResult.length() + " characters");
-        System.out.println();
+        assertNotNull(rawResult, "Raw mode result should not be null");
+        assertFalse(rawResult.contains("\n"), "Raw mode should not contain line breaks");
 
         // 4. Custom Indentation
-        System.out.println("=== CUSTOM INDENTATION (Tabs) ===");
         Serializer tabSerializer = new Serializer();
         tabSerializer.setPrettyPrint(true);
         tabSerializer.setIndentString("\t");
         String tabResult = tabSerializer.serialize(document);
-        System.out.println(tabResult.replace("\t", "[TAB]")); // Show tabs visually
-        System.out.println();
+        assertTrue(tabResult.contains("\t"), "Tab indentation should use tab characters");
 
         // 5. Custom Line Endings
-        System.out.println("=== CUSTOM LINE ENDINGS ===");
         Serializer customSerializer = new Serializer();
         customSerializer.setPrettyPrint(true);
         customSerializer.setIndentString("--");
         customSerializer.setLineEnding(" | ");
         String customResult = customSerializer.serialize(document);
-        System.out.println(customResult);
-        System.out.println();
+        assertTrue(customResult.contains(" | "), "Custom line endings should be present");
 
         // 6. Modified Document Behavior
-        System.out.println("=== MODIFIED DOCUMENT BEHAVIOR ===");
         Editor editor = new Editor(document);
         Element root = editor.root();
         editor.addElement(root, "newElement", "new content");
 
-        System.out.println("Preserve mode with modified document:");
         String modifiedPreserve = preserveSerializer.serialize(document);
-        System.out.println(modifiedPreserve);
-        System.out.println();
+        assertTrue(modifiedPreserve.contains("newElement"), "Modified document should contain new element");
 
-        System.out.println("Pretty print mode with modified document:");
-        String modifiedPretty = prettySerializer.serialize(document);
-        System.out.println(modifiedPretty);
-        System.out.println();
-
-        System.out.println("Raw mode with modified document:");
         String modifiedRaw = rawSerializer.serialize(document);
-        System.out.println(modifiedRaw);
-        System.out.println("Contains line breaks: " + modifiedRaw.contains("\n"));
+        assertTrue(modifiedRaw.contains("newElement"), "Raw mode should also contain new element");
     }
 
     @Test
     void demonstrateRawModeUseCases() throws DomTripException {
-        System.out.println("=== RAW MODE USE CASES ===");
-
         // Use case 1: Minimizing file size
         String xml = "<config><setting name=\"debug\" value=\"true\"/><setting name=\"port\" value=\"8080\"/></config>";
         Document doc = Document.of(xml);
 
         Serializer rawSerializer = new Serializer(DomTripConfig.raw());
         String rawResult = rawSerializer.serialize(doc);
-
-        System.out.println("Original: " + xml);
-        System.out.println("Raw mode: " + rawResult);
-        System.out.println("Same content: " + xml.equals(rawResult));
-        System.out.println();
+        assertEquals(xml, rawResult, "Raw mode should preserve single-line formatting");
 
         // Use case 2: Single-line output for logging
         Document logDoc = Document.withRootElement("log");
@@ -122,13 +93,15 @@ public class SerializationModesDemo {
         logDoc.root().addChild(entry);
 
         String logOutput = rawSerializer.serialize(logDoc);
-        System.out.println("Log entry (single line): " + logOutput);
-        System.out.println();
+        assertNotNull(logOutput, "Log output should not be null");
+        assertTrue(logOutput.contains("Application started"), "Log output should contain text content");
 
         // Use case 3: Comparing with pretty print
         Serializer prettySerializer = new Serializer(DomTripConfig.prettyPrint());
         String prettyOutput = prettySerializer.serialize(logDoc);
-        System.out.println("Same content, pretty printed:");
-        System.out.println(prettyOutput);
+        assertTrue(prettyOutput.contains("entry"), "Pretty output should contain entry element");
+        assertTrue(
+                prettyOutput.length() >= logOutput.length(),
+                "Pretty output should generally be at least as long as raw");
     }
 }

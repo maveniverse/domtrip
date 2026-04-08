@@ -1971,4 +1971,86 @@ class PomEditorTest {
         assertTrue(afterProfile.contains("<artifactId>guava</artifactId>"));
         assertTrue(afterProfile.contains("<version>32.1.2-jre</version>"));
     }
+
+    // ========== updateDependency tests ==========
+
+    @Test
+    void testUpdateDependencyUpsertCreatesNew() throws DomTripException {
+        String pom = """
+                <project>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.junit</groupId>
+                            <artifactId>junit</artifactId>
+                            <version>4.13</version>
+                        </dependency>
+                    </dependencies>
+                </project>""";
+        PomEditor editor = editorOf(pom);
+        Coordinates newDep = Coordinates.of("com.example", "new-lib", "1.0.0");
+        boolean result = editor.dependencies().updateDependency(true, newDep);
+        assertTrue(result);
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<groupId>com.example</groupId>"));
+        assertTrue(xml.contains("<artifactId>new-lib</artifactId>"));
+    }
+
+    @Test
+    void testUpdateDependencyNoUpsertReturnsFalse() throws DomTripException {
+        String pom = """
+                <project>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.junit</groupId>
+                            <artifactId>junit</artifactId>
+                            <version>4.13</version>
+                        </dependency>
+                    </dependencies>
+                </project>""";
+        PomEditor editor = editorOf(pom);
+        Coordinates missing = Coordinates.of("com.example", "missing", "1.0.0");
+        boolean result = editor.dependencies().updateDependency(false, missing);
+        assertFalse(result);
+        String xml = editor.toXml();
+        assertFalse(xml.contains("com.example"), "No new dependency should be added");
+        assertFalse(xml.contains("missing"), "No new dependency should be added");
+    }
+
+    @Test
+    void testUpdateDependencyNoDependenciesNoUpsert() throws DomTripException {
+        String pom = "<project></project>";
+        PomEditor editor = editorOf(pom);
+        Coordinates dep = Coordinates.of("com.example", "lib", "1.0.0");
+        boolean result = editor.dependencies().updateDependency(false, dep);
+        assertFalse(result);
+        String xml = editor.toXml();
+        assertFalse(xml.contains("<dependencies>"), "No dependencies element should be created");
+    }
+
+    @Test
+    void testUpdateDependencyWithTypeAndClassifier() throws DomTripException {
+        String pom = """
+                <project>
+                    <dependencies>
+                    </dependencies>
+                </project>""";
+        PomEditor editor = editorOf(pom);
+        Coordinates dep = Coordinates.of("com.example", "lib", "1.0.0", "sources", "war");
+        boolean result = editor.dependencies().updateDependency(true, dep);
+        assertTrue(result);
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<type>war</type>"));
+        assertTrue(xml.contains("<classifier>sources</classifier>"));
+    }
+
+    @Test
+    void testUpdateManagedDependencyNoUpsert() throws DomTripException {
+        String pom = "<project></project>";
+        PomEditor editor = editorOf(pom);
+        Coordinates dep = Coordinates.of("com.example", "lib", "1.0.0");
+        boolean result = editor.dependencies().updateManagedDependency(false, dep);
+        assertFalse(result);
+        String xml = editor.toXml();
+        assertFalse(xml.contains("<dependencyManagement>"), "No dependencyManagement should be created");
+    }
 }

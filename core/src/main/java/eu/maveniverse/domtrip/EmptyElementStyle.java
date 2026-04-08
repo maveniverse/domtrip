@@ -118,31 +118,8 @@ public enum EmptyElementStyle {
      * Helper method to recursively analyze elements for empty element styles.
      */
     private static void analyzeElement(Element element, EmptyElementStyleCounter counter) {
-        // Check if this element is empty (no child nodes)
         if (element.childCount() == 0) {
-            // Analyze the original formatting to determine style
-            String originalTag = element.originalOpenTag();
-            if (!originalTag.isEmpty()) {
-                if (element.selfClosing()) {
-                    // Check for space before />
-                    if (originalTag.endsWith(" />")) {
-                        counter.selfClosingSpacedCount++;
-                    } else if (originalTag.endsWith("/>")) {
-                        counter.selfClosingCount++;
-                    }
-                } else {
-                    // Has separate closing tag
-                    counter.expandedCount++;
-                }
-            } else {
-                // No original formatting available, check current state
-                if (element.selfClosing()) {
-                    // Default to SELF_CLOSING if no space information available
-                    counter.selfClosingCount++;
-                } else {
-                    counter.expandedCount++;
-                }
-            }
+            classifyEmptyElement(element, counter);
         }
 
         // Recursively analyze child elements
@@ -150,6 +127,32 @@ public enum EmptyElementStyle {
             if (child instanceof Element) {
                 analyzeElement((Element) child, counter);
             }
+        }
+    }
+
+    private static void classifyEmptyElement(Element element, EmptyElementStyleCounter counter) {
+        String originalTag = element.originalOpenTag();
+        if (!originalTag.isEmpty()) {
+            classifyFromOriginalTag(element, originalTag, counter);
+        } else if (element.selfClosing()) {
+            counter.selfClosingCount++;
+        } else {
+            counter.expandedCount++;
+        }
+    }
+
+    private static void classifyFromOriginalTag(Element element, String originalTag, EmptyElementStyleCounter counter) {
+        if (element.selfClosing()) {
+            if (originalTag.endsWith(" />")) {
+                counter.selfClosingSpacedCount++;
+            } else if (originalTag.endsWith("/>")) {
+                counter.selfClosingCount++;
+            } else {
+                // Fallback for self-closing elements with non-standard suffix
+                counter.selfClosingCount++;
+            }
+        } else {
+            counter.expandedCount++;
         }
     }
 

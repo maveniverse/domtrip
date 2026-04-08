@@ -359,8 +359,8 @@ public class ElementApiSnippets {
         original.addChild(Element.of("groupId").textContent("junit"));
         original.addChild(Element.of("artifactId").textContent("junit"));
 
-        // Clone the element (deep copy)
-        Element clone = original.clone();
+        // Copy the element (deep copy)
+        Element clone = original.copy();
 
         // Modify clone without affecting original
         clone.attribute("scope", "compile");

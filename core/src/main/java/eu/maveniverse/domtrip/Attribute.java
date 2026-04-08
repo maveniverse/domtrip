@@ -257,12 +257,25 @@ public class Attribute {
     }
 
     /**
-     * Creates a deep clone of this attribute.
+     * Creates a deep copy of this attribute.
      *
      * @return a new attribute that is a copy of this attribute
+     * @since 1.1.0
      */
-    public Attribute clone() {
+    public Attribute copy() {
         return new Attribute(this.name, this.value, this.quoteStyle, this.precedingWhitespace, this.rawValue);
+    }
+
+    /**
+     * Creates a deep copy of this attribute.
+     *
+     * @return a new attribute that is a copy of this attribute
+     * @deprecated Use {@link #copy()} instead.
+     */
+    @Deprecated
+    @SuppressWarnings({"java:S2975", "java:S1133"})
+    public Attribute clone() {
+        return copy();
     }
 
     /**

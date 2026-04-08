@@ -205,9 +205,26 @@ public class Comment extends Node {
         return content.isEmpty();
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.1.0
+     */
+    @Override
+    public Comment copy() {
+        return new Comment(this);
+    }
+
+    /**
+     * Creates a deep copy of this comment.
+     *
+     * @return a new comment that is a copy of this comment
+     * @deprecated Use {@link #copy()} instead.
+     */
+    @Deprecated
+    @SuppressWarnings({"java:S2975", "java:S1133"})
     @Override
     public Comment clone() {
-        return new Comment(this);
+        return copy();
     }
 
     /**

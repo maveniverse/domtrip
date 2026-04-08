@@ -41,6 +41,7 @@ jobs:
         -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}
         -Dsonar.pullrequest.branch=${{ github.head_ref }}
         -Dsonar.pullrequest.base=${{ github.base_ref }}
+        -Dsonar.coverage.exclusions=website/src/main/java/**
 
     - name: Build and analyze (push)
       if: github.event_name == 'push'
@@ -54,3 +55,4 @@ jobs:
         -Dsonar.organization=maveniverse
         -Dsonar.host.url=https://sonarcloud.io
         -Dsonar.branch.name=main
+        -Dsonar.coverage.exclusions=website/src/main/java/**

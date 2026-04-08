@@ -349,48 +349,104 @@ public class Text extends Node {
     public static String unescapeTextContent(String text) {
         if (text == null) return "";
 
-        // First handle numeric character references (both decimal and hexadecimal)
+        // Single-pass scanner: resolve numeric references and named entities in one pass
+        // to avoid re-decoding (e.g., &#38;lt; must yield "&lt;", not "<")
         StringBuilder result = new StringBuilder();
         int i = 0;
         while (i < text.length()) {
-            if (text.charAt(i) == '&' && i + 2 < text.length() && text.charAt(i + 1) == '#') {
-                // Found potential numeric character reference
-                int end = text.indexOf(';', i + 2);
-                if (end != -1) {
-                    String numericPart = text.substring(i + 2, end);
-                    try {
-                        int codePoint;
-                        if (numericPart.length() > 0
-                                && (numericPart.charAt(0) == 'x' || numericPart.charAt(0) == 'X')) {
-                            // Hexadecimal: &#xHHHH;
-                            codePoint = Integer.parseInt(numericPart.substring(1), 16);
-                        } else {
-                            // Decimal: &#DDDD;
-                            codePoint = Integer.parseInt(numericPart, 10);
-                        }
-                        // Validate code point is valid Unicode
-                        if (Character.isValidCodePoint(codePoint)) {
-                            result.appendCodePoint(codePoint);
-                            i = end + 1;
-                            continue;
-                        }
-                    } catch (NumberFormatException e) {
-                        // Not a valid numeric reference, treat as regular text
+            if (text.charAt(i) == '&') {
+                // Try numeric reference first
+                if (i + 2 < text.length() && text.charAt(i + 1) == '#') {
+                    int consumed = tryResolveNumericReference(text, i, result);
+                    if (consumed > 0) {
+                        i += consumed;
+                        continue;
                     }
+                }
+                // Try named entities
+                int consumed = tryResolveNamedEntity(text, i, result);
+                if (consumed > 0) {
+                    i += consumed;
+                    continue;
                 }
             }
             result.append(text.charAt(i));
             i++;
         }
+        return result.toString();
+    }
 
-        // Then handle named entities
-        String unescaped = result.toString();
-        return unescaped
-                .replace("&lt;", "<")
-                .replace("&gt;", ">")
-                .replace("&quot;", "\"")
-                .replace("&apos;", "'")
-                .replace("&amp;", "&"); // This must be last
+    /**
+     * Tries to resolve a named XML entity (&amp;lt;, &amp;gt;, &amp;quot;, &amp;apos;, &amp;amp;) at the given position.
+     * Returns the number of characters consumed, or 0 if no entity matched.
+     */
+    private static int tryResolveNamedEntity(String text, int start, StringBuilder result) {
+        if (text.startsWith("&lt;", start)) {
+            result.append('<');
+            return 4;
+        }
+        if (text.startsWith("&gt;", start)) {
+            result.append('>');
+            return 4;
+        }
+        if (text.startsWith("&quot;", start)) {
+            result.append('"');
+            return 6;
+        }
+        if (text.startsWith("&apos;", start)) {
+            result.append('\'');
+            return 6;
+        }
+        if (text.startsWith("&amp;", start)) {
+            result.append('&');
+            return 5;
+        }
+        return 0;
+    }
+
+    /**
+     * Tries to resolve a single numeric character reference starting at the given position.
+     * Returns the number of characters consumed, or 0 if it was not a valid reference.
+     */
+    private static int tryResolveNumericReference(String text, int start, StringBuilder result) {
+        int end = text.indexOf(';', start + 2);
+        if (end == -1) {
+            return 0;
+        }
+        String numericPart = text.substring(start + 2, end);
+        try {
+            int codePoint = parseNumericReference(numericPart);
+            if (isValidXmlChar(codePoint)) {
+                result.appendCodePoint(codePoint);
+                return end - start + 1;
+            }
+        } catch (NumberFormatException e) {
+            // Not a valid numeric reference, treat as regular text
+        }
+        return 0;
+    }
+
+    /**
+     * Parses a numeric character reference value (decimal or hexadecimal).
+     */
+    private static int parseNumericReference(String numericPart) {
+        if (!numericPart.isEmpty() && (numericPart.charAt(0) == 'x' || numericPart.charAt(0) == 'X')) {
+            return Integer.parseInt(numericPart.substring(1), 16);
+        }
+        return Integer.parseInt(numericPart, 10);
+    }
+
+    /**
+     * Checks whether a code point is a valid XML character per the XML 1.0 spec:
+     * #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+     */
+    private static boolean isValidXmlChar(int cp) {
+        return cp == 0x9
+                || cp == 0xA
+                || cp == 0xD
+                || (cp >= 0x20 && cp <= 0xD7FF)
+                || (cp >= 0xE000 && cp <= 0xFFFD)
+                || (cp >= 0x10000 && cp <= 0x10FFFF);
     }
 
     /**
@@ -413,9 +469,26 @@ public class Text extends Node {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.1.0
+     */
+    @Override
+    public Text copy() {
+        return new Text(this);
+    }
+
+    /**
+     * Creates a deep copy of this text node.
+     *
+     * @return a new text node that is a copy of this text node
+     * @deprecated Use {@link #copy()} instead.
+     */
+    @Deprecated
+    @SuppressWarnings({"java:S2975", "java:S1133"})
     @Override
     public Text clone() {
-        return new Text(this);
+        return copy();
     }
 
     @Override

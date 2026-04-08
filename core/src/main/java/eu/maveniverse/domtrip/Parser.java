@@ -97,14 +97,22 @@ public class Parser {
     private int position;
     private int length;
 
+    /** Prefix for XML declarations. */
+    private static final String XML_DECL_PREFIX = "<?xml";
+
     // Pattern for parsing XML declaration attributes
     private static final Pattern XML_DECLARATION_PATTERN = Pattern.compile(
             "\\s*<\\?xml\\s+version\\s*=\\s*[\"']([^\"']+)[\"'](?:\\s+encoding\\s*=\\s*[\"']([^\"']+)[\"'])?(?:\\s+standalone\\s*=\\s*[\"']([^\"']+)[\"'])?\\s*\\?>");
 
     /**
      * Creates a new Parser instance with default settings.
+     *
+     * <p>No initialization is needed here because the parser state (xml, position, length)
+     * is initialized at the start of each {@link #parse(String)} call.</p>
      */
-    public Parser() {}
+    public Parser() {
+        // Parser state is initialized in parse() method
+    }
 
     /**
      * Parses XML from an InputStream with automatic encoding detection.
@@ -260,119 +268,8 @@ public class Parser {
             char ch = xml.charAt(position);
 
             if (ch == '<') {
-                // Process any preceding text/whitespace
-                if (precedingWhitespace.length() > 0) {
-                    String rawText = precedingWhitespace.toString();
-                    String decodedText = Text.unescapeTextContent(rawText);
-
-                    if (isWhitespaceOnly(decodedText)) {
-                        // This is whitespace - store it for the next node
-                        pendingWhitespace.append(decodedText);
-                    } else {
-                        // This is actual text content - create a text node
-                        Text textNode = new Text(decodedText, rawText);
-                        // Apply any pending whitespace as preceding whitespace
-                        if (pendingWhitespace.length() > 0) {
-                            textNode.precedingWhitespaceInternal(pendingWhitespace.toString());
-                            pendingWhitespace.setLength(0);
-                        }
-                        ContainerNode current = (ContainerNode) nodeStack.peek();
-                        current.addChildInternal(textNode);
-                    }
-                    precedingWhitespace.setLength(0);
-                }
-
-                if (position + 1 >= length) {
-                    throw new DomTripException("Unexpected end of XML: truncated '<' character", position, xml);
-                }
-
-                {
-                    char nextChar = xml.charAt(position + 1);
-
-                    if (nextChar == '!') {
-                        if (position + 3 < length && xml.startsWith("<!--", position)) {
-                            // Parse comment
-                            Comment comment = parseComment();
-                            // Apply any pending whitespace as preceding whitespace
-                            if (pendingWhitespace.length() > 0) {
-                                comment.precedingWhitespaceInternal(pendingWhitespace.toString());
-                                pendingWhitespace.setLength(0);
-                            }
-                            ContainerNode current = (ContainerNode) nodeStack.peek();
-                            current.addChildInternal(comment);
-                        } else if (position + 8 < length && xml.startsWith("<![CDATA[", position)) {
-                            // Parse CDATA
-                            Text cdata = parseCData();
-                            // Apply any pending whitespace as preceding whitespace
-                            if (pendingWhitespace.length() > 0) {
-                                cdata.precedingWhitespaceInternal(pendingWhitespace.toString());
-                                pendingWhitespace.setLength(0);
-                            }
-                            ContainerNode current = (ContainerNode) nodeStack.peek();
-                            current.addChildInternal(cdata);
-                        } else if (position + 9 < length && xml.startsWith("<!DOCTYPE", position)) {
-                            // Parse DOCTYPE declaration
-                            String doctype = parseDoctype();
-                            document.doctype(doctype);
-                            // Store any pending whitespace before DOCTYPE
-                            if (pendingWhitespace.length() > 0) {
-                                document.doctypePrecedingWhitespace(pendingWhitespace.toString());
-                                pendingWhitespace.setLength(0);
-                            }
-                        } else {
-                            // Skip other declarations
-                            skipDeclaration();
-                        }
-                    } else if (nextChar == '?') {
-                        // Parse processing instruction
-                        String pi = parseProcessingInstruction();
-                        // Only treat as XML declaration if it starts with "<?xml " (with space) and contains "version="
-                        if (pi.startsWith("<?xml ") && pi.contains("version=")) {
-                            document.xmlDeclaration(pi);
-                            // Parse XML declaration attributes (version, encoding, standalone)
-                            updateDocumentFromXmlDeclaration(document, pi);
-                        } else {
-                            // Add other processing instructions as nodes (including <?xml-stylesheet?>)
-                            ProcessingInstruction piNode = new ProcessingInstruction(pi);
-                            // Apply any pending whitespace as preceding whitespace
-                            if (pendingWhitespace.length() > 0) {
-                                piNode.precedingWhitespaceInternal(pendingWhitespace.toString());
-                                pendingWhitespace.setLength(0);
-                            }
-                            ContainerNode current = (ContainerNode) nodeStack.peek();
-                            current.addChildInternal(piNode);
-                        }
-                    } else if (nextChar == '/') {
-                        // Before parsing closing tag, handle any pending whitespace as inner whitespace
-
-                        Node currentNode;
-                        if (!nodeStack.isEmpty() && (currentNode = nodeStack.peek()) instanceof Element) {
-                            Element currentElement = (Element) currentNode;
-                            if (pendingWhitespace.length() > 0) {
-                                currentElement.innerPrecedingWhitespaceInternal(pendingWhitespace.toString());
-                                pendingWhitespace.setLength(0);
-                            }
-                        }
-
-                        // Parse closing tag
-                        parseClosingTag(nodeStack);
-                        // Note: Following whitespace will be captured as preceding whitespace of next sibling
-                    } else {
-                        // Parse opening tag
-                        Element element = parseOpeningTag();
-                        // Apply any pending whitespace as preceding whitespace
-                        if (pendingWhitespace.length() > 0) {
-                            element.precedingWhitespaceInternal(pendingWhitespace.toString());
-                            pendingWhitespace.setLength(0);
-                        }
-                        ContainerNode current = (ContainerNode) nodeStack.peek();
-                        current.addChildInternal(element);
-
-                        if (!element.selfClosing()) {
-                            nodeStack.push(element);
-                        }
-                    }
-                }
+                flushPrecedingText(precedingWhitespace, pendingWhitespace, nodeStack);
+                parseTagStart(document, nodeStack, pendingWhitespace);
             } else {
                 // Collect text content and whitespace
                 precedingWhitespace.append(ch);
@@ -381,32 +278,7 @@ public class Parser {
         }
 
         // Handle any remaining whitespace/text
-        if (precedingWhitespace.length() > 0) {
-            String rawText = precedingWhitespace.toString();
-            String decodedText = Text.unescapeTextContent(rawText);
-
-            if (isWhitespaceOnly(decodedText)) {
-                // This is whitespace - store it for the document
-                pendingWhitespace.append(decodedText);
-            } else {
-                // This is actual text content - create a text node
-                Text textNode = new Text(decodedText, rawText);
-                // Apply any pending whitespace as preceding whitespace
-                if (pendingWhitespace.length() > 0) {
-                    textNode.precedingWhitespaceInternal(pendingWhitespace.toString());
-                    pendingWhitespace.setLength(0);
-                }
-                document.addChildInternal(textNode);
-            }
-        }
-
-        // Handle any remaining pending whitespace - create a text node for document-level trailing whitespace
-        if (pendingWhitespace.length() > 0) {
-            // This is trailing whitespace at the document level (after the root element)
-            // We need to preserve it as a text node since there's no element to assign it to
-            Text trailingWhitespace = new Text(pendingWhitespace.toString());
-            document.addChildInternal(trailingWhitespace);
-        }
+        flushRemainingContent(document, precedingWhitespace, pendingWhitespace);
 
         // Check for unclosed elements
         if (nodeStack.size() > 1) {
@@ -425,6 +297,157 @@ public class Parser {
         }
 
         return document;
+    }
+
+    /**
+     * Flushes any accumulated text/whitespace before a tag into the appropriate nodes.
+     */
+    private void flushPrecedingText(
+            StringBuilder precedingWhitespace, StringBuilder pendingWhitespace, Deque<Node> nodeStack) {
+        if (precedingWhitespace.length() == 0) {
+            return;
+        }
+
+        String rawText = precedingWhitespace.toString();
+        String decodedText = Text.unescapeTextContent(rawText);
+
+        if (isWhitespaceOnly(decodedText)) {
+            pendingWhitespace.append(decodedText);
+        } else {
+            Text textNode = new Text(decodedText, rawText);
+            applyPendingWhitespace(textNode, pendingWhitespace);
+            ContainerNode current = (ContainerNode) nodeStack.peek();
+            current.addChildInternal(textNode);
+        }
+        precedingWhitespace.setLength(0);
+    }
+
+    /**
+     * Parses the content starting at a '<' character and dispatches to the appropriate handler.
+     */
+    private void parseTagStart(Document document, Deque<Node> nodeStack, StringBuilder pendingWhitespace)
+            throws DomTripException {
+        if (position + 1 >= length) {
+            throw new DomTripException("Unexpected end of XML: truncated '<' character", position, xml);
+        }
+
+        char nextChar = xml.charAt(position + 1);
+
+        if (nextChar == '!') {
+            parseDeclarationOrSpecial(document, nodeStack, pendingWhitespace);
+        } else if (nextChar == '?') {
+            parseProcessingInstructionTag(document, nodeStack, pendingWhitespace);
+        } else if (nextChar == '/') {
+            parseClosingTagWithWhitespace(nodeStack, pendingWhitespace);
+        } else {
+            parseOpeningTagAndPush(nodeStack, pendingWhitespace);
+        }
+    }
+
+    /**
+     * Parses declarations (comments, CDATA, DOCTYPE, etc.) starting with '<!'.
+     */
+    private void parseDeclarationOrSpecial(Document document, Deque<Node> nodeStack, StringBuilder pendingWhitespace)
+            throws DomTripException {
+        if (position + 3 < length && xml.startsWith("<!--", position)) {
+            Comment comment = parseComment();
+            applyPendingWhitespace(comment, pendingWhitespace);
+            ((ContainerNode) nodeStack.peek()).addChildInternal(comment);
+        } else if (position + 8 < length && xml.startsWith("<![CDATA[", position)) {
+            Text cdata = parseCData();
+            applyPendingWhitespace(cdata, pendingWhitespace);
+            ((ContainerNode) nodeStack.peek()).addChildInternal(cdata);
+        } else if (position + 9 < length && xml.startsWith("<!DOCTYPE", position)) {
+            String doctype = parseDoctype();
+            document.doctype(doctype);
+            if (pendingWhitespace.length() > 0) {
+                document.doctypePrecedingWhitespace(pendingWhitespace.toString());
+                pendingWhitespace.setLength(0);
+            }
+        } else {
+            skipDeclaration();
+        }
+    }
+
+    /**
+     * Parses a processing instruction tag starting with '<?'.
+     */
+    private void parseProcessingInstructionTag(
+            Document document, Deque<Node> nodeStack, StringBuilder pendingWhitespace) throws DomTripException {
+        String pi = parseProcessingInstruction();
+        if (pi.startsWith(XML_DECL_PREFIX + " ") && pi.contains("version=")) {
+            document.xmlDeclaration(pi);
+            updateDocumentFromXmlDeclaration(document, pi);
+        } else {
+            ProcessingInstruction piNode = new ProcessingInstruction(pi);
+            applyPendingWhitespace(piNode, pendingWhitespace);
+            ((ContainerNode) nodeStack.peek()).addChildInternal(piNode);
+        }
+    }
+
+    /**
+     * Handles a closing tag, applying pending whitespace as inner whitespace to the current element.
+     */
+    private void parseClosingTagWithWhitespace(Deque<Node> nodeStack, StringBuilder pendingWhitespace) {
+        Node currentNode;
+        if (!nodeStack.isEmpty() && (currentNode = nodeStack.peek()) instanceof Element) {
+            Element currentElement = (Element) currentNode;
+            if (pendingWhitespace.length() > 0) {
+                currentElement.innerPrecedingWhitespaceInternal(pendingWhitespace.toString());
+                pendingWhitespace.setLength(0);
+            }
+        }
+        parseClosingTag(nodeStack);
+    }
+
+    /**
+     * Parses an opening tag, applies pending whitespace, and pushes onto the stack if non-self-closing.
+     */
+    private void parseOpeningTagAndPush(Deque<Node> nodeStack, StringBuilder pendingWhitespace)
+            throws DomTripException {
+        Element element = parseOpeningTag();
+        applyPendingWhitespace(element, pendingWhitespace);
+        ((ContainerNode) nodeStack.peek()).addChildInternal(element);
+        if (!element.selfClosing()) {
+            nodeStack.push(element);
+        }
+    }
+
+    /**
+     * Applies any accumulated pending whitespace as preceding whitespace on a node.
+     */
+    private void applyPendingWhitespace(Node node, StringBuilder pendingWhitespace) {
+        if (pendingWhitespace.length() > 0) {
+            node.precedingWhitespaceInternal(pendingWhitespace.toString());
+            pendingWhitespace.setLength(0);
+        }
+    }
+
+    /**
+     * Flushes any remaining text/whitespace at the end of parsing into the document.
+     */
+    private void flushRemainingContent(
+            Document document, StringBuilder precedingWhitespace, StringBuilder pendingWhitespace) {
+        if (precedingWhitespace.length() > 0) {
+            String rawText = precedingWhitespace.toString();
+            String decodedText = Text.unescapeTextContent(rawText);
+
+            if (isWhitespaceOnly(decodedText)) {
+                pendingWhitespace.append(decodedText);
+            } else {
+                Text textNode = new Text(decodedText, rawText);
+                if (pendingWhitespace.length() > 0) {
+                    textNode.precedingWhitespaceInternal(pendingWhitespace.toString());
+                    pendingWhitespace.setLength(0);
+                }
+                document.addChildInternal(textNode);
+            }
+        }
+
+        if (pendingWhitespace.length() > 0) {
+            Text trailingWhitespace = new Text(pendingWhitespace.toString());
+            document.addChildInternal(trailingWhitespace);
+        }
     }
 
     private Comment parseComment() throws DomTripException {
@@ -621,51 +644,61 @@ public class Parser {
      * @throws DomTripException if the attribute value is not terminated with a matching quote or if a quoted value is missing
      */
     private void parseAttribute(Element element, String precedingWhitespace) throws DomTripException {
-        // Parse attribute name
+        String name = parseAttributeName();
+        skipWhitespace();
+
+        if (position < length && xml.charAt(position) == '=') {
+            skipEqualsAndWhitespace();
+            parseAttributeValue(element, name, precedingWhitespace);
+        }
+    }
+
+    private String parseAttributeName() {
         StringBuilder name = new StringBuilder();
         while (position < length && xml.charAt(position) != '=' && !Character.isWhitespace(xml.charAt(position))) {
             name.append(xml.charAt(position));
             position++;
         }
+        return name.toString();
+    }
 
-        // Skip whitespace around '='
+    private void skipWhitespace() {
         while (position < length && Character.isWhitespace(xml.charAt(position))) {
             position++;
         }
+    }
 
-        if (position < length && xml.charAt(position) == '=') {
-            // Skip whitespace after '='
-            do {
-                position++;
-            } while (position < length && Character.isWhitespace(xml.charAt(position)));
+    private void skipEqualsAndWhitespace() {
+        // Skip '=' and any whitespace after it
+        do {
+            position++;
+        } while (position < length && Character.isWhitespace(xml.charAt(position)));
+    }
 
-            // Parse attribute value
-            if (position < length && (xml.charAt(position) == '"' || xml.charAt(position) == '\'')) {
-                char quote = xml.charAt(position);
-                position++; // Skip opening quote
-
-                StringBuilder value = new StringBuilder();
-                while (position < length && xml.charAt(position) != quote) {
-                    value.append(xml.charAt(position));
-                    position++;
-                }
-
-                if (position < length) {
-                    position++; // Skip closing quote
-                } else {
-                    throw new DomTripException("Unclosed attribute value", position, xml);
-                }
-
-                // Set attribute with original quote character and raw value (internal method doesn't mark as modified)
-                String rawValue = value.toString();
-                String decodedValue = Text.unescapeTextContent(rawValue);
-                // Use the actual preceding whitespace, or default to single space if empty
-                String actualWhitespace = precedingWhitespace.isEmpty() ? " " : precedingWhitespace;
-                element.attributeInternal(name.toString(), decodedValue, quote, actualWhitespace, rawValue);
-            } else {
-                throw new DomTripException("Missing attribute value quote", position, xml);
-            }
+    private void parseAttributeValue(Element element, String name, String precedingWhitespace) throws DomTripException {
+        if (position >= length || (xml.charAt(position) != '"' && xml.charAt(position) != '\'')) {
+            throw new DomTripException("Missing attribute value quote", position, xml);
         }
+
+        char quote = xml.charAt(position);
+        position++; // Skip opening quote
+
+        StringBuilder value = new StringBuilder();
+        while (position < length && xml.charAt(position) != quote) {
+            value.append(xml.charAt(position));
+            position++;
+        }
+
+        if (position < length) {
+            position++; // Skip closing quote
+        } else {
+            throw new DomTripException("Unclosed attribute value", position, xml);
+        }
+
+        String rawValue = value.toString();
+        String decodedValue = Text.unescapeTextContent(rawValue);
+        String actualWhitespace = precedingWhitespace.isEmpty() ? " " : precedingWhitespace;
+        element.attributeInternal(name, decodedValue, quote, actualWhitespace, rawValue);
     }
 
     /**
@@ -793,7 +826,7 @@ public class Parser {
                 }
                 // If we can read the XML declaration but no encoding is specified,
                 // and we're trying UTF-8, use it
-                if (StandardCharsets.UTF_8.equals(charset) && xmlString.trim().startsWith("<?xml")) {
+                if (StandardCharsets.UTF_8.equals(charset) && xmlString.trim().startsWith(XML_DECL_PREFIX)) {
                     return charset;
                 }
             } catch (Exception e) {
@@ -808,36 +841,46 @@ public class Parser {
      * Detects Byte Order Mark (BOM) and returns corresponding charset.
      */
     private Charset detectBOM(byte[] bytes) {
-        if (bytes.length >= 3) {
-            // UTF-8 BOM: EF BB BF
-            if (bytes[0] == (byte) 0xEF && bytes[1] == (byte) 0xBB && bytes[2] == (byte) 0xBF) {
-                return StandardCharsets.UTF_8;
-            }
+        Charset charset = detectUtf32BOM(bytes);
+        if (charset != null) {
+            return charset;
         }
+        charset = detectUtf8BOM(bytes);
+        if (charset != null) {
+            return charset;
+        }
+        return detectUtf16BOM(bytes);
+    }
 
+    private Charset detectUtf8BOM(byte[] bytes) {
+        if (bytes.length >= 3 && bytes[0] == (byte) 0xEF && bytes[1] == (byte) 0xBB && bytes[2] == (byte) 0xBF) {
+            return StandardCharsets.UTF_8;
+        }
+        return null;
+    }
+
+    private Charset detectUtf16BOM(byte[] bytes) {
         if (bytes.length >= 2) {
-            // UTF-16 BE BOM: FE FF
             if (bytes[0] == (byte) 0xFE && bytes[1] == (byte) 0xFF) {
                 return StandardCharsets.UTF_16BE;
             }
-            // UTF-16 LE BOM: FF FE
             if (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFE) {
                 return StandardCharsets.UTF_16LE;
             }
         }
+        return null;
+    }
 
+    private Charset detectUtf32BOM(byte[] bytes) {
         if (bytes.length >= 4) {
-            // UTF-32 BE BOM: 00 00 FE FF
             if (bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == (byte) 0xFE && bytes[3] == (byte) 0xFF) {
                 return Charset.forName("UTF-32BE");
             }
-            // UTF-32 LE BOM: FF FE 00 00
             if (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFE && bytes[2] == 0x00 && bytes[3] == 0x00) {
                 return Charset.forName("UTF-32LE");
             }
         }
-
-        return null; // No BOM detected
+        return null;
     }
 
     /**
@@ -849,7 +892,7 @@ public class Parser {
     private String extractEncodingFromXmlDeclaration(String xmlString) {
         // Look for XML declaration at the beginning of the document
         String trimmed = xmlString.trim();
-        if (!trimmed.startsWith("<?xml")) {
+        if (!trimmed.startsWith(XML_DECL_PREFIX)) {
             return null;
         }
 
@@ -877,7 +920,7 @@ public class Parser {
      */
     private void updateDocumentFromXmlDeclaration(Document document, String xmlString) {
         String trimmed = xmlString.trim();
-        if (!trimmed.startsWith("<?xml")) {
+        if (!trimmed.startsWith(XML_DECL_PREFIX)) {
             return;
         }
 

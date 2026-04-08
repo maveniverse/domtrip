@@ -247,4 +247,25 @@ public class XmlRoundTripTest {
         assertTrue(stats.contains("3 elements")); // root, element, another
         assertTrue(stats.contains("comment"));
     }
+
+    @Test
+    void testAttributeWithGreaterThanInValue() throws DomTripException {
+        // Attribute values can contain '>' characters; ensure preserve mode
+        // doesn't truncate the tag at the first '>'
+        String xml = "<root attr=\"a&gt;b\">content</root>";
+        Document doc = Document.of(xml);
+        String result = doc.toXml();
+        assertEquals(xml, result, "Attribute with > entity should round-trip correctly");
+    }
+
+    @Test
+    void testRoundTripPreservesEmptyElementStyles() throws DomTripException {
+        // Self-closing with space
+        String xml1 = "<root><empty /><other /></root>";
+        assertEquals(xml1, Document.of(xml1).toXml());
+
+        // Self-closing without space
+        String xml2 = "<root><empty/><other/></root>";
+        assertEquals(xml2, Document.of(xml2).toXml());
+    }
 }

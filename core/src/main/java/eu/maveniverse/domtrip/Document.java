@@ -78,6 +78,9 @@ import java.util.stream.Collectors;
  */
 public class Document extends ContainerNode {
 
+    /** Default character encoding for XML documents. */
+    private static final String DEFAULT_ENCODING = "UTF-8";
+
     private String xmlDeclaration;
     private String doctype;
     private String doctypePrecedingWhitespace;
@@ -100,7 +103,7 @@ public class Document extends ContainerNode {
         this.xmlDeclaration = "";
         this.doctype = "";
         this.doctypePrecedingWhitespace = "";
-        this.encoding = "UTF-8";
+        this.encoding = DEFAULT_ENCODING;
         this.version = "1.0";
         this.standalone = false;
         this.bom = false;
@@ -126,15 +129,15 @@ public class Document extends ContainerNode {
 
         // Copy root element if it exists
         if (original.root != null) {
-            this.root = original.root.clone();
+            this.root = original.root.copy();
             this.root.parent(this); // Set parent directly
         }
 
         // Deep copy children directly to avoid addNode() side effects
         for (Node child : original.children().collect(Collectors.toList())) {
-            Node clonedChild = child.clone();
-            clonedChild.parent(this); // Set parent directly
-            this.children.add(clonedChild); // Add directly to list
+            Node copiedChild = child.copy();
+            copiedChild.parent(this); // Set parent directly
+            this.children.add(copiedChild); // Add directly to list
         }
 
         // Note: parent is intentionally not copied - clone has no parent
@@ -309,7 +312,7 @@ public class Document extends ContainerNode {
      * @see #encoding()
      */
     public Document encoding(String encoding) {
-        this.encoding = encoding != null ? encoding : "UTF-8";
+        this.encoding = encoding != null ? encoding : DEFAULT_ENCODING;
         markModified();
         return this;
     }
@@ -724,9 +727,26 @@ public class Document extends ContainerNode {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.1.0
+     */
+    @Override
+    public Document copy() {
+        return new Document(this);
+    }
+
+    /**
+     * Creates a deep copy of this document.
+     *
+     * @return a new document that is a copy of this document
+     * @deprecated Use {@link #copy()} instead.
+     */
+    @Deprecated
+    @SuppressWarnings({"java:S2975", "java:S1133"})
     @Override
     public Document clone() {
-        return new Document(this);
+        return copy();
     }
 
     /**
@@ -742,7 +762,7 @@ public class Document extends ContainerNode {
     public static Document withXmlDeclaration(String version, String encoding) {
         return new Document()
                 .version(version != null ? version : "1.0")
-                .encoding(encoding != null ? encoding : "UTF-8")
+                .encoding(encoding != null ? encoding : DEFAULT_ENCODING)
                 .withXmlDeclaration();
     }
 
@@ -760,7 +780,7 @@ public class Document extends ContainerNode {
     public static Document withXmlDeclaration(String version, String encoding, boolean standalone) {
         return new Document()
                 .version(version != null ? version : "1.0")
-                .encoding(encoding != null ? encoding : "UTF-8")
+                .encoding(encoding != null ? encoding : DEFAULT_ENCODING)
                 .standalone(standalone)
                 .withXmlDeclaration();
     }
@@ -777,7 +797,7 @@ public class Document extends ContainerNode {
     public static Document withRootElement(String rootElementName) throws DomTripException {
         return new Document()
                 .version("1.0")
-                .encoding("UTF-8")
+                .encoding(DEFAULT_ENCODING)
                 .root(new Element(rootElementName))
                 .withXmlDeclaration();
     }
@@ -796,7 +816,7 @@ public class Document extends ContainerNode {
     public static Document withDoctype(String version, String encoding, String doctype) {
         return new Document()
                 .version(version != null ? version : "1.0")
-                .encoding(encoding != null ? encoding : "UTF-8")
+                .encoding(encoding != null ? encoding : DEFAULT_ENCODING)
                 .doctype(doctype)
                 .withXmlDeclaration();
     }

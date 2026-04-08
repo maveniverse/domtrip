@@ -16,6 +16,12 @@ import java.util.Map;
  */
 public class NamespaceResolver {
 
+    /** The standard XML namespace URI. */
+    static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
+
+    /** The standard XMLNS namespace URI. */
+    static final String XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
+
     /**
      * Resolves the namespace URI for a given prefix in the context of an element.
      * Walks up the element tree to find namespace declarations.
@@ -56,11 +62,11 @@ public class NamespaceResolver {
         }
 
         // Check for built-in namespaces
-        if ("http://www.w3.org/XML/1998/namespace".equals(namespaceURI)) {
+        if (XML_NAMESPACE_URI.equals(namespaceURI)) {
             return "xml";
         }
-        if ("http://www.w3.org/2000/xmlns/".equals(namespaceURI)) {
-            return "xmlns";
+        if (XMLNS_NAMESPACE_URI.equals(namespaceURI)) {
+            return Element.XMLNS;
         }
 
         // Look for prefix declaration in current element and ancestors
@@ -87,8 +93,7 @@ public class NamespaceResolver {
         }
 
         // Built-in namespaces are always in scope
-        if ("http://www.w3.org/XML/1998/namespace".equals(namespaceURI)
-                || "http://www.w3.org/2000/xmlns/".equals(namespaceURI)) {
+        if (XML_NAMESPACE_URI.equals(namespaceURI) || XMLNS_NAMESPACE_URI.equals(namespaceURI)) {
             return true;
         }
 
@@ -106,36 +111,37 @@ public class NamespaceResolver {
         }
 
         Map<String, String> prefixToUri = new HashMap<>();
-        String defaultNamespaceURI = null;
+        String[] defaultNamespaceURI = {null};
 
         // Collect namespace declarations from element and ancestors
         Element current = element;
         while (current != null) {
-            Map<String, String> attributes = current.attributes();
-
-            for (Map.Entry<String, String> entry : attributes.entrySet()) {
-                String attrName = entry.getKey();
-                String attrValue = entry.getValue();
-
-                if ("xmlns".equals(attrName)) {
-                    // Default namespace declaration
-                    if (defaultNamespaceURI == null) { // Don't override closer declarations
-                        defaultNamespaceURI = attrValue;
-                    }
-                } else if (attrName.startsWith("xmlns:")) {
-                    // Prefixed namespace declaration
-                    String prefix = attrName.substring(6);
-                    if (!prefixToUri.containsKey(prefix)) { // Don't override closer declarations
-                        prefixToUri.put(prefix, attrValue);
-                    }
-                }
-            }
-
+            collectNamespaceDeclarations(current, prefixToUri, defaultNamespaceURI);
             Node parent = current.parent();
             current = (parent instanceof Element) ? (Element) parent : null;
         }
 
-        return new NamespaceContext(prefixToUri, defaultNamespaceURI);
+        return new NamespaceContext(prefixToUri, defaultNamespaceURI[0]);
+    }
+
+    /**
+     * Collects namespace declarations from a single element's attributes.
+     */
+    private static void collectNamespaceDeclarations(
+            Element element, Map<String, String> prefixToUri, String[] defaultNamespaceURI) {
+        for (Map.Entry<String, String> entry : element.attributes().entrySet()) {
+            String attrName = entry.getKey();
+            String attrValue = entry.getValue();
+
+            if (Element.XMLNS.equals(attrName)) {
+                if (defaultNamespaceURI[0] == null) {
+                    defaultNamespaceURI[0] = attrValue;
+                }
+            } else if (attrName.startsWith(Element.XMLNS_PREFIX)) {
+                String prefix = attrName.substring(Element.XMLNS_PREFIX.length());
+                prefixToUri.putIfAbsent(prefix, attrValue);
+            }
+        }
     }
 
     /**
@@ -175,10 +181,10 @@ public class NamespaceResolver {
 
     private static String getBuiltInNamespaceURI(String prefix) {
         if ("xml".equals(prefix)) {
-            return "http://www.w3.org/XML/1998/namespace";
+            return XML_NAMESPACE_URI;
         }
-        if ("xmlns".equals(prefix)) {
-            return "http://www.w3.org/2000/xmlns/";
+        if (Element.XMLNS.equals(prefix)) {
+            return XMLNS_NAMESPACE_URI;
         }
         return null;
     }
@@ -188,10 +194,10 @@ public class NamespaceResolver {
 
         if (prefix == null) {
             // Looking for default namespace
-            return attributes.get("xmlns");
+            return attributes.get(Element.XMLNS);
         } else {
             // Looking for prefixed namespace
-            return attributes.get("xmlns:" + prefix);
+            return attributes.get(Element.XMLNS_PREFIX + prefix);
         }
     }
 
@@ -203,10 +209,10 @@ public class NamespaceResolver {
             String attrValue = entry.getValue();
 
             if (namespaceURI.equals(attrValue)) {
-                if ("xmlns".equals(attrName)) {
+                if (Element.XMLNS.equals(attrName)) {
                     return null; // Default namespace
-                } else if (attrName.startsWith("xmlns:")) {
-                    return attrName.substring(6);
+                } else if (attrName.startsWith(Element.XMLNS_PREFIX)) {
+                    return attrName.substring(Element.XMLNS_PREFIX.length());
                 }
             }
         }

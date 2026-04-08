@@ -129,22 +129,35 @@ public abstract class Node {
     public abstract void toXml(StringBuilder sb);
 
     /**
-     * Creates a deep clone of this node.
+     * Creates a deep copy of this node.
      *
-     * <p>The cloned node will have:</p>
+     * <p>The copied node will have:</p>
      * <ul>
      *   <li>All properties copied from the original</li>
-     *   <li>All child nodes recursively cloned (for container nodes)</li>
+     *   <li>All child nodes recursively copied (for container nodes)</li>
      *   <li>Whitespace and formatting properties preserved</li>
      *   <li>No parent (parent is set to null)</li>
      * </ul>
      *
-     * <p>The cloned node and its descendants will have their parent-child
-     * relationships properly established within the cloned subtree.</p>
+     * <p>The copied node and its descendants will have their parent-child
+     * relationships properly established within the copied subtree.</p>
      *
      * @return a new node that is a deep copy of this node
+     * @since 1.1.0
      */
-    public abstract Node clone();
+    public abstract Node copy();
+
+    /**
+     * Creates a deep copy of this node.
+     *
+     * @return a new node that is a deep copy of this node
+     * @deprecated Use {@link #copy()} instead.
+     */
+    @Deprecated
+    @SuppressWarnings({"java:S2975", "java:S1182", "java:S1133"})
+    public Node clone() {
+        return copy();
+    }
 
     /**
      * Gets the parent container node of this node.

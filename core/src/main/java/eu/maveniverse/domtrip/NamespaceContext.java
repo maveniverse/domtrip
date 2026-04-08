@@ -56,10 +56,10 @@ public class NamespaceContext {
             return defaultNamespaceURI;
         }
         if ("xml".equals(prefix)) {
-            return "http://www.w3.org/XML/1998/namespace";
+            return NamespaceResolver.XML_NAMESPACE_URI;
         }
-        if ("xmlns".equals(prefix)) {
-            return "http://www.w3.org/2000/xmlns/";
+        if (Element.XMLNS.equals(prefix)) {
+            return NamespaceResolver.XMLNS_NAMESPACE_URI;
         }
         return prefixToUri.get(prefix);
     }
@@ -72,11 +72,11 @@ public class NamespaceContext {
         if (namespaceURI == null) {
             return null;
         }
-        if ("http://www.w3.org/XML/1998/namespace".equals(namespaceURI)) {
+        if (NamespaceResolver.XML_NAMESPACE_URI.equals(namespaceURI)) {
             return "xml";
         }
-        if ("http://www.w3.org/2000/xmlns/".equals(namespaceURI)) {
-            return "xmlns";
+        if (NamespaceResolver.XMLNS_NAMESPACE_URI.equals(namespaceURI)) {
+            return Element.XMLNS;
         }
         if (namespaceURI.equals(defaultNamespaceURI)) {
             return null; // Default namespace has no prefix
@@ -93,11 +93,11 @@ public class NamespaceContext {
         if (namespaceURI == null) {
             return Stream.of();
         }
-        if ("http://www.w3.org/XML/1998/namespace".equals(namespaceURI)) {
+        if (NamespaceResolver.XML_NAMESPACE_URI.equals(namespaceURI)) {
             return Stream.of("xml");
         }
-        if ("http://www.w3.org/2000/xmlns/".equals(namespaceURI)) {
-            return Stream.of("xmlns");
+        if (NamespaceResolver.XMLNS_NAMESPACE_URI.equals(namespaceURI)) {
+            return Stream.of(Element.XMLNS);
         }
 
         Set<String> prefixes = uriToPrefixes.get(namespaceURI);
@@ -121,7 +121,7 @@ public class NamespaceContext {
         if (prefix == null) {
             return defaultNamespaceURI != null;
         }
-        return "xml".equals(prefix) || "xmlns".equals(prefix) || prefixToUri.containsKey(prefix);
+        return "xml".equals(prefix) || Element.XMLNS.equals(prefix) || prefixToUri.containsKey(prefix);
     }
 
     /**
@@ -131,8 +131,8 @@ public class NamespaceContext {
         if (namespaceURI == null) {
             return false;
         }
-        return "http://www.w3.org/XML/1998/namespace".equals(namespaceURI)
-                || "http://www.w3.org/2000/xmlns/".equals(namespaceURI)
+        return NamespaceResolver.XML_NAMESPACE_URI.equals(namespaceURI)
+                || NamespaceResolver.XMLNS_NAMESPACE_URI.equals(namespaceURI)
                 || namespaceURI.equals(defaultNamespaceURI)
                 || uriToPrefixes.containsKey(namespaceURI);
     }

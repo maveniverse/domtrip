@@ -496,41 +496,51 @@ public class PomEditor extends AbstractMavenEditor {
          * @since 0.3.0
          */
         public boolean updateManagedDependency(boolean upsert, Coordinates coordinates) throws DomTripException {
-            Element root = root();
-            Element dependencyManagement = findChildElement(root, DEPENDENCY_MANAGEMENT);
-            if (dependencyManagement == null && upsert) {
-                dependencyManagement = insertMavenElement(root, DEPENDENCY_MANAGEMENT);
+            Element dependencyManagement = findOrCreateElement(root(), DEPENDENCY_MANAGEMENT, upsert);
+            if (dependencyManagement == null) {
+                return false;
             }
-            if (dependencyManagement != null) {
-                Element dependencies = findChildElement(dependencyManagement, DEPENDENCIES);
-                if (dependencies == null && upsert) {
-                    dependencies = insertMavenElement(dependencyManagement, DEPENDENCIES);
-                }
-                if (dependencies != null) {
-                    Element dependency = dependencies
-                            .childElements(DEPENDENCY)
-                            .filter(coordinates.predicateGATC())
-                            .findFirst()
-                            .orElse(null);
-                    if (dependency == null && upsert) {
-                        dependency = addDependency(
-                                dependencies, coordinates.groupId(), coordinates.artifactId(), coordinates.version());
-                        // Add type if not default "jar"
-                        if (coordinates.type() != null && !"jar".equals(coordinates.type())) {
-                            insertMavenElement(dependency, TYPE, coordinates.type());
-                        }
-                        // Add classifier if present
-                        if (coordinates.classifier() != null) {
-                            insertMavenElement(dependency, CLASSIFIER, coordinates.classifier());
-                        }
-                        return true;
-                    }
-                    if (dependency != null) {
-                        return updateVersionElement(dependency, coordinates.version());
-                    }
-                }
+            Element dependencies = findOrCreateElement(dependencyManagement, DEPENDENCIES, upsert);
+            if (dependencies == null) {
+                return false;
+            }
+            return updateOrCreateDependencyInContainer(dependencies, upsert, coordinates);
+        }
+
+        private Element findOrCreateElement(Element parent, String childName, boolean create) throws DomTripException {
+            Element child = findChildElement(parent, childName);
+            if (child == null && create) {
+                child = insertMavenElement(parent, childName);
+            }
+            return child;
+        }
+
+        private boolean updateOrCreateDependencyInContainer(
+                Element dependencies, boolean upsert, Coordinates coordinates) throws DomTripException {
+            Element dependency = dependencies
+                    .childElements(DEPENDENCY)
+                    .filter(coordinates.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (dependency == null && upsert) {
+                createNewDependency(dependencies, coordinates);
+                return true;
+            }
+            if (dependency != null) {
+                return updateVersionElement(dependency, coordinates.version());
             }
             return false;
+        }
+
+        private void createNewDependency(Element dependencies, Coordinates coordinates) throws DomTripException {
+            Element dependency =
+                    addDependency(dependencies, coordinates.groupId(), coordinates.artifactId(), coordinates.version());
+            if (coordinates.type() != null && !"jar".equals(coordinates.type())) {
+                insertMavenElement(dependency, TYPE, coordinates.type());
+            }
+            if (coordinates.classifier() != null) {
+                insertMavenElement(dependency, CLASSIFIER, coordinates.classifier());
+            }
         }
 
         /**
@@ -587,39 +597,32 @@ public class PomEditor extends AbstractMavenEditor {
          * @since 0.3.0
          */
         public boolean updateDependency(boolean upsert, Coordinates coordinates) throws DomTripException {
-            Element dependencies = findChildElement(root(), DEPENDENCIES);
-            if (dependencies == null && upsert) {
-                dependencies = insertMavenElement(root(), DEPENDENCIES);
+            Element dependencies = findOrCreateElement(root(), DEPENDENCIES, upsert);
+            if (dependencies == null) {
+                return false;
             }
-            if (dependencies != null) {
-                Element dependency = dependencies
-                        .childElements(DEPENDENCY)
-                        .filter(coordinates.predicateGATC())
-                        .findFirst()
-                        .orElse(null);
-                if (dependency == null && upsert) {
-                    dependency = addDependency(
-                            dependencies, coordinates.groupId(), coordinates.artifactId(), coordinates.version());
-                    // Add type if not default "jar"
-                    if (coordinates.type() != null && !"jar".equals(coordinates.type())) {
-                        insertMavenElement(dependency, TYPE, coordinates.type());
-                    }
-                    // Add classifier if present
-                    if (coordinates.classifier() != null) {
-                        insertMavenElement(dependency, CLASSIFIER, coordinates.classifier());
-                    }
-                    return true;
-                }
-                if (dependency != null) {
-                    java.util.Optional<Element> version = dependency.childElement(VERSION);
-                    if (version.isPresent()) {
-                        return updateVersionElement(dependency, coordinates.version());
-                    } else {
-                        return updateManagedDependency(false, coordinates);
-                    }
-                }
+
+            Element dependency = dependencies
+                    .childElements(DEPENDENCY)
+                    .filter(coordinates.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (dependency == null && upsert) {
+                createNewDependency(dependencies, coordinates);
+                return true;
+            }
+            if (dependency != null) {
+                return updateExistingDependency(dependency, coordinates);
             }
             return false;
+        }
+
+        private boolean updateExistingDependency(Element dependency, Coordinates coordinates) throws DomTripException {
+            java.util.Optional<Element> version = dependency.childElement(VERSION);
+            if (version.isPresent()) {
+                return updateVersionElement(dependency, coordinates.version());
+            }
+            return updateManagedDependency(false, coordinates);
         }
 
         /**

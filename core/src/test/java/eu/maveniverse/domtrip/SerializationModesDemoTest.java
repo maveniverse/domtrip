@@ -1,5 +1,6 @@
 package eu.maveniverse.domtrip;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
@@ -99,6 +100,9 @@ class SerializationModesDemoTest {
         System.out.println("Contains line breaks: " + modifiedRaw.contains("\n"));
 
         assertNotNull(modifiedRaw);
+        assertNotNull(modifiedPreserve);
+        assertNotNull(modifiedPretty);
+        assertEquals(originalXml, preserveResult, "Preserve mode should produce identical output");
     }
 
     @Test

@@ -84,11 +84,13 @@ class MavenPomElementsTest {
 
     @Test
     void testSchemaLocationConstants() {
-        String expected400 = "http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd";
-        assertEquals(expected400, MavenPomElements.SchemaLocations.MAVEN_4_0_0_SCHEMA_LOCATION);
+        assertEquals(
+                "http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd",
+                MavenPomElements.SchemaLocations.MAVEN_4_0_0_SCHEMA_LOCATION);
 
-        String expected410 = "http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd";
-        assertEquals(expected410, MavenPomElements.SchemaLocations.MAVEN_4_1_0_SCHEMA_LOCATION);
+        assertEquals(
+                "http://maven.apache.org/POM/4.1.0 https://maven.apache.org/xsd/maven-4.1.0.xsd",
+                MavenPomElements.SchemaLocations.MAVEN_4_1_0_SCHEMA_LOCATION);
     }
 
     @Test

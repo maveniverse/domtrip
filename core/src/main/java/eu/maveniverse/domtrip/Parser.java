@@ -409,6 +409,14 @@ public class Parser {
             document.addChildInternal(trailingWhitespace);
         }
 
+        // Check for unclosed elements
+        if (nodeStack.size() > 1) {
+            Node unclosed = nodeStack.peek();
+            if (unclosed instanceof Element) {
+                throw new DomTripException("Unclosed element '<" + ((Element) unclosed).name() + ">'");
+            }
+        }
+
         // Set the document element (first element child)
         for (Node child : document.children) {
             if (child instanceof Element) {
@@ -501,12 +509,14 @@ public class Parser {
         throw new DomTripException("Unclosed DOCTYPE declaration", position, xml);
     }
 
-    private void skipDeclaration() {
+    private void skipDeclaration() throws DomTripException {
         while (position < length && xml.charAt(position) != '>') {
             position++;
         }
         if (position < length) {
             position++; // Skip '>'
+        } else {
+            throw new DomTripException("Unclosed declaration", position, xml);
         }
     }
 
@@ -564,6 +574,8 @@ public class Parser {
 
         if (position < length && xml.charAt(position) == '>') {
             position++; // Skip '>'
+        } else {
+            throw new DomTripException("Unclosed opening tag '" + elementName + "'", position, xml);
         }
 
         // Store original tag content for formatting preservation
@@ -619,7 +631,7 @@ public class Parser {
         }
     }
 
-    private Element parseClosingTag(Deque<Node> nodeStack) {
+    private Element parseClosingTag(Deque<Node> nodeStack) throws DomTripException {
         int start = position; // Remember start position for original tag capture
         position += 2; // Skip "</"
 
@@ -642,15 +654,18 @@ public class Parser {
             position++;
         }
 
-        if (position < length) {
-            position++; // Skip '>'
+        if (position >= length) {
+            throw new DomTripException(
+                    "Unclosed closing tag '</" + name.toString().trim() + ">'", position, xml);
         }
+        position++; // Skip '>'
 
         // Pop from stack if names match
+        String closingName = name.toString().trim();
         Node currentNode;
         if (!nodeStack.isEmpty() && (currentNode = nodeStack.peek()) instanceof Element) {
             Element element = (Element) currentNode;
-            if (element.name().equals(name.toString().trim())) {
+            if (element.name().equals(closingName)) {
                 // Capture the original close tag for whitespace preservation (AFTER consuming all content)
                 element.originalCloseTag(xml.substring(start, position));
 
@@ -662,8 +677,12 @@ public class Parser {
                 nodeStack.pop();
                 return element; // Return the closed element
             }
+            throw new DomTripException(
+                    "Mismatched closing tag: expected '</" + element.name() + ">' but found '</" + closingName + ">'",
+                    position,
+                    xml);
         }
-        return null; // No element was closed
+        throw new DomTripException("Unexpected closing tag '</" + closingName + ">'", position, xml);
     }
 
     /**

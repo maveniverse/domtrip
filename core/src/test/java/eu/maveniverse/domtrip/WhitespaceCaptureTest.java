@@ -44,7 +44,7 @@ class WhitespaceCaptureTest {
     @Test
     void testElementOpenTagWhitespace() throws DomTripException {
         // Test whitespace inside opening tags
-        String xml = "<element   attr='value'   >";
+        String xml = "<element   attr='value'   ></element>";
 
         Document doc = Document.of(xml);
         Element element = doc.root();
@@ -76,7 +76,7 @@ class WhitespaceCaptureTest {
     @Test
     void testAttributeWhitespaceAroundEquals() throws DomTripException {
         // Test whitespace around '=' in attributes
-        String xml = "<element attr1  =  'value1' attr2='value2' attr3   =   \"value3\">";
+        String xml = "<element attr1  =  'value1' attr2='value2' attr3   =   \"value3\"></element>";
 
         Document doc = Document.of(xml);
         Element element = doc.root();
@@ -101,7 +101,7 @@ class WhitespaceCaptureTest {
     @Test
     void testAttributePrecedingWhitespace() throws DomTripException {
         // Test various patterns of whitespace before attributes
-        String xml = "<element  attr1='value1'   attr2=\"value2\"\n    attr3='value3'>";
+        String xml = "<element  attr1='value1'   attr2=\"value2\"\n    attr3='value3'></element>";
 
         Document doc = Document.of(xml);
         Element element = doc.root();

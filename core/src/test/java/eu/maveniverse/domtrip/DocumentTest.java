@@ -431,17 +431,13 @@ public class DocumentTest {
     }
 
     @Test
-    void testDocumentOfPathMalformedXml(@TempDir Path tempDir) throws IOException, DomTripException {
-        // Based on ErrorHandlingTest, the parser handles malformed XML gracefully
+    void testDocumentOfPathMalformedXml(@TempDir Path tempDir) throws IOException {
+        // Malformed XML with unclosed elements should throw
         String malformedXml = "<root><unclosed>";
         Path xmlFile = tempDir.resolve("malformed.xml");
         Files.writeString(xmlFile, malformedXml);
 
-        // Should not throw - parser handles this gracefully
-        Document doc = Document.of(xmlFile);
-        assertNotNull(doc);
-        assertNotNull(doc.root());
-        assertEquals("root", doc.root().name());
+        assertThrows(DomTripException.class, () -> Document.of(xmlFile));
     }
 
     @Test

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
  * Tests that verify DomTrip's round-tripping capabilities.
  * All tests in this class verify perfect round-tripping with zero data loss.
  */
+@SuppressWarnings("java:S5976")
 class XmlConformanceLimitationsTest {
 
     // ========== PREVIOUSLY PROBLEMATIC CASES - NOW FIXED! ==========

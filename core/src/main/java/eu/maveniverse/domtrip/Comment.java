@@ -151,15 +151,6 @@ public class Comment extends Node {
     }
 
     /**
-     * Serializes this comment to an XML string.
-     *
-     * <p>Creates the complete XML comment including the delimiters and
-     * any surrounding whitespace.</p>
-     *
-     * @return the XML string representation of this comment
-     * @see #toXml(StringBuilder)
-     */
-    /**
      * Serializes this comment to XML, appending to the provided StringBuilder.
      *
      * <p>Appends the complete comment including preceding whitespace,
@@ -215,7 +206,7 @@ public class Comment extends Node {
      * @deprecated Use {@link #copy()} instead.
      */
     @Deprecated
-    @SuppressWarnings({"java:S2975", "java:S1133"})
+    @SuppressWarnings({"java:S2975", "java:S1133", "java:S1182"})
     @Override
     public Comment clone() {
         return copy();

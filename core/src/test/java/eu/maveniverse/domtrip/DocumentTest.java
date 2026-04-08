@@ -237,6 +237,7 @@ class DocumentTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5778")
     void testDocumentFindElementWithNullName() throws DomTripException {
         String xml = "<root><child/></root>";
 

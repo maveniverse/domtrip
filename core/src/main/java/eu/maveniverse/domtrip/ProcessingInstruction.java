@@ -195,7 +195,7 @@ public class ProcessingInstruction extends Node {
      * @deprecated Use {@link #copy()} instead.
      */
     @Deprecated
-    @SuppressWarnings({"java:S2975", "java:S1133"})
+    @SuppressWarnings({"java:S2975", "java:S1133", "java:S1182"})
     @Override
     public ProcessingInstruction clone() {
         return copy();

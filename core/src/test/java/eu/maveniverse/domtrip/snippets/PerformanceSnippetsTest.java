@@ -84,7 +84,7 @@ class PerformanceSnippetsTest extends BaseSnippetTest {
     }
 
     @Test
-    void demonstrateLargeDocumentProcessing() throws DomTripException, IOException {
+    void demonstrateLargeDocumentProcessing() throws DomTripException {
         // START: large-document-processing
         // Strategy 1: Process in sections
         String xmlContent = createTestXml("root");
@@ -95,7 +95,7 @@ class PerformanceSnippetsTest extends BaseSnippetTest {
         Assertions.assertTrue(true);
     }
 
-    void processLargeDocument(String xmlContent) throws DomTripException, IOException {
+    void processLargeDocument(String xmlContent) throws DomTripException {
         // Check content size first
         long contentSize = xmlContent.length();
 
@@ -115,12 +115,7 @@ class PerformanceSnippetsTest extends BaseSnippetTest {
         Element root = editor.root();
 
         // Use streaming iteration for large collections
-        root.childElements().forEach(child -> {
-            // Process each child individually
-            processElement(child);
-
-            // Optionally clear processed elements to free memory
-        });
+        root.childElements().forEach(this::processElement);
     }
 
     private void processNormally(String xmlContent) throws DomTripException {
@@ -161,8 +156,6 @@ class PerformanceSnippetsTest extends BaseSnippetTest {
     }
 
     void optimizedBatchUpdate(Editor editor, List<ElementData> updates) throws DomTripException {
-        Element root = editor.root();
-
         // Group operations by parent for better performance
         Map<Element, List<ElementData>> groupedUpdates =
                 updates.stream().collect(Collectors.groupingBy(ElementData::getParent));
@@ -190,7 +183,7 @@ class PerformanceSnippetsTest extends BaseSnippetTest {
     }
 
     @Test
-    void demonstratePerformanceTesting() throws IOException {
+    void demonstratePerformanceTesting() {
         // START: performance-testing
         DomTripBenchmark benchmark = new DomTripBenchmark();
         benchmark.benchmarkParsing();

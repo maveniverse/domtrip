@@ -585,7 +585,7 @@ public class Serializer {
                 serializeElementPretty((Element) node, sb, depth);
                 break;
             case TEXT:
-                serializeTextPretty((Text) node, sb, depth);
+                serializeTextPretty((Text) node, sb);
                 break;
             case COMMENT:
                 if (preserveComments) {
@@ -703,7 +703,7 @@ public class Serializer {
         }
     }
 
-    private void serializeTextPretty(Text text, StringBuilder sb, int depth) {
+    private void serializeTextPretty(Text text, StringBuilder sb) {
         // For pretty printing, we might want to trim whitespace-only text nodes
         if (text.isWhitespaceOnly() && prettyPrint) {
             return; // Skip whitespace-only text in pretty print mode
@@ -746,15 +746,6 @@ public class Serializer {
             sb.append(" ").append(pi.data());
         }
         sb.append("?>");
-    }
-
-    private String escapeAttributeValue(String value) {
-        if (value == null) return "";
-        return value.replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&apos;");
     }
 
     private String escapeTextContent(String text) {

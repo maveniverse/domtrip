@@ -339,6 +339,7 @@ public class Text extends Node {
     /**
      * Unescapes XML entities in text content, including numeric character references
      */
+    @SuppressWarnings("java:S135") // Multiple continue statements are natural for this single-pass scanner
     public static String unescapeTextContent(String text) {
         if (text == null) return "";
 
@@ -478,7 +479,7 @@ public class Text extends Node {
      * @deprecated Use {@link #copy()} instead.
      */
     @Deprecated
-    @SuppressWarnings({"java:S2975", "java:S1133"})
+    @SuppressWarnings({"java:S2975", "java:S1133", "java:S1182"})
     @Override
     public Text clone() {
         return copy();

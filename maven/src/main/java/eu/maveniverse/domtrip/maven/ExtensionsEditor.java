@@ -16,6 +16,7 @@ import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -268,11 +269,9 @@ public class ExtensionsEditor extends AbstractMavenEditor {
     @Override
     protected List<String> getOrderListForParent(Element parent) {
         String parentName = parent.name();
-        switch (parentName) {
-            case EXTENSION:
-                return EXTENSION_ELEMENT_ORDER;
-            default:
-                return null;
+        if (EXTENSION.equals(parentName)) {
+            return EXTENSION_ELEMENT_ORDER;
         }
+        return Collections.emptyList();
     }
 }

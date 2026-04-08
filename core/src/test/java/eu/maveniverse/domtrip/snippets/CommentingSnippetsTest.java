@@ -161,6 +161,7 @@ class CommentingSnippetsTest extends BaseSnippetTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5778")
     void demonstrateErrorHandling() throws DomTripException {
         Document doc = Document.of("<project><child1/></project>");
         Editor editor = new Editor(doc);

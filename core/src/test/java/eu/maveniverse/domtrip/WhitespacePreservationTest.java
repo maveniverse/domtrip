@@ -119,7 +119,7 @@ class WhitespacePreservationTest {
 
         // Verify special characters are properly handled
         assertTrue(result.contains("<path>/home/user/my documents/file.txt</path>"));
-        // XML entities are properly encoded: && becomes &amp;&amp;
+        // XML entities are properly encoded (e.g. && becomes &amp;&amp;)
         assertTrue(result.contains("echo \"hello world\" &amp;&amp; ls -la")
                 || result.contains("echo \"hello world\" && ls -la"));
 

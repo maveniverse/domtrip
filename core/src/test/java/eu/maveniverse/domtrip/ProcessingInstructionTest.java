@@ -103,17 +103,6 @@ class ProcessingInstructionTest {
 
         Document doc = Document.of(xml);
 
-        // Check that processing instructions are preserved in document
-        boolean foundStylesheet = false;
-        for (Node child : doc.children) {
-            if (child instanceof ProcessingInstruction) {
-                ProcessingInstruction pi = (ProcessingInstruction) child;
-                if (pi.originalContent().contains("xml-stylesheet")) {
-                    foundStylesheet = true;
-                    break;
-                }
-            }
-        }
         // PI may not be found in children if handled differently
         assertNotNull(doc); // Just verify document was parsed
     }

@@ -58,8 +58,8 @@ public class SnippetProcessor {
             Pattern.compile("\\s*//\\s*(?:END:|end-snippet:)\\s*([a-zA-Z0-9-_]+)\\s*");
 
     private final Map<String, String> snippetCache = new HashMap<>();
-    private volatile long lastModified = 0;
-    private volatile Path[] snippetsDirectories = null;
+    private long lastModified = 0;
+    private Path[] snippetsDirectories = null;
 
     /**
      * Initialize snippets on startup for better performance.
@@ -157,25 +157,6 @@ public class SnippetProcessor {
             }
         }
         return maxModified;
-    }
-
-    private void loadSnippets() throws IOException {
-        if (snippetsDirectories == null || snippetsDirectories.length == 0) {
-            Log.warn("No snippets directories available");
-            return;
-        }
-
-        for (Path snippetsDirectory : snippetsDirectories) {
-            if (Files.exists(snippetsDirectory)) {
-                try (Stream<Path> files = Files.walk(snippetsDirectory)) {
-                    files.filter(path -> path.toString().endsWith(".java"))
-                            .forEach(path -> processFile(path, snippetCache));
-                }
-                Log.infof("Loaded snippets from %s", snippetsDirectory);
-            }
-        }
-
-        Log.infof("Total loaded %d code snippets from %d directories", snippetCache.size(), snippetsDirectories.length);
     }
 
     private Map<String, String> loadSnippetsIntoNewMap() throws IOException {

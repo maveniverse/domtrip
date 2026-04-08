@@ -188,6 +188,7 @@ class BuilderApiTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5778")
     void testEditorBuilderRequiresParent() throws DomTripException {
         editor.createDocument("root");
 

@@ -17,6 +17,7 @@ import eu.maveniverse.domtrip.DomTripException;
 import eu.maveniverse.domtrip.Editor;
 import eu.maveniverse.domtrip.Element;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -253,11 +254,9 @@ public class ToolchainsEditor extends AbstractMavenEditor {
     @Override
     protected List<String> getOrderListForParent(Element parent) {
         String parentName = parent.name();
-        switch (parentName) {
-            case TOOLCHAIN:
-                return TOOLCHAIN_ELEMENT_ORDER;
-            default:
-                return null;
+        if (TOOLCHAIN.equals(parentName)) {
+            return TOOLCHAIN_ELEMENT_ORDER;
         }
+        return Collections.emptyList();
     }
 }

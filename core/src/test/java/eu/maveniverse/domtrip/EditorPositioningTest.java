@@ -192,6 +192,7 @@ class EditorPositioningTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5778")
     void testInsertElementAtInvalidIndex() throws DomTripException {
         String xml = "<root><child/></root>";
 

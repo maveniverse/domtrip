@@ -2,6 +2,7 @@ package eu.maveniverse.domtrip;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -176,10 +177,9 @@ class EnhancedNavigationTest {
         assertTrue(textChild.isPresent());
         assertEquals("com.example", textChild.orElseThrow().content());
 
-        // Test element without text child
+        // Test element without direct text content - dependencies only has child elements
         Element dependencies = root.childElement("dependencies").orElseThrow();
-        Optional<Text> noTextChild = dependencies.textChild();
-        // May or may not have text child depending on whitespace handling
+        assertNotNull(dependencies.textChild());
     }
 
     @Test

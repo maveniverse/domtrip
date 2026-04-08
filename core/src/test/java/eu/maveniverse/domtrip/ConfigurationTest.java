@@ -97,9 +97,7 @@ class ConfigurationTest {
         assertEquals(QuoteStyle.DOUBLE, QuoteStyle.fromChar('"'));
         assertEquals(QuoteStyle.SINGLE, QuoteStyle.fromChar('\''));
 
-        assertThrows(DomTripException.class, () -> {
-            QuoteStyle.fromChar('x');
-        });
+        assertThrows(DomTripException.class, () -> QuoteStyle.fromChar('x'));
 
         assertEquals("\"", QuoteStyle.DOUBLE.toString());
         assertEquals("'", QuoteStyle.SINGLE.toString());

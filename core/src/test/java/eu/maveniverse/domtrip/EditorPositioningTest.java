@@ -200,46 +200,34 @@ class EditorPositioningTest {
         Element root = doc.root();
 
         // Test negative index
-        assertThrows(DomTripException.class, () -> {
-            editor.insertElementAt(root, -1, "invalid");
-        });
+        assertThrows(DomTripException.class, () -> editor.insertElementAt(root, -1, "invalid"));
 
         // Test index too large
-        assertThrows(DomTripException.class, () -> {
-            editor.insertElementAt(root, root.childCount() + 1, "invalid");
-        });
+        assertThrows(DomTripException.class, () -> editor.insertElementAt(root, root.childCount() + 1, "invalid"));
     }
 
     @Test
     void testInsertElementBeforeNullReference() {
-        assertThrows(DomTripException.class, () -> {
-            editor.insertElementBefore(null, "newElement");
-        });
+        assertThrows(DomTripException.class, () -> editor.insertElementBefore(null, "newElement"));
     }
 
     @Test
     void testInsertElementAfterNullReference() {
-        assertThrows(DomTripException.class, () -> {
-            editor.insertElementAfter(null, "newElement");
-        });
+        assertThrows(DomTripException.class, () -> editor.insertElementAfter(null, "newElement"));
     }
 
     @Test
     void testInsertElementBeforeOrphanElement() throws DomTripException {
         Element orphan = new Element("orphan");
 
-        assertThrows(DomTripException.class, () -> {
-            editor.insertElementBefore(orphan, "newElement");
-        });
+        assertThrows(DomTripException.class, () -> editor.insertElementBefore(orphan, "newElement"));
     }
 
     @Test
     void testInsertElementAfterOrphanElement() throws DomTripException {
         Element orphan = new Element("orphan");
 
-        assertThrows(DomTripException.class, () -> {
-            editor.insertElementAfter(orphan, "newElement");
-        });
+        assertThrows(DomTripException.class, () -> editor.insertElementAfter(orphan, "newElement"));
     }
 
     @Test
@@ -307,17 +295,11 @@ class EditorPositioningTest {
         editor = new Editor(doc);
         Element root = doc.root();
 
-        assertThrows(DomTripException.class, () -> {
-            editor.insertElementAt(root, 0, null);
-        });
+        assertThrows(DomTripException.class, () -> editor.insertElementAt(root, 0, null));
 
-        assertThrows(DomTripException.class, () -> {
-            editor.insertElementAt(root, 0, "");
-        });
+        assertThrows(DomTripException.class, () -> editor.insertElementAt(root, 0, ""));
 
-        assertThrows(DomTripException.class, () -> {
-            editor.insertElementAt(root, 0, "   ");
-        });
+        assertThrows(DomTripException.class, () -> editor.insertElementAt(root, 0, "   "));
     }
 
     @Test

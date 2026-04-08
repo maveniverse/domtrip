@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
  * Code snippets demonstrating DomTrip's builder patterns and fluent APIs.
  * These snippets are extracted and used in the documentation.
  */
-class BuilderPatternsSnippets extends BaseSnippetTest {
+class BuilderPatternsSnippetsTest extends BaseSnippetTest {
 
     @Test
     void fluentInterfaceDesign() throws DomTripException {
@@ -49,8 +49,7 @@ class BuilderPatternsSnippets extends BaseSnippetTest {
         // Create from existing XML
         Editor editor2 = new Editor(Document.of("<root></root>"));
 
-        // Create from file (example)
-        // Editor editor3 = new Editor(Document.of(new String(Files.readAllBytes(Path.of("document.xml"))));
+        // Create from file using Document.of(Path.of("document.xml"))
         // end-snippet:document-creation
 
         Assertions.assertNotNull(editor);

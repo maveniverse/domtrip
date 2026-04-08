@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Code snippets for Element API documentation.
  */
-class ElementApiSnippets {
+class ElementApiSnippetsTest {
 
     @Test
     void demonstrateElementCreation() throws DomTripException {
@@ -19,7 +19,9 @@ class ElementApiSnippets {
         Element withNamespace = Element.of(QName.of("http://maven.apache.org/POM/4.0.0", "project"));
 
         // Create empty element
-        new Element("placeholder");
+        Element empty = new Element("placeholder");
+        Assertions.assertNotNull(empty);
+        Assertions.assertNotNull(empty);
         // END: element-creation
 
         Assertions.assertEquals("dependency", simple.name());
@@ -270,11 +272,12 @@ class ElementApiSnippets {
         // Access namespace information
         String namespaceURI = project.namespaceURI();
         String localName = project.localName();
-        project.prefix();
+        String prefix = project.prefix();
         // end-snippet:namespace-operations
 
         Assertions.assertEquals("http://maven.apache.org/POM/4.0.0", namespaceURI);
         Assertions.assertEquals("project", localName);
+        Assertions.assertNull(prefix);
     }
 
     @Test
@@ -282,7 +285,8 @@ class ElementApiSnippets {
         // snippet:qname-support
         // Create QName with namespace
         QName projectQName = QName.of("http://maven.apache.org/POM/4.0.0", "project");
-        Element.of(projectQName);
+        Element project = Element.of(projectQName);
+        Assertions.assertNotNull(project);
 
         // Create QName with prefix
         QName xsiQName = QName.of("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation", "xsi");

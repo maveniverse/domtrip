@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for Editor API documentation.
  */
-class EditorApiSnippets extends BaseSnippetTest {
+class EditorApiSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateBasicEditorUsage() throws DomTripException {
@@ -225,7 +225,9 @@ class EditorApiSnippets extends BaseSnippetTest {
         String xml = "<project><version>1.0</version></project>";
         Editor editor = new Editor(Document.of(xml));
         Element parent = editor.root();
-        parent.childElement("version").orElse(null);
+        Element version = parent.childElement("version").orElse(null);
+        Assertions.assertNotNull(version);
+        Assertions.assertNotNull(version);
 
         // Add comment as child
         editor.addComment(parent, " This is a comment ");
@@ -269,6 +271,7 @@ class EditorApiSnippets extends BaseSnippetTest {
         try {
             String malformedXml = "<root><unclosed>";
             Editor editor = new Editor(Document.of(malformedXml));
+            Assertions.assertNotNull(editor);
             // ... editing operations
         } catch (DomTripException e) {
             // Handle parsing/editing errors
@@ -315,9 +318,6 @@ class EditorApiSnippets extends BaseSnippetTest {
                 "artifactId", "my-app");
         editor.addElements(parent, properties);
 
-        // ❌ Less efficient individual operations (shown for comparison)
-        // editor.addElement(parent, "groupId", "com.example");
-        // editor.addElement(parent, "artifactId", "my-app");
         // END: best-practices
 
         Assertions.assertEquals(
@@ -425,6 +425,7 @@ class EditorApiSnippets extends BaseSnippetTest {
         // Create document with root element
         editor.createDocument("project");
         Element newRoot = editor.root(); // <project></project>
+        Assertions.assertNotNull(newRoot);
 
         // Serialize to XML
         String xml = editor.toXml();
@@ -528,7 +529,10 @@ class EditorApiSnippets extends BaseSnippetTest {
         // START: specific-exception-handling
         // ✅ Specific exception handling
         try {
-            Document.of("<root/>");
+            String xmlContent = "<root><unclosed>";
+            Document doc = Document.of(xmlContent);
+            Editor editor = new Editor(doc);
+            Assertions.assertNotNull(editor);
         } catch (DomTripException e) {
             // Handle DomTrip errors (including parsing errors)
             System.err.println("DomTrip error: " + e.getMessage());

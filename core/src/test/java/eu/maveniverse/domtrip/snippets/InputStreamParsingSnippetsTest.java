@@ -15,16 +15,12 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Input Stream Parsing documentation.
  */
-class InputStreamParsingSnippets extends BaseSnippetTest {
+class InputStreamParsingSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateParsingFromFile() throws Exception {
         // START: parsing-from-file
-        // Parse XML file with automatic encoding detection
-        // Path xmlFile = Path.of("config.xml");
-        // Document doc = Document.of(xmlFile);
-
-        // For testing, use string content
+        // Parse XML with automatic encoding detection (using string content for testing)
         String xmlContent = createConfigXml();
         Document doc = Document.of(xmlContent);
 
@@ -46,7 +42,9 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
             Editor editor = new Editor(doc);
 
             // Process the document
-            editor.root();
+            Element root = editor.root();
+            Assertions.assertNotNull(root);
+            Assertions.assertNotNull(root);
             // ... edit operations
         }
         // END: parsing-from-inputstream
@@ -58,18 +56,12 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
     @Test
     void demonstrateParsingFromNetwork() throws Exception {
         // START: parsing-from-network
-        // Parse XML from network resource
-        // URL xmlUrl = new URL("https://example.com/api/data.xml");
-        // try (InputStream stream = xmlUrl.openStream()) {
-        //     Document doc = Document.of(stream);
-        //     Editor editor = new Editor(doc);
-        //
-        //     // Network XML is parsed with encoding detection
-        // }
-
-        // For testing, simulate network content
+        // Parse XML from network resource (simulated with byte array for testing)
         String xmlContent = createTestXml("networkData");
         try (InputStream stream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8))) {
+            Document doc = Document.of(stream);
+            Editor editor = new Editor(doc);
+            Assertions.assertNotNull(editor);
 
             // Network XML is parsed with encoding detection
         }
@@ -92,6 +84,7 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
         try (InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8))) {
             Document doc = Document.of(inputStream);
             String detectedEncoding = doc.encoding(); // "UTF-8", "UTF-16", etc.
+            Assertions.assertNotNull(detectedEncoding);
         }
         // END: automatic-encoding-detection
 
@@ -105,17 +98,20 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
         // UTF-8 (most common)
         String utf8Content = createTestXml("utf8");
         try (InputStream utf8Stream = new ByteArrayInputStream(utf8Content.getBytes(StandardCharsets.UTF_8))) {
-            Assertions.assertNotNull(Document.of(utf8Stream));
+            Document utf8Doc = Document.of(utf8Stream);
+            Assertions.assertNotNull(utf8Doc);
         }
 
         // UTF-16 with BOM
         try (InputStream utf16Stream = new ByteArrayInputStream(utf8Content.getBytes(StandardCharsets.UTF_16))) {
-            Assertions.assertNotNull(Document.of(utf16Stream));
+            Document utf16Doc = Document.of(utf16Stream);
+            Assertions.assertNotNull(utf16Doc);
         }
 
         // ISO-8859-1 (Latin-1)
         try (InputStream isoStream = new ByteArrayInputStream(utf8Content.getBytes(StandardCharsets.ISO_8859_1))) {
-            Assertions.assertNotNull(Document.of(isoStream));
+            Document isoDoc = Document.of(isoStream);
+            Assertions.assertNotNull(isoDoc);
         }
 
         // All Java-supported encodings work
@@ -159,12 +155,14 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
 
             // Process in chunks or specific elements
             Element root = editor.root();
+            Assertions.assertNotNull(root);
 
             // Modify only what's needed
             editor.setAttribute(root, "processed", "true");
 
             // Save back to file (in real scenario)
             String result = editor.toXml();
+            Assertions.assertNotNull(result);
 
         } catch (Exception e) {
             System.err.println("Failed to process large file: " + e.getMessage());
@@ -178,24 +176,15 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
     @Test
     void demonstrateCustomStreamSources() throws Exception {
         // START: custom-stream-sources
-        // Parse from compressed streams
-        // try (InputStream gzipStream = new GZIPInputStream(
-        //         new FileInputStream("data.xml.gz"))) {
-        //     Document doc = Document.of(gzipStream);
-        //     // Compressed XML is automatically decompressed and parsed
-        // }
-
-        // For testing, simulate compressed content
+        // Parse from compressed streams (simulated with byte array for testing)
         String xmlContent = createTestXml("compressed");
         try (InputStream stream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8))) {
+            Document doc = Document.of(stream);
+            Assertions.assertNotNull(doc);
             // Simulated compressed XML processing
         }
 
-        // Parse from database BLOB (simulated)
-        // try (InputStream blobStream = resultSet.getBinaryStream("xml_data")) {
-        //     Document doc = Document.of(blobStream);
-        //     // Database XML content is parsed with encoding detection
-        // }
+        // Parse from database BLOB is also supported via InputStream
         // END: custom-stream-sources
 
         // Test passes if no exception is thrown
@@ -208,7 +197,9 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
         try {
             String xmlContent = createTestXml("root");
             try (InputStream inputStream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8))) {
-                Assertions.assertNotNull(Document.of(inputStream));
+                Document doc = Document.of(inputStream);
+                Editor editor = new Editor(doc);
+                Assertions.assertNotNull(editor);
             }
 
         } catch (Exception e) {
@@ -236,6 +227,8 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
         String xmlContent = createTestXml("large");
         try (InputStream buffered =
                 new BufferedInputStream(new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8)), 8192)) {
+            Document doc = Document.of(buffered);
+            Assertions.assertNotNull(doc);
             // Buffering improves read performance
         }
         // END: buffered-streams
@@ -268,20 +261,7 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
     @Test
     void demonstrateConfigurationFiles() throws DomTripException {
         // START: configuration-files
-        // Load application configuration
-        // Path configPath = Path.of("app-config.xml");
-        // if (Files.exists(configPath)) {
-        //     Document config = Document.of(configPath);
-        //     Editor editor = new Editor(config);
-        //
-        //     // Read configuration values
-        //     String dbUrl = editor.findElement("database")
-        //         .flatMap(db -> db.child("url"))
-        //         .map(Element::textContent)
-        //         .orElse("default-url");
-        // }
-
-        // For testing, use simulated config
+        // Load and read application configuration
         String configXml = createConfigXml();
         Document config = Document.of(configXml);
         Editor editor = new Editor(config);
@@ -300,25 +280,15 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
     @Test
     void demonstrateWebServiceResponses() throws Exception {
         // START: web-service-responses
-        // Parse XML response from web service
-        // HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        // try (InputStream response = connection.getInputStream()) {
-        //     Document doc = Document.of(response);
-        //     Editor editor = new Editor(doc);
-        //
-        //     // Process response data
-        //     Element result = editor.findElement("result");
-        //     // ... extract data
-        // }
-
-        // For testing, simulate web service response
+        // Parse XML response from web service (simulated for testing)
         String responseXml = "<response><result>success</result></response>";
         try (InputStream response = new ByteArrayInputStream(responseXml.getBytes(StandardCharsets.UTF_8))) {
             Document doc = Document.of(response);
             Editor editor = new Editor(doc);
 
             // Process response data
-            editor.root().childElement("result").orElse(null);
+            Element result = editor.root().childElement("result").orElse(null);
+            Assertions.assertNotNull(result);
             // ... extract data
         }
         // END: web-service-responses
@@ -330,12 +300,7 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
     @Test
     void demonstrateBatchProcessing() throws DomTripException {
         // START: batch-processing
-        // Process multiple XML files
-        // List<Path> xmlFiles = Files.list(Path.of("xml-data"))
-        //     .filter(path -> path.toString().endsWith(".xml"))
-        //     .toList();
-
-        // For testing, simulate multiple files
+        // Process multiple XML files (simulated for testing)
         String[] xmlContents = {createTestXml("file1"), createTestXml("file2"), createTestXml("file3")};
 
         for (String xmlContent : xmlContents) {
@@ -348,6 +313,7 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
 
                 // Save processed result (simulated)
                 String result = editor.toXml();
+                Assertions.assertNotNull(result);
 
             } catch (Exception e) {
                 System.err.println("Failed to process XML: " + e.getMessage());
@@ -373,6 +339,7 @@ class InputStreamParsingSnippets extends BaseSnippetTest {
 
             // Encoding is preserved in output
             String result = editor.toXml();
+            Assertions.assertNotNull(result);
         }
         // END: editor-integration
 

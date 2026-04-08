@@ -234,18 +234,14 @@ class InputStreamParsingTest {
 
     @Test
     void testParseFromInputStreamNullStream() {
-        assertThrows(DomTripException.class, () -> {
-            Document.of((InputStream) null);
-        });
+        assertThrows(DomTripException.class, () -> Document.of((InputStream) null));
     }
 
     @Test
     void testParseFromInputStreamEmptyStream() {
         InputStream inputStream = new ByteArrayInputStream(new byte[0]);
 
-        assertThrows(DomTripException.class, () -> {
-            Document.of(inputStream);
-        });
+        assertThrows(DomTripException.class, () -> Document.of(inputStream));
     }
 
     @Test

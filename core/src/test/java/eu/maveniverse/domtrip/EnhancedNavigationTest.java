@@ -158,11 +158,10 @@ class EnhancedNavigationTest {
         assertTrue(nodeCount >= 5); // At least the 5 element children, possibly more with text nodes
 
         // Test filtering by type
-        long elementCount =
-                root.children().filter(node -> node instanceof Element).count();
+        long elementCount = root.children().filter(Element.class::isInstance).count();
         assertEquals(5, elementCount);
 
-        long textCount = root.children().filter(node -> node instanceof Text).count();
+        long textCount = root.children().filter(Text.class::isInstance).count();
         // With whitespace capture, whitespace is stored as element properties, not separate text nodes
         // The root element only contains child elements, no direct text content
         // Text nodes exist within the child elements (like groupId containing "com.example")

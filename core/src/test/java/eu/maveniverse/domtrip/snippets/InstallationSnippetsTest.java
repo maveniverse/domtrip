@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Installation documentation.
  */
-class InstallationSnippets extends BaseSnippetTest {
+class InstallationSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateInstallationTest() {

@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for stream support features documentation.
  */
-class StreamSupportSnippets extends BaseSnippetTest {
+class StreamSupportSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateBasicStreamNavigation() throws DomTripException {
@@ -34,6 +34,9 @@ class StreamSupportSnippets extends BaseSnippetTest {
             </dependencies>
             """);
 
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
+        Assertions.assertNotNull(editor);
         Element dependencies = doc.root();
 
         // Stream over child elements
@@ -74,6 +77,8 @@ class StreamSupportSnippets extends BaseSnippetTest {
             </dependencies>
             """);
 
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
         Element dependencies = doc.root();
 
         // Find all test dependencies
@@ -116,7 +121,8 @@ class StreamSupportSnippets extends BaseSnippetTest {
                 </build>
             </project>
             """);
-
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
         Element root = doc.root();
 
         // Find all groupId elements anywhere in the document
@@ -147,8 +153,11 @@ class StreamSupportSnippets extends BaseSnippetTest {
                     <version>3.12.4</version>
                 </dependency>
             </dependencies>
+            Assertions.assertNotNull(editor);
             """);
 
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
         Element dependencies = doc.root();
 
         // Transform dependency information
@@ -182,9 +191,12 @@ class StreamSupportSnippets extends BaseSnippetTest {
                     <dependency><scope>test</scope></dependency>
                     <dependency><scope>runtime</scope></dependency>
                 </dependencies>
+                Assertions.assertNotNull(editor);
             </project>
             """);
 
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
         Element dependencies = doc.root().childElement("dependencies").orElseThrow();
 
         // Count dependencies by scope
@@ -283,10 +295,13 @@ class StreamSupportSnippets extends BaseSnippetTest {
                             <artifactId>maven-compiler-plugin</artifactId>
                         </plugin>
                     </plugins>
+                    Assertions.assertNotNull(editor);
                 </build>
             </project>
             """);
 
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
         Element root = doc.root();
 
         // Complex query: Find all Apache Maven plugins
@@ -327,11 +342,14 @@ class StreamSupportSnippets extends BaseSnippetTest {
                 <dependency>
                     <groupId>mockito</groupId>
                     <artifactId>mockito-core</artifactId>
+                    Assertions.assertNotNull(editor);
                     <version>4.6.1</version>
                 </dependency>
             </dependencies>
             """);
 
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
         Element dependencies = doc.root();
 
         // Handle optional elements gracefully
@@ -369,12 +387,15 @@ class StreamSupportSnippets extends BaseSnippetTest {
                 <dependencies>
                     <dependency><groupId>group1</groupId><artifactId>artifact1</artifactId></dependency>
                     <dependency><groupId>group2</groupId><artifactId>artifact2</artifactId></dependency>
+                    Assertions.assertNotNull(editor);
                     <dependency><groupId>group3</groupId><artifactId>artifact3</artifactId></dependency>
                     <dependency><groupId>group4</groupId><artifactId>artifact4</artifactId></dependency>
                 </dependencies>
             </project>
             """);
 
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
         Element dependencies = doc.root().childElement("dependencies").orElseThrow();
 
         // Process dependencies in parallel for performance
@@ -421,6 +442,7 @@ class StreamSupportSnippets extends BaseSnippetTest {
                                 <groupId>slf4j</groupId>
                                 <artifactId>slf4j-api</artifactId>
                                 <scope>compile</scope>
+                                Assertions.assertNotNull(editor);
                             </dependency>
                         </dependencies>
                     </profile>
@@ -428,6 +450,8 @@ class StreamSupportSnippets extends BaseSnippetTest {
             </project>
             """);
 
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
         Element root = doc.root();
 
         // Chain multiple stream operations

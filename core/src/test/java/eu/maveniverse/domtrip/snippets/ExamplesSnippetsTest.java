@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
  * <p>This class contains practical examples of using DomTrip for various
  * XML editing scenarios that are referenced in the Examples documentation.</p>
  */
-class ExamplesSnippets extends BaseSnippetTest {
+class ExamplesSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateSimpleElementModification() throws DomTripException {

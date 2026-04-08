@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Code snippets for PomEditor documentation.
  */
-class PomEditorSnippets {
+class PomEditorSnippetsTest {
 
     @Test
     void testSnippets() throws DomTripException {

@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for configuration features documentation.
  */
-class ConfigurationSnippets extends BaseSnippetTest {
+class ConfigurationSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateBasicConfiguration() throws DomTripException {

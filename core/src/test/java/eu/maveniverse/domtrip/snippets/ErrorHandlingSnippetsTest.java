@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Error Handling documentation.
  */
-class ErrorHandlingSnippets extends BaseSnippetTest {
+class ErrorHandlingSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateDomTripException() {
@@ -91,12 +91,14 @@ class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    void demonstrateEncodingIssues() throws Exception {
+    void demonstrateEncodingIssues() {
         // START: encoding-issues
         try {
             // Simulate file with encoding issues
             String xmlContent = createTestXml("root");
             Document doc = Document.of(xmlContent);
+            Assertions.assertNotNull(doc);
+            Assertions.assertNotNull(doc);
 
         } catch (Exception e) {
             System.err.println("Encoding error: " + e.getMessage());

@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Code snippets for SettingsEditor documentation.
  */
-class SettingsEditorSnippets {
+class SettingsEditorSnippetsTest {
 
     @Test
     void testSnippets() throws DomTripException {

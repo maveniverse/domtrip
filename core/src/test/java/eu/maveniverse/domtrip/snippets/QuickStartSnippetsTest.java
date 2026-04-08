@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Quick Start documentation.
  */
-class QuickStartSnippets extends BaseSnippetTest {
+class QuickStartSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateBasicUsage() throws Exception {
@@ -69,7 +69,6 @@ class QuickStartSnippets extends BaseSnippetTest {
         try {
             // START: loading-xml-from-file
             // From file (recommended - handles encoding automatically)
-            // import java.nio.file.Path;
             Document doc2 = Document.of(tempFile);
             Editor editor2 = new Editor(doc2);
             // END: loading-xml-from-file
@@ -78,9 +77,6 @@ class QuickStartSnippets extends BaseSnippetTest {
 
             // START: loading-xml-from-inputstream
             // From InputStream with automatic encoding detection
-            // import java.io.InputStream;
-            // import java.nio.file.Files;
-            // import java.nio.file.Path;
             try (InputStream inputStream = Files.newInputStream(tempFile)) {
                 Document doc3 = Document.of(inputStream);
                 Editor editor3 = new Editor(doc3);

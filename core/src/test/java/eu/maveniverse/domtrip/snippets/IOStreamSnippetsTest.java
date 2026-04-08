@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for InputStream/OutputStream support and encoding documentation.
  */
-class IOStreamSnippets extends BaseSnippetTest {
+class IOStreamSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateAutomaticEncodingDetection() throws Exception {

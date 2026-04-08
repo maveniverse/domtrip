@@ -283,8 +283,7 @@ public class Parser {
                 }
 
                 if (position + 1 >= length) {
-                    throw new DomTripException(
-                            "Unexpected end of XML at position " + position + ": truncated '<' character");
+                    throw new DomTripException("Unexpected end of XML: truncated '<' character", position, xml);
                 }
 
                 {

@@ -78,8 +78,6 @@ class TextNodeTest {
         text.preserveWhitespace(false);
 
         assertFalse(text.preserveWhitespace());
-        // Note: setPreserveWhitespace may not mark as modified in current implementation
-        // assertTrue(text.isModified());
     }
 
     @Test

@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for API documentation and advanced features.
  */
-class ApiDocumentationSnippets extends BaseSnippetTest {
+class ApiDocumentationSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateElementBuilders() throws DomTripException {
@@ -44,6 +44,7 @@ class ApiDocumentationSnippets extends BaseSnippetTest {
         // Create elements with namespaces
         Element soapEnvelope =
                 Element.of("soap:Envelope").attribute("xmlns:soap", "http://schemas.xmlsoap.org/soap/envelope/");
+        Assertions.assertNotNull(soapEnvelope);
 
         // Namespace-aware navigation
         String xml = """
@@ -55,6 +56,7 @@ class ApiDocumentationSnippets extends BaseSnippetTest {
             """;
         Document doc = Document.of(xml);
         Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
         Element root = editor.root();
 
         Optional<Element> body = root.childElement("soap:Body");
@@ -64,7 +66,8 @@ class ApiDocumentationSnippets extends BaseSnippetTest {
 
         // Get namespace information
         String localName = root.localName();
-        root.namespaceURI();
+        String namespaceURI = root.namespaceURI();
+        Assertions.assertNotNull(namespaceURI);
         // END: namespace-support
 
         Assertions.assertTrue(body.isPresent());
@@ -166,8 +169,12 @@ class ApiDocumentationSnippets extends BaseSnippetTest {
         // START: error-handling
         try {
             // Attempt to parse malformed XML
+            String malformedXml = "<root><unclosed>";
+            Document doc = Document.of(malformedXml);
 
             // This won't be reached due to parsing error
+            Editor editor = new Editor(doc);
+            Assertions.assertNotNull(editor);
         } catch (Exception e) {
             // Handle parsing errors gracefully
             System.err.println("XML parsing failed: " + e.getMessage());

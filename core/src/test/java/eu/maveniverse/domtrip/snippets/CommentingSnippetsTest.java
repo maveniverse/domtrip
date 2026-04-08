@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for commenting features documentation.
  */
-class CommentingSnippets extends BaseSnippetTest {
+class CommentingSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateCommentOutSingleElement() throws DomTripException {
@@ -89,8 +89,8 @@ class CommentingSnippets extends BaseSnippetTest {
         // Find the comment containing the dependency
         Comment comment = doc.root()
                 .children()
-                .filter(node -> node instanceof Comment)
-                .map(node -> (Comment) node)
+                .filter(Comment.class::isInstance)
+                .map(Comment.class::cast)
                 .findFirst()
                 .orElseThrow();
 
@@ -167,20 +167,14 @@ class CommentingSnippets extends BaseSnippetTest {
 
         // START: commenting-error-handling
         // Cannot comment out null element
-        Assertions.assertThrows(DomTripException.class, () -> {
-            editor.commentOutElement(null);
-        });
+        Assertions.assertThrows(DomTripException.class, () -> editor.commentOutElement(null));
 
         // Cannot comment out root element
-        Assertions.assertThrows(DomTripException.class, () -> {
-            editor.commentOutElement(doc.root());
-        });
+        Assertions.assertThrows(DomTripException.class, () -> editor.commentOutElement(doc.root()));
 
         // Comment must contain valid XML for uncommenting
         Comment invalidComment = new Comment("not valid xml");
-        Assertions.assertThrows(DomTripException.class, () -> {
-            editor.uncommentElement(invalidComment);
-        });
+        Assertions.assertThrows(DomTripException.class, () -> editor.uncommentElement(invalidComment));
         // END: commenting-error-handling
     }
 

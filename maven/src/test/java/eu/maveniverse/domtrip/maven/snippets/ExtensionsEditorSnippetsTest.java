@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Code snippets for ExtensionsEditor documentation.
  */
-class ExtensionsEditorSnippets {
+class ExtensionsEditorSnippetsTest {
 
     @Test
     void testSnippets() throws DomTripException {

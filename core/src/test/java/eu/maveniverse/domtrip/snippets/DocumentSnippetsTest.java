@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Document API documentation.
  */
-class DocumentSnippets extends BaseSnippetTest {
+class DocumentSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateDocumentCreation() throws DomTripException {
@@ -178,15 +178,16 @@ class DocumentSnippets extends BaseSnippetTest {
 
         // Find specific node types
         List<Comment> comments = doc.children()
-                .filter(node -> node instanceof Comment)
-                .map(node -> (Comment) node)
+                .filter(Comment.class::isInstance)
+                .map(Comment.class::cast)
                 .toList();
 
         // Find processing instructions
         List<ProcessingInstruction> pis = doc.children()
-                .filter(node -> node instanceof ProcessingInstruction)
-                .map(node -> (ProcessingInstruction) node)
+                .filter(ProcessingInstruction.class::isInstance)
+                .map(ProcessingInstruction.class::cast)
                 .toList();
+        Assertions.assertNotNull(pis);
         // END: document-traversal
 
         Assertions.assertTrue(allNodes.count() > 0);
@@ -245,11 +246,9 @@ class DocumentSnippets extends BaseSnippetTest {
         int totalNodes = (int) doc.children().count();
 
         // Count specific node types
-        long elementCount =
-                doc.children().filter(node -> node instanceof Element).count();
+        long elementCount = doc.children().filter(Element.class::isInstance).count();
 
-        long commentCount =
-                doc.children().filter(node -> node instanceof Comment).count();
+        long commentCount = doc.children().filter(Comment.class::isInstance).count();
         // END: node-counting
 
         Assertions.assertTrue(totalNodes > 0);

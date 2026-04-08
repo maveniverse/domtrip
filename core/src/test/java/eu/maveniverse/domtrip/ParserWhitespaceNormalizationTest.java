@@ -237,16 +237,16 @@ class ParserWhitespaceNormalizationTest {
 
         // Comment should have precedingWhitespace
         Comment comment = root.children()
-                .filter(n -> n instanceof Comment)
-                .map(n -> (Comment) n)
+                .filter(Comment.class::isInstance)
+                .map(Comment.class::cast)
                 .findFirst()
                 .orElseThrow();
         assertEquals("\n    ", comment.precedingWhitespace(), "Comment should have precedingWhitespace set by parser");
 
         // ProcessingInstruction should have precedingWhitespace
         ProcessingInstruction pi = root.children()
-                .filter(n -> n instanceof ProcessingInstruction)
-                .map(n -> (ProcessingInstruction) n)
+                .filter(ProcessingInstruction.class::isInstance)
+                .map(ProcessingInstruction.class::cast)
                 .findFirst()
                 .orElseThrow();
         assertEquals("\n    ", pi.precedingWhitespace(), "PI should have precedingWhitespace set by parser");

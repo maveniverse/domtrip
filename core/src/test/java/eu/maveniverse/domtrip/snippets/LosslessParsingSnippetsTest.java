@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for lossless parsing features documentation.
  */
-class LosslessParsingSnippets extends BaseSnippetTest {
+class LosslessParsingSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateLosslessRoundTrip() throws DomTripException {

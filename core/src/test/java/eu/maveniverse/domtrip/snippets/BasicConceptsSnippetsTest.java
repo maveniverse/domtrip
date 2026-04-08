@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for basic concepts documentation.
  */
-class BasicConceptsSnippets extends BaseSnippetTest {
+class BasicConceptsSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateLosslessPhilosophy() throws DomTripException {

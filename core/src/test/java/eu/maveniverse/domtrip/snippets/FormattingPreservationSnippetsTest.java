@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for formatting preservation features documentation.
  */
-class FormattingPreservationSnippets extends BaseSnippetTest {
+class FormattingPreservationSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateBasicFormatPreservation() throws DomTripException {
@@ -50,6 +50,9 @@ class FormattingPreservationSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
+        Assertions.assertNotNull(editor);
 
         // START: whitespace-tracking
         // For this XML: "  <element>content</element>\n"
@@ -67,6 +70,8 @@ class FormattingPreservationSnippets extends BaseSnippetTest {
         String xml = "<project>  <groupId  >com.example</  groupId>  </project>";
 
         Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
 
         // START: element-whitespace
         Element element = doc.root().childElement("groupId").orElseThrow();
@@ -87,6 +92,8 @@ class FormattingPreservationSnippets extends BaseSnippetTest {
         String xml = "<parent>\n    \n</parent>";
 
         Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
 
         // START: inner-element-whitespace
         Element element = doc.root();
@@ -137,6 +144,8 @@ class FormattingPreservationSnippets extends BaseSnippetTest {
 
     @Test
     void demonstrateConfigurationControl() throws DomTripException {
+        String xml = "<project><groupId>com.example</groupId></project>";
+
         // START: configuration-control
         // Preset configurations
         DomTripConfig defaults = DomTripConfig.defaults(); // Default preservation
@@ -147,6 +156,10 @@ class FormattingPreservationSnippets extends BaseSnippetTest {
                 .withIndentString("  ") // 2 spaces
                 .withCommentPreservation(true); // Keep comments
         // END: configuration-control
+
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc, custom);
+        Assertions.assertNotNull(editor);
 
         Assertions.assertNotNull(defaults);
         Assertions.assertNotNull(pretty);

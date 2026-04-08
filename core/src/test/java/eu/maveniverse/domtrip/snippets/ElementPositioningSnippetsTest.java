@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for element positioning features documentation.
  */
-class ElementPositioningSnippets extends BaseSnippetTest {
+class ElementPositioningSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateInsertElementAt() throws DomTripException {

@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Performance documentation.
  */
-class PerformanceSnippets extends BaseSnippetTest {
+class PerformanceSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateMemoryUsage() throws DomTripException {
@@ -119,26 +119,22 @@ class PerformanceSnippets extends BaseSnippetTest {
             // Process each child individually
             processElement(child);
 
-            // Optional: Clear processed elements to free memory
-            if (shouldClearMemory()) {
-                // child.clearCache(); // Conceptual - actual API may vary
-            }
+            // Optionally clear processed elements to free memory
         });
     }
 
     private void processNormally(String xmlContent) throws DomTripException {
         Document doc = Document.of(xmlContent);
-        Assertions.assertNotNull(doc);
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
+        Assertions.assertNotNull(editor);
+        // Normal processing
     }
 
     private void processElement(Element element) {
         // Simulate element processing
-        element.textContent();
-    }
-
-    private boolean shouldClearMemory() {
-        // Simple heuristic for memory management
-        return false;
+        String content = element.textContent();
+        Assertions.assertNotNull(content);
     }
 
     @Test
@@ -165,7 +161,7 @@ class PerformanceSnippets extends BaseSnippetTest {
     }
 
     void optimizedBatchUpdate(Editor editor, List<ElementData> updates) throws DomTripException {
-        editor.root();
+        Element root = editor.root();
 
         // Group operations by parent for better performance
         Map<Element, List<ElementData>> groupedUpdates =
@@ -194,7 +190,7 @@ class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    void demonstratePerformanceTesting() {
+    void demonstratePerformanceTesting() throws IOException {
         // START: performance-testing
         DomTripBenchmark benchmark = new DomTripBenchmark();
         benchmark.benchmarkParsing();
@@ -303,16 +299,8 @@ class PerformanceSnippets extends BaseSnippetTest {
             // Process this child
             processElement(child);
 
-            // Optional: Remove processed child to free memory
-            if (isMemoryConstrained()) {
-                // children.remove(); // Conceptual - may not be supported
-            }
+            // Optionally remove processed children to free memory in constrained environments
         }
-    }
-
-    private boolean isMemoryConstrained() {
-        // Simple heuristic for memory constraints
-        return false;
     }
 
     @Test
@@ -405,6 +393,7 @@ class PerformanceSnippets extends BaseSnippetTest {
                     Document doc = Document.of(content);
                     Editor editor = new Editor(doc);
                     String result = editor.toXml();
+                    Assertions.assertNotNull(result);
                     long end = System.nanoTime();
 
                     totalTime += (end - start);
@@ -432,8 +421,7 @@ class PerformanceSnippets extends BaseSnippetTest {
         public Document monitoredParse(String xml) throws DomTripException {
             long start = System.nanoTime();
             try {
-                Document doc = Document.of(xml);
-                return doc;
+                return Document.of(xml);
             } finally {
                 long duration = System.nanoTime() - start;
                 parseCount.incrementAndGet();

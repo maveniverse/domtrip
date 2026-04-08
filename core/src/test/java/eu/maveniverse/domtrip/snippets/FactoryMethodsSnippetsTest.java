@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for factory methods and fluent API documentation.
  */
-class FactoryMethodsSnippets extends BaseSnippetTest {
+class FactoryMethodsSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateBasicElementCreation() throws DomTripException {
@@ -142,8 +142,8 @@ class FactoryMethodsSnippets extends BaseSnippetTest {
         Assertions.assertEquals("junit", dependency.textContent());
 
         Comment comment = root.children()
-                .filter(node -> node instanceof Comment)
-                .map(node -> (Comment) node)
+                .filter(Comment.class::isInstance)
+                .map(Comment.class::cast)
                 .findFirst()
                 .orElseThrow();
         Assertions.assertEquals(" Configuration section ", comment.content());
@@ -271,9 +271,7 @@ class FactoryMethodsSnippets extends BaseSnippetTest {
     @Test
     void demonstrateFileBasedDocumentLoading() throws Exception {
         // START: file-based-document-loading
-        // Basic file loading with automatic encoding detection
-        // Document doc = Document.of(Path.of("config.xml"));
-
+        // File loading with automatic encoding detection
         // Error handling
         try {
             String xmlContent = createConfigXml();

@@ -243,9 +243,7 @@ class DocumentTest {
         Document doc = Document.of(xml);
 
         // This throws NPE in current implementation
-        assertThrows(NullPointerException.class, () -> {
-            doc.root().descendant((String) null);
-        });
+        assertThrows(NullPointerException.class, () -> doc.root().descendant((String) null));
     }
 
     @Test
@@ -400,18 +398,14 @@ class DocumentTest {
 
     @Test
     void testDocumentOfPathNullPath() {
-        assertThrows(DomTripException.class, () -> {
-            Document.of((Path) null);
-        });
+        assertThrows(DomTripException.class, () -> Document.of((Path) null));
     }
 
     @Test
     void testDocumentOfPathNonExistentFile(@TempDir Path tempDir) {
         Path nonExistentFile = tempDir.resolve("does-not-exist.xml");
 
-        assertThrows(DomTripException.class, () -> {
-            Document.of(nonExistentFile);
-        });
+        assertThrows(DomTripException.class, () -> Document.of(nonExistentFile));
     }
 
     @Test
@@ -419,9 +413,7 @@ class DocumentTest {
         Path emptyFile = tempDir.resolve("empty.xml");
         Files.createFile(emptyFile);
 
-        assertThrows(DomTripException.class, () -> {
-            Document.of(emptyFile);
-        });
+        assertThrows(DomTripException.class, () -> Document.of(emptyFile));
     }
 
     @Test

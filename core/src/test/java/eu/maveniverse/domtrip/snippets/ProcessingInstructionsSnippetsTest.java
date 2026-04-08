@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Processing Instructions documentation.
  */
-class ProcessingInstructionsSnippets extends BaseSnippetTest {
+class ProcessingInstructionsSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateCreatingProcessingInstructions() {
@@ -65,14 +65,14 @@ class ProcessingInstructionsSnippets extends BaseSnippetTest {
 
         // Find all processing instructions in document (XML declaration is stored separately)
         List<ProcessingInstruction> pis = doc.children()
-                .filter(node -> node instanceof ProcessingInstruction)
-                .map(node -> (ProcessingInstruction) node)
+                .filter(ProcessingInstruction.class::isInstance)
+                .map(ProcessingInstruction.class::cast)
                 .toList();
 
         // Find specific PI by target
         Optional<ProcessingInstruction> stylesheet = doc.children()
-                .filter(node -> node instanceof ProcessingInstruction)
-                .map(node -> (ProcessingInstruction) node)
+                .filter(ProcessingInstruction.class::isInstance)
+                .map(ProcessingInstruction.class::cast)
                 .filter(pi -> "stylesheet".equals(pi.target()))
                 .findFirst();
         // END: finding-processing-instructions
@@ -134,8 +134,8 @@ class ProcessingInstructionsSnippets extends BaseSnippetTest {
 
         // Find stylesheet PI
         Optional<ProcessingInstruction> stylesheet = doc.children()
-                .filter(node -> node instanceof ProcessingInstruction)
-                .map(node -> (ProcessingInstruction) node)
+                .filter(ProcessingInstruction.class::isInstance)
+                .map(ProcessingInstruction.class::cast)
                 .filter(pi -> "stylesheet".equals(pi.target()))
                 .findFirst();
 

@@ -174,9 +174,7 @@ class EncodingSerializationTest {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         Serializer serializer = new Serializer();
 
-        assertThrows(DomTripException.class, () -> {
-            serializer.serialize(doc, outputStream, "INVALID-ENCODING");
-        });
+        assertThrows(DomTripException.class, () -> serializer.serialize(doc, outputStream, "INVALID-ENCODING"));
     }
 
     @Test
@@ -326,9 +324,7 @@ class EncodingSerializationTest {
         Serializer serializer = new Serializer();
 
         // Test invalid encoding string falls back gracefully
-        assertThrows(DomTripException.class, () -> {
-            serializer.serialize(doc, outputStream, "INVALID-CHARSET");
-        });
+        assertThrows(DomTripException.class, () -> serializer.serialize(doc, outputStream, "INVALID-CHARSET"));
     }
 
     @Test

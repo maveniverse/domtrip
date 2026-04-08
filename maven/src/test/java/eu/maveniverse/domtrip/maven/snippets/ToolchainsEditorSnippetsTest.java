@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Code snippets for ToolchainsEditor documentation.
  */
-class ToolchainsEditorSnippets {
+class ToolchainsEditorSnippetsTest {
 
     @Test
     void testSnippets() throws DomTripException {

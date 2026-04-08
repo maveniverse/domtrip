@@ -93,8 +93,8 @@ class EditorCommentingTest {
         // Find the comment
         Comment comment = doc.root()
                 .children()
-                .filter(node -> node instanceof Comment)
-                .map(node -> (Comment) node)
+                .filter(Comment.class::isInstance)
+                .map(Comment.class::cast)
                 .findFirst()
                 .orElseThrow();
 
@@ -106,9 +106,7 @@ class EditorCommentingTest {
 
     @Test
     void testCommentOutNullElement() {
-        assertThrows(DomTripException.class, () -> {
-            editor.commentOutElement(null);
-        });
+        assertThrows(DomTripException.class, () -> editor.commentOutElement(null));
     }
 
     @Test
@@ -117,9 +115,7 @@ class EditorCommentingTest {
         Document doc = Document.of(xml);
         editor = new Editor(doc);
 
-        assertThrows(DomTripException.class, () -> {
-            editor.commentOutElement(doc.root());
-        });
+        assertThrows(DomTripException.class, () -> editor.commentOutElement(doc.root()));
     }
 
     @Test
@@ -143,9 +139,7 @@ class EditorCommentingTest {
                 .childElement("child2")
                 .orElseThrow();
 
-        assertThrows(DomTripException.class, () -> {
-            editor.commentOutElements(child1, child2);
-        });
+        assertThrows(DomTripException.class, () -> editor.commentOutElements(child1, child2));
     }
 
     @Test
@@ -156,14 +150,12 @@ class EditorCommentingTest {
 
         Comment comment = doc.root()
                 .children()
-                .filter(node -> node instanceof Comment)
-                .map(node -> (Comment) node)
+                .filter(Comment.class::isInstance)
+                .map(Comment.class::cast)
                 .findFirst()
                 .orElseThrow();
 
-        assertThrows(DomTripException.class, () -> {
-            editor.uncommentElement(comment);
-        });
+        assertThrows(DomTripException.class, () -> editor.uncommentElement(comment));
     }
 
     @Test
@@ -174,14 +166,12 @@ class EditorCommentingTest {
 
         Comment comment = doc.root()
                 .children()
-                .filter(node -> node instanceof Comment)
-                .map(node -> (Comment) node)
+                .filter(Comment.class::isInstance)
+                .map(Comment.class::cast)
                 .findFirst()
                 .orElseThrow();
 
-        assertThrows(DomTripException.class, () -> {
-            editor.uncommentElement(comment);
-        });
+        assertThrows(DomTripException.class, () -> editor.uncommentElement(comment));
     }
 
     @Test
@@ -248,8 +238,8 @@ class EditorCommentingTest {
         // Find the comment
         Comment comment = doc.root()
                 .children()
-                .filter(node -> node instanceof Comment)
-                .map(node -> (Comment) node)
+                .filter(Comment.class::isInstance)
+                .map(Comment.class::cast)
                 .findFirst()
                 .orElseThrow();
 

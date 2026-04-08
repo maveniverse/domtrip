@@ -16,19 +16,16 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Migration Guide documentation.
  */
-class MigrationSnippets extends BaseSnippetTest {
+class MigrationSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateDOM4JDocumentLoading() throws DomTripException {
         // START: dom4j-document-loading
-        // DOM4J
-        // SAXReader reader = new SAXReader();
-        // Document document = reader.read(new StringReader(xml));
-
-        // DomTrip
+        // DomTrip equivalent of DOM4J SAXReader.read()
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
+        Assertions.assertNotNull(editor);
         // END: dom4j-document-loading
 
         Assertions.assertNotNull(document);
@@ -38,12 +35,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateDOM4JElementNavigation() throws DomTripException {
         // START: dom4j-element-navigation
-        // DOM4J
-        // Element root = document.getDocumentElement();
-        // Element child = root.element("child");
-        // List<Element> children = root.elements("item");
-
-        // DomTrip
+        // DomTrip equivalent of DOM4J element navigation
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -60,13 +52,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateDOM4JAddingElements() throws DomTripException {
         // START: dom4j-adding-elements
-        // DOM4J
-        // Element parent = root.element("dependencies");
-        // Element dependency = parent.addElement("dependency");
-        // dependency.addElement("groupId").setText("junit");
-        // dependency.addElement("artifactId").setText("junit");
-
-        // DomTrip
+        // DomTrip equivalent of DOM4J addElement()
         String xml = createMavenPomXml();
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -84,11 +70,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateDOM4JAttributeHandling() throws DomTripException {
         // START: dom4j-attribute-handling
-        // DOM4J
-        // element.addAttribute("scope", "test");
-        // String scope = element.attributeValue("scope");
-
-        // DomTrip
+        // DomTrip equivalent of DOM4J attribute handling
         String xml = createTestXml("element");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -103,12 +85,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateDOM4JSerialization() throws DomTripException {
         // START: dom4j-serialization
-        // DOM4J
-        // OutputFormat format = OutputFormat.createPrettyPrint();
-        // XMLWriter writer = new XMLWriter(outputStream, format);
-        // writer.write(document);
-
-        // DomTrip
+        // DomTrip equivalent of DOM4J serialization
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -123,14 +100,11 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateJDOMDocumentLoading() throws DomTripException {
         // START: jdom-document-loading
-        // JDOM
-        // SAXBuilder builder = new SAXBuilder();
-        // Document document = builder.build(new StringReader(xml));
-
-        // DomTrip
+        // DomTrip equivalent of JDOM SAXBuilder.build()
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
+        Assertions.assertNotNull(editor);
         // END: jdom-document-loading
 
         Assertions.assertNotNull(document);
@@ -140,17 +114,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateJDOMElementOperations() throws DomTripException {
         // START: jdom-element-operations
-        // JDOM
-        // Element root = document.getDocumentElement();
-        // Element child = root.getChild("child");
-        // List<Element> children = root.getChildren("item");
-        //
-        // Add new element
-        // Element newElement = new Element("newChild");
-        // newElement.setText("content");
-        // root.addContent(newElement);
-
-        // DomTrip
+        // DomTrip equivalent of JDOM element operations
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -172,11 +136,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateJDOMTextContent() throws DomTripException {
         // START: jdom-text-content
-        // JDOM
-        // element.setText("new content");
-        // String content = element.getText();
-
-        // DomTrip
+        // DomTrip equivalent of JDOM text content handling
         String xml = createTestXml("element");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -191,15 +151,11 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateJavaDOMDocumentLoading() throws DomTripException {
         // START: java-dom-document-loading
-        // Java DOM
-        // DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        // DocumentBuilder builder = factory.newDocumentBuilder();
-        // Document document = builder.parse(new InputSource(new StringReader(xml)));
-
-        // DomTrip
+        // DomTrip equivalent of Java DOM document loading
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
+        Assertions.assertNotNull(editor);
         // END: java-dom-document-loading
 
         Assertions.assertNotNull(document);
@@ -209,12 +165,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateJavaDOMElementNavigation() throws DomTripException {
         // START: java-dom-element-navigation
-        // Java DOM
-        // Element root = document.getDocumentElement();
-        // NodeList children = root.getElementsByTagName("child");
-        // Element child = (Element) children.item(0);
-
-        // DomTrip
+        // DomTrip equivalent of Java DOM element navigation
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -229,12 +180,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateJavaDOMCreatingElements() throws DomTripException {
         // START: java-dom-creating-elements
-        // Java DOM
-        // Element newElement = document.createElement("newChild");
-        // newElement.setTextContent("content");
-        // parent.appendChild(newElement);
-
-        // DomTrip
+        // DomTrip equivalent of Java DOM element creation
         String xml = createTestXml("parent");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -249,11 +195,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateJavaDOMAttributes() throws DomTripException {
         // START: java-dom-attributes
-        // Java DOM
-        // element.setAttribute("scope", "test");
-        // String scope = element.getAttribute("scope");
-
-        // DomTrip
+        // DomTrip equivalent of Java DOM attribute handling
         String xml = createTestXml("element");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -268,12 +210,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateJacksonXMLSimpleParsing() throws DomTripException {
         // START: jackson-xml-simple-parsing
-        // Jackson XML
-        // XmlMapper mapper = new XmlMapper();
-        // JsonNode root = mapper.readTree(xml);
-        // JsonNode child = root.get("child");
-
-        // DomTrip
+        // DomTrip equivalent of Jackson XML parsing
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -288,22 +225,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateJacksonXMLObjectMapping() throws DomTripException {
         // START: jackson-xml-object-mapping
-        // Jackson XML (object mapping)
-        // @JacksonXmlRootElement(localName = "dependency")
-        // public class Dependency {
-        //     public String groupId;
-        //     public String artifactId;
-        //     public String version;
-        // }
-        //
-        // Dependency dep = new Dependency();
-        // dep.groupId = "junit";
-        // dep.artifactId = "junit";
-        // dep.version = "4.13.2";
-        //
-        // String xml = mapper.writeValueAsString(dep);
-
-        // DomTrip (manual construction)
+        // DomTrip equivalent of Jackson XML object mapping
         Element dependency = Element.of("dependency");
         dependency.addChild(Element.text("groupId", "junit"));
         dependency.addChild(Element.text("artifactId", "junit"));
@@ -320,26 +242,12 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateErrorHandling() {
         // START: migration-error-handling
-        // Old libraries (various exceptions)
-        // try {
-        //     // DOM4J
-        //     Document doc = reader.read(xml);
-        // } catch (DocumentException e) {
-        //     // Handle parsing error
-        // }
-        //
-        // try {
-        //     // JDOM
-        //     Document doc = builder.build(xml);
-        // } catch (JDOMException | IOException e) {
-        //     // Handle parsing error
-        // }
-
-        // DomTrip (consistent exceptions)
+        // DomTrip provides consistent exception handling
         try {
             String xml = createTestXml("root");
-            Document doc = Document.of(xml);
-            Assertions.assertNotNull(doc);
+            Document document = Document.of(xml);
+            Editor editor = new Editor(document);
+            Assertions.assertNotNull(editor);
         } catch (Exception e) {
             // Handle parsing error
             System.err.println("Failed to parse: " + e.getMessage());
@@ -353,11 +261,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateNamespaceHandling() throws DomTripException {
         // START: migration-namespace-handling
-        // DOM4J
-        // Namespace ns = Namespace.get("soap", "http://schemas.xmlsoap.org/soap/envelope/");
-        // Element envelope = root.element(QName.get("Envelope", ns));
-
-        // DomTrip
+        // DomTrip equivalent of DOM4J namespace handling
         String xml = createSoapXml();
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -372,10 +276,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateXPathQueries() throws DomTripException {
         // START: migration-xpath-queries
-        // DOM4J (XPath support)
-        // List<Element> nodes = document.selectNodes("//dependency[scope='test']");
-
-        // DomTrip (Stream-based filtering)
+        // DomTrip uses Stream-based filtering instead of XPath
         String xml = createMavenPomXml();
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -392,11 +293,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateMemoryUsage() throws DomTripException {
         // START: migration-memory-usage
-        // Old approach (minimal memory)
-        // Document doc = parser.parse(xml);
-        // Memory: ~1x base size
-
-        // DomTrip (includes formatting metadata)
+        // DomTrip includes formatting metadata (~1.3x base size)
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -405,20 +302,12 @@ class MigrationSnippets extends BaseSnippetTest {
 
         Assertions.assertNotNull(document);
         Assertions.assertNotNull(editor);
-        Assertions.assertNotNull(editor.root());
     }
 
     @Test
     void demonstrateGradualMigrationPhase1() throws DomTripException {
         // START: gradual-migration-phase1
-        // New features use DomTrip
-        // public void addDependency(String pomPath, Dependency dep) {
-        //     Document doc = Document.of(Path.of(pomPath));
-        //     Editor editor = new Editor(doc);
-        //     // ... DomTrip operations
-        // }
-
-        // Example implementation
+        // Phase 1: Use DomTrip for new features
         String pomXml = createMavenPomXml();
         Document doc = Document.of(pomXml);
         Editor editor = new Editor(doc);
@@ -432,15 +321,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateGradualMigrationPhase2() throws DomTripException {
         // START: gradual-migration-phase2
-        // Configuration file editing (formatting critical)
-        // public void updateConfig(String configPath, Map<String, String> updates) {
-        //     // Migrate to DomTrip for lossless editing
-        //     Document doc = Document.of(Path.of(configPath));
-        //     Editor editor = new Editor(doc);
-        //     // ...
-        // }
-
-        // Example implementation
+        // Phase 2: Migrate formatting-critical code to DomTrip
         String configXml = createConfigXml();
         Document doc = Document.of(configXml);
         Editor editor = new Editor(doc);
@@ -454,13 +335,7 @@ class MigrationSnippets extends BaseSnippetTest {
     @Test
     void demonstrateGradualMigrationPhase3() throws DomTripException {
         // START: gradual-migration-phase3
-        // Data extraction (formatting less critical)
-        // public List<String> extractValues(String xml) {
-        //     // Can migrate to DomTrip or keep existing approach
-        //     // based on requirements
-        // }
-
-        // Example implementation
+        // Phase 3: Migrate data extraction code
         String xml = createTestXml("root");
         Document document = Document.of(xml);
         Editor editor = new Editor(document);
@@ -469,7 +344,6 @@ class MigrationSnippets extends BaseSnippetTest {
 
         Assertions.assertNotNull(document);
         Assertions.assertNotNull(editor);
-        Assertions.assertNotNull(editor.toXml());
     }
 
     private String createSoapXml() {

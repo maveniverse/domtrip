@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Introduction documentation.
  */
-class IntroductionSnippets extends BaseSnippetTest {
+class IntroductionSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateRoundTripPreservation() throws DomTripException {

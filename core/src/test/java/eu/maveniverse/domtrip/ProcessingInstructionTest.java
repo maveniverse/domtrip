@@ -115,7 +115,6 @@ class ProcessingInstructionTest {
             }
         }
         // PI may not be found in children if handled differently
-        // assertTrue(foundStylesheet);
         assertNotNull(doc); // Just verify document was parsed
     }
 

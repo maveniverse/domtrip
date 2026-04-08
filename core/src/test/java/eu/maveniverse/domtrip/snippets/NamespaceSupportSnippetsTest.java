@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for namespace support features documentation.
  */
-class NamespaceSupportSnippets extends BaseSnippetTest {
+class NamespaceSupportSnippetsTest extends BaseSnippetTest {
 
     @Test
     void demonstrateBasicNamespaceHandling() throws DomTripException {
@@ -24,6 +24,8 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
 
         Element root = doc.root();
 
@@ -51,6 +53,8 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
 
         Element schemaLocation = doc.root().childElement("xsi:schemaLocation").orElseThrow();
 
@@ -79,6 +83,8 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
 
         Element root = doc.root();
 
@@ -128,7 +134,8 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
         QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
 
         // Create element using QName
-        Element.of(soapEnvelope);
+        Element envelope = Element.of(soapEnvelope);
+        Assertions.assertNotNull(envelope);
 
         // QName provides namespace information
         String namespace = soapEnvelope.namespaceURI(); // "http://schemas.xmlsoap.org/soap/envelope/"
@@ -157,6 +164,8 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
 
         Element root = doc.root();
 
@@ -186,6 +195,8 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
 
         Element dependencies = doc.root().childElement("dependencies").orElseThrow();
         Element dependency = dependencies.childElement("dependency").orElseThrow();
@@ -264,6 +275,7 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
         String xmlWithNamespaces = createMavenPomXml();
         Document doc = Document.of(xmlWithNamespaces);
         Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
 
         // Find by namespace URI and local name
         Element project = editor.root();
@@ -293,9 +305,6 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
 
         // Add namespace declaration
         root.namespaceDeclaration("custom", "http://example.com/custom");
-
-        // Remove namespace declaration (if it exists)
-        // root.removeNamespaceDeclaration("unused");
 
         // Get all namespace declarations
         String defaultNs = root.namespaceDeclaration("");
@@ -338,6 +347,7 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
         try {
             Document doc = Document.of(xml);
             Editor editor = new Editor(doc);
+            Assertions.assertNotNull(editor);
 
             // Validate that all elements have proper namespace declarations
             Element root = editor.root();
@@ -359,6 +369,8 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
     void demonstrateSOAPDocumentHandling() throws DomTripException {
         // START: soap-document-handling
         // Working with SOAP envelopes
+        String soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/";
+        Assertions.assertNotNull(soapNamespace);
 
         String soapXml = """
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -372,6 +384,7 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
 
         Document doc = Document.of(soapXml);
         Editor editor = new Editor(doc);
+        Assertions.assertNotNull(editor);
 
         Element soapBody = editor.root().childElement("soap:Body").orElseThrow();
 
@@ -389,6 +402,8 @@ class NamespaceSupportSnippets extends BaseSnippetTest {
     void demonstrateMavenPOMHandling() throws DomTripException {
         // START: maven-pom-handling
         // Working with Maven POM files
+        String pomNamespace = "http://maven.apache.org/POM/4.0.0";
+        Assertions.assertNotNull(pomNamespace);
         String xml = createMavenPomXml();
 
         Document doc = Document.of(xml);

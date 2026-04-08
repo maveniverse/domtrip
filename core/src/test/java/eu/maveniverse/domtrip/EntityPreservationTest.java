@@ -3,20 +3,12 @@ package eu.maveniverse.domtrip;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for entity and quote preservation features.
  */
-public class EntityPreservationTest {
-
-    private Editor editor;
-
-    @BeforeEach
-    void setUp() {
-        editor = new Editor(Document.of());
-    }
+class EntityPreservationTest {
 
     @Test
     void testEntityPreservation() throws DomTripException {

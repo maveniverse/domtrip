@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for performance optimizations like toXml(StringBuilder).
  */
-public class PerformanceTest {
+class PerformanceTest {
 
     private Editor editor;
 
@@ -23,7 +23,6 @@ public class PerformanceTest {
         String xml = "<root>\n" + "  <child attr='value'>content</child>\n" + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         // Test that toXml(StringBuilder) produces same result as toXml()
         String directResult = doc.toXml();
@@ -40,8 +39,8 @@ public class PerformanceTest {
         String xml = "<element attr1='value1' attr2=\"value2\">text content</element>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element element = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element element = localEditor.root();
 
         // Test element's toXml(StringBuilder) method
         String directResult = element.toXml();
@@ -58,8 +57,8 @@ public class PerformanceTest {
         String xml = "<root>Text with &lt;entities&gt;</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
         Text textNode = (Text) root.child(0);
 
         // Test text node's toXml(StringBuilder) method
@@ -77,8 +76,8 @@ public class PerformanceTest {
         String xml = "<root><!-- This is a comment --></root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
         Comment comment = (Comment) root.child(0);
 
         // Test comment's toXml(StringBuilder) method
@@ -134,12 +133,12 @@ public class PerformanceTest {
         String xml = "<root>\n" + "  <parent>\n" + "    <child>content</child>\n" + "  </parent>\n" + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
+        Editor localEditor = new Editor(doc);
 
         // Test that nested calls to toXml(StringBuilder) work correctly
         StringBuilder sb = new StringBuilder();
         sb.append("PREFIX:");
-        editor.document().toXml(sb);
+        localEditor.document().toXml(sb);
         sb.append(":SUFFIX");
 
         String result = sb.toString();

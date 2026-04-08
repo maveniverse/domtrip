@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for InputStream/OutputStream support and encoding documentation.
  */
-public class IOStreamSnippets extends BaseSnippetTest {
+class IOStreamSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateAutomaticEncodingDetection() throws Exception {
+    void demonstrateAutomaticEncodingDetection() throws Exception {
         // START: automatic-encoding-detection
         // Parse with automatic encoding detection
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>content</root>";
@@ -28,7 +28,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEncodingDetectionWithFallback() throws Exception {
+    void demonstrateEncodingDetectionWithFallback() throws Exception {
         // START: encoding-detection-fallback
         // With fallback encoding (String)
         String xml = "<root>content</root>";
@@ -47,7 +47,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateXmlDeclarationParsing() throws Exception {
+    void demonstrateXmlDeclarationParsing() throws Exception {
         // START: xml-declaration-parsing
         String xml = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?><root/>";
         InputStream inputStream = new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8));
@@ -64,7 +64,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentSerialization() throws Exception {
+    void demonstrateDocumentSerialization() throws Exception {
         // START: document-serialization
         String xmlString = "<root><child>value</child></root>";
         Document doc = Document.of(xmlString);
@@ -92,7 +92,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSerializerWithEncoding() throws Exception {
+    void demonstrateSerializerWithEncoding() throws Exception {
         // START: serializer-with-encoding
         String xmlString = "<root><child>value</child></root>";
         Document doc = Document.of(xmlString);
@@ -121,7 +121,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNodeSerialization() throws Exception {
+    void demonstrateNodeSerialization() throws Exception {
         // START: node-serialization
         String xmlString = "<root><child>value</child></root>";
         Document doc = Document.of(xmlString);
@@ -151,7 +151,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRoundTripProcessing() throws Exception {
+    void demonstrateRoundTripProcessing() throws Exception {
         // START: round-trip-processing
         // Parse from InputStream
         String xml = "<root><child>original</child></root>";
@@ -176,7 +176,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEncodingConsistency() throws Exception {
+    void demonstrateEncodingConsistency() throws Exception {
         // START: encoding-consistency
         // Document with UTF-16 encoding
         String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-16\"?><root>content</root>";
@@ -198,7 +198,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEncodingOverride() throws Exception {
+    void demonstrateEncodingOverride() throws Exception {
         // START: encoding-override
         // Parse with one encoding
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root>content</root>";
@@ -223,7 +223,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBomHandling() throws Exception {
+    void demonstrateBomHandling() throws Exception {
         // START: bom-handling
         // UTF-8 with BOM
         String xmlString = "<root>content</root>";
@@ -245,7 +245,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSpecialCharacters() throws Exception {
+    void demonstrateSpecialCharacters() throws Exception {
         // START: special-characters
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<root><text>Special: àáâãäå èéêë</text></root>";
 
@@ -267,7 +267,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorHandling() throws Exception {
+    void demonstrateErrorHandling() throws Exception {
         // START: error-handling
         try {
             String xml = "<root><child>value</child></root>";
@@ -295,7 +295,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCharsetVsString() throws Exception {
+    void demonstrateCharsetVsString() throws Exception {
         // START: charset-vs-string
         String xml = "<root>content</root>";
 
@@ -322,7 +322,7 @@ public class IOStreamSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBestPractices() throws Exception {
+    void demonstrateBestPractices() throws Exception {
         // START: best-practices
         // ✅ Proper resource management
         String xml = "<root><child>value</child></root>";

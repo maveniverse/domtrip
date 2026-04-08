@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for enhanced navigation features.
  */
-public class EnhancedNavigationTest {
+class EnhancedNavigationTest {
 
     private Editor editor;
     private Document document;
@@ -125,8 +125,7 @@ public class EnhancedNavigationTest {
         assertEquals(3, versions.size()); // Project + 2 dependencies
 
         // Verify content
-        List<String> versionTexts =
-                versions.stream().map(element -> element.textContent()).toList();
+        List<String> versionTexts = versions.stream().map(Element::textContent).toList();
         assertTrue(versionTexts.contains("1.0.0"));
         assertTrue(versionTexts.contains("4.13.2"));
         assertTrue(versionTexts.contains("3.12.4"));
@@ -194,7 +193,7 @@ public class EnhancedNavigationTest {
 
         // Test element with no text content
         Element dependencies = root.childElement("dependencies").orElseThrow();
-        String depText = dependencies.textContent();
+        dependencies.textContent();
         // Should be empty or whitespace only
     }
 
@@ -214,7 +213,7 @@ public class EnhancedNavigationTest {
         Element groupId = root.childElement("groupId").orElseThrow();
         assertTrue(groupId.hasTextContent());
 
-        Element dependencies = root.childElement("dependencies").orElseThrow();
+        root.childElement("dependencies").orElseThrow();
         // May or may not have text content depending on whitespace
     }
 
@@ -285,7 +284,7 @@ public class EnhancedNavigationTest {
                                 .orElse(false))
                         .findFirst())
                 .flatMap(dep -> dep.childElement("version"))
-                .map(element1 -> element1.textContent())
+                .map(Element::textContent)
                 .orElse("not found");
 
         assertEquals("4.13.2", junitVersion);
@@ -297,7 +296,7 @@ public class EnhancedNavigationTest {
                                 .map(scope -> "test".equals(scope.textContent()))
                                 .orElse(false))
                         .map(dep -> dep.childElement("groupId")
-                                .map(element -> element.textContent())
+                                .map(Element::textContent)
                                 .orElse("unknown"))
                         .toList())
                 .orElse(List.of());

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
  * This class shows practical examples of how to use preserve formatting,
  * pretty print, and raw modes.
  */
-public class SerializationModesDemo {
+class SerializationModesDemo {
 
     @Test
     void demonstrateSerializationModes() throws DomTripException {

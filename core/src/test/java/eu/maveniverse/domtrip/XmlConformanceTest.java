@@ -4,20 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for XML parser conformance and edge cases.
  */
-public class XmlConformanceTest {
-
-    private Editor editor;
-
-    @BeforeEach
-    void setUp() {
-        editor = new Editor(Document.of());
-    }
+class XmlConformanceTest {
 
     @Test
     void testWellFormedXml() throws DomTripException {

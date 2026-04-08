@@ -7,20 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for namespace handling functionality.
  */
-public class NamespaceTest {
-
-    private Editor editor;
-
-    @BeforeEach
-    void setUp() {
-        editor = new Editor(Document.of());
-    }
+class NamespaceTest {
 
     @Test
     void testBasicNamespaceCreation() throws DomTripException {

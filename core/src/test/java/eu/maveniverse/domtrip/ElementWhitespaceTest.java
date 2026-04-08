@@ -55,7 +55,6 @@ class ElementWhitespaceTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element item = doc.root().descendant("item").orElseThrow();
         Element clean = doc.root().descendant("clean").orElseThrow();
         Element empty = doc.root().descendant("empty").orElseThrow();
@@ -117,10 +116,9 @@ class ElementWhitespaceTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element description = doc.root().descendant("description").orElseThrow();
 
-        String originalContent = description.textContent();
+        description.textContent();
         String trimmedContent = description.textContentTrimmed();
 
         // The actual indentation in the XML has 8 spaces (2 levels of 4-space indentation)
@@ -168,7 +166,6 @@ class ElementWhitespaceTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element parent = doc.root().descendant("parent").orElseThrow();
 
         // Element has whitespace text nodes around the child element
@@ -286,7 +283,6 @@ class ElementWhitespaceTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element item = doc.root().descendant("item").orElseThrow();
 
         // Test with null content
@@ -308,7 +304,6 @@ class ElementWhitespaceTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
         Element item = doc.root();
 
         // getTrimmedTextContent should not mark as modified

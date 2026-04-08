@@ -9,7 +9,7 @@ import eu.maveniverse.domtrip.Element;
  * Demonstration of the lossless XML editor capabilities.
  * Shows how formatting is preserved during round-trip editing.
  */
-public class EditorDemo {
+class EditorDemo {
 
     public static void main(String[] args) throws DomTripException {
         // Sample XML with various formatting styles

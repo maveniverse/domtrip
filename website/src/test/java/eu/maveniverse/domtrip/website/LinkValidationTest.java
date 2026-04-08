@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
-public class LinkValidationTest {
+class LinkValidationTest {
 
     private static final Pattern INTERNAL_LINK_PATTERN =
             Pattern.compile("href=[\"']([^\"']*)[\"']", Pattern.CASE_INSENSITIVE);
@@ -22,7 +22,7 @@ public class LinkValidationTest {
             Pattern.compile("^(https?://|mailto:|#)", Pattern.CASE_INSENSITIVE);
 
     @Test
-    public void testInternalLinksAreValid() throws IOException {
+    void testInternalLinksAreValid() throws IOException {
         Path outputDir = findOutputDirectory();
         if (outputDir == null || !Files.exists(outputDir)) {
             System.out.println("Output directory not found, skipping link validation");

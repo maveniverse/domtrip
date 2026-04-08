@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for the new Builder API functionality.
  */
-public class BuilderApiTest {
+class BuilderApiTest {
 
     private Editor editor;
 

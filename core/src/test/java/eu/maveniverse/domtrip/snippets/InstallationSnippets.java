@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Installation documentation.
  */
-public class InstallationSnippets extends BaseSnippetTest {
+class InstallationSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateInstallationTest() {
+    void demonstrateInstallationTest() {
         // START: installation-test
         try {
             String xml = "<project><version>1.0</version></project>";

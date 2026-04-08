@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for commenting features documentation.
  */
-public class CommentingSnippets extends BaseSnippetTest {
+class CommentingSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateCommentOutSingleElement() throws DomTripException {
+    void demonstrateCommentOutSingleElement() throws DomTripException {
         // START: comment-out-single-element
         Document doc = Document.of("""
             <project>
@@ -42,7 +42,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentOutMultipleElements() throws DomTripException {
+    void demonstrateCommentOutMultipleElements() throws DomTripException {
         // START: comment-out-multiple-elements
         Document doc = Document.of("""
             <project>
@@ -75,7 +75,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateUncommentElement() throws DomTripException {
+    void demonstrateUncommentElement() throws DomTripException {
         // START: uncomment-element
         Document doc = Document.of("""
             <project>
@@ -106,7 +106,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWhitespacePreservation() throws DomTripException {
+    void demonstrateWhitespacePreservation() throws DomTripException {
         Document doc = Document.of("""
             <project>
                 <dependency>
@@ -132,7 +132,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRoundTripOperations() throws DomTripException {
+    void demonstrateRoundTripOperations() throws DomTripException {
         Document doc = Document.of("""
             <project>
                 <dependency>
@@ -161,7 +161,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorHandling() throws DomTripException {
+    void demonstrateErrorHandling() throws DomTripException {
         Document doc = Document.of("<project><child1/></project>");
         Editor editor = new Editor(doc);
 
@@ -185,7 +185,7 @@ public class CommentingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateIntegrationWithOtherFeatures() throws DomTripException {
+    void demonstrateIntegrationWithOtherFeatures() throws DomTripException {
         Document doc = Document.of("""
             <project>
                 <dependency>

@@ -15,14 +15,13 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Error Handling documentation.
  */
-public class ErrorHandlingSnippets extends BaseSnippetTest {
+class ErrorHandlingSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateDomTripException() {
+    void demonstrateDomTripException() {
         // START: domtrip-exception
         try {
-            String malformedXml = "<<invalid xml>>";
-            Document doc = Document.of(malformedXml);
+            Document.of("<<invalid xml>>");
         } catch (Exception e) {
             System.err.println("DomTrip error: " + e.getMessage());
             System.err.println("Cause: " + e.getCause());
@@ -34,10 +33,10 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateParsingExceptions() {
+    void demonstrateParsingExceptions() {
         // START: parsing-exceptions
         try {
-            Document doc = Document.of("<<invalid xml>>");
+            Document.of("<<invalid xml>>");
         } catch (Exception e) {
             System.err.println("Parse error: " + e.getMessage());
             // Note: Actual line/column info depends on parser implementation
@@ -49,12 +48,12 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateValidationExceptions() {
+    void demonstrateValidationExceptions() {
         // START: validation-exceptions
         try {
             String xml = createTestXml("root");
             Document doc = Document.of(xml);
-            Editor editor = new Editor(doc);
+            Assertions.assertNotNull(doc);
             // This would cause a validation error in strict mode
             // editor.addElement(null, "invalid", "content"); // null parent
         } catch (Exception e) {
@@ -67,7 +66,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMalformedXML() {
+    void demonstrateMalformedXML() {
         // START: malformed-xml
         String malformedXml = """
             <root>
@@ -77,7 +76,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             """;
 
         try {
-            Document doc = Document.of(malformedXml);
+            Document.of(malformedXml);
         } catch (Exception e) {
             System.err.println("XML syntax error:");
             System.err.println("  Message: " + e.getMessage());
@@ -92,7 +91,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEncodingIssues() throws Exception {
+    void demonstrateEncodingIssues() throws Exception {
         // START: encoding-issues
         try {
             // Simulate file with encoding issues
@@ -105,8 +104,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             // Recovery strategy
             try {
                 // Try with explicit encoding (simulated)
-                String xmlContent = createTestXml("root");
-                Document doc = Document.of(xmlContent);
+                createTestXml("root");
             } catch (Exception recovery) {
                 System.err.println("Recovery failed: " + recovery.getMessage());
             }
@@ -118,7 +116,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceConflicts() {
+    void demonstrateNamespaceConflicts() {
         // START: namespace-conflicts
         try {
             String xml = createTestXml("root");
@@ -135,7 +133,6 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
             System.err.println("Namespace conflict: " + e.getMessage());
 
             // Resolution strategy
-            String alternativePrefix = "ns2";
             // Use alternative prefix
         }
         // END: namespace-conflicts
@@ -145,7 +142,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateGracefulParsing() throws DomTripException {
+    void demonstrateGracefulParsing() throws DomTripException {
         // START: graceful-parsing
         String xml = "<root><child>content</child></root>";
         Document result = parseWithRecovery(xml);
@@ -154,7 +151,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(result);
     }
 
-    public Document parseWithRecovery(String xml) throws DomTripException {
+    Document parseWithRecovery(String xml) throws DomTripException {
         try {
             return Document.of(xml);
         } catch (Exception e) {
@@ -192,7 +189,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateValidationWithFallbacks() throws DomTripException {
+    void demonstrateValidationWithFallbacks() throws DomTripException {
         // START: validation-with-fallbacks
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -204,7 +201,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertTrue(true);
     }
 
-    public void safeElementOperation(Element parent, String name, String content) {
+    void safeElementOperation(Element parent, String name, String content) {
         try {
             // Primary operation
             Editor editor = new Editor(parent.document());
@@ -224,7 +221,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateResourceCleanup() throws Exception {
+    void demonstrateResourceCleanup() throws Exception {
         // START: resource-cleanup
         String xmlContent = createTestXml("root");
         java.io.InputStream inputStream = new java.io.ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8));
@@ -234,7 +231,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(result);
     }
 
-    public Document parseWithCleanup(InputStream inputStream) throws DomTripException {
+    Document parseWithCleanup(InputStream inputStream) throws DomTripException {
         try {
             return Document.of(inputStream);
         } catch (DomTripException e) {
@@ -253,7 +250,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateInputValidation() throws DomTripException {
+    void demonstrateInputValidation() throws DomTripException {
         // START: input-validation
         String xml = createTestXml("root");
         Document result = safeParse(xml);
@@ -262,7 +259,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(result);
     }
 
-    public Document safeParse(String xml) throws DomTripException {
+    Document safeParse(String xml) throws DomTripException {
         // Pre-validation
         if (xml == null || xml.trim().isEmpty()) {
             throw new DomTripException("XML content cannot be null or empty");
@@ -285,7 +282,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSafeElementAccess() throws DomTripException {
+    void demonstrateSafeElementAccess() throws DomTripException {
         // START: safe-element-access
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -298,7 +295,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         Assertions.assertNotNull(text);
     }
 
-    public String safeGetElementText(Element parent, String childName) {
+    String safeGetElementText(Element parent, String childName) {
         try {
             return parent.childElement(childName).map(Element::textContent).orElse("");
         } catch (Exception e) {
@@ -307,7 +304,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
         }
     }
 
-    public void safeSetAttribute(Element element, String name, String value) throws DomTripException {
+    void safeSetAttribute(Element element, String name, String value) throws DomTripException {
         try {
             // Validate attribute name
             if (!isValidXmlName(name)) {
@@ -326,13 +323,12 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorContext() {
+    void demonstrateErrorContext() {
         // START: error-context
         try {
             String xml = createTestXml("root");
-            Document document = Document.of(xml);
-            Editor editor = new Editor(document);
-            // ... complex operations
+            Document doc = Document.of(xml);
+            Assertions.assertNotNull(doc);
         } catch (DomTripException e) {
             // Get detailed context (conceptual - actual API may vary)
             String context = e.getMessage();
@@ -345,16 +341,16 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateValidationMode() {
+    void demonstrateValidationMode() {
         // START: validation-mode
         // Enable strict validation for debugging (conceptual)
         DomTripConfig config = DomTripConfig.defaults();
+        Assertions.assertNotNull(config);
 
         try {
             String xml = createTestXml("root");
-            Document document = Document.of(xml);
-            Editor editor = new Editor(document);
-            // Operations will provide detailed validation
+            Document doc = Document.of(xml);
+            Assertions.assertNotNull(doc);
         } catch (DomTripException e) {
             // Detailed validation errors
             System.err.println("Validation details: " + e.getMessage());
@@ -366,7 +362,7 @@ public class ErrorHandlingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateLoggingIntegration() {
+    void demonstrateLoggingIntegration() {
         // START: logging-integration
         // Simulate logging integration
         XmlProcessor processor = new XmlProcessor();

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * Test cases for Document class functionality.
  */
-public class DocumentTest {
+class DocumentTest {
 
     private Document document;
     private Editor editor;
@@ -125,7 +125,6 @@ public class DocumentTest {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         assertEquals("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", doc.xmlDeclaration());
         assertNotNull(doc.root());
@@ -137,8 +136,8 @@ public class DocumentTest {
         String xml = "<?xml version=\"1.0\"?>\n" + "<!DOCTYPE root SYSTEM \"root.dtd\">\n" + "<root/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        String result = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String result = localEditor.toXml();
 
         // DOCTYPE may not be fully supported yet
         assertNotNull(result);
@@ -150,7 +149,6 @@ public class DocumentTest {
         String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n<root/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         assertTrue(doc.xmlDeclaration().contains("standalone=\"yes\""));
     }
@@ -192,8 +190,8 @@ public class DocumentTest {
                 + "<!-- Final comment -->";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        String result = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String result = localEditor.toXml();
 
         assertEquals(xml, result);
     }
@@ -204,8 +202,8 @@ public class DocumentTest {
                 "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet type=\"text/xsl\" href=\"style.xsl\"?>\n" + "<root/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        String result = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String result = localEditor.toXml();
 
         // XML declaration may not be preserved exactly
         assertTrue(result.contains("<?xml-stylesheet"));
@@ -221,7 +219,6 @@ public class DocumentTest {
                 + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         Element found = doc.root().descendant("grandchild").orElse(null);
         assertNotNull(found);
@@ -234,7 +231,6 @@ public class DocumentTest {
         String xml = "<root><child/></root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         Element found = doc.root().descendant("nonexistent").orElse(null);
         assertNull(found);
@@ -245,7 +241,6 @@ public class DocumentTest {
         String xml = "<root><child/></root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         // This throws NPE in current implementation
         assertThrows(NullPointerException.class, () -> {
@@ -263,8 +258,8 @@ public class DocumentTest {
                 + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        String stats = editor.documentStats();
+        Editor localEditor = new Editor(doc);
+        String stats = localEditor.documentStats();
 
         assertNotNull(stats);
         assertTrue(stats.contains("elements"));
@@ -283,8 +278,8 @@ public class DocumentTest {
         String xml = "<?xml version=\"1.0\"?>\n\n" + "<root>\n" + "  \n" + "  <child/>\n" + "  \n" + "</root>\n\n";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        String result = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String result = localEditor.toXml();
 
         // Whitespace should be preserved
         assertEquals(xml, result);
@@ -294,7 +289,6 @@ public class DocumentTest {
     void testDocumentModificationTracking() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         // Initially not modified (just loaded)
         assertFalse(doc.isModified());
@@ -317,8 +311,8 @@ public class DocumentTest {
                 + "<!-- Footer -->";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        String result = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String result = localEditor.toXml();
 
         assertEquals(xml, result);
     }
@@ -363,7 +357,7 @@ public class DocumentTest {
 
         // Parse using Document.of(Path)
         Document doc = Document.of(xmlFile);
-        Editor editor = new Editor(doc);
+        Editor localEditor = new Editor(doc);
 
         assertNotNull(doc);
         assertEquals("UTF-8", doc.encoding());
@@ -377,7 +371,7 @@ public class DocumentTest {
         assertEquals("5432", database.childElement("port").orElseThrow().textContent());
 
         // Verify round-trip preserves formatting (note: XML declaration may not be preserved exactly)
-        String result = editor.toXml();
+        String result = localEditor.toXml();
         assertTrue(result.contains("<config>"));
         assertTrue(result.contains("<!-- Configuration file -->"));
         assertTrue(result.contains("<?xml-stylesheet"));

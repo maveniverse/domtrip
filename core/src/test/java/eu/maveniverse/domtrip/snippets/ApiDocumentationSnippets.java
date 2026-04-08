@@ -16,10 +16,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for API documentation and advanced features.
  */
-public class ApiDocumentationSnippets extends BaseSnippetTest {
+class ApiDocumentationSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateElementBuilders() throws DomTripException {
+    void demonstrateElementBuilders() throws DomTripException {
         // START: fluent-element-builders
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -39,7 +39,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceSupport() throws DomTripException {
+    void demonstrateNamespaceSupport() throws DomTripException {
         // START: namespace-support
         // Create elements with namespaces
         Element soapEnvelope =
@@ -64,7 +64,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
 
         // Get namespace information
         String localName = root.localName();
-        String namespaceURI = root.namespaceURI();
+        root.namespaceURI();
         // END: namespace-support
 
         Assertions.assertTrue(body.isPresent());
@@ -72,7 +72,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRealWorldMavenExample() throws Exception {
+    void demonstrateRealWorldMavenExample() throws Exception {
         // Test the method
         Path tempFile = Files.createTempFile("test-pom", ".xml");
         try {
@@ -87,8 +87,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     }
 
     // START: real-world-maven-example
-    public void addDependencyExample(String pomPath, String groupId, String artifactId, String version)
-            throws Exception {
+    void addDependencyExample(String pomPath, String groupId, String artifactId, String version) throws Exception {
         // Load POM with automatic encoding detection
         Document doc = Document.of(Path.of(pomPath));
         Editor editor = new Editor(doc);
@@ -119,7 +118,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     // END: real-world-maven-example
 
     @Test
-    public void demonstrateWorkingWithExistingDocuments() throws DomTripException {
+    void demonstrateWorkingWithExistingDocuments() throws DomTripException {
         // START: working-with-existing-documents
         // Parse with Document directly
         String xmlString = createConfigXml();
@@ -142,7 +141,7 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateProgrammaticDocumentCreation() throws DomTripException {
+    void demonstrateProgrammaticDocumentCreation() throws DomTripException {
         // START: programmatic-document-creation
         // Create document programmatically
         Document doc = Document.withRootElement("project");
@@ -163,15 +162,12 @@ public class ApiDocumentationSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorHandling() throws DomTripException {
+    void demonstrateErrorHandling() throws DomTripException {
         // START: error-handling
         try {
             // Attempt to parse malformed XML
-            String malformedXml = "<root><unclosed>";
-            Document doc = Document.of(malformedXml);
 
             // This won't be reached due to parsing error
-            Editor editor = new Editor(doc);
         } catch (Exception e) {
             // Handle parsing errors gracefully
             System.err.println("XML parsing failed: " + e.getMessage());

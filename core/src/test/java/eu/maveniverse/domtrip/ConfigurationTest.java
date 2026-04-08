@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for configuration and serialization options.
  */
-public class ConfigurationTest {
+class ConfigurationTest {
 
     @Test
     void testDomTripConfigDefaults() {

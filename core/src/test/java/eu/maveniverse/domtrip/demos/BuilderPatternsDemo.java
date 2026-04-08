@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Demonstrates the new builder patterns and factory methods.
  */
-public class BuilderPatternsDemo {
+class BuilderPatternsDemo {
 
     public static void main(String[] args) throws DomTripException {
         System.out.println("=== Builder Patterns Demo ===\n");
@@ -53,7 +53,7 @@ public class BuilderPatternsDemo {
 
         // Various element creation patterns
         Element textElement = Element.text("title", "My Document");
-        Element emptyElement = Element.of("placeholder");
+        Element.of("placeholder");
         Element selfClosing = Element.selfClosing("br");
 
         Element withAttributes =

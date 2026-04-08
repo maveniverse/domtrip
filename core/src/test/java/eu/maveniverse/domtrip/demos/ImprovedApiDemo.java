@@ -12,7 +12,7 @@ import java.util.Map;
 /**
  * Demonstration of the improved DomTrip API features.
  */
-public class ImprovedApiDemo {
+class ImprovedApiDemo {
 
     public static void main(String[] args) throws DomTripException {
         System.out.println("=== DomTrip Improved API Demo ===\n");

@@ -21,10 +21,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Performance documentation.
  */
-public class PerformanceSnippets extends BaseSnippetTest {
+class PerformanceSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateMemoryUsage() throws DomTripException {
+    void demonstrateMemoryUsage() throws DomTripException {
         // START: memory-usage
         // Memory-efficient document handling
         String xmlContent = createTestXml("root");
@@ -42,7 +42,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateParsingPerformance() throws DomTripException {
+    void demonstrateParsingPerformance() throws DomTripException {
         // START: parsing-performance
         // Benchmark parsing performance
         String xmlContent = createTestXml("root");
@@ -60,7 +60,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateModificationPerformance() throws DomTripException {
+    void demonstrateModificationPerformance() throws DomTripException {
         // START: modification-performance
         // Efficient bulk modifications
         String xmlContent = createTestXml("root");
@@ -84,7 +84,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateLargeDocumentProcessing() throws DomTripException, IOException {
+    void demonstrateLargeDocumentProcessing() throws DomTripException, IOException {
         // START: large-document-processing
         // Strategy 1: Process in sections
         String xmlContent = createTestXml("root");
@@ -95,7 +95,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
         Assertions.assertTrue(true);
     }
 
-    public void processLargeDocument(String xmlContent) throws DomTripException, IOException {
+    void processLargeDocument(String xmlContent) throws DomTripException, IOException {
         // Check content size first
         long contentSize = xmlContent.length();
 
@@ -128,13 +128,12 @@ public class PerformanceSnippets extends BaseSnippetTest {
 
     private void processNormally(String xmlContent) throws DomTripException {
         Document doc = Document.of(xmlContent);
-        Editor editor = new Editor(doc);
-        // Normal processing
+        Assertions.assertNotNull(doc);
     }
 
     private void processElement(Element element) {
         // Simulate element processing
-        String content = element.textContent();
+        element.textContent();
     }
 
     private boolean shouldClearMemory() {
@@ -143,7 +142,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBatchOperations() throws DomTripException {
+    void demonstrateBatchOperations() throws DomTripException {
         // START: batch-operations
         // Efficient batch modifications
         String xmlContent = createTestXml("root");
@@ -165,8 +164,8 @@ public class PerformanceSnippets extends BaseSnippetTest {
         Assertions.assertTrue(result.contains("item3"));
     }
 
-    public void optimizedBatchUpdate(Editor editor, List<ElementData> updates) throws DomTripException {
-        Element root = editor.root();
+    void optimizedBatchUpdate(Editor editor, List<ElementData> updates) throws DomTripException {
+        editor.root();
 
         // Group operations by parent for better performance
         Map<Element, List<ElementData>> groupedUpdates =
@@ -180,7 +179,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMemoryManagement() throws DomTripException {
+    void demonstrateMemoryManagement() throws DomTripException {
         // START: memory-management
         // Optimize memory usage for long-running applications
         XmlProcessor processor = new XmlProcessor();
@@ -195,7 +194,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePerformanceTesting() throws IOException {
+    void demonstratePerformanceTesting() {
         // START: performance-testing
         DomTripBenchmark benchmark = new DomTripBenchmark();
         benchmark.benchmarkParsing();
@@ -206,7 +205,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMemoryProfiling() throws DomTripException {
+    void demonstrateMemoryProfiling() throws DomTripException {
         // START: memory-profiling
         profileMemoryUsage();
         // END: memory-profiling
@@ -215,7 +214,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
         Assertions.assertTrue(true);
     }
 
-    public void profileMemoryUsage() throws DomTripException {
+    void profileMemoryUsage() throws DomTripException {
         Runtime runtime = Runtime.getRuntime();
 
         // Baseline memory
@@ -254,7 +253,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfigurationOptimization() throws DomTripException {
+    void demonstrateConfigurationOptimization() throws DomTripException {
         // START: configuration-optimization
         // Optimize configuration for performance (conceptual)
         DomTripConfig performanceConfig =
@@ -270,7 +269,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamingForLargeFiles() throws DomTripException, IOException {
+    void demonstrateStreamingForLargeFiles() throws DomTripException, IOException {
         // START: streaming-large-files
         // Stream processing for very large files
         String xmlContent = createTestXml("root");
@@ -281,7 +280,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
         Assertions.assertTrue(true);
     }
 
-    public void streamProcess(String xmlContent) throws DomTripException, IOException {
+    void streamProcess(String xmlContent) throws DomTripException, IOException {
         try (InputStream stream = new ByteArrayInputStream(xmlContent.getBytes(StandardCharsets.UTF_8));
                 BufferedInputStream buffered = new BufferedInputStream(stream, 64 * 1024)) {
 
@@ -317,7 +316,7 @@ public class PerformanceSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePerformanceMonitoring() throws DomTripException {
+    void demonstratePerformanceMonitoring() throws DomTripException {
         // START: performance-monitoring
         PerformanceMonitor monitor = new PerformanceMonitor();
         String xmlContent = createTestXml("root");

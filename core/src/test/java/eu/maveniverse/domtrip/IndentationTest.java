@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for indentation and whitespace preservation.
  */
-public class IndentationTest {
+class IndentationTest {
 
     private Editor editor;
 
@@ -23,11 +23,11 @@ public class IndentationTest {
         String xml = "<root>\n" + "    <existing>content</existing>\n" + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
-        editor.addElement(root, "newElement", "new content");
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
+        localEditor.addElement(root, "newElement", "new content");
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // New element should be indented with 4 spaces like existing element
         assertTrue(result.contains("    <existing>content</existing>"));
@@ -39,11 +39,11 @@ public class IndentationTest {
         String xml = "<root>\n" + "\t<existing>content</existing>\n" + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
-        editor.addElement(root, "newElement", "new content");
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
+        localEditor.addElement(root, "newElement", "new content");
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // New element should be indented with tabs like existing element
         assertTrue(result.contains("\t<existing>content</existing>"));
@@ -67,11 +67,11 @@ public class IndentationTest {
             </root>""";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
+        Editor localEditor = new Editor(doc);
         Element parent = doc.root().descendant("parent").orElseThrow();
-        editor.addElement(parent, "newChild", "new content");
+        localEditor.addElement(parent, "newChild", "new content");
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // New child should be indented at the same level as existing child
         assertEquals(expected, result);
@@ -85,11 +85,11 @@ public class IndentationTest {
                 + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
-        editor.addElement(root, "element3", "content3");
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
+        localEditor.addElement(root, "element3", "content3");
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // Should preserve existing whitespace patterns
         assertTrue(result.contains("  <element1>content1</element1>"));
@@ -102,11 +102,11 @@ public class IndentationTest {
         String xml = "<root>\n" + "  <element>content</element>\n" + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
-        editor.addComment(root, "This is a comment");
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
+        localEditor.addComment(root, "This is a comment");
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // Comment should be indented like other children
         assertTrue(result.contains("  <element>content</element>"));
@@ -119,11 +119,11 @@ public class IndentationTest {
         String xml = "<root>\n" + "  <existing/>\n" + "</root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
-        Element newElement = editor.addElement(root, "newEmpty");
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
+        localEditor.addElement(root, "newEmpty");
 
-        String result = editor.toXml();
+        String result = localEditor.toXml();
 
         // Both empty elements should be properly indented
         assertTrue(result.contains("  <existing/>"));

@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
  * <p>This class contains practical examples of using DomTrip for various
  * XML editing scenarios that are referenced in the Examples documentation.</p>
  */
-public class ExamplesSnippets extends BaseSnippetTest {
+class ExamplesSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateSimpleElementModification() throws DomTripException {
+    void demonstrateSimpleElementModification() throws DomTripException {
         // START: simple-element-modification
         String xml = """
             <config>
@@ -46,7 +46,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAddingNewElements() throws DomTripException {
+    void demonstrateAddingNewElements() throws DomTripException {
         // START: adding-new-elements
         Document doc = Document.of("<project></project>");
         Editor editor = new Editor(doc);
@@ -72,7 +72,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMavenPomEditing() throws DomTripException {
+    void demonstrateMavenPomEditing() throws DomTripException {
         // START: maven-pom-adding-dependencies
         String pomXml = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -108,7 +108,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateUpdatingVersion() throws DomTripException {
+    void demonstrateUpdatingVersion() throws DomTripException {
         // START: maven-pom-updating-version
         String pomContent = createMavenPomXml();
         Document doc = Document.of(pomContent);
@@ -135,7 +135,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeManipulation() throws DomTripException {
+    void demonstrateAttributeManipulation() throws DomTripException {
         // START: attribute-manipulation
         String xmlContent = createConfigXml();
         Document doc = Document.of(xmlContent);
@@ -162,7 +162,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorHandling() {
+    void demonstrateErrorHandling() {
         // START: safe-element-handling
         try {
             String xmlContent = createConfigXml();
@@ -189,7 +189,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBestPracticesOptional() throws DomTripException {
+    void demonstrateBestPracticesOptional() throws DomTripException {
         // START: best-practices-optional
         String xml = createMavenPomXml();
         Document doc = Document.of(xml);
@@ -210,7 +210,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePreserveFormatting() throws DomTripException {
+    void demonstratePreserveFormatting() throws DomTripException {
         // START: best-practices-preserve-formatting
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -225,7 +225,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSpringConfiguration() throws DomTripException {
+    void demonstrateSpringConfiguration() throws DomTripException {
         // START: spring-configuration
         String springConfig = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -269,7 +269,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWorkingWithNamespaces() throws DomTripException {
+    void demonstrateWorkingWithNamespaces() throws DomTripException {
         // START: working-with-namespaces
         String xmlWithNamespaces = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -300,7 +300,7 @@ public class ExamplesSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBuilderPatterns() throws DomTripException {
+    void demonstrateBuilderPatterns() throws DomTripException {
         // START: using-builder-patterns
         // Create elements using factory methods (simplified builder pattern)
         Element dependency = Element.of("dependency");

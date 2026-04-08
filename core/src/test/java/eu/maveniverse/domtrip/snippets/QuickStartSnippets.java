@@ -15,10 +15,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Quick Start documentation.
  */
-public class QuickStartSnippets extends BaseSnippetTest {
+class QuickStartSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicUsage() throws Exception {
+    void demonstrateBasicUsage() throws Exception {
         // START: quick-start-basic
         // Parse XML while preserving all formatting
         String originalXml = """
@@ -52,7 +52,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateLoadingXml() throws Exception {
+    void demonstrateLoadingXml() throws Exception {
         // START: loading-xml-string
         // From string
         String xmlString = createConfigXml();
@@ -101,7 +101,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFindingElements() throws DomTripException {
+    void demonstrateFindingElements() throws DomTripException {
         // START: finding-elements-basic
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -123,7 +123,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAddingElements() throws DomTripException {
+    void demonstrateAddingElements() throws DomTripException {
         // START: adding-elements-simple
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -147,7 +147,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateModifyingContent() throws DomTripException {
+    void demonstrateModifyingContent() throws DomTripException {
         // START: modifying-content
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -172,7 +172,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfiguration() throws DomTripException {
+    void demonstrateConfiguration() throws DomTripException {
         // START: configuration-options
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -198,7 +198,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamBasedNavigation() throws DomTripException {
+    void demonstrateStreamBasedNavigation() throws DomTripException {
         // START: stream-based-navigation
         String xml = createConfigXml();
         Document doc = Document.of(xml);
@@ -216,7 +216,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateElementBuilders() throws DomTripException {
+    void demonstrateElementBuilders() throws DomTripException {
         // START: element-builders
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -235,7 +235,7 @@ public class QuickStartSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRemovingElements() throws DomTripException {
+    void demonstrateRemovingElements() throws DomTripException {
         // START: removing-elements
         String xml = createConfigXml();
         Document doc = Document.of(xml);

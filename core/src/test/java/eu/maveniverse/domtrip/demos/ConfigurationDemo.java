@@ -11,7 +11,7 @@ import eu.maveniverse.domtrip.QuoteStyle;
 /**
  * Demonstrates configuration options and serialization features.
  */
-public class ConfigurationDemo {
+class ConfigurationDemo {
 
     public static void main(String[] args) throws DomTripException {
         System.out.println("=== Configuration and Serialization Demo ===\n");

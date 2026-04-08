@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for factory methods and fluent API documentation.
  */
-public class FactoryMethodsSnippets extends BaseSnippetTest {
+class FactoryMethodsSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicElementCreation() throws DomTripException {
+    void demonstrateBasicElementCreation() throws DomTripException {
         // START: basic-element-creation
         // Simple elements
         Element version = Element.of("version");
@@ -36,7 +36,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAdvancedElementCreation() throws DomTripException {
+    void demonstrateAdvancedElementCreation() throws DomTripException {
         // START: advanced-element-creation
         // Element with complex structure using fluent API
         Element project = Element.of("project").attribute("xmlns", "http://maven.apache.org/POM/4.0.0");
@@ -58,7 +58,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespacedElements() throws DomTripException {
+    void demonstrateNamespacedElements() throws DomTripException {
         // START: namespaced-elements
         // Namespaced element using QName
         QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
@@ -75,7 +75,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentCreation() throws DomTripException {
+    void demonstrateDocumentCreation() throws DomTripException {
         // START: document-creation
         // Basic document with root element
         Document doc = Document.withRootElement("project");
@@ -97,7 +97,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateTextAndCommentCreation() {
+    void demonstrateTextAndCommentCreation() {
         // START: text-comment-creation
         // Simple text
         Text text = Text.of("Hello World");
@@ -119,7 +119,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFluentElementAddition() throws DomTripException {
+    void demonstrateFluentElementAddition() throws DomTripException {
         // START: fluent-element-addition
         Document doc = Document.withRootElement("project");
         Editor editor = new Editor(doc);
@@ -150,7 +150,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeCreation() throws DomTripException {
+    void demonstrateAttributeCreation() throws DomTripException {
         // START: attribute-creation
         // Simple attribute
         Attribute attr = Attribute.of("class", "important");
@@ -171,7 +171,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateComplexStructureCreation() throws DomTripException {
+    void demonstrateComplexStructureCreation() throws DomTripException {
         // START: complex-structure-creation
         // Create a complete Maven dependency structure
         Element dependency = Element.of("dependency");
@@ -202,7 +202,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFactoryMethodBestPractices() throws DomTripException {
+    void demonstrateFactoryMethodBestPractices() throws DomTripException {
         // START: factory-method-best-practices
         // ✅ Good - clean and direct
         Element version = Element.text("version", "1.0.0");
@@ -228,7 +228,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateReusableFactoryMethods() throws DomTripException {
+    void demonstrateReusableFactoryMethods() throws DomTripException {
         // START: reusable-factory-methods
         // Extract complex structures to methods for reusability
         Element junitDep = createDependency("junit", "junit", "4.13.2");
@@ -249,7 +249,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
 
     // Helper method for the reusable factory methods example
     @Test
-    public void demonstrateSimpleDocumentCreation() throws DomTripException {
+    void demonstrateSimpleDocumentCreation() throws DomTripException {
         // START: simple-document-creation
         // Basic document
         Document doc = Document.withRootElement("project");
@@ -269,7 +269,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFileBasedDocumentLoading() throws Exception {
+    void demonstrateFileBasedDocumentLoading() throws Exception {
         // START: file-based-document-loading
         // Basic file loading with automatic encoding detection
         // Document doc = Document.of(Path.of("config.xml"));
@@ -289,7 +289,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAdvancedDocumentCreation() throws DomTripException {
+    void demonstrateAdvancedDocumentCreation() throws DomTripException {
         // START: advanced-document-creation
         // Document with processing instructions
         Document doc = Document.withXmlDeclaration("1.0", "UTF-8");
@@ -301,7 +301,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateTextNodeCreation() {
+    void demonstrateTextNodeCreation() {
         // START: text-node-creation
         // Simple text
         Text text = Text.of("Hello World");
@@ -319,7 +319,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentCreation() {
+    void demonstrateCommentCreation() {
         // START: comment-creation
         // Simple comment
         Comment comment = Comment.of("This is a comment");
@@ -334,7 +334,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateProcessingInstructionCreation() {
+    void demonstrateProcessingInstructionCreation() {
         // START: processing-instruction-creation
         // Processing instruction with target and data
         ProcessingInstruction pi = ProcessingInstruction.of("xml-stylesheet", "type=\"text/css\" href=\"style.css\"");
@@ -355,7 +355,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFluentChaining() throws DomTripException {
+    void demonstrateFluentChaining() throws DomTripException {
         // START: fluent-chaining
         // ✅ Good - readable fluent chain
         Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");
@@ -369,7 +369,7 @@ public class FactoryMethodsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePerformanceOptimizations() throws DomTripException {
+    void demonstratePerformanceOptimizations() throws DomTripException {
         // START: performance-optimizations
         // Efficient - direct object creation and modification
         Element element = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");

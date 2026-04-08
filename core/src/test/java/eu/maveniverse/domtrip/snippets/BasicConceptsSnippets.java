@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for basic concepts documentation.
  */
-public class BasicConceptsSnippets extends BaseSnippetTest {
+class BasicConceptsSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateLosslessPhilosophy() throws DomTripException {
+    void demonstrateLosslessPhilosophy() throws DomTripException {
         // START: lossless-philosophy
         String xml = "<project><version>1.0</version></project>";
 
@@ -28,7 +28,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNodeHierarchy() throws DomTripException {
+    void demonstrateNodeHierarchy() throws DomTripException {
         // START: node-hierarchy
         // ✅ This works - Element can have children
         Element parent = Element.of("parent");
@@ -44,7 +44,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateModificationTracking() throws DomTripException {
+    void demonstrateModificationTracking() throws DomTripException {
         // START: modification-tracking
         String originalXml = "<project><version>1.0</version><name>test</name></project>";
         Editor editor = new Editor(Document.of(originalXml));
@@ -68,7 +68,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDualContentStorage() throws DomTripException {
+    void demonstrateDualContentStorage() throws DomTripException {
         // START: dual-content-storage
         // Original XML: <message>Hello &amp; goodbye</message>
         String xml = "<message>Hello &amp; goodbye</message>";
@@ -87,7 +87,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeHandling() throws DomTripException {
+    void demonstrateAttributeHandling() throws DomTripException {
         // START: attribute-handling
         String xml = "<dependency scope='test'></dependency>";
         Editor editor = new Editor(Document.of(xml));
@@ -107,7 +107,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWhitespaceInference() throws DomTripException {
+    void demonstrateWhitespaceInference() throws DomTripException {
         // START: whitespace-inference
         // Existing structure with indentation
         String xml = """
@@ -133,7 +133,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateConfigurationSystem() {
+    void demonstrateConfigurationSystem() {
         // START: configuration-system
         // Preset configurations
         DomTripConfig defaults = DomTripConfig.defaults(); // Maximum preservation
@@ -154,7 +154,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateOptionalBasedNavigation() throws DomTripException {
+    void demonstrateOptionalBasedNavigation() throws DomTripException {
         // START: optional-based-navigation
         String xml = "<root><child>value</child></root>";
         Editor editor = new Editor(Document.of(xml));
@@ -172,7 +172,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateStreamBasedNavigation() throws DomTripException {
+    void demonstrateStreamBasedNavigation() throws DomTripException {
         // START: stream-based-navigation
         String xml = """
             <root>
@@ -200,7 +200,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceAwareNavigation() throws DomTripException {
+    void demonstrateNamespaceAwareNavigation() throws DomTripException {
         // START: namespace-aware-navigation
         String xml = """
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -229,7 +229,7 @@ public class BasicConceptsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateErrorHandling() {
+    void demonstrateErrorHandling() {
         // START: error-handling
         try {
             String xmlString = "<root><child>valid</child></root>";

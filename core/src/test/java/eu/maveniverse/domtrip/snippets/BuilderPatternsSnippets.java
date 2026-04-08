@@ -16,10 +16,10 @@ import org.junit.jupiter.api.Test;
  * Code snippets demonstrating DomTrip's builder patterns and fluent APIs.
  * These snippets are extracted and used in the documentation.
  */
-public class BuilderPatternsSnippets extends BaseSnippetTest {
+class BuilderPatternsSnippets extends BaseSnippetTest {
 
     @Test
-    public void fluentInterfaceDesign() throws DomTripException {
+    void fluentInterfaceDesign() throws DomTripException {
         // snippet:fluent-interface-design
         Editor editor = new Editor();
         editor.createDocument("project");
@@ -41,7 +41,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void documentCreation() throws DomTripException {
+    void documentCreation() throws DomTripException {
         // snippet:document-creation
         // Create empty document
         Editor editor = new Editor();
@@ -58,7 +58,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void documentConfiguration() throws DomTripException {
+    void documentConfiguration() throws DomTripException {
         // snippet:document-configuration
         DomTripConfig config = DomTripConfig.prettyPrint();
         Editor editor = new Editor(config);
@@ -72,7 +72,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void basicElementCreation() throws DomTripException {
+    void basicElementCreation() throws DomTripException {
         // snippet:basic-element-creation
         Editor editor = new Editor();
         editor.createDocument("root");
@@ -99,7 +99,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void advancedElementOperations() throws DomTripException {
+    void advancedElementOperations() throws DomTripException {
         // snippet:advanced-element-operations
         Editor editor = new Editor();
         editor.createDocument("root");
@@ -134,7 +134,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void attributeManagement() throws DomTripException {
+    void attributeManagement() throws DomTripException {
         // snippet:attribute-management
         Editor editor = new Editor();
         editor.createDocument("root");
@@ -162,7 +162,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void attributeModification() throws DomTripException {
+    void attributeModification() throws DomTripException {
         // snippet:attribute-modification
         Editor editor = new Editor();
         editor.createDocument("root");
@@ -197,7 +197,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void namespaceDeclaration() throws DomTripException {
+    void namespaceDeclaration() throws DomTripException {
         // snippet:namespace-declaration
         Editor editor = new Editor();
         editor.createDocument("project");
@@ -218,7 +218,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void addingComments() throws DomTripException {
+    void addingComments() throws DomTripException {
         // snippet:adding-comments
         Editor editor = new Editor();
         editor.createDocument("root");
@@ -250,7 +250,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void processingInstructions() throws DomTripException {
+    void processingInstructions() throws DomTripException {
         // snippet:processing-instructions
         Editor editor = new Editor();
         editor.createDocument("root");
@@ -266,7 +266,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void customBuilderExtensions() throws DomTripException {
+    void customBuilderExtensions() throws DomTripException {
         // snippet:custom-builder-extensions
         MavenPomBuilder pomBuilder = new MavenPomBuilder();
         Document pom = pomBuilder
@@ -281,7 +281,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void builderComposition() throws DomTripException {
+    void builderComposition() throws DomTripException {
         // snippet:builder-composition
         Document pom = new MavenPomBuilder()
                 .groupId("com.example")
@@ -297,7 +297,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void errorHandling() {
+    void errorHandling() {
         // snippet:error-handling
         String value = "test-value";
         String content = "test-content";
@@ -321,7 +321,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void builderStateValidation() throws DomTripException {
+    void builderStateValidation() throws DomTripException {
         // snippet:builder-state-validation
         Editor editor = new Editor();
         editor.createDocument("root");
@@ -345,7 +345,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void methodChainingBestPractices() throws DomTripException {
+    void methodChainingBestPractices() throws DomTripException {
         // snippet:method-chaining-best-practices
         // ✅ Good - short chains on one line are readable
         Element dependency = Element.of("dependency").attribute("scope", "test").attribute("optional", "false");
@@ -369,7 +369,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void typeSafetyBestPractices() throws DomTripException {
+    void typeSafetyBestPractices() throws DomTripException {
         // snippet:type-safety-best-practices
         Editor editor = new Editor();
         editor.createDocument("root");
@@ -395,7 +395,7 @@ public class BuilderPatternsSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void namespaceConsistency() throws DomTripException {
+    void namespaceConsistency() throws DomTripException {
         // snippet:namespace-consistency
         Editor editor = new Editor();
         editor.createDocument("project");

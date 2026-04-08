@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for Element cloning functionality and parent removal behavior.
  */
-public class ElementCloneTest {
+class ElementCloneTest {
 
     @Test
     void testElementClone() throws DomTripException {

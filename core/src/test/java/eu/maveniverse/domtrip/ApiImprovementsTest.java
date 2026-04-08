@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
  * Test cases for the API improvements including QName support,
  * standardized return types, and fluent navigation.
  */
-public class ApiImprovementsTest {
+class ApiImprovementsTest {
 
     private Editor editor;
 
@@ -92,8 +92,8 @@ public class ApiImprovementsTest {
         Element root = editor.root();
 
         // Add some elements
-        Element child1 = editor.addElement(root, "child1", "content1");
-        Element child2 = editor.addElement(root, "child2", "content2");
+        editor.addElement(root, "child1", "content1");
+        editor.addElement(root, "child2", "content2");
 
         // Test Optional return types
         Optional<Element> foundChild1 = doc.root().descendant("child1");
@@ -173,7 +173,7 @@ public class ApiImprovementsTest {
 
         Element dependencies = editor.addElement(root, "dependencies");
         Element dependency = editor.addElement(dependencies, "dependency");
-        Element groupId = editor.addElement(dependency, "groupId", "junit");
+        editor.addElement(dependency, "groupId", "junit");
 
         // Test path-based navigation
         Optional<Element> foundGroupId = root.path("dependencies", "dependency", "groupId");
@@ -197,8 +197,8 @@ public class ApiImprovementsTest {
 
         // Add child elements
         Element child1 = editor.addElement(root, "child", "content1");
-        Element child2 = editor.addElement(root, "child", "content2");
-        Element other = editor.addElement(root, "other", "content3");
+        editor.addElement(root, "child", "content2");
+        editor.addElement(root, "other", "content3");
 
         // Test enhanced navigation methods
         Optional<Element> firstChild = root.childElement("child");
@@ -212,7 +212,7 @@ public class ApiImprovementsTest {
         assertEquals(3, allChildElements.size());
 
         // Test descendant navigation
-        Element nested = editor.addElement(child1, "nested", "nested-content");
+        editor.addElement(child1, "nested", "nested-content");
         Optional<Element> foundNested = root.descendant("nested");
         assertTrue(foundNested.isPresent());
         assertEquals("nested-content", foundNested.orElseThrow().textContent());
@@ -244,7 +244,7 @@ public class ApiImprovementsTest {
     void testImprovedConvenienceMethods() throws Exception {
         editor.createDocument("root");
         Document doc = editor.document();
-        Element root = editor.root();
+        editor.root();
 
         // Test findOrCreateElement
         Element version = // FIXME: editor.findOrCreateElement("version");

@@ -5,20 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
  * Test cases for ProcessingInstruction functionality.
  */
-public class ProcessingInstructionTest {
-
-    private Editor editor;
-
-    @BeforeEach
-    void setUp() {
-        editor = new Editor(Document.of());
-    }
+class ProcessingInstructionTest {
 
     @Test
     void testBasicProcessingInstruction() throws DomTripException {
@@ -110,7 +102,6 @@ public class ProcessingInstructionTest {
         String xml = "<?xml version=\"1.0\"?>\n" + "<?xml-stylesheet href=\"style.css\"?>\n" + "<root/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         // Check that processing instructions are preserved in document
         boolean foundStylesheet = false;

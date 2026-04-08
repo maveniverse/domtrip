@@ -11,10 +11,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for namespace support features documentation.
  */
-public class NamespaceSupportSnippets extends BaseSnippetTest {
+class NamespaceSupportSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateBasicNamespaceHandling() throws DomTripException {
+    void demonstrateBasicNamespaceHandling() throws DomTripException {
         // START: basic-namespace-handling
         String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -24,7 +24,6 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         Element root = doc.root();
 
@@ -40,7 +39,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstratePrefixedNamespaces() throws DomTripException {
+    void demonstratePrefixedNamespaces() throws DomTripException {
         // START: prefixed-namespaces
         String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -52,7 +51,6 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         Element schemaLocation = doc.root().childElement("xsi:schemaLocation").orElseThrow();
 
@@ -70,7 +68,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceDeclarations() throws DomTripException {
+    void demonstrateNamespaceDeclarations() throws DomTripException {
         // START: namespace-declarations
         String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -81,7 +79,6 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         Element root = doc.root();
 
@@ -97,7 +94,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAddingNamespaceDeclarations() throws DomTripException {
+    void demonstrateAddingNamespaceDeclarations() throws DomTripException {
         // START: adding-namespace-declarations
         String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -125,13 +122,13 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateQNameUsage() throws DomTripException {
+    void demonstrateQNameUsage() throws DomTripException {
         // START: qname-usage
         // Create QName for namespaced element
         QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
 
         // Create element using QName
-        Element envelope = Element.of(soapEnvelope);
+        Element.of(soapEnvelope);
 
         // QName provides namespace information
         String namespace = soapEnvelope.namespaceURI(); // "http://schemas.xmlsoap.org/soap/envelope/"
@@ -147,7 +144,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceAwareNavigation() throws DomTripException {
+    void demonstrateNamespaceAwareNavigation() throws DomTripException {
         // START: namespace-aware-navigation
         String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -160,7 +157,6 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         Element root = doc.root();
 
@@ -177,7 +173,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceInheritance() throws DomTripException {
+    void demonstrateNamespaceInheritance() throws DomTripException {
         // START: namespace-inheritance
         String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -190,7 +186,6 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
             """;
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         Element dependencies = doc.root().childElement("dependencies").orElseThrow();
         Element dependency = dependencies.childElement("dependency").orElseThrow();
@@ -204,7 +199,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceAttributeHandling() throws DomTripException {
+    void demonstrateNamespaceAttributeHandling() throws DomTripException {
         // START: namespace-attribute-handling
         String xml = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -233,7 +228,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateComplexNamespaceScenario() throws DomTripException {
+    void demonstrateComplexNamespaceScenario() throws DomTripException {
         // START: complex-namespace-scenario
         // Create a SOAP envelope with multiple namespaces
         QName soapEnvelope = QName.of("http://schemas.xmlsoap.org/soap/envelope/", "Envelope", "soap");
@@ -264,7 +259,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateFindingElementsByNamespace() throws DomTripException {
+    void demonstrateFindingElementsByNamespace() throws DomTripException {
         // START: finding-elements-by-namespace
         String xmlWithNamespaces = createMavenPomXml();
         Document doc = Document.of(xmlWithNamespaces);
@@ -289,7 +284,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateManagingNamespaceDeclarations() throws DomTripException {
+    void demonstrateManagingNamespaceDeclarations() throws DomTripException {
         // START: managing-namespace-declarations
         String xml = createMavenPomXml();
         Document doc = Document.of(xml);
@@ -312,7 +307,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCreatingNamespacedElements() throws DomTripException {
+    void demonstrateCreatingNamespacedElements() throws DomTripException {
         // START: creating-namespaced-elements
         String xml = createTestXml("parent");
         Document doc = Document.of(xml);
@@ -335,7 +330,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceValidation() {
+    void demonstrateNamespaceValidation() {
         // START: namespace-validation
         String xml = createMavenPomXml();
 
@@ -361,10 +356,9 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateSOAPDocumentHandling() throws DomTripException {
+    void demonstrateSOAPDocumentHandling() throws DomTripException {
         // START: soap-document-handling
         // Working with SOAP envelopes
-        String soapNamespace = "http://schemas.xmlsoap.org/soap/envelope/";
 
         String soapXml = """
             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -392,10 +386,9 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMavenPOMHandling() throws DomTripException {
+    void demonstrateMavenPOMHandling() throws DomTripException {
         // START: maven-pom-handling
         // Working with Maven POM files
-        String pomNamespace = "http://maven.apache.org/POM/4.0.0";
         String xml = createMavenPomXml();
 
         Document doc = Document.of(xml);
@@ -419,7 +412,7 @@ public class NamespaceSupportSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespaceBestPractices() throws DomTripException {
+    void demonstrateNamespaceBestPractices() throws DomTripException {
         // START: namespace-best-practices
         String xml = createMavenPomXml();
         Document doc = Document.of(xml);

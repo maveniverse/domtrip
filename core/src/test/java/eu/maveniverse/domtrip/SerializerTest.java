@@ -11,14 +11,12 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for Serializer functionality and edge cases.
  */
-public class SerializerTest {
+class SerializerTest {
 
-    private Editor editor;
     private Serializer serializer;
 
     @BeforeEach
     void setUp() {
-        editor = new Editor(Document.of());
         serializer = new Serializer();
     }
 

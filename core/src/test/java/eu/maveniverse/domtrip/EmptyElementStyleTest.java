@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for empty element style configuration and auto-detection functionality.
  */
-public class EmptyElementStyleTest {
+class EmptyElementStyleTest {
 
     @Test
     void testEmptyElementStyleEnum() {

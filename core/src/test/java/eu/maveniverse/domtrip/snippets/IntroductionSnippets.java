@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for the Introduction documentation.
  */
-public class IntroductionSnippets extends BaseSnippetTest {
+class IntroductionSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateRoundTripPreservation() throws DomTripException {
+    void demonstrateRoundTripPreservation() throws DomTripException {
         // START: round-trip-preservation
         String originalXml = createTestXml("root");
         Document doc = Document.of(originalXml);
@@ -28,7 +28,7 @@ public class IntroductionSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateIntelligentEditing() throws DomTripException {
+    void demonstrateIntelligentEditing() throws DomTripException {
         // START: intelligent-editing
         // Add new elements while preserving original formatting
         String xml = createMavenPomXml();
@@ -44,7 +44,7 @@ public class IntroductionSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateModernJavaAPI() throws DomTripException {
+    void demonstrateModernJavaAPI() throws DomTripException {
         // START: modern-java-api
         // Fluent builders and Stream-based navigation
         Element element = Element.of("dependency").attribute("scope", "test");
@@ -64,7 +64,7 @@ public class IntroductionSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateQuickExample() throws DomTripException {
+    void demonstrateQuickExample() throws DomTripException {
         // START: quick-example
         // Parse XML while preserving all formatting
         Document doc = Document.of("""

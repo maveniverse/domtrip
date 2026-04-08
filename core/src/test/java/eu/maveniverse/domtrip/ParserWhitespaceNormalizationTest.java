@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
  * 2. Whitespace is stored in element properties instead of text nodes
  * 3. Mixed content (text with whitespace) preserves backward compatibility
  */
-public class ParserWhitespaceNormalizationTest {
+class ParserWhitespaceNormalizationTest {
 
     @Test
     void testNoWhitespaceOnlyTextNodesCreated() throws DomTripException {

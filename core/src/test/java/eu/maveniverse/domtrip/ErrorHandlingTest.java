@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for error handling and edge cases.
  */
-public class ErrorHandlingTest {
+class ErrorHandlingTest {
 
     private Editor editor;
     private Parser parser;
@@ -73,11 +73,11 @@ public class ErrorHandlingTest {
     void testAddElementWithNullName() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
 
         assertThrows(DomTripException.class, () -> {
-            editor.addElement(root, (String) null);
+            localEditor.addElement(root, (String) null);
         });
     }
 
@@ -85,11 +85,11 @@ public class ErrorHandlingTest {
     void testAddElementWithEmptyName() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
 
         assertThrows(DomTripException.class, () -> {
-            editor.addElement(root, "");
+            localEditor.addElement(root, "");
         });
     }
 
@@ -97,11 +97,11 @@ public class ErrorHandlingTest {
     void testAddElementWithWhitespaceOnlyName() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
 
         assertThrows(DomTripException.class, () -> {
-            editor.addElement(root, "   ");
+            localEditor.addElement(root, "   ");
         });
     }
 
@@ -116,11 +116,11 @@ public class ErrorHandlingTest {
     void testAddCommentWithNullContent() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
 
         // Should not throw - null content should be handled gracefully
-        Comment comment = editor.addComment(root, null);
+        Comment comment = localEditor.addComment(root, null);
         assertNotNull(comment);
         assertEquals("", comment.content());
     }
@@ -129,8 +129,8 @@ public class ErrorHandlingTest {
     void testSetAttributeWithNullName() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
 
         // Implementation may handle null name gracefully
         assertDoesNotThrow(() -> {
@@ -142,8 +142,8 @@ public class ErrorHandlingTest {
     void testSetAttributeWithNullValue() throws DomTripException {
         String xml = "<root/>";
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
 
         // Should handle null value gracefully
         root.attribute("test", null);
@@ -154,16 +154,16 @@ public class ErrorHandlingTest {
     void testRemoveNonExistentElement() throws DomTripException {
         String xml = "<root><child/></root>";
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
         Element child = (Element) root.child(0);
 
         // Remove the child
-        editor.removeElement(child);
+        localEditor.removeElement(child);
 
         // Try to remove it again - should handle gracefully
         assertDoesNotThrow(() -> {
-            editor.removeElement(child);
+            localEditor.removeElement(child);
         });
     }
 
@@ -179,7 +179,6 @@ public class ErrorHandlingTest {
     void testFindElementWithNullName() throws DomTripException {
         String xml = "<root><child/></root>";
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
 
         // This should return empty Optional for null name
         assertThrows(NullPointerException.class, () -> doc.root().descendant((String) null));
@@ -273,8 +272,8 @@ public class ErrorHandlingTest {
         String xml = "<root><element-with-dashes/><element_with_underscores/><element.with.dots/></root>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        String result = editor.toXml();
+        Editor localEditor = new Editor(doc);
+        String result = localEditor.toXml();
         assertTrue(result.contains("element-with-dashes"));
         assertTrue(result.contains("element_with_underscores"));
         assertTrue(result.contains("element.with.dots"));
@@ -286,8 +285,8 @@ public class ErrorHandlingTest {
         String xml = "<root attr-dash=\"value1\" attr_underscore=\"value2\" attr.dot=\"value3\"/>";
 
         Document doc = Document.of(xml);
-        Editor editor = new Editor(doc);
-        Element root = editor.root();
+        Editor localEditor = new Editor(doc);
+        Element root = localEditor.root();
         assertEquals("value1", root.attribute("attr-dash"));
         assertEquals("value2", root.attribute("attr_underscore"));
         assertEquals("value3", root.attribute("attr.dot"));

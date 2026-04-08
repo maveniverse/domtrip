@@ -6,7 +6,7 @@ import org.junit.jupiter.api.TestInfo;
 /**
  * Base class for all snippet tests that provides common setup and utilities.
  */
-public abstract class BaseSnippetTest {
+abstract class BaseSnippetTest {
 
     protected String currentTestName;
 

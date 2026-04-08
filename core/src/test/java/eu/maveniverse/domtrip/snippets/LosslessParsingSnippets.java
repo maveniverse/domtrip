@@ -10,10 +10,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Snippet tests for lossless parsing features documentation.
  */
-public class LosslessParsingSnippets extends BaseSnippetTest {
+class LosslessParsingSnippets extends BaseSnippetTest {
 
     @Test
-    public void demonstrateLosslessRoundTrip() throws DomTripException {
+    void demonstrateLosslessRoundTrip() throws DomTripException {
         // START: lossless-round-trip
         String originalXml = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -37,7 +37,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEntityPreservation() throws DomTripException {
+    void demonstrateEntityPreservation() throws DomTripException {
         // START: entity-preservation
         String xmlWithEntities = """
             <message>Hello &amp; goodbye &lt;world&gt;</message>
@@ -65,7 +65,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateWhitespacePreservation() throws DomTripException {
+    void demonstrateWhitespacePreservation() throws DomTripException {
         // START: whitespace-preservation
         String xmlWithWhitespace = """
             <project>
@@ -89,7 +89,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCommentPreservation() throws DomTripException {
+    void demonstrateCommentPreservation() throws DomTripException {
         // START: comment-preservation
         // START: comments-preservation
         String xmlWithComments = """
@@ -114,7 +114,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateAttributeQuotePreservation() throws DomTripException {
+    void demonstrateAttributeQuotePreservation() throws DomTripException {
         // START: attribute-quote-preservation
         String xmlWithMixedQuotes = """
             <dependency scope='test' optional="true" classifier='sources'/>
@@ -131,7 +131,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateNamespacePreservation() throws DomTripException {
+    void demonstrateNamespacePreservation() throws DomTripException {
         // START: namespace-preservation
         String xmlWithNamespaces = """
             <project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -155,7 +155,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateProcessingInstructionPreservation() throws DomTripException {
+    void demonstrateProcessingInstructionPreservation() throws DomTripException {
         // START: processing-instruction-preservation
         String xmlWithPI = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -179,7 +179,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateCDataPreservation() throws DomTripException {
+    void demonstrateCDataPreservation() throws DomTripException {
         // START: cdata-preservation
         String xmlWithCData = """
             <script>
@@ -206,7 +206,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateDocumentTypePreservation() throws DomTripException {
+    void demonstrateDocumentTypePreservation() throws DomTripException {
         // START: document-type-preservation
         String xmlWithDoctype = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -227,7 +227,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateMinimalModification() throws DomTripException {
+    void demonstrateMinimalModification() throws DomTripException {
         // START: minimal-modification
         String originalXml = """
             <project>
@@ -258,7 +258,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateEncodingPreservation() throws DomTripException {
+    void demonstrateEncodingPreservation() throws DomTripException {
         // START: encoding-preservation
         String xmlWithEncoding = """
             <?xml version="1.0" encoding="ISO-8859-1"?>
@@ -279,7 +279,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateComplexStructurePreservation() throws DomTripException {
+    void demonstrateComplexStructurePreservation() throws DomTripException {
         // START: complex-structure-preservation
         String complexXml = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -320,7 +320,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateProcessingInstructionsWithData() throws DomTripException {
+    void demonstrateProcessingInstructionsWithData() throws DomTripException {
         // START: processing-instructions-with-data
         String xml = """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -343,7 +343,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateRoundTripVerification() throws Exception {
+    void demonstrateRoundTripVerification() throws Exception {
         // START: round-trip-verification
         // Create a temporary file for testing
         String complexXml = """
@@ -373,7 +373,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateBestPracticesForEditing() throws DomTripException {
+    void demonstrateBestPracticesForEditing() throws DomTripException {
         // START: best-practices-editing
         // ✅ Perfect for editing existing files
         String existingConfigXml = createConfigXml();
@@ -392,7 +392,7 @@ public class LosslessParsingSnippets extends BaseSnippetTest {
     }
 
     @Test
-    public void demonstrateLargeFileHandling() throws DomTripException {
+    void demonstrateLargeFileHandling() throws DomTripException {
         // START: large-file-handling
         // ✅ For large files, consider streaming or chunking
         String xmlContent = createConfigXml();

@@ -11,13 +11,13 @@ import org.junit.jupiter.api.Test;
  * as RawString to prevent HTML escaping of characters like ", <, and >.
  */
 @QuarkusTest
-public class SnippetTemplateExtensionTest {
+class SnippetTemplateExtensionTest {
 
     @Inject
     SnippetTemplateExtension snippetExtension;
 
     @Test
-    public void testSnippetThrowsExceptionWhenNotFound() {
+    void testSnippetThrowsExceptionWhenNotFound() {
         // Test that the snippet method throws an exception for non-existent snippets
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -34,21 +34,21 @@ public class SnippetTemplateExtensionTest {
     }
 
     @Test
-    public void testSnippetExistsMethod() {
+    void testSnippetExistsMethod() {
         // Test the snippetExists method
         boolean exists = snippetExtension.snippetExists("non-existent-snippet");
         assertFalse(exists, "Non-existent snippet should return false");
     }
 
     @Test
-    public void testAvailableSnippetsMethod() {
+    void testAvailableSnippetsMethod() {
         // Test that availableSnippets returns a string
         String snippets = snippetExtension.availableSnippets();
         assertNotNull(snippets, "availableSnippets() should not return null");
     }
 
     @Test
-    public void testSnippetCountMethod() {
+    void testSnippetCountMethod() {
         // Test that snippetCount returns a non-negative number
         int count = snippetExtension.snippetCount();
         assertTrue(count >= 0, "snippetCount() should return non-negative number");

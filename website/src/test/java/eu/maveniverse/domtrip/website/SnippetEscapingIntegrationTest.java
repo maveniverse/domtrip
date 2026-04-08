@@ -12,13 +12,13 @@ import org.junit.jupiter.api.Test;
  * to prevent HTML escaping of characters like ", <, and >.
  */
 @QuarkusTest
-public class SnippetEscapingIntegrationTest {
+class SnippetEscapingIntegrationTest {
 
     @Inject
     SnippetTemplateExtension snippetExtension;
 
     @Test
-    public void testSnippetReturnsRawStringType() {
+    void testSnippetReturnsRawStringType() {
         // Test with an existing snippet that likely contains special characters
         // From the error message, we know "dual-content-storage" exists
         RawString result = snippetExtension.snippet("dual-content-storage");
@@ -37,7 +37,7 @@ public class SnippetEscapingIntegrationTest {
     }
 
     @Test
-    public void testSpecialCharactersInExistingSnippet() {
+    void testSpecialCharactersInExistingSnippet() {
         // Test with a snippet that we know contains special characters
         // "dual-content-storage" likely contains XML with < > and quotes
         RawString result = snippetExtension.snippet("dual-content-storage");
@@ -65,7 +65,7 @@ public class SnippetEscapingIntegrationTest {
     }
 
     @Test
-    public void testNonExistentSnippetThrowsException() {
+    void testNonExistentSnippetThrowsException() {
         // Non-existent snippets should throw an exception
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,

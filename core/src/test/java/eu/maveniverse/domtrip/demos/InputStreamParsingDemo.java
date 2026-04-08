@@ -11,7 +11,7 @@ import java.util.Optional;
 /**
  * Demonstration of parsing XML from InputStream with encoding detection.
  */
-public class InputStreamParsingDemo {
+class InputStreamParsingDemo {
 
     public static void main(String[] args) {
         System.out.println("=== DomTrip InputStream Parsing Demo ===\n");

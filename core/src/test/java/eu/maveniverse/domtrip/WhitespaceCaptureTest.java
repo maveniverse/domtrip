@@ -291,7 +291,6 @@ class WhitespaceCaptureTest {
 
         Document doc = Document.of(xml);
         Element element = doc.root();
-        Editor editor = new Editor(doc);
 
         // Verify initial state
         assertFalse(element.isModified(), "Element should not be modified initially");

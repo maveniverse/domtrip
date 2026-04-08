@@ -1,5 +1,7 @@
 package eu.maveniverse.domtrip.demos;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import eu.maveniverse.domtrip.Attribute;
 import eu.maveniverse.domtrip.Comment;
 import eu.maveniverse.domtrip.Document;
@@ -11,57 +13,60 @@ import eu.maveniverse.domtrip.QName;
 import eu.maveniverse.domtrip.QuoteStyle;
 import eu.maveniverse.domtrip.Text;
 import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 /**
  * Demonstrates the new builder patterns and factory methods.
  */
-class BuilderPatternsDemo {
+class BuilderPatternsDemoTest {
 
-    public static void main(String[] args) throws DomTripException {
-        System.out.println("=== Builder Patterns Demo ===\n");
-
-        demonstrateAttributeFactory();
-        demonstrateElementFactory();
-        demonstrateDocumentBuilder();
-        demonstrateFluentEditorApi();
-
-        System.out.println("\n=== Demo Complete ===");
+    @Test
+    void demonstrateBuilderPatterns() throws DomTripException {
+        verifyAttributeFactory();
+        verifyElementFactory();
+        verifyDocumentBuilder();
+        verifyFluentEditorApi();
     }
 
-    private static void demonstrateAttributeFactory() {
-        System.out.println("1. Attribute Factory Demo:");
-
+    private static void verifyAttributeFactory() {
         // Simple attribute
         Attribute simple = Attribute.of("id", "123");
+        assertNotNull(simple);
+        assertEquals("123", simple.value());
 
         // Complex attribute with custom formatting
         Attribute complex = Attribute.of("data-config", "complex value with <entities>", QuoteStyle.SINGLE, "  ")
                 .rawValue("&lt;raw&gt; value");
-
-        System.out.println("Simple attribute: " + simple);
-        System.out.println("Complex attribute: " + complex);
+        assertNotNull(complex);
 
         // Demonstrate immutable operations
         Attribute modified = simple.withValue("456").withQuoteStyle(QuoteStyle.SINGLE);
-        System.out.println("Original: " + simple);
-        System.out.println("Modified: " + modified);
-        System.out.println();
+        assertEquals("123", simple.value(), "Original should be unchanged");
+        assertEquals("456", modified.value(), "Modified should have new value");
     }
 
-    private static void demonstrateElementFactory() throws DomTripException {
-        System.out.println("2. Element Factory Demo:");
-
+    private static void verifyElementFactory() throws DomTripException {
         // Various element creation patterns
         Element textElement = Element.text("title", "My Document");
-        Element.of("placeholder");
+        assertNotNull(textElement);
+        assertEquals("My Document", textElement.textContent());
+
+        Element emptyElement = Element.of("placeholder");
+        assertNotNull(emptyElement);
+
         Element selfClosing = Element.selfClosing("br");
+        assertNotNull(selfClosing);
 
         Element withAttributes =
                 Element.withAttributes("div", Map.of("class", "container", "id", "main", "data-role", "content"));
+        assertNotNull(withAttributes);
+        assertEquals("container", withAttributes.attribute("class"));
 
         Element cdataElement = Element.cdata("script", "function test() { return x < y && z > 0; }");
+        assertNotNull(cdataElement);
 
         Element namespaced = Element.of(QName.of("http://www.w3.org/2001/XMLSchema-instance", "type", "xsi"));
+        assertNotNull(namespaced);
 
         // Using element fluent API for complex structures
         Element complex = Element.of("article").attribute("id", "article-1").attribute("class", "blog-post");
@@ -70,23 +75,20 @@ class BuilderPatternsDemo {
         complex.addChild(Element.text("date", "2024-01-15"));
         complex.addChild(new Comment(" Article metadata "));
 
-        System.out.println("Text element: " + textElement.toXml());
-        System.out.println("Self-closing: " + selfClosing.toXml());
-        System.out.println("With attributes: " + withAttributes.toXml());
-        System.out.println("CDATA element: " + cdataElement.toXml());
-        System.out.println("Namespaced: " + namespaced.toXml());
-        System.out.println("Complex element: " + complex.toXml());
-        System.out.println();
+        String complexXml = complex.toXml();
+        assertTrue(complexXml.contains("article-1"));
+        assertTrue(complexXml.contains("John Doe"));
     }
 
-    private static void demonstrateDocumentBuilder() throws DomTripException {
-        System.out.println("3. Document Builder Demo:");
-
+    private static void verifyDocumentBuilder() throws DomTripException {
         // Simple document
         Document simple = Document.of().root(new Element("simple"));
+        assertNotNull(simple.root());
+        assertEquals("simple", simple.root().name());
 
         // Document with XML declaration
         Document withDeclaration = Document.withXmlDeclaration("1.0", "UTF-8");
+        assertNotNull(withDeclaration);
 
         // Complex document using builder
         Document complex = Document.of()
@@ -111,18 +113,12 @@ class BuilderPatternsDemo {
         body.addChild(Element.withAttributes("h1", Map.of("id", "title")));
         body.childElement("h1").ifPresent(h1 -> h1.textContent("Welcome"));
 
-        System.out.println("Simple document:");
-        System.out.println(simple.toXml());
-        System.out.println("\nWith declaration:");
-        System.out.println(withDeclaration.toXml());
-        System.out.println("\nComplex document:");
-        System.out.println(complex.toXml());
-        System.out.println();
+        String complexXml = complex.toXml();
+        assertTrue(complexXml.contains("Demo Page"));
+        assertTrue(complexXml.contains("Welcome"));
     }
 
-    private static void demonstrateFluentEditorApi() throws DomTripException {
-        System.out.println("4. Fluent Editor API Demo:");
-
+    private static void verifyFluentEditorApi() throws DomTripException {
         // Create editor with configuration
         Editor editor = new Editor(
                 Document.of(),
@@ -135,24 +131,18 @@ class BuilderPatternsDemo {
 
         // Build complex structure using fluent API
         editor.add().element("modelVersion").to(root).withText("4.0.0").build();
-
         editor.add().element("groupId").to(root).withText("com.example").build();
-
         editor.add().element("artifactId").to(root).withText("demo-project").build();
-
         editor.add().element("version").to(root).withText("1.0.0").build();
 
         // Add properties section
         Element properties = editor.add().element("properties").to(root).build();
-
         editor.add().comment().to(properties).withContent(" Compiler settings ").build();
-
         editor.add()
                 .element("maven.compiler.source")
                 .to(properties)
                 .withText("17")
                 .build();
-
         editor.add()
                 .element("maven.compiler.target")
                 .to(properties)
@@ -161,7 +151,6 @@ class BuilderPatternsDemo {
 
         // Add dependencies section
         Element dependencies = editor.add().element("dependencies").to(root).build();
-
         Element dependency = editor.add()
                 .element("dependency")
                 .to(dependencies)
@@ -173,26 +162,19 @@ class BuilderPatternsDemo {
                 .to(dependency)
                 .withText("org.junit.jupiter")
                 .build();
-
         editor.add()
                 .element("artifactId")
                 .to(dependency)
                 .withText("junit-jupiter")
                 .build();
-
         editor.add().element("version").to(dependency).withText("5.9.2").build();
 
         // Add CDATA section for build script
         Element build = editor.add().element("build").to(root).build();
-
         Element plugins = editor.add().element("plugins").to(build).build();
-
         Element plugin = editor.add().element("plugin").to(plugins).build();
-
         editor.add().element("configuration").to(plugin).build();
-
         Element configuration = plugin.childElement("configuration").orElseThrow();
-
         editor.add()
                 .text()
                 .to(configuration)
@@ -200,15 +182,16 @@ class BuilderPatternsDemo {
                 .asCData()
                 .build();
 
-        System.out.println("Generated Maven POM:");
-        System.out.println(editor.toXml());
+        String result = editor.toXml();
+        assertNotNull(result);
+        assertTrue(result.contains("com.example"));
+        assertTrue(result.contains("junit-jupiter"));
 
-        // Demonstrate different serialization options
-        System.out.println("\nWith pretty printing:");
-        System.out.println(editor.toXml(DomTripConfig.prettyPrint()));
+        // Verify different serialization options work
+        String prettyResult = editor.toXml(DomTripConfig.prettyPrint());
+        assertNotNull(prettyResult);
 
-        System.out.println("\nMinimal output:");
-        System.out.println(editor.toXml(DomTripConfig.minimal()));
-        System.out.println();
+        String minimalResult = editor.toXml(DomTripConfig.minimal());
+        assertNotNull(minimalResult);
     }
 }

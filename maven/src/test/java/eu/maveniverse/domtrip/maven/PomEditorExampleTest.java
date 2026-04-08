@@ -113,9 +113,6 @@ class PomEditorExampleTest {
         assertTrue(nameIndex < propertiesIndex);
         assertTrue(propertiesIndex < dependenciesIndex);
         assertTrue(dependenciesIndex < buildIndex);
-
-        System.out.println("Generated POM:");
-        System.out.println(result);
     }
 
     @Test
@@ -178,8 +175,5 @@ class PomEditorExampleTest {
         assertTrue(nameIndex < descIndex);
         assertTrue(descIndex < propertiesIndex);
         assertTrue(propertiesIndex < dependenciesIndex);
-
-        System.out.println("Modified POM:");
-        System.out.println(result);
     }
 }

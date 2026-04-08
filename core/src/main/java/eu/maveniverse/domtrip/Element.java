@@ -603,13 +603,6 @@ public class Element extends ContainerNode {
     }
 
     @Override
-    public String toXml() {
-        StringBuilder sb = new StringBuilder();
-        toXml(sb);
-        return sb.toString();
-    }
-
-    @Override
     public void toXml(StringBuilder sb) {
         if (!isModified() && !originalOpenTag.isEmpty()) {
             toXmlPreserved(sb);

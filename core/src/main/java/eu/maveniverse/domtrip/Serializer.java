@@ -152,6 +152,15 @@ public class Serializer {
     }
 
     /**
+     * Checks whether the serializer configuration preserves the original output
+     * without any filtering or modifications (comments preserved, PIs preserved,
+     * XML declaration included).
+     */
+    private boolean isDefaultOutputConfig() {
+        return preserveComments && preserveProcessingInstructions && !omitXmlDeclaration;
+    }
+
+    /**
      * Gets the indentation string used for pretty printing.
      *
      * @return the indentation string
@@ -160,7 +169,12 @@ public class Serializer {
         return indentString;
     }
 
-    /** @deprecated Use {@link #indentString()} instead. */
+    /**
+     * Gets the indentation string used for pretty printing.
+     *
+     * @return the indentation string
+     * @deprecated Use {@link #indentString()} instead.
+     */
     @Deprecated
     public String getIndentString() {
         return indentString();
@@ -202,7 +216,12 @@ public class Serializer {
         return lineEnding;
     }
 
-    /** @deprecated Use {@link #lineEnding()} instead. */
+    /**
+     * Gets the line ending string used for pretty printing.
+     *
+     * @return the line ending string
+     * @deprecated Use {@link #lineEnding()} instead.
+     */
     @Deprecated
     public String getLineEnding() {
         return lineEnding();
@@ -226,7 +245,12 @@ public class Serializer {
         return emptyElementStyle;
     }
 
-    /** @deprecated Use {@link #emptyElementStyle()} instead. */
+    /**
+     * Gets the empty element style used for serialization.
+     *
+     * @return the empty element style
+     * @deprecated Use {@link #emptyElementStyle()} instead.
+     */
     @Deprecated
     public EmptyElementStyle getEmptyElementStyle() {
         return emptyElementStyle();
@@ -277,8 +301,9 @@ public class Serializer {
             return "";
         }
 
-        if (!prettyPrint && !document.isModified()) {
-            // If pretty printing is disabled and document is unmodified, use original formatting
+        if (!prettyPrint && !document.isModified() && isDefaultOutputConfig()) {
+            // If pretty printing is disabled, document is unmodified, and no output
+            // filtering is configured, use original formatting for maximum fidelity
             return document.toXml();
         }
 
@@ -517,6 +542,14 @@ public class Serializer {
     }
 
     private void serializeNode(Node node, StringBuilder sb) {
+        // Check filtering rules first (comments and PIs can be suppressed by config)
+        if (node.type() == Node.NodeType.COMMENT && !preserveComments) {
+            return;
+        }
+        if (node.type() == Node.NodeType.PROCESSING_INSTRUCTION && !preserveProcessingInstructions) {
+            return;
+        }
+
         if (!node.isModified()) {
             // Use original formatting for unmodified nodes when not pretty printing
             node.toXml(sb);
@@ -534,14 +567,10 @@ public class Serializer {
                 serializeText((Text) node, sb);
                 break;
             case COMMENT:
-                if (preserveComments) {
-                    serializeComment((Comment) node, sb);
-                }
+                serializeComment((Comment) node, sb);
                 break;
             case PROCESSING_INSTRUCTION:
-                if (preserveProcessingInstructions) {
-                    serializeProcessingInstruction((ProcessingInstruction) node, sb);
-                }
+                serializeProcessingInstruction((ProcessingInstruction) node, sb);
                 break;
         }
     }

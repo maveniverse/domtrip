@@ -72,7 +72,12 @@ public enum QuoteStyle {
         return character;
     }
 
-    /** @deprecated Use {@link #character()} instead. */
+    /**
+     * Gets the quote character for this style.
+     *
+     * @return the quote character
+     * @deprecated Use {@link #character()} instead.
+     */
     @Deprecated
     public char getCharacter() {
         return character();

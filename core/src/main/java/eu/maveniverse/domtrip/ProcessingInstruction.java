@@ -163,13 +163,6 @@ public class ProcessingInstruction extends Node {
     }
 
     @Override
-    public String toXml() {
-        StringBuilder sb = new StringBuilder();
-        toXml(sb);
-        return sb.toString();
-    }
-
-    @Override
     public void toXml(StringBuilder sb) {
         // Add preceding whitespace
         sb.append(precedingWhitespace);

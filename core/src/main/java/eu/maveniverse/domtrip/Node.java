@@ -115,7 +115,11 @@ public abstract class Node {
      * @return the XML string representation of this node
      * @see #toXml(StringBuilder)
      */
-    public abstract String toXml();
+    public String toXml() {
+        StringBuilder sb = new StringBuilder();
+        toXml(sb);
+        return sb.toString();
+    }
 
     /**
      * Serializes this node to XML, appending to the provided StringBuilder.

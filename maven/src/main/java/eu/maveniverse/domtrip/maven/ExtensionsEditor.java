@@ -18,6 +18,7 @@ import eu.maveniverse.domtrip.Element;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +53,8 @@ import java.util.stream.Collectors;
  * @since 0.1
  */
 public class ExtensionsEditor extends AbstractMavenEditor {
+
+    private static final Logger LOGGER = Logger.getLogger(ExtensionsEditor.class.getName());
 
     /**
      * Element ordering for extension elements.
@@ -236,7 +239,7 @@ public class ExtensionsEditor extends AbstractMavenEditor {
             findChildElement(element, VERSION).textContent(coordinates.version());
             if (matched.size() > 1) {
                 // Multiple matches found - this shouldn't happen but we handle it gracefully
-                System.err.println("Warning: More than one matching extension found: " + matched.size());
+                LOGGER.warning(() -> "More than one matching extension found: " + matched.size());
             }
             return true;
         }

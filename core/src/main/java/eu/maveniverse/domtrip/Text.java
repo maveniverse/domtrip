@@ -313,13 +313,6 @@ public class Text extends Node {
     }
 
     @Override
-    public String toXml() {
-        StringBuilder sb = new StringBuilder();
-        toXml(sb);
-        return sb.toString();
-    }
-
-    @Override
     public void toXml(StringBuilder sb) {
         sb.append(precedingWhitespace);
 

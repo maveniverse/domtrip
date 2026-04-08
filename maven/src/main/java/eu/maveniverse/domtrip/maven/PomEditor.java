@@ -310,7 +310,92 @@ public class PomEditor extends AbstractMavenEditor {
         }
     }
 
+    /**
+     * Helper for managing regular and managed Maven dependencies within a POM.
+     *
+     * <p>Provides high-level operations for adding, updating, deleting, aligning, and inspecting
+     * dependencies, including support for exclusions, dependencyManagement, and convention detection.</p>
+     *
+     * <p>By default, operations resolve relative to the project root ({@code <project>}).
+     * Use {@link #forProfile(String)} or {@link #forProfile(Element)} to obtain a profile-scoped
+     * instance whose operations resolve relative to a specific {@code <profile>} element.</p>
+     *
+     * @since 0.3.0
+     */
     public class Dependencies {
+
+        private final Element contextElement;
+
+        Dependencies() {
+            this.contextElement = null;
+        }
+
+        private Dependencies(Element contextElement) {
+            this.contextElement = contextElement;
+        }
+
+        /**
+         * Returns the context element for dependency resolution.
+         *
+         * <p>Shadows {@link PomEditor#root()} so that all existing methods in this class
+         * automatically resolve relative to the correct element — the project root for
+         * top-level operations, or a {@code <profile>} element for profile-scoped operations.</p>
+         */
+        private Element root() {
+            return contextElement != null ? contextElement : PomEditor.this.root();
+        }
+
+        /**
+         * Returns a Dependencies instance scoped to the specified Maven profile.
+         *
+         * <p>All dependency operations on the returned instance will resolve paths relative to the
+         * profile element instead of the project root. For example, {@code addAligned} will target
+         * {@code project/profiles/profile[id=X]/dependencies} instead of {@code project/dependencies}.</p>
+         *
+         * @param profileId the {@code <id>} of the profile to scope to
+         * @return a Dependencies instance scoped to the profile
+         * @throws DomTripException if the profile is not found
+         * @since 1.1.0
+         */
+        public Dependencies forProfile(String profileId) {
+            if (profileId == null || profileId.trim().isEmpty()) {
+                throw new DomTripException("Profile id cannot be null or empty");
+            }
+            Element profile = findProfileElement(profileId);
+            if (profile == null) {
+                throw new DomTripException("Profile '" + profileId + "' not found");
+            }
+            return forProfile(profile);
+        }
+
+        /**
+         * Returns a Dependencies instance scoped to the given profile element.
+         *
+         * <p>This overload accepts a pre-resolved {@code <profile>} element, which can be
+         * obtained via {@link Profiles#findProfile(String)}. This is useful when the caller
+         * has already located the profile or wants to check its existence before scoping.</p>
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * Element profile = editor.profiles().findProfile("my-profile");
+         * if (profile != null) {
+         *     editor.dependencies().forProfile(profile).addAligned(coords);
+         * }
+         * }</pre>
+         *
+         * @param profileElement the {@code <profile>} element to scope to
+         * @return a Dependencies instance scoped to the profile
+         * @since 1.1.0
+         */
+        public Dependencies forProfile(Element profileElement) {
+            if (profileElement == null) {
+                throw new DomTripException("Profile element cannot be null");
+            }
+            if (!PROFILE.equals(profileElement.name())) {
+                throw new DomTripException("Expected a <profile> element but got <" + profileElement.name() + ">");
+            }
+            return new Dependencies(profileElement);
+        }
 
         private void requireGA(String label, Coordinates coordinates) {
             if (coordinates.groupId() == null || coordinates.groupId().trim().isEmpty()) {
@@ -1506,6 +1591,36 @@ public class PomEditor extends AbstractMavenEditor {
                     && value.endsWith("}")
                     && value.indexOf('}') == value.length() - 1;
         }
+
+        /**
+         * Updates a version element, resolving property references relative to this Dependencies' context.
+         *
+         * <p>Shadows {@link PomEditor#updateVersionElement(Element, String)} so that profile-scoped
+         * instances update properties under the profile's {@code <properties>} rather than the
+         * project root's.</p>
+         */
+        private boolean updateVersionElement(Element parent, String newVersion) throws DomTripException {
+            java.util.Optional<Element> version = parent.childElement(VERSION);
+            if (version.isPresent()) {
+                String versionValue = version.get().textContent();
+                if (versionValue != null && versionValue.startsWith("${") && versionValue.endsWith("}")) {
+                    String propertyKey = versionValue.substring(2, versionValue.length() - 1);
+                    Element properties = root().childElement(PROPERTIES).orElse(null);
+                    if (properties != null) {
+                        Element property = properties.childElement(propertyKey).orElse(null);
+                        if (property != null) {
+                            property.textContent(newVersion);
+                            return true;
+                        }
+                    }
+                    return false;
+                } else {
+                    version.get().textContent(newVersion);
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     /**
@@ -2081,6 +2196,50 @@ public class PomEditor extends AbstractMavenEditor {
     }
 
     /**
+     * Helper for inspecting Maven profiles within a POM.
+     *
+     * <p>Provides methods to find and check the existence of {@code <profile>} elements
+     * by their {@code <id>}. The returned elements can be passed to
+     * {@link Dependencies#forProfile(Element)} for profile-scoped dependency operations.</p>
+     *
+     * @since 1.1.0
+     */
+    public class Profiles {
+
+        /**
+         * Finds a profile element by its {@code <id>}.
+         *
+         * @param id the profile id to look for
+         * @return the {@code <profile>} element, or {@code null} if not found
+         * @since 1.1.0
+         */
+        public Element findProfile(String id) {
+            return findProfileElement(id);
+        }
+
+        /**
+         * Checks whether a profile with the given {@code <id>} exists.
+         *
+         * @param id the profile id to check
+         * @return {@code true} if a matching profile exists, {@code false} otherwise
+         * @since 1.1.0
+         */
+        public boolean hasProfile(String id) {
+            return findProfile(id) != null;
+        }
+    }
+
+    /**
+     * Create a helper for inspecting Maven profiles within this POM.
+     *
+     * @return a Profiles helper bound to this PomEditor instance
+     * @since 1.1.0
+     */
+    public Profiles profiles() {
+        return new Profiles();
+    }
+
+    /**
      * Sets {@code project/version} or {@code project/parent/version} (if project version doesn't exist).
      *
      * @param value the version value
@@ -2250,6 +2409,25 @@ public class PomEditor extends AbstractMavenEditor {
         } else {
             return insertMavenElement(parent, childName, content);
         }
+    }
+
+    /**
+     * Finds a {@code <profile>} element by its {@code <id>}.
+     *
+     * @param id the profile id to look for (may be null)
+     * @return the matching profile element, or null if not found or id is null
+     */
+    private Element findProfileElement(String id) {
+        if (id == null) {
+            return null;
+        }
+        return root().childElement(PROFILES)
+                .flatMap(profiles -> profiles.childElements(PROFILE)
+                        .filter(p -> p.childElement(ID)
+                                .map(idEl -> id.equals(idEl.textContent()))
+                                .orElse(false))
+                        .findFirst())
+                .orElse(null);
     }
 
     /**

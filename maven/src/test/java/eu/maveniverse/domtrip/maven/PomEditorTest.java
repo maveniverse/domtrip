@@ -1591,4 +1591,384 @@ class PomEditorTest {
 
         assertThrows(DomTripException.class, () -> deps.addAligned(noVersion));
     }
+
+    // ========== PROFILE-SCOPED DEPENDENCY TESTS ==========
+
+    private static final String POM_WITH_PROFILE = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <dependencies>
+                <dependency>
+                  <groupId>com.google.guava</groupId>
+                  <artifactId>guava</artifactId>
+                  <version>32.1.2-jre</version>
+                </dependency>
+              </dependencies>
+              <profiles>
+                <profile>
+                  <id>my-profile</id>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-api</artifactId>
+                      <version>2.0.9</version>
+                    </dependency>
+                  </dependencies>
+                </profile>
+              </profiles>
+            </project>
+            """;
+
+    private static final String POM_WITH_PROFILE_MANAGED = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <profiles>
+                <profile>
+                  <id>test-profile</id>
+                  <properties>
+                    <junit.version>5.10.0</junit.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter</artifactId>
+                        <version>${junit.version}</version>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.junit.jupiter</groupId>
+                      <artifactId>junit-jupiter</artifactId>
+                    </dependency>
+                  </dependencies>
+                </profile>
+              </profiles>
+            </project>
+            """;
+
+    @Test
+    void testProfilesHasProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        assertTrue(editor.profiles().hasProfile("my-profile"));
+        assertFalse(editor.profiles().hasProfile("nonexistent"));
+    }
+
+    @Test
+    void testProfilesFindProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        assertNotNull(editor.profiles().findProfile("my-profile"));
+        assertNull(editor.profiles().findProfile("nonexistent"));
+    }
+
+    @Test
+    void testForProfileWithNonExistentProfileThrows() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        PomEditor.Dependencies deps = editor.dependencies();
+
+        assertThrows(DomTripException.class, () -> deps.forProfile("nonexistent"));
+    }
+
+    @Test
+    void testAddAlignedWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+
+        boolean added = editor.dependencies().forProfile("my-profile").addAligned(jackson);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        // The new dependency should be inside the profile
+        int profileStart = xml.indexOf("<id>my-profile</id>");
+        int profileDeps = xml.indexOf("<artifactId>jackson-databind</artifactId>");
+        assertTrue(profileDeps > profileStart, "jackson-databind should be inside the profile");
+        // The top-level dependencies should not contain jackson-databind
+        int topLevelDeps = xml.indexOf("<artifactId>guava</artifactId>");
+        assertTrue(topLevelDeps < profileStart, "guava should remain at top level");
+    }
+
+    @Test
+    void testDeleteDependencyWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        Coordinates slf4j = Coordinates.of("org.slf4j", "slf4j-api", "2.0.9");
+
+        boolean deleted = editor.dependencies().forProfile("my-profile").deleteDependency(slf4j);
+        assertTrue(deleted);
+
+        String xml = editor.toXml();
+        // slf4j should be gone from the profile
+        assertFalse(xml.contains("<artifactId>slf4j-api</artifactId>"));
+        // guava should still be at top level
+        assertTrue(xml.contains("<artifactId>guava</artifactId>"));
+    }
+
+    @Test
+    void testUpdateManagedDependencyWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_MANAGED);
+        Coordinates mockito = Coordinates.of("org.mockito", "mockito-core", "5.5.0");
+
+        boolean added = editor.dependencies().forProfile("test-profile").updateManagedDependency(true, mockito);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        int profileStart = xml.indexOf("<id>test-profile</id>");
+        int mockitoPos = xml.indexOf("<artifactId>mockito-core</artifactId>");
+        assertTrue(mockitoPos > profileStart, "mockito should be inside the profile's dependencyManagement");
+        // Top level should not have dependencyManagement
+        String beforeProfile = xml.substring(0, profileStart);
+        assertFalse(beforeProfile.contains("<dependencyManagement>"), "Top-level should not have dependencyManagement");
+    }
+
+    @Test
+    void testDetectConventionsWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_MANAGED);
+
+        AlignOptions options = editor.dependencies().forProfile("test-profile").detectConventions();
+
+        assertEquals(AlignOptions.VersionStyle.MANAGED, options.versionStyle());
+        assertEquals(AlignOptions.VersionSource.PROPERTY, options.versionSource());
+    }
+
+    @Test
+    void testUpdateManagedDependencyPropertyWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_MANAGED);
+
+        // Update junit version via managed dependency — should update the profile's property, not the project root
+        Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.11.0");
+        boolean updated = editor.dependencies().forProfile("test-profile").updateManagedDependency(false, junit);
+        assertTrue(updated);
+
+        String xml = editor.toXml();
+        // The profile's property should be updated
+        assertTrue(xml.contains("<junit.version>5.11.0</junit.version>"));
+        // No properties section should appear at the project root
+        int profileStart = xml.indexOf("<profiles>");
+        String beforeProfiles = xml.substring(0, profileStart);
+        assertFalse(beforeProfiles.contains("<properties>"), "Project root should not have a properties section");
+    }
+
+    @Test
+    void testForProfileWithNullProfileIdThrows() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        PomEditor.Dependencies deps = editor.dependencies();
+
+        assertThrows(DomTripException.class, () -> deps.forProfile((String) null));
+    }
+
+    @Test
+    void testForProfileWithNonProfileElementThrows() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        Element root = editor.root();
+        PomEditor.Dependencies deps = editor.dependencies();
+
+        assertThrows(DomTripException.class, () -> deps.forProfile(root));
+    }
+
+    @Test
+    void testForProfileWithElement() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        Element profile = editor.profiles().findProfile("my-profile");
+        assertNotNull(profile);
+
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+        boolean added = editor.dependencies().forProfile(profile).addAligned(jackson);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        int profileStart = xml.indexOf("<id>my-profile</id>");
+        int jacksonPos = xml.indexOf("<artifactId>jackson-databind</artifactId>");
+        assertTrue(jacksonPos > profileStart);
+    }
+
+    @Test
+    void testDeleteManagedDependencyWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_MANAGED);
+        Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+
+        boolean deleted = editor.dependencies().forProfile("test-profile").deleteManagedDependency(junit);
+        assertTrue(deleted);
+
+        String xml = editor.toXml();
+        // Managed dependency version should be gone (was in dependencyManagement)
+        assertFalse(xml.contains("${junit.version}"));
+        // Regular dependency should still exist (version-less)
+        assertTrue(xml.contains("<artifactId>junit-jupiter</artifactId>"));
+    }
+
+    @Test
+    void testUpdateDependencyWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        Coordinates slf4j = Coordinates.of("org.slf4j", "slf4j-api", "2.1.0");
+
+        boolean updated = editor.dependencies().forProfile("my-profile").updateDependency(false, slf4j);
+        assertTrue(updated);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<version>2.1.0</version>"));
+        assertFalse(xml.contains("<version>2.0.9</version>"));
+    }
+
+    @Test
+    void testDeleteDependencyVersionWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        Coordinates slf4j = Coordinates.of("org.slf4j", "slf4j-api", "2.0.9");
+
+        boolean deleted = editor.dependencies().forProfile("my-profile").deleteDependencyVersion(slf4j);
+        assertTrue(deleted);
+
+        String xml = editor.toXml();
+        // Profile dep should still exist but without version
+        int profileStart = xml.indexOf("<id>my-profile</id>");
+        String afterProfile = xml.substring(profileStart);
+        assertTrue(afterProfile.contains("<artifactId>slf4j-api</artifactId>"));
+        assertFalse(afterProfile.contains("<version>2.0.9</version>"));
+    }
+
+    @Test
+    void testAlignDependencyWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+        Coordinates slf4j = Coordinates.of("org.slf4j", "slf4j-api", null);
+
+        boolean changed = editor.dependencies()
+                .forProfile("my-profile")
+                .alignDependency(
+                        slf4j,
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .build());
+        assertTrue(changed);
+
+        String xml = editor.toXml();
+        int profileStart = xml.indexOf("<id>my-profile</id>");
+        String afterProfile = xml.substring(profileStart);
+        // Property should be created in profile
+        assertTrue(afterProfile.contains("<slf4j-api.version>2.0.9</slf4j-api.version>"));
+        assertTrue(afterProfile.contains("${slf4j-api.version}"));
+        // Project root should not have the property
+        String beforeProfile = xml.substring(0, profileStart);
+        assertFalse(beforeProfile.contains("slf4j-api.version"));
+    }
+
+    @Test
+    void testAlignAllDependenciesWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE);
+
+        int count = editor.dependencies()
+                .forProfile("my-profile")
+                .alignAllDependencies(AlignOptions.builder()
+                        .versionStyle(AlignOptions.VersionStyle.MANAGED)
+                        .versionSource(AlignOptions.VersionSource.PROPERTY)
+                        .build());
+        assertEquals(1, count);
+
+        String xml = editor.toXml();
+        int profileStart = xml.indexOf("<id>my-profile</id>");
+        String afterProfile = xml.substring(profileStart);
+        // Profile should now have dependencyManagement
+        assertTrue(afterProfile.contains("<dependencyManagement>"));
+        // Project root should not have dependencyManagement
+        String beforeProfile = xml.substring(0, profileStart);
+        assertFalse(beforeProfile.contains("<dependencyManagement>"));
+    }
+
+    @Test
+    void testAddAlignedManagedPropertyWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_MANAGED);
+        Coordinates mockito = Coordinates.of("org.mockito", "mockito-core", "5.5.0");
+
+        boolean added = editor.dependencies().forProfile("test-profile").addAligned(mockito);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        int profileStart = xml.indexOf("<id>test-profile</id>");
+        String afterProfile = xml.substring(profileStart);
+        // Should follow managed+property convention detected from the profile
+        assertTrue(afterProfile.contains("<mockito-core.version>5.5.0</mockito-core.version>"));
+        assertTrue(afterProfile.contains("${mockito-core.version}"));
+        // Dependency should be version-less in the profile's dependencies
+        assertTrue(afterProfile.contains("<artifactId>mockito-core</artifactId>"));
+    }
+
+    private static final String POM_WITH_PROFILE_AND_EXCLUSION = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <profiles>
+                <profile>
+                  <id>extras</id>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.example</groupId>
+                      <artifactId>my-lib</artifactId>
+                      <version>1.0.0</version>
+                    </dependency>
+                  </dependencies>
+                </profile>
+              </profiles>
+            </project>
+            """;
+
+    @Test
+    void testExclusionOperationsWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_AND_EXCLUSION);
+        Coordinates dep = Coordinates.of("org.example", "my-lib", null);
+        Coordinates excl = Coordinates.of("commons-logging", "commons-logging", null);
+
+        PomEditor.Dependencies profileDeps = editor.dependencies().forProfile("extras");
+
+        // Add exclusion
+        Element exclEl = profileDeps.addExclusion(dep, excl);
+        assertNotNull(exclEl);
+
+        // Verify it exists
+        assertTrue(profileDeps.hasExclusion(dep, excl));
+        // Top-level should not be affected
+        assertFalse(editor.dependencies().hasExclusion(dep, excl));
+
+        // Remove exclusion
+        assertTrue(profileDeps.deleteExclusion(dep, excl));
+        assertFalse(profileDeps.hasExclusion(dep, excl));
+    }
+
+    private static final String POM_WITH_EMPTY_PROFILE = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <profiles>
+                <profile>
+                  <id>empty</id>
+                </profile>
+              </profiles>
+            </project>
+            """;
+
+    @Test
+    void testAddAlignedToEmptyProfile() {
+        PomEditor editor = editorOf(POM_WITH_EMPTY_PROFILE);
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", "32.1.2-jre");
+
+        boolean added = editor.dependencies().forProfile("empty").addAligned(guava);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        int profileStart = xml.indexOf("<id>empty</id>");
+        String afterProfile = xml.substring(profileStart);
+        assertTrue(afterProfile.contains("<artifactId>guava</artifactId>"));
+        assertTrue(afterProfile.contains("<version>32.1.2-jre</version>"));
+    }
 }

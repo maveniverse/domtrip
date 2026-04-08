@@ -292,7 +292,9 @@ class ContainerNodeTest {
             final Element b = new Element("b");
             root.addChild(b);
 
-            assertThrows(IllegalArgumentException.class, () -> root.replaceChild(new Element("d"), new Element("c")));
+            Element d = new Element("d");
+            Element c = new Element("c");
+            assertThrows(IllegalArgumentException.class, () -> root.replaceChild(d, c));
         }
     }
 }

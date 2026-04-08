@@ -475,6 +475,14 @@ public class Parser {
         throw new DomTripException("Unclosed processing instruction", position, xml);
     }
 
+    /**
+     * Parses a DOCTYPE declaration beginning at the current parser position and returns the full declaration text.
+     *
+     * Advances the parser position to just after the closing '>' of the declaration.
+     *
+     * @return the DOCTYPE declaration substring including the leading "<!DOCTYPE" and the trailing ">"
+     * @throws DomTripException if the DOCTYPE declaration is not closed before the end of input
+     */
     private String parseDoctype() throws DomTripException {
         int start = position;
         position += 9; // Skip "<!DOCTYPE"
@@ -509,6 +517,14 @@ public class Parser {
         throw new DomTripException("Unclosed DOCTYPE declaration", position, xml);
     }
 
+    /**
+     * Advances the parser position past the next `>` character that terminates a declaration.
+     *
+     * Stops at and consumes the first `>` found after the current position. If no `>` is found
+     * before the end of the input, a `DomTripException` is thrown.
+     *
+     * @throws DomTripException if the declaration is not terminated before the end of the input
+     */
     private void skipDeclaration() throws DomTripException {
         while (position < length && xml.charAt(position) != '>') {
             position++;
@@ -520,6 +536,15 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses an opening element tag at the current parser position and returns the created Element.
+     *
+     * The returned Element contains the element name, parsed attributes, self-closing flag, and preserved
+     * original opening-tag text/whitespace for formatting fidelity.
+     *
+     * @return the parsed Element corresponding to the opening tag
+     * @throws DomTripException if the element name is empty or the opening tag is not properly closed
+     */
     private Element parseOpeningTag() throws DomTripException {
         int start = position;
         position++; // Skip '<'
@@ -583,6 +608,19 @@ public class Parser {
         return element;
     }
 
+    /**
+     * Parses a single attribute at the parser's current position and attaches it to the given element.
+     *
+     * The method consumes the attribute name, the `=` separator and a quoted attribute value, decodes
+     * the raw value, and calls Element.attributeInternal(...) with the attribute name, decoded value,
+     * the quote character used, the whitespace to associate with the attribute (uses `precedingWhitespace`
+     * or a single space when that is empty), and the raw attribute value.
+     *
+     * @param element the Element to which the parsed attribute will be added
+     * @param precedingWhitespace the exact whitespace string that immediately preceded this attribute in the open tag;
+     *                            if empty, a single space is used when associating whitespace with the attribute
+     * @throws DomTripException if the attribute value is not terminated with a matching quote or if a quoted value is missing
+     */
     private void parseAttribute(Element element, String precedingWhitespace) throws DomTripException {
         // Parse attribute name
         StringBuilder name = new StringBuilder();
@@ -631,6 +669,16 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses a closing tag at the current parser position, validates it against the provided node stack,
+     * finalizes the corresponding Element (captures original close-tag text and its close-tag whitespace),
+     * removes it from the stack, and returns it.
+     *
+     * @param nodeStack the stack of open nodes used to validate and pop the matching Element
+     * @return the Element that was closed by this tag
+     * @throws DomTripException if the closing tag is truncated/unterminated, does not match the top Element on the stack,
+     *                          or appears when there is no open Element to match
+     */
     private Element parseClosingTag(Deque<Node> nodeStack) throws DomTripException {
         int start = position; // Remember start position for original tag capture
         position += 2; // Skip "</"

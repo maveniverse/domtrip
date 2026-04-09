@@ -1296,9 +1296,12 @@ class AlignedDependencyTest {
         assertEquals(2, count);
 
         String xml = editor.toXml();
-        // Versions should now appear inline in the dependencies
-        assertTrue(xml.contains("<version>32.1.2-jre</version>"));
-        assertTrue(xml.contains("<version>2.0.9</version>"));
+        // Verify versions appear in the <dependencies> section (after </dependencyManagement>)
+        int depsSectionStart = xml.indexOf("</dependencyManagement>");
+        assertTrue(depsSectionStart > 0);
+        String depsSection = xml.substring(depsSectionStart);
+        assertTrue(depsSection.contains("<version>32.1.2-jre</version>"));
+        assertTrue(depsSection.contains("<version>2.0.9</version>"));
     }
 
     @Test
@@ -1362,7 +1365,7 @@ class AlignedDependencyTest {
                       <dependency>
                         <groupId>io.netty</groupId>
                         <artifactId>netty-transport</artifactId>
-                        <version>4.1.100</version>
+                        <version>4.1.99-native</version>
                         <classifier>linux-x86_64</classifier>
                       </dependency>
                     </dependencies>
@@ -1385,7 +1388,8 @@ class AlignedDependencyTest {
         assertTrue(editor.dependencies().alignDependency(coords, options));
 
         String xml = editor.toXml();
-        assertTrue(xml.contains("<version>4.1.100</version>"));
+        // Must pick the classifier-specific version, not the GA-only one
+        assertTrue(xml.contains("<version>4.1.99-native</version>"));
     }
 
     @Test
@@ -1460,6 +1464,47 @@ class AlignedDependencyTest {
     }
 
     @Test
+    void alignManagedToInlineLiteralUnresolvableProperty() {
+        PomEditor editor = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                        <version>${inherited.version}</version>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        AlignOptions options = AlignOptions.builder()
+                .versionStyle(AlignOptions.VersionStyle.INLINE)
+                .versionSource(AlignOptions.VersionSource.LITERAL)
+                .build();
+        // Property can't be resolved — must not insert an unresolved ${...} inline
+        assertFalse(editor.dependencies().alignDependency(guava, options));
+
+        String xml = editor.toXml();
+        // Dependency should remain version-less (no spurious ${...} inserted)
+        String depsSection = xml.substring(xml.indexOf("</dependencyManagement>"));
+        assertFalse(depsSection.contains("${inherited.version}"));
+    }
+
+    @Test
     void alignVersionToLiteralUnresolvableProperty() {
         PomEditor editor = editorOf("""
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -1487,6 +1532,477 @@ class AlignedDependencyTest {
 
         String xml = editor.toXml();
         assertTrue(xml.contains("${inherited.version}"));
+    }
+
+    // ========== CROSS-POM ALIGNMENT TESTS ==========
+
+    @Test
+    void alignToParentLiteralToLiteral() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>32.1.2-jre</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        AlignOptions options = AlignOptions.builder()
+                .versionSource(AlignOptions.VersionSource.LITERAL)
+                .build();
+        assertTrue(child.dependencies().alignToParent(guava, parent, options));
+
+        String childXml = child.toXml();
+        assertFalse(childXml.contains("<version>32.1.2-jre</version>"));
+
+        String parentXml = parent.toXml();
+        assertTrue(parentXml.contains("<dependencyManagement>"));
+        assertTrue(parentXml.contains("<version>32.1.2-jre</version>"));
+    }
+
+    @Test
+    void alignToParentLiteralToProperty() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>32.1.2-jre</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        AlignOptions options = AlignOptions.builder()
+                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+                .build();
+        assertTrue(child.dependencies().alignToParent(guava, parent, options));
+
+        String childXml = child.toXml();
+        assertFalse(childXml.contains("<version>32.1.2-jre</version>"));
+
+        String parentXml = parent.toXml();
+        assertTrue(parentXml.contains("<guava.version>32.1.2-jre</guava.version>"));
+        assertTrue(parentXml.contains("<version>${guava.version}</version>"));
+    }
+
+    @Test
+    void alignToParentPropertyMigration() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <properties>
+                    <guava.version>32.1.2-jre</guava.version>
+                  </properties>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>${guava.version}</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        AlignOptions options = AlignOptions.builder()
+                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                .build();
+        assertTrue(child.dependencies().alignToParent(guava, parent, options));
+
+        String childXml = child.toXml();
+        assertFalse(childXml.contains("${guava.version}"));
+        // Property definition should be cleaned up from child since nothing else references it
+        assertFalse(childXml.contains("<guava.version>"));
+
+        String parentXml = parent.toXml();
+        // Property name preserved from child
+        assertTrue(parentXml.contains("<guava.version>32.1.2-jre</guava.version>"));
+        assertTrue(parentXml.contains("<version>${guava.version}</version>"));
+    }
+
+    @Test
+    void alignToParentPropertyToLiteral() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <properties>
+                    <guava.version>32.1.2-jre</guava.version>
+                  </properties>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>${guava.version}</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        AlignOptions options = AlignOptions.builder()
+                .versionSource(AlignOptions.VersionSource.LITERAL)
+                .build();
+        assertTrue(child.dependencies().alignToParent(guava, parent, options));
+
+        String parentXml = parent.toXml();
+        // Property resolved to literal
+        assertTrue(parentXml.contains("<version>32.1.2-jre</version>"));
+        assertFalse(parentXml.contains("guava.version"));
+    }
+
+    @Test
+    void alignToParentUnresolvablePropertyAborts() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>${inherited.version}</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        AlignOptions options = AlignOptions.builder()
+                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                .build();
+        // Property can't be resolved — must not migrate unresolved ${...} to parent
+        assertFalse(child.dependencies().alignToParent(guava, parent, options));
+
+        // Child version should remain unchanged
+        String childXml = child.toXml();
+        assertTrue(childXml.contains("${inherited.version}"));
+        // Parent should not have any managed dependency added
+        String parentXml = parent.toXml();
+        assertFalse(parentXml.contains("dependencyManagement"));
+    }
+
+    @Test
+    void alignAllToParentMultipleDependencies() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <properties>
+                    <guava.version>32.1.2-jre</guava.version>
+                  </properties>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>${guava.version}</version>
+                    </dependency>
+                    <dependency>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-api</artifactId>
+                      <version>2.0.9</version>
+                    </dependency>
+                    <dependency>
+                      <groupId>org.junit.jupiter</groupId>
+                      <artifactId>junit-jupiter</artifactId>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                </project>
+                """);
+
+        AlignOptions options = AlignOptions.builder()
+                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+                .build();
+        // guava (property) + slf4j (literal) should move; junit-jupiter (version-less) should be skipped
+        int count = child.dependencies().alignAllToParent(parent, options);
+        assertEquals(2, count);
+
+        String parentXml = parent.toXml();
+        assertTrue(parentXml.contains("<guava.version>32.1.2-jre</guava.version>"));
+        assertTrue(parentXml.contains("<version>${guava.version}</version>"));
+        assertTrue(parentXml.contains("<slf4j-api.version>2.0.9</slf4j-api.version>"));
+        assertTrue(parentXml.contains("<version>${slf4j-api.version}</version>"));
+
+        String childXml = child.toXml();
+        // guava and slf4j should no longer have <version>
+        assertFalse(childXml.contains("<version>32.1.2-jre</version>"));
+        assertFalse(childXml.contains("<version>2.0.9</version>"));
+        assertFalse(childXml.contains("${guava.version}"));
+    }
+
+    @Test
+    void alignToParentDeduplication() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>32.1.2-jre</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                        <version>31.0-jre</version>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        AlignOptions options = AlignOptions.builder()
+                .versionSource(AlignOptions.VersionSource.LITERAL)
+                .build();
+        assertTrue(child.dependencies().alignToParent(guava, parent, options));
+
+        String parentXml = parent.toXml();
+        // Parent's managed version updated to child's version
+        assertTrue(parentXml.contains("<version>32.1.2-jre</version>"));
+        assertFalse(parentXml.contains("<version>31.0-jre</version>"));
+    }
+
+    @Test
+    void alignToParentAlreadyVersionless() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        assertFalse(child.dependencies().alignToParent(guava, parent, AlignOptions.defaults()));
+    }
+
+    @Test
+    void alignToParentGATCClassifierMatching() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>io.netty</groupId>
+                      <artifactId>netty-transport</artifactId>
+                      <version>4.1.100</version>
+                    </dependency>
+                    <dependency>
+                      <groupId>io.netty</groupId>
+                      <artifactId>netty-transport</artifactId>
+                      <version>4.1.99-native</version>
+                      <classifier>linux-x86_64</classifier>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                </project>
+                """);
+
+        // Move only the classified variant — GATC matching must not pick the plain one
+        Coordinates classified = Coordinates.of("io.netty", "netty-transport", null, "linux-x86_64", "jar");
+        assertTrue(child.dependencies().alignToParent(classified, parent, AlignOptions.defaults()));
+
+        String childXml = child.toXml();
+        // The plain dependency still has its version
+        assertTrue(childXml.contains("<version>4.1.100</version>"));
+        // The classified dependency lost its version
+        assertFalse(childXml.contains("<version>4.1.99-native</version>"));
+
+        String parentXml = parent.toXml();
+        assertTrue(parentXml.contains("<version>4.1.99-native</version>"));
+        assertTrue(parentXml.contains("<classifier>linux-x86_64</classifier>"));
+    }
+
+    @Test
+    void alignToParentPropertyRetainedWhenStillReferenced() {
+        PomEditor child = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>child</artifactId>
+                  <version>1.0.0</version>
+                  <properties>
+                    <guava.version>32.1.2-jre</guava.version>
+                  </properties>
+                  <dependencies>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava</artifactId>
+                      <version>${guava.version}</version>
+                    </dependency>
+                    <dependency>
+                      <groupId>com.google.guava</groupId>
+                      <artifactId>guava-testlib</artifactId>
+                      <version>${guava.version}</version>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+        PomEditor parent = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>parent</artifactId>
+                  <version>1.0.0</version>
+                  <packaging>pom</packaging>
+                </project>
+                """);
+
+        // Move only guava; guava-testlib still references the shared property
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", null);
+        AlignOptions options = AlignOptions.builder()
+                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                .build();
+        assertTrue(child.dependencies().alignToParent(guava, parent, options));
+
+        String childXml = child.toXml();
+        // Property must be retained because guava-testlib still uses it
+        assertTrue(childXml.contains("<guava.version>32.1.2-jre</guava.version>"));
+        // guava-testlib still references it
+        assertTrue(childXml.contains("<version>${guava.version}</version>"));
     }
 
     // ========== PROPERTY NAME GENERATION TESTS ==========

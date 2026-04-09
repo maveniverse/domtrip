@@ -1232,20 +1232,214 @@ public class PomEditor extends AbstractMavenEditor {
             return count;
         }
 
+        // ========== CROSS-POM ALIGNMENT ==========
+
         /**
-         * Aligns a single dependency element's version representation to the specified style and source.
+         * Moves a single dependency's version from this (child) POM to the parent POM's
+         * {@code <dependencyManagement>}, making the child dependency version-less.
          *
-         * Updates the dependency element or project state when converting a literal version into a property
-         * reference (creates or updates the corresponding property) and/or moving an inline version into
-         * dependencyManagement (ensures the managed entry exists and removes the dependency's `<version>`).
+         * <p>If the child's version is a property reference, the property definition is migrated
+         * to the parent POM. When the target version source is {@code PROPERTY} and the child
+         * uses a literal version, a new property is created in the parent using the naming convention.</p>
+         *
+         * <p>Example usage:</p>
+         * <pre>{@code
+         * PomEditor child = new PomEditor(childDoc);
+         * PomEditor parent = new PomEditor(parentDoc);
+         * child.dependencies().alignToParent(
+         *     Coordinates.of("com.google.guava", "guava"),
+         *     parent,
+         *     AlignOptions.builder()
+         *         .versionSource(AlignOptions.VersionSource.PROPERTY)
+         *         .build());
+         * }</pre>
+         *
+         * @param coords the dependency coordinates (matched by groupId and artifactId)
+         * @param parentEditor the parent POM editor where the managed dependency will be created
+         * @param options alignment options controlling version source and property naming in the parent
+         * @return {@code true} if the dependency was moved, {@code false} if not found or already version-less
+         * @since 1.2.0
+         */
+        public boolean alignToParent(Coordinates coords, PomEditor parentEditor, AlignOptions options) {
+            requireGA(DEPENDENCY_LABEL, coords);
+            Element deps = findChildElement(root(), DEPENDENCIES);
+            if (deps == null) {
+                return false;
+            }
+            Element dep = deps.childElements(DEPENDENCY)
+                    .filter(coords.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (dep == null) {
+                return false;
+            }
+
+            Dependencies parentDeps = parentEditor.dependencies();
+            Object[] conventions = parentDeps.resolveConventions(options);
+            AlignOptions.VersionSource versionSource = (AlignOptions.VersionSource) conventions[1];
+            AlignOptions.PropertyNamingConvention naming = (AlignOptions.PropertyNamingConvention) conventions[2];
+
+            return alignToParentElement(dep, coords, parentDeps, versionSource, naming, options);
+        }
+
+        /**
+         * Moves all dependency versions from this (child) POM to the parent POM's
+         * {@code <dependencyManagement>}, making all child dependencies version-less.
+         *
+         * <p>Conventions are resolved from the parent POM once before processing, then applied
+         * consistently. Property definitions are migrated or created in the parent as needed.</p>
+         *
+         * <p>Example usage:</p>
+         * <pre>{@code
+         * PomEditor child = new PomEditor(childDoc);
+         * PomEditor parent = new PomEditor(parentDoc);
+         * int moved = child.dependencies().alignAllToParent(parent,
+         *     AlignOptions.builder()
+         *         .versionSource(AlignOptions.VersionSource.PROPERTY)
+         *         .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+         *         .build());
+         * }</pre>
+         *
+         * @param parentEditor the parent POM editor where managed dependencies will be created
+         * @param options alignment options controlling version source and property naming in the parent
+         * @return the number of dependencies that were moved to the parent
+         * @since 1.2.0
+         */
+        public int alignAllToParent(PomEditor parentEditor, AlignOptions options) {
+            Element deps = findChildElement(root(), DEPENDENCIES);
+            if (deps == null) {
+                return 0;
+            }
+
+            Dependencies parentDeps = parentEditor.dependencies();
+            Object[] conventions = parentDeps.resolveConventions(options);
+            AlignOptions.VersionSource versionSource = (AlignOptions.VersionSource) conventions[1];
+            AlignOptions.PropertyNamingConvention naming = (AlignOptions.PropertyNamingConvention) conventions[2];
+
+            List<Element> depList = deps.childElements(DEPENDENCY).collect(Collectors.toList());
+            int count = 0;
+            for (Element dep : depList) {
+                String groupId = dep.childTextOr(GROUP_ID, null);
+                String artifactId = dep.childTextOr(ARTIFACT_ID, null);
+                if (artifactId == null) {
+                    continue;
+                }
+                String type = dep.childTextOr(TYPE, "jar");
+                String classifier = dep.childTextOr(CLASSIFIER, null);
+                Coordinates depCoords = Coordinates.of(groupId, artifactId, null, classifier, type);
+                if (alignToParentElement(dep, depCoords, parentDeps, versionSource, naming, options)) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
+        /**
+         * Moves a single dependency's version from this POM to a parent Dependencies instance.
+         *
+         * <p>Resolves the child's version (including property lookup), applies the target version
+         * source convention, creates the managed dependency in the parent, and removes the
+         * {@code <version>} element from the child dependency.</p>
+         *
+         * @param dep the child {@code <dependency>} element
+         * @param coords the dependency coordinates
+         * @param parentDeps the parent POM's Dependencies instance
+         * @param versionSource target version source for the parent ({@code LITERAL} or {@code PROPERTY})
+         * @param naming property naming convention for the parent
+         * @param options alignment options that may supply explicit property names or generators
+         * @return {@code true} if the version was moved, {@code false} if the dependency is already version-less
+         */
+        private boolean alignToParentElement(
+                Element dep,
+                Coordinates coords,
+                Dependencies parentDeps,
+                AlignOptions.VersionSource versionSource,
+                AlignOptions.PropertyNamingConvention naming,
+                AlignOptions options) {
+            java.util.Optional<Element> versionEl = dep.childElement(VERSION);
+            if (!versionEl.isPresent()) {
+                return false;
+            }
+
+            String versionText = versionEl.get().textContent();
+            String resolvedVersion = resolveVersionValue(versionText);
+
+            // Abort if the property reference could not be resolved locally
+            if (isPropertyReference(versionText) && isPropertyReference(resolvedVersion)) {
+                return false;
+            }
+
+            String versionForManaged;
+
+            if (versionSource == AlignOptions.VersionSource.PROPERTY) {
+                // Determine property name: explicit override > generator > existing prop name > convention
+                String propName;
+                if (options.propertyName() != null) {
+                    propName = options.propertyName();
+                } else if (options.propertyNameGenerator() != null) {
+                    propName = options.propertyNameGenerator().apply(coords);
+                } else if (isPropertyReference(versionText)) {
+                    propName = versionText.substring(2, versionText.length() - 1);
+                } else {
+                    propName = AlignOptions.generatePropertyName(coords, naming);
+                }
+                parentDeps.upsertVersionProperty(propName, resolvedVersion);
+                versionForManaged = "${" + propName + "}";
+            } else {
+                versionForManaged = resolvedVersion;
+            }
+
+            parentDeps.ensureManagedDependency(
+                    coords.groupId(), coords.artifactId(), versionForManaged, coords.classifier(), coords.type());
+
+            removeElement(versionEl.get());
+
+            // Clean up child property definition if the property is no longer referenced
+            if (isPropertyReference(versionText)) {
+                String propName = versionText.substring(2, versionText.length() - 1);
+                if (!root().toXml().contains(versionText)) {
+                    root().childElement(PROPERTIES)
+                            .ifPresent(props -> props.childElement(propName).ifPresent(PomEditor.this::removeElement));
+                }
+            }
+
+            return true;
+        }
+
+        /**
+         * Resolves a version text to its literal value.
+         *
+         * <p>If the version is a property reference (e.g. {@code ${guava.version}}), looks up
+         * the property value from this POM's {@code <properties>}. If the version is already
+         * literal or the property cannot be resolved, returns the text unchanged.</p>
+         *
+         * @param versionText the version text to resolve
+         * @return the resolved literal version value
+         * @since 1.2.0
+         */
+        private String resolveVersionValue(String versionText) {
+            if (!isPropertyReference(versionText)) {
+                return versionText;
+            }
+            String propName = versionText.substring(2, versionText.length() - 1);
+            Element props = root().childElement(PROPERTIES).orElse(null);
+            if (props == null) {
+                return versionText;
+            }
+            String value = props.childTextOr(propName, null);
+            return value != null ? value : versionText;
+        }
+
+        /**
+         * Aligns a dependency's version to the requested placement (INLINE or MANAGED) and source (LITERAL or PROPERTY).
          *
          * @param dep the `<dependency>` element to align
-         * @param coords coordinates identifying the dependency (groupId/artifactId/type/classifier as used)
-         * @param targetStyle desired version placement strategy (`INLINE` or `MANAGED`)
-         * @param targetSource desired version value source (`LITERAL` or `PROPERTY`)
-         * @param naming property naming convention to use when creating a version property
-         * @param options alignment options that may supply explicit property names or generators
-         * @return `true` if any change was made to the dependency or project (property upserted, version replaced, or version element removed), `false` if the dependency was already aligned (no `<version>` present or no conversion needed)
+         * @param coords identifies the dependency (groupId, artifactId, type, classifier)
+         * @param targetStyle desired placement of the version (`INLINE` or `MANAGED`)
+         * @param targetSource desired source of the version value (`LITERAL` or `PROPERTY`)
+         * @param naming property naming convention to use when creating or selecting a version property
+         * @param options alignment options that may supply an explicit property name or a name generator
+         * @return `true` if any modification was made to the dependency or project (property created/updated, version text changed, or version element removed), `false` otherwise
          */
         private boolean alignDependencyElement(
                 Element dep,
@@ -1255,20 +1449,41 @@ public class PomEditor extends AbstractMavenEditor {
                 AlignOptions.PropertyNamingConvention naming,
                 AlignOptions options) {
             java.util.Optional<Element> versionEl = dep.childElement(VERSION);
+            boolean changed = false;
+            boolean insertedVersion = false;
+
+            // Handle managed → inline or already version-less
             if (!versionEl.isPresent()) {
-                return false; // Already version-less (managed)
+                if (targetStyle != AlignOptions.VersionStyle.INLINE) {
+                    return false;
+                }
+                Element promoted = promoteFromManaged(dep, coords);
+                if (promoted == null) {
+                    return false;
+                }
+                versionEl = java.util.Optional.of(promoted);
+                changed = true;
+                insertedVersion = true;
             }
 
             String versionText = versionEl.get().textContent();
-            boolean changed = false;
 
-            // Convert literal → property or re-align existing property reference if needed
+            // Convert between version sources (literal ↔ property)
             if (targetSource == AlignOptions.VersionSource.PROPERTY) {
                 String desiredPropName = resolvePropertyName(coords, naming, options);
                 String aligned = alignVersionToProperty(versionEl.get(), versionText, desiredPropName);
                 if (aligned != null) {
                     versionText = aligned;
                     changed = true;
+                }
+            } else if (targetSource == AlignOptions.VersionSource.LITERAL) {
+                String inlined = alignVersionToLiteral(versionEl.get(), versionText);
+                if (inlined != null) {
+                    versionText = inlined;
+                    changed = true;
+                } else if (isPropertyReference(versionText)) {
+                    // Can't resolve property to literal — roll back any inserted version element
+                    return rollbackInsertedVersion(insertedVersion, versionEl.get());
                 }
             }
 
@@ -1284,17 +1499,50 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Aligns a version element to use the desired property reference.
+         * Promotes a managed dependency version to an inline {@code <version>} element.
          *
-         * <p>If the version is a literal value, creates the property and updates the element
-         * to reference it. If it already references a different property, copies the value
-         * to the desired property name and updates the reference.</p>
+         * <p>Looks up the version from {@code <dependencyManagement>} and inserts it
+         * as a child element of the given dependency.</p>
          *
-         * @param versionEl the {@code <version>} element to update
+         * @param dep the dependency element to receive the version
+         * @param coords the dependency coordinates for managed version lookup
+         * @return the newly inserted version element, or {@code null} if no managed version was found
+         */
+        private Element promoteFromManaged(Element dep, Coordinates coords) {
+            String managedVersion = findManagedVersion(coords);
+            if (managedVersion == null) {
+                return null;
+            }
+            return insertMavenElement(dep, VERSION, managedVersion);
+        }
+
+        /**
+         * Rolls back an inserted version element and signals alignment abort.
+         *
+         * @param insertedVersion whether the version element was inserted during this alignment
+         * @param versionEl the version element to potentially remove
+         * @return always {@code false} to signal abort
+         */
+        private boolean rollbackInsertedVersion(boolean insertedVersion, Element versionEl) {
+            if (insertedVersion) {
+                removeElement(versionEl);
+            }
+            return false;
+        }
+
+        /**
+         * Aligns a dependency version element to reference the given property name.
+         *
+         * <p>If the version is a literal value, creates or updates the desired property with that
+         * literal and replaces the element text with a `${...}` reference. If the version already
+         * references a different property and that property is defined in this POM's local
+         * `<properties>`, copies its value to the desired property and updates the reference.
+         * Otherwise leaves the element unchanged.</p>
+         *
+         * @param versionEl the `<version>` element to update
          * @param versionText the current text content of the version element
-         * @param desiredPropName the property name that should be referenced
-         * @return the new version text (e.g. {@code "${prop.version}"}) if a change was made, or {@code null} if already aligned
-         * @since 1.1.0
+         * @param desiredPropName the property name to reference (without `${}`)
+         * @return the new version text (for example, `"${prop.version}"`) if modified, or `null` if no change was needed
          */
         private String alignVersionToProperty(Element versionEl, String versionText, String desiredPropName) {
             if (!isPropertyReference(versionText)) {
@@ -1323,6 +1571,35 @@ public class PomEditor extends AbstractMavenEditor {
             String ref = "${" + desiredPropName + "}";
             versionEl.textContent(ref);
             return ref;
+        }
+
+        /**
+         * Resolves a property-reference version to its literal value.
+         *
+         * <p>If the version is already a literal value, returns {@code null} (no change needed).
+         * If the version references a property defined in the local {@code <properties>} section,
+         * resolves the value and updates the element.</p>
+         *
+         * @param versionEl the {@code <version>} element to update
+         * @param versionText the current text content of the version element
+         * @return the resolved literal value if a change was made, or {@code null} if already literal or unresolvable
+         * @since 1.2.0
+         */
+        private String alignVersionToLiteral(Element versionEl, String versionText) {
+            if (!isPropertyReference(versionText)) {
+                return null; // Already literal
+            }
+            String propName = versionText.substring(2, versionText.length() - 1);
+            Element props = root().childElement(PROPERTIES).orElse(null);
+            if (props == null) {
+                return null;
+            }
+            String value = props.childTextOr(propName, null);
+            if (value == null) {
+                return null; // Can't resolve (inherited from parent)
+            }
+            versionEl.textContent(value);
+            return value;
         }
 
         /**
@@ -1372,6 +1649,33 @@ public class PomEditor extends AbstractMavenEditor {
                     insertMavenElement(managedDep, VERSION, version);
                 }
             }
+        }
+
+        /**
+         * Looks up the version text of a managed dependency matching the given coordinates.
+         *
+         * @param coords the dependency coordinates (matched by groupId/artifactId/type/classifier)
+         * @return the version text from the managed dependency, or {@code null} if not found
+         * @since 1.2.0
+         */
+        private String findManagedVersion(Coordinates coords) {
+            Element depMgmt = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+            if (depMgmt == null) {
+                return null;
+            }
+            Element managedDeps = findChildElement(depMgmt, DEPENDENCIES);
+            if (managedDeps == null) {
+                return null;
+            }
+            Element managedDep = managedDeps
+                    .childElements(DEPENDENCY)
+                    .filter(coords.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (managedDep == null) {
+                return null;
+            }
+            return managedDep.childTextOr(VERSION, null);
         }
 
         /**

@@ -1233,19 +1233,15 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Aligns a single dependency element's version representation to the specified style and source.
-         *
-         * Updates the dependency element or project state when converting a literal version into a property
-         * reference (creates or updates the corresponding property) and/or moving an inline version into
-         * dependencyManagement (ensures the managed entry exists and removes the dependency's `<version>`).
+         * Aligns a dependency's version to the requested placement (INLINE or MANAGED) and source (LITERAL or PROPERTY).
          *
          * @param dep the `<dependency>` element to align
-         * @param coords coordinates identifying the dependency (groupId/artifactId/type/classifier as used)
-         * @param targetStyle desired version placement strategy (`INLINE` or `MANAGED`)
-         * @param targetSource desired version value source (`LITERAL` or `PROPERTY`)
-         * @param naming property naming convention to use when creating a version property
-         * @param options alignment options that may supply explicit property names or generators
-         * @return `true` if any change was made to the dependency or project (property upserted, version replaced, or version element removed), `false` if the dependency was already aligned (no `<version>` present or no conversion needed)
+         * @param coords identifies the dependency (groupId, artifactId, type, classifier)
+         * @param targetStyle desired placement of the version (`INLINE` or `MANAGED`)
+         * @param targetSource desired source of the version value (`LITERAL` or `PROPERTY`)
+         * @param naming property naming convention to use when creating or selecting a version property
+         * @param options alignment options that may supply an explicit property name or a name generator
+         * @return `true` if any modification was made to the dependency or project (property created/updated, version text changed, or version element removed), `false` otherwise
          */
         private boolean alignDependencyElement(
                 Element dep,
@@ -1255,19 +1251,36 @@ public class PomEditor extends AbstractMavenEditor {
                 AlignOptions.PropertyNamingConvention naming,
                 AlignOptions options) {
             java.util.Optional<Element> versionEl = dep.childElement(VERSION);
+            boolean changed = false;
+
+            // Handle managed → inline: add version element from dependencyManagement
+            if (!versionEl.isPresent() && targetStyle == AlignOptions.VersionStyle.INLINE) {
+                String managedVersion = findManagedVersion(coords);
+                if (managedVersion != null) {
+                    Element newVersionEl = insertMavenElement(dep, VERSION, managedVersion);
+                    versionEl = java.util.Optional.of(newVersionEl);
+                    changed = true;
+                }
+            }
+
             if (!versionEl.isPresent()) {
-                return false; // Already version-less (managed)
+                return false; // Already version-less (managed) and no conversion needed
             }
 
             String versionText = versionEl.get().textContent();
-            boolean changed = false;
 
-            // Convert literal → property or re-align existing property reference if needed
+            // Convert between version sources (literal ↔ property)
             if (targetSource == AlignOptions.VersionSource.PROPERTY) {
                 String desiredPropName = resolvePropertyName(coords, naming, options);
                 String aligned = alignVersionToProperty(versionEl.get(), versionText, desiredPropName);
                 if (aligned != null) {
                     versionText = aligned;
+                    changed = true;
+                }
+            } else if (targetSource == AlignOptions.VersionSource.LITERAL) {
+                String inlined = alignVersionToLiteral(versionEl.get(), versionText);
+                if (inlined != null) {
+                    versionText = inlined;
                     changed = true;
                 }
             }
@@ -1284,17 +1297,18 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Aligns a version element to use the desired property reference.
+         * Aligns a dependency version element to reference the given property name.
          *
-         * <p>If the version is a literal value, creates the property and updates the element
-         * to reference it. If it already references a different property, copies the value
-         * to the desired property name and updates the reference.</p>
+         * <p>If the version is a literal value, creates or updates the desired property with that
+         * literal and replaces the element text with a `${...}` reference. If the version already
+         * references a different property and that property is defined in this POM's local
+         * `<properties>`, copies its value to the desired property and updates the reference.
+         * Otherwise leaves the element unchanged.</p>
          *
-         * @param versionEl the {@code <version>} element to update
+         * @param versionEl the `<version>` element to update
          * @param versionText the current text content of the version element
-         * @param desiredPropName the property name that should be referenced
-         * @return the new version text (e.g. {@code "${prop.version}"}) if a change was made, or {@code null} if already aligned
-         * @since 1.1.0
+         * @param desiredPropName the property name to reference (without `${}`)
+         * @return the new version text (for example, `"${prop.version}"`) if modified, or `null` if no change was needed
          */
         private String alignVersionToProperty(Element versionEl, String versionText, String desiredPropName) {
             if (!isPropertyReference(versionText)) {
@@ -1323,6 +1337,35 @@ public class PomEditor extends AbstractMavenEditor {
             String ref = "${" + desiredPropName + "}";
             versionEl.textContent(ref);
             return ref;
+        }
+
+        /**
+         * Resolves a property-reference version to its literal value.
+         *
+         * <p>If the version is already a literal value, returns {@code null} (no change needed).
+         * If the version references a property defined in the local {@code <properties>} section,
+         * resolves the value and updates the element.</p>
+         *
+         * @param versionEl the {@code <version>} element to update
+         * @param versionText the current text content of the version element
+         * @return the resolved literal value if a change was made, or {@code null} if already literal or unresolvable
+         * @since 1.2.0
+         */
+        private String alignVersionToLiteral(Element versionEl, String versionText) {
+            if (!isPropertyReference(versionText)) {
+                return null; // Already literal
+            }
+            String propName = versionText.substring(2, versionText.length() - 1);
+            Element props = root().childElement(PROPERTIES).orElse(null);
+            if (props == null) {
+                return null;
+            }
+            String value = props.childTextOr(propName, null);
+            if (value == null) {
+                return null; // Can't resolve (inherited from parent)
+            }
+            versionEl.textContent(value);
+            return value;
         }
 
         /**
@@ -1372,6 +1415,33 @@ public class PomEditor extends AbstractMavenEditor {
                     insertMavenElement(managedDep, VERSION, version);
                 }
             }
+        }
+
+        /**
+         * Looks up the version text of a managed dependency matching the given coordinates.
+         *
+         * @param coords the dependency coordinates (matched by groupId/artifactId/type/classifier)
+         * @return the version text from the managed dependency, or {@code null} if not found
+         * @since 1.2.0
+         */
+        private String findManagedVersion(Coordinates coords) {
+            Element depMgmt = findChildElement(root(), DEPENDENCY_MANAGEMENT);
+            if (depMgmt == null) {
+                return null;
+            }
+            Element managedDeps = findChildElement(depMgmt, DEPENDENCIES);
+            if (managedDeps == null) {
+                return null;
+            }
+            Element managedDep = managedDeps
+                    .childElements(DEPENDENCY)
+                    .filter(coords.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+            if (managedDep == null) {
+                return null;
+            }
+            return managedDep.childTextOr(VERSION, null);
         }
 
         /**

@@ -26,7 +26,7 @@ Add DomTrip to your Maven project:
 <dependency>
     <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip-maven</artifactId>
-    <version>0.2.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -220,7 +220,7 @@ DomTrip excels in scenarios where preserving original formatting is crucial:
 | **Quote Style Preservation** | ✅ Yes | ❌ No | ❌ No | ❌ No |
 | **Attribute Order Preservation** | ✅ Yes | ❌ No | ❌ No | ❌ No |
 | **Entity Preservation** | ✅ Yes | ❌ No | ❌ No | ❌ No |
-| **Modern Java API** | ✅ Java 17+ | ❌ Legacy | ❌ Legacy | ✅ Modern |
+| **Modern Java API** | ✅ Java 8+ | ❌ Legacy | ❌ Legacy | ✅ Modern |
 | **Stream Navigation** | ✅ Yes | ❌ No | ❌ No | ❌ No |
 | **Type Safety** | ✅ Compile-time | ❌ Runtime | ❌ Runtime | ✅ Compile-time |
 | **Performance** | ✅ Optimized | ✅ Fast | ✅ Fast | ✅ Very Fast |

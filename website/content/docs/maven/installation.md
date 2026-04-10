@@ -16,7 +16,7 @@ Add the Maven extension to your project's `pom.xml`:
 <dependency>
     <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip-maven</artifactId>
-    <version>0.2.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -28,7 +28,7 @@ For Gradle projects, add to your `build.gradle`:
 
 ```gradle
 dependencies {
-    implementation 'eu.maveniverse.maven.domtrip:domtrip-maven:0.2.0'
+    implementation 'eu.maveniverse.maven.domtrip:domtrip-maven:1.2.0'
 }
 ```
 
@@ -36,7 +36,7 @@ Or for Gradle Kotlin DSL (`build.gradle.kts`):
 
 ```kotlin
 dependencies {
-    implementation("eu.maveniverse.maven.domtrip:domtrip-maven:0.2.0")
+    implementation("eu.maveniverse.maven.domtrip:domtrip-maven:1.2.0")
 }
 ```
 
@@ -64,11 +64,11 @@ public class InstallationTest {
     public static void main(String[] args) {
         // Create a new POM editor
         PomEditor editor = new PomEditor();
-        
+
         // Verify constants are available
-        System.out.println("Maven namespace: " + 
+        System.out.println("Maven namespace: " +
             MavenPomElements.Namespaces.MAVEN_4_0_0_NAMESPACE);
-        
+
         System.out.println("DomTrip Maven extension installed successfully!");
     }
 }
@@ -79,22 +79,38 @@ public class InstallationTest {
 When you add the Maven extension, you get access to:
 
 ### Core Classes
-- `PomEditor` - Specialized editor for Maven POM files
-- `MavenPomElements` - Constants for Maven elements and attributes
+- `PomEditor` - Specialized editor for Maven POM files with sub-object APIs
+- `Coordinates` - Maven artifact coordinates (GAV)
+- `AlignOptions` - Configuration for dependency alignment operations
+- `SettingsEditor` - Editor for Maven settings.xml files
+- `ExtensionsEditor` - Editor for Maven extensions.xml files
+- `ToolchainsEditor` - Editor for Maven toolchains.xml files
+- `MavenPomElements` - Constants for Maven POM elements and attributes
 
 ### Package Structure
 ```
-org.maveniverse.domtrip.maven
+eu.maveniverse.domtrip.maven
 ├── PomEditor.class
+├── PomEditor$Dependencies.class
+├── PomEditor$Plugins.class
+├── PomEditor$Properties.class
+├── PomEditor$Subprojects.class
+├── PomEditor$Parent.class
+├── PomEditor$Profiles.class
+├── PomEditor$Extensions.class
+├── Coordinates.class
+├── AlignOptions.class
+├── AlignOptions$VersionStyle.class
+├── AlignOptions$VersionSource.class
+├── AlignOptions$PropertyNamingConvention.class
+├── AlignOptions$Builder.class
+├── SettingsEditor.class
+├── ExtensionsEditor.class
+├── ToolchainsEditor.class
 ├── MavenPomElements.class
-├── MavenPomElements$Elements.class
-├── MavenPomElements$Attributes.class
-├── MavenPomElements$Namespaces.class
-├── MavenPomElements$SchemaLocations.class
-├── MavenPomElements$ModelVersions.class
-├── MavenPomElements$Files.class
-├── MavenPomElements$Plugins.class
-└── MavenPomElements$Indentation.class
+├── MavenSettingsElements.class
+├── MavenExtensionsElements.class
+└── MavenToolchainsElements.class
 ```
 
 ## IDE Setup
@@ -128,9 +144,9 @@ If you have version conflicts with transitive dependencies:
 
 ```xml
 <dependency>
-    <groupId>eu.maveniverse</groupId>
+    <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip-maven</artifactId>
-    <version>0.2.0</version>
+    <version>1.2.0</version>
     <exclusions>
         <exclusion>
             <groupId>*</groupId>
@@ -140,9 +156,9 @@ If you have version conflicts with transitive dependencies:
 </dependency>
 <!-- Add specific versions of transitive dependencies -->
 <dependency>
-    <groupId>eu.maveniverse</groupId>
+    <groupId>eu.maveniverse.maven.domtrip</groupId>
     <artifactId>domtrip-core</artifactId>
-    <version>0.2.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 

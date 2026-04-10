@@ -130,6 +130,62 @@ Jackson XML is primarily for object mapping, but here are equivalent operations:
 
 ## Breaking Changes in Recent Versions
 
+### PomEditor Sub-Object API (v1.0.0+)
+
+The PomEditor convenience methods have been moved to sub-object APIs for better organization:
+
+**Migration:**
+```java
+// OLD: Direct methods on PomEditor
+editor.addDependency(depsElement, "junit", "junit", "4.13.2");
+editor.addPlugin(pluginsElement, "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+editor.addModule(modulesElement, "core");
+editor.addProperty(propsElement, "java.version", "17");
+
+// NEW: Sub-object APIs
+editor.dependencies().addDependency(depsElement, "junit", "junit", "4.13.2");
+editor.plugins().addPlugin(pluginsElement, "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+editor.subprojects().addModule(modulesElement, "core");
+editor.properties().addProperty(propsElement, "java.version", "17");
+```
+
+**New capabilities added in 1.0.0:**
+- `editor.dependencies()` — CRUD, exclusion management (`addExclusion`, `deleteExclusion`, `hasExclusion`)
+- `editor.plugins()` — Plugin CRUD and pluginManagement
+- `editor.parent()` — `setParent()`, `updateParent()`, `deleteParent()`
+- `editor.profiles()` — `findProfile()`, `hasProfile()`
+- `Coordinates` class for type-safe artifact coordinate handling
+
+### Element Navigation Rename (v0.5.0+)
+
+Method names were renamed for clarity:
+
+**Migration:**
+```java
+// OLD: Element child navigation
+element.child("name");          // ambiguous: child node or child element?
+element.children("dependency"); // ambiguous
+
+// NEW: Explicit element navigation
+element.childElement("name");          // clearly an element
+element.childElements("dependency");   // clearly elements
+
+// OLD: ContainerNode node access
+container.nodeAt(0);
+container.nodeCount();
+
+// NEW: ContainerNode child access
+container.childAt(0);
+container.childCount();
+```
+
+**New ContainerNode methods added in 0.6.0:**
+- `insertChildBefore(referenceNode, newNode)` — insert before a specific child
+- `insertChildAfter(referenceNode, newNode)` — insert after a specific child
+- `firstChild()` — returns `Optional` of first child
+- `lastChild()` — returns `Optional` of last child
+- `replaceChild(existingNode, replacementNode)` — replace a child node
+
 ### Whitespace API Simplification (v0.1.1+)
 
 The whitespace handling API has been simplified for better maintainability:

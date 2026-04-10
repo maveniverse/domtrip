@@ -6,62 +6,44 @@ layout: page
 
 # PomEditor API Reference
 
-The `PomEditor` class extends the core `Editor` class with Maven-specific functionality for working with POM files.
+The `PomEditor` class extends the core `Editor` class with Maven-specific functionality
+for working with POM files. It provides sub-object APIs for dependencies, plugins,
+properties, subprojects, and parent management.
 
-## Class Overview
+## Overview
 
 ```java
-public class PomEditor extends Editor {
-    // Constructors
-    public PomEditor()
-    public PomEditor(DomTripConfig config)
-    public PomEditor(Document document)
-    public PomEditor(Document document, DomTripConfig config)
-    
-    // Maven-specific methods
-    public Element insertMavenElement(Element parent, String elementName)
-    public Element insertMavenElement(Element parent, String elementName, String textContent)
-    public Element findChildElement(Element parent, String elementName)
-    public void createMavenDocument(String rootElementName)
-    
-    // Convenience methods
-    public Element addDependency(Element dependenciesElement, String groupId, String artifactId, String version)
-    public Element addPlugin(Element pluginsElement, String groupId, String artifactId, String version)
-    public Element addModule(Element modulesElement, String moduleName)
-    public Element addProperty(Element propertiesElement, String propertyName, String propertyValue)
-}
+{cdi:snippets.snippet('pom-editor-overview')}
 ```
+
+## Sub-Object APIs
+
+The PomEditor organizes operations into domain-specific sub-objects:
+
+| API | Access | Purpose |
+|-----|--------|---------|
+| `Dependencies` | `editor.dependencies()` | Dependency CRUD, exclusions, alignment, convention detection |
+| `Plugins` | `editor.plugins()` | Plugin CRUD, pluginManagement |
+| `Properties` | `editor.properties()` | Property CRUD |
+| `Subprojects` | `editor.subprojects()` | Module management |
+| `Parent` | `editor.parent()` | Parent POM management |
+| `Profiles` | `editor.profiles()` | Profile lookup |
 
 ## Constructors
 
-### Default Constructor
 ```java
+// Default configuration
 PomEditor editor = new PomEditor();
-```
-Creates a new PomEditor with default configuration.
 
-### With Configuration
-```java
-DomTripConfig config = DomTripConfig.builder()
-    .indentSize(4)
-    .build();
+// Custom configuration
+DomTripConfig config = DomTripConfig.builder().indentSize(4).build();
 PomEditor editor = new PomEditor(config);
-```
-Creates a PomEditor with custom configuration.
 
-### With Existing Document
-```java
+// From existing document
 Document doc = Document.of(pomXmlString);
 PomEditor editor = new PomEditor(doc);
-```
-Creates a PomEditor for an existing Document.
 
-### With Document and Configuration
-```java
-Document doc = Document.of(pomXmlString);
-DomTripConfig config = DomTripConfig.builder()
-    .preserveWhitespace(true)
-    .build();
+// Document + configuration
 PomEditor editor = new PomEditor(doc, config);
 ```
 
@@ -69,168 +51,109 @@ PomEditor editor = new PomEditor(doc, config);
 
 ### insertMavenElement()
 
-Inserts elements with Maven-aware ordering and formatting.
+Inserts elements with Maven-aware ordering and formatting:
 
-#### Basic Usage
-```java
-Element insertMavenElement(Element parent, String elementName)
-```
-
-**Example:**
 ```java
 Element root = editor.root();
 Element dependencies = editor.insertMavenElement(root, "dependencies");
-```
-
-#### With Text Content
-```java
-Element insertMavenElement(Element parent, String elementName, String textContent)
-```
-
-**Example:**
-```java
 editor.insertMavenElement(root, "groupId", "com.example");
-editor.insertMavenElement(root, "artifactId", "my-project");
-editor.insertMavenElement(root, "version", "1.0.0");
 ```
 
-**Features:**
+Features:
 - Automatically orders elements according to Maven conventions
 - Adds appropriate blank lines between element groups
 - Preserves existing formatting and comments
-- Handles nested element structures intelligently
 
 ### findChildElement()
 
-Finds a direct child element by name.
+Finds a direct child element by name:
 
 ```java
-Element findChildElement(Element parent, String elementName)
-```
-
-**Example:**
-```java
-Element root = editor.root();
 Element dependencies = editor.findChildElement(root, "dependencies");
 if (dependencies == null) {
     dependencies = editor.insertMavenElement(root, "dependencies");
 }
 ```
 
-**Returns:** The child element if found, `null` otherwise.
-
 ### createMavenDocument()
 
-Creates a new Maven POM document with proper namespace.
+Creates a new Maven POM document with proper namespace:
 
-```java
-void createMavenDocument(String rootElementName)
-```
-
-**Example:**
 ```java
 PomEditor editor = new PomEditor();
 editor.createMavenDocument("project");
-Element root = editor.root();
-// root now has xmlns="http://maven.apache.org/POM/4.0.0"
 ```
 
-## Convenience Methods
+## Coordinates
 
-### addDependency()
-
-Adds a dependency with proper structure and ordering.
+The `Coordinates` class represents Maven artifact coordinates (GAV):
 
 ```java
-Element addDependency(Element dependenciesElement, String groupId, String artifactId, String version)
+{cdi:snippets.snippet('coordinates-usage')}
 ```
 
-**Example:**
-```java
-Element dependencies = editor.insertMavenElement(root, "dependencies");
-Element dep = editor.addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", "5.9.2");
+## Dependencies API
 
-// Add additional elements to the dependency
-editor.insertMavenElement(dep, "scope", "test");
-editor.insertMavenElement(dep, "optional", "true");
-```
+Access via `editor.dependencies()`.
 
-**Generated Structure:**
-```xml
-<dependency>
-  <groupId>org.junit.jupiter</groupId>
-  <artifactId>junit-jupiter</artifactId>
-  <version>5.9.2</version>
-  <scope>test</scope>
-  <optional>true</optional>
-</dependency>
-```
-
-### addPlugin()
-
-Adds a plugin with proper structure and ordering.
+### CRUD Operations
 
 ```java
-Element addPlugin(Element pluginsElement, String groupId, String artifactId, String version)
+{cdi:snippets.snippet('dependency-management-ops')}
 ```
 
-**Example:**
-```java
-Element build = editor.insertMavenElement(root, "build");
-Element plugins = editor.insertMavenElement(build, "plugins");
+### Exclusion Management
 
-Element plugin = editor.addPlugin(plugins, 
-    "org.apache.maven.plugins", "maven-compiler-plugin", "3.11.0");
+See [Exclusion Management](../exclusions/) for full documentation.
 
-// Add configuration
-Element config = editor.insertMavenElement(plugin, "configuration");
-editor.addElement(config, "source", "17");
-editor.addElement(config, "target", "17");
-```
+### Convention Detection & Alignment
 
-**Notes:**
-- `groupId` can be `null` for plugins with default groupId
-- `version` can be `null` for plugins managed by parent or pluginManagement
+See [Dependency Alignment](../alignment/) for full documentation.
 
-### addModule()
+### Profile-Scoped Operations
 
-Adds a module to a multi-module project.
+See [Profile-Scoped Operations](../profiles/) for full documentation.
+
+### Cross-POM Alignment
+
+See [Cross-POM Alignment](../cross-pom/) for full documentation.
+
+## Plugins API
+
+Access via `editor.plugins()`.
 
 ```java
-Element addModule(Element modulesElement, String moduleName)
+{cdi:snippets.snippet('plugin-management-ops')}
 ```
 
-**Example:**
-```java
-Element modules = editor.insertMavenElement(root, "modules");
-editor.addModule(modules, "core");
-editor.addModule(modules, "web");
-editor.addModule(modules, "cli");
-```
+## Properties API
 
-**Generated Structure:**
-```xml
-<modules>
-  <module>core</module>
-  <module>web</module>
-  <module>cli</module>
-</modules>
-```
-
-### addProperty()
-
-Adds a property to the properties section.
+Access via `editor.properties()`.
 
 ```java
-Element addProperty(Element propertiesElement, String propertyName, String propertyValue)
+{cdi:snippets.snippet('property-management')}
 ```
 
-**Example:**
+## Parent API
+
+Access via `editor.parent()`.
+
 ```java
-Element properties = editor.insertMavenElement(root, "properties");
-editor.addProperty(properties, "maven.compiler.source", "17");
-editor.addProperty(properties, "maven.compiler.target", "17");
-editor.addProperty(properties, "project.build.sourceEncoding", "UTF-8");
+{cdi:snippets.snippet('parent-management')}
+```
+
+## Utility Methods
+
+### Finding and Modifying Elements
+
+```java
+{cdi:snippets.snippet('find-and-modify')}
+```
+
+### Using Constants
+
+```java
+{cdi:snippets.snippet('using-constants')}
 ```
 
 ## Element Ordering
@@ -248,33 +171,23 @@ The PomEditor automatically orders elements according to Maven conventions:
 8. *blank line*
 9. `developers`, `contributors`
 10. *blank line*
-11. `mailingLists`
+11. `modules`
 12. *blank line*
-13. `prerequisites`
+13. `properties`
 14. *blank line*
-15. `modules`
+15. `dependencyManagement`, `dependencies`
 16. *blank line*
-17. `scm`, `issueManagement`, `ciManagement`, `distributionManagement`
+17. `build`
 18. *blank line*
-19. `properties`
-20. *blank line*
-21. `dependencyManagement`, `dependencies`
-22. *blank line*
-23. `repositories`, `pluginRepositories`
-24. *blank line*
-25. `build`
-26. *blank line*
-27. `reporting`
-28. *blank line*
-29. `profiles`
+19. `profiles`
 
-### Build Elements
-1. `defaultGoal`, `directory`, `finalName`
-2. `sourceDirectory`, `scriptSourceDirectory`, `testSourceDirectory`
-3. `outputDirectory`, `testOutputDirectory`
-4. `extensions`
-5. *blank line*
-6. `pluginManagement`, `plugins`
+### Dependency Elements
+1. `groupId`, `artifactId`, `version`
+2. `classifier`, `type`
+3. `scope`
+4. `systemPath`
+5. `optional`
+6. `exclusions`
 
 ### Plugin Elements
 1. `groupId`, `artifactId`, `version`
@@ -285,31 +198,13 @@ The PomEditor automatically orders elements according to Maven conventions:
 6. `inherited`
 7. `configuration`
 
-### Dependency Elements
-1. `groupId`, `artifactId`, `version`
-2. `classifier`, `type`
-3. `scope`
-4. `systemPath`
-5. `optional`
-6. `exclusions`
-
 ## Error Handling
 
-The PomEditor throws `DomTripException` for various error conditions:
-
-```java
-try {
-    editor.insertMavenElement(root, "invalidElement", "value");
-} catch (DomTripException e) {
-    System.err.println("Error: " + e.getMessage());
-}
-```
-
-Common error scenarios:
+The PomEditor throws `DomTripException` for error conditions:
 - Invalid XML structure
 - Null parent elements
-- Invalid element names
-- Document parsing errors
+- Missing required elements (e.g., profile not found)
+- Invalid coordinates
 
 ## Integration with Core Editor
 
@@ -319,49 +214,14 @@ PomEditor inherits all methods from the core `Editor` class:
 // Core Editor methods are available
 Element element = editor.addElement(parent, "customElement");
 editor.removeElement(element);
-editor.insertElementBefore(referenceElement, "newElement");
-editor.insertElementAfter(referenceElement, "newElement");
-
-// Comment methods
-editor.addComment(element, "This is a comment");
 
 // Serialization
 String xml = editor.toXml();
 byte[] bytes = editor.toBytes();
 ```
 
-## Best Practices
+## Next Steps
 
-### Use Constants
-```java
-import static org.maveniverse.domtrip.maven.MavenPomElements.Elements.*;
-
-// Good
-editor.insertMavenElement(root, GROUP_ID, "com.example");
-
-// Avoid
-editor.insertMavenElement(root, "groupId", "com.example");
-```
-
-### Check for Existing Elements
-```java
-Element dependencies = editor.findChildElement(root, DEPENDENCIES);
-if (dependencies == null) {
-    dependencies = editor.insertMavenElement(root, DEPENDENCIES);
-}
-```
-
-### Handle Null Versions
-```java
-// For managed dependencies/plugins
-editor.addDependency(dependencies, "org.junit.jupiter", "junit-jupiter", null);
-editor.addPlugin(plugins, "org.apache.maven.plugins", "maven-surefire-plugin", null);
-```
-
-### Preserve Existing Structure
-```java
-// Work with existing POMs
-Document doc = Document.of(existingPomContent);
-PomEditor editor = new PomEditor(doc);
-// Modifications preserve original formatting and comments
-```
+- [Maven Quick Start](../quick-start/) - Get started in 5 minutes
+- [Maven Examples](../examples/) - Real-world usage examples
+- [Element Ordering](../ordering/) - How ordering works in detail

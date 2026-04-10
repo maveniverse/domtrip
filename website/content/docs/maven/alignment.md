@@ -23,7 +23,7 @@ DomTrip analyzes your POM to detect three aspects of your dependency versioning 
 | Convention | Values | Description |
 |-----------|--------|-------------|
 | **VersionStyle** | `INLINE`, `MANAGED` | Whether versions are on dependencies directly or in `<dependencyManagement>` |
-| **VersionSource** | `LITERAL`, `PROPERTY` | Whether versions are literal values (`5.9.2`) or property references (`${junit.version}`) |
+| **VersionSource** | `LITERAL`, `PROPERTY` | Whether versions are literal values (`5.9.2`) or property references (`$\{junit.version}`) |
 | **PropertyNamingConvention** | `DOT_SUFFIX`, `DASH_SUFFIX`, `CAMEL_CASE`, `DOT_PREFIX` | How version properties are named |
 
 ### Property Naming Examples

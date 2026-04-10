@@ -30,7 +30,7 @@ Move all dependency versions to the parent in one call:
 
 When a dependency is aligned to a parent POM:
 
-1. **Version resolution** - The child's version is resolved (including property lookup if `${...}`)
+1. **Version resolution** - The child's version is resolved (including property lookup if `$\{...}`)
 2. **Property migration** - If the child uses a property reference, the property definition is migrated to the parent
 3. **Managed dependency creation** - A `<dependency>` entry is created in the parent's `<dependencyManagement>`
 4. **Child version removal** - The `<version>` element is removed from the child dependency
@@ -41,9 +41,9 @@ When a dependency is aligned to a parent POM:
 | Child version | Target source | Result in parent |
 |--------------|---------------|------------------|
 | `2.0.7` (literal) | `LITERAL` | `<version>2.0.7</version>` |
-| `2.0.7` (literal) | `PROPERTY` | Property created + `<version>${slf4j-api.version}</version>` |
-| `${slf4j.version}` (property) | `PROPERTY` | Property migrated + `<version>${slf4j.version}</version>` |
-| `${slf4j.version}` (property) | `LITERAL` | `<version>2.0.7</version>` (resolved) |
+| `2.0.7` (literal) | `PROPERTY` | Property created + `<version>$\{slf4j-api.version}</version>` |
+| `$\{slf4j.version}` (property) | `PROPERTY` | Property migrated + `<version>$\{slf4j.version}</version>` |
+| `$\{slf4j.version}` (property) | `LITERAL` | `<version>2.0.7</version>` (resolved) |
 
 ## AlignOptions for Cross-POM
 

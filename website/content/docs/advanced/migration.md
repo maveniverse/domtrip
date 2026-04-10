@@ -175,7 +175,7 @@ container.nodeAt(0);
 container.nodeCount();
 
 // NEW: ContainerNode child access
-container.childAt(0);
+container.child(0);
 container.childCount();
 ```
 

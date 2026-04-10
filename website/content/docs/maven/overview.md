@@ -42,8 +42,8 @@ Automatically adds appropriate blank lines between element groups to maintain re
 ### Sub-Object APIs
 Domain-specific APIs accessed via the PomEditor:
 
-| API | Access | Operations |
-|-----|--------|------------|
+| API | Access | Purpose |
+|-----|--------|---------|
 | **Dependencies** | `editor.dependencies()` | CRUD, exclusions, alignment, convention detection, profile scoping |
 | **Plugins** | `editor.plugins()` | CRUD, pluginManagement |
 | **Properties** | `editor.properties()` | CRUD |

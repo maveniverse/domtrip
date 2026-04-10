@@ -88,7 +88,7 @@ When you add the Maven extension, you get access to:
 - `MavenPomElements` - Constants for Maven POM elements and attributes
 
 ### Package Structure
-```
+```text
 eu.maveniverse.domtrip.maven
 ├── PomEditor.class
 ├── PomEditor$Dependencies.class

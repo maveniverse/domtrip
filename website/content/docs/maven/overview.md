@@ -10,43 +10,63 @@ The DomTrip Maven extension (`domtrip-maven`) provides specialized functionality
 
 ## Key Features
 
-### 🏗️ **Maven-Aware Element Ordering**
+### Maven-Aware Element Ordering
 The `PomEditor` automatically orders elements according to Maven POM conventions:
 - **Project elements**: `modelVersion`, `parent`, `groupId`, `artifactId`, `version`, `packaging`, `name`, `description`, etc.
 - **Build elements**: `defaultGoal`, `directory`, `finalName`, `sourceDirectory`, etc.
 - **Plugin elements**: `groupId`, `artifactId`, `version`, `extensions`, `executions`, etc.
 - **Dependency elements**: `groupId`, `artifactId`, `version`, `classifier`, `type`, `scope`, etc.
 
-### 📐 **Intelligent Blank Line Management**
+### Intelligent Blank Line Management
 Automatically adds appropriate blank lines between element groups to maintain readable POM structure:
 ```xml
 <project>
   <modelVersion>4.0.0</modelVersion>
-  
+
   <parent>
     <groupId>org.example</groupId>
     <artifactId>parent</artifactId>
     <version>1.0.0</version>
   </parent>
-  
+
   <groupId>com.example</groupId>
   <artifactId>my-project</artifactId>
   <version>1.0.0</version>
   <packaging>jar</packaging>
-  
+
   <name>My Project</name>
   <description>An example project</description>
 </project>
 ```
 
-### 🎯 **Convenience Methods**
-Specialized methods for common Maven operations:
-- **PomEditor**: `addDependency()`, `addPlugin()`, `addModule()`, `addProperty()`
+### Sub-Object APIs
+Domain-specific APIs accessed via the PomEditor:
+
+| API | Access | Operations |
+|-----|--------|------------|
+| **Dependencies** | `editor.dependencies()` | CRUD, exclusions, alignment, convention detection, profile scoping |
+| **Plugins** | `editor.plugins()` | CRUD, pluginManagement |
+| **Properties** | `editor.properties()` | CRUD |
+| **Subprojects** | `editor.subprojects()` | Module management |
+| **Parent** | `editor.parent()` | Parent POM management |
+| **Profiles** | `editor.profiles()` | Profile lookup |
+
+### Convention Detection & Alignment
+Automatically detect how your project manages dependency versions (managed vs inline,
+property vs literal, naming conventions) and add or transform dependencies to follow
+those conventions consistently.
+
+### Cross-POM Alignment
+Move dependency versions from child POMs to a parent POM's `<dependencyManagement>`,
+with automatic property migration.
+
+### Specialized Editors
+In addition to `PomEditor`, the Maven extension includes editors for other Maven files:
 - **SettingsEditor**: `addServer()`, `addMirror()`, `addProxy()`, `addProfile()`
 - **ExtensionsEditor**: `addExtension()` with proper coordinates
-- **ToolchainsEditor**: `addJdkToolchain()`, `addNetBeansToolchain()`, `addToolchain()`
+- **ToolchainsEditor**: `addJdkToolchain()`, `addToolchain()`
 
-### 🔧 **Type-Safe Constants**
+### Type-Safe Constants
 Comprehensive constants classes for all Maven file types:
 - **MavenPomElements**: POM elements, attributes, namespaces, and schema locations
 - **MavenSettingsElements**: Settings elements, values, and configuration options
@@ -58,81 +78,88 @@ Comprehensive constants classes for all Maven file types:
 The Maven extension is built on top of the core DomTrip library:
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                      domtrip-maven                          │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────┐│
-│  │ PomEditor   │ │SettingsEditor│ │ExtensionsEd.│ │Toolchain││
-│  │             │ │             │ │             │ │Editor   ││
-│  │ - POM       │ │ - Settings  │ │ - Extensions│ │ - Tool  ││
-│  │   ordering  │ │   ordering  │ │   ordering  │ │   chains││
-│  │ - Deps/     │ │ - Servers/  │ │ - Extension │ │ - JDK   ││
-│  │   Plugins   │ │   Mirrors   │ │   coords    │ │   setup ││
-│  └─────────────┘ └─────────────┘ └─────────────┘ └─────────┘│
-│  ┌─────────────────────────────────────────────────────────┐│
-│  │                   Constants Classes                     ││
-│  │ MavenPomElements | MavenSettingsElements |              ││
-│  │ MavenExtensionsElements | MavenToolchainsElements       ││
-│  └─────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────┘
-┌─────────────────────────────────────────────────────────────┐
-│                        domtrip-core                         │
-│  ┌─────────────┐ ┌─────────────────┐ ┌─────────────────────┐│
-│  │ Editor      │ │ Document        │ │ Configuration       ││
-│  │             │ │                 │ │                     ││
-│  │ - Lossless  │ │ - Parsing       │ │ - Formatting        ││
-│  │   editing   │ │ - Serialization │ │ - Whitespace        ││
-│  │ - Formatting│ │ - Navigation    │ │ - Indentation       ││
-│  │   preserve  │ │ - Validation    │ │                     ││
-│  └─────────────┘ └─────────────────┘ └─────────────────────┘│
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                         domtrip-maven                               │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────────┐│
+│  │                       PomEditor                                 ││
+│  │                                                                 ││
+│  │  dependencies() ─── Dependencies                                ││
+│  │    ├── CRUD (add, update, delete)                               ││
+│  │    ├── Exclusions (add, delete, has)                            ││
+│  │    ├── Convention Detection (style, source, naming)             ││
+│  │    ├── Alignment (addAligned, alignDependency, alignAll)        ││
+│  │    ├── Cross-POM (alignToParent, alignAllToParent)             ││
+│  │    └── Profile Scoping (forProfile)                             ││
+│  │                                                                 ││
+│  │  plugins()      ─── Plugins (add, update, delete, management)   ││
+│  │  properties()   ─── Properties (add, update, delete)            ││
+│  │  subprojects()  ─── Subprojects (addModule, add/remove)         ││
+│  │  parent()       ─── Parent (set, update, delete)                ││
+│  │  profiles()     ─── Profiles (find, has)                        ││
+│  └─────────────────────────────────────────────────────────────────┘│
+│                                                                     │
+│  ┌──────────────┐ ┌────────────────┐ ┌──────────────┐              │
+│  │SettingsEditor│ │ExtensionsEditor│ │ToolchainsEd. │              │
+│  └──────────────┘ └────────────────┘ └──────────────┘              │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────────┐│
+│  │  AlignOptions  │  Coordinates  │  Constants Classes             ││
+│  └─────────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────────┘
+                              │ extends
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                          domtrip-core                                │
+│  ┌─────────────┐ ┌─────────────────┐ ┌─────────────────────┐       │
+│  │ Editor      │ │ Document        │ │ Configuration       │       │
+│  │ - Lossless  │ │ - Parsing       │ │ - Formatting        │       │
+│  │   editing   │ │ - Serialization │ │ - Whitespace        │       │
+│  │ - Formatting│ │ - Navigation    │ │ - Indentation       │       │
+│  │   preserve  │ │ - Validation    │ │                     │       │
+│  └─────────────┘ └─────────────────┘ └─────────────────────┘       │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Use Cases
 
 The Maven extension is perfect for:
 
-### 🛠️ **Maven Tooling Development**
+### Maven Tooling Development
 - Build tools that need to modify POM files
 - IDE plugins for Maven project management
 - Automated dependency management tools
 - POM validation and cleanup utilities
 
-### 🔄 **POM Transformation**
+### POM Transformation
 - Upgrading Maven versions while preserving formatting
 - Migrating between different Maven configurations
 - Batch updates across multiple projects
 - Template-based POM generation
 
-### 📊 **POM Analysis**
-- Dependency analysis tools
-- Security scanning with POM modification
-- License compliance checking
-- Build optimization tools
+### Multi-Module Management
+- Moving dependency versions to parent POMs
+- Aligning version conventions across modules
+- Maintaining consistent dependency management
 
 ## Comparison with Standard XML Libraries
 
 | Feature | Standard XML | DomTrip Core | DomTrip Maven |
 |---------|-------------|--------------|---------------|
-| Formatting Preservation | ❌ | ✅ | ✅ |
-| Comment Preservation | ❌ | ✅ | ✅ |
-| Whitespace Preservation | ❌ | ✅ | ✅ |
-| Maven Element Ordering | ❌ | ❌ | ✅ |
-| Maven Conventions | ❌ | ❌ | ✅ |
-| POM-specific Methods | ❌ | ❌ | ✅ |
-| Maven Constants | ❌ | ❌ | ✅ |
+| Formatting Preservation | No | Yes | Yes |
+| Comment Preservation | No | Yes | Yes |
+| Whitespace Preservation | No | Yes | Yes |
+| Maven Element Ordering | No | No | Yes |
+| Maven Conventions | No | No | Yes |
+| Dependency Alignment | No | No | Yes |
+| Cross-POM Operations | No | No | Yes |
+| Maven Constants | No | No | Yes |
 
 ## Getting Started
 
 Ready to start using the Maven extension? Check out:
 
-- [Installation Guide](/docs/maven/installation/) - Add the Maven extension to your project
-- [Quick Start](/docs/maven/quick-start/) - Your first POM editing example
-- [API Reference](/docs/maven/api/) - Complete PomEditor API documentation
-- [Examples](/docs/maven/examples/) - Real-world usage examples
-
-## Next Steps
-
-- Learn about [Maven-specific installation](/docs/maven/installation/)
-- Try the [Maven quick start guide](/docs/maven/quick-start/)
-- Explore [element ordering rules](/docs/maven/ordering/)
-- Browse [Maven examples](/docs/maven/examples/)
+- [Installation Guide](../installation/) - Add the Maven extension to your project
+- [Quick Start](../quick-start/) - Your first POM editing example
+- [API Reference](../api/) - Complete PomEditor API documentation
+- [Examples](../examples/) - Real-world usage examples

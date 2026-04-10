@@ -122,6 +122,12 @@ For elements containing only whitespace (no child elements), DomTrip provides sp
 {cdi:snippets.snippet('adding-children')}
 ```
 
+### Child Positioning
+
+```java
+{cdi:snippets.snippet('child-positioning')}
+```
+
 ### Removing Elements
 
 ```java

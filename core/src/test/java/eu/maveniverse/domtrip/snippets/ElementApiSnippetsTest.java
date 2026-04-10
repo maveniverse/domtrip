@@ -357,6 +357,44 @@ class ElementApiSnippetsTest {
     }
 
     @Test
+    void demonstrateChildPositioning() throws DomTripException {
+        // START: child-positioning
+        Element parent = Element.of("dependencies");
+        Element first = Element.of("dependency").textContent("first");
+        Element second = Element.of("dependency").textContent("second");
+        parent.addChild(first);
+        parent.addChild(second);
+
+        // Insert before a specific child
+        Element beforeSecond = Element.of("dependency").textContent("before-second");
+        parent.insertChildBefore(second, beforeSecond);
+
+        // Insert after a specific child
+        Element afterFirst = Element.of("dependency").textContent("after-first");
+        parent.insertChildAfter(first, afterFirst);
+
+        // Replace a child node
+        Element replacement = Element.of("dependency").textContent("replaced");
+        parent.replaceChild(second, replacement);
+
+        // Access first and last children
+        Optional<Node> firstChild = parent.firstChild();
+        Optional<Node> lastChild = parent.lastChild();
+
+        // Get child count
+        int count = parent.childCount();
+
+        // Get child at index
+        Node childAtIndex = parent.child(0);
+        // END: child-positioning
+
+        Assertions.assertTrue(firstChild.isPresent());
+        Assertions.assertTrue(lastChild.isPresent());
+        Assertions.assertEquals(4, count);
+        Assertions.assertSame(first, childAtIndex);
+    }
+
+    @Test
     void demonstrateElementCloning() throws DomTripException {
         // START: element-cloning
         Element original = Element.of("dependency").attribute("scope", "test").attribute("optional", "true");

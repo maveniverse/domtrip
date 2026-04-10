@@ -74,9 +74,18 @@ function initSyntaxHighlighting() {
         var pre = codeBlock.parentElement;
         if (pre.classList.contains('language-processed')) return;
 
-        var content = codeBlock.textContent || codeBlock.innerText;
-        var language = detectLanguage(content);
-        console.log('Code block ' + index + ' detected as: ' + language);
+        // Respect language class already set by the markdown processor (e.g. ```java)
+        var existingLang = null;
+        var classes = (codeBlock.className || '').split(/\s+/);
+        for (var i = 0; i < classes.length; i++) {
+            if (classes[i].indexOf('language-') === 0 && classes[i] !== 'language-none') {
+                existingLang = classes[i].replace('language-', '');
+                break;
+            }
+        }
+
+        var language = existingLang || detectLanguage(codeBlock.textContent || codeBlock.innerText);
+        console.log('Code block ' + index + ' detected as: ' + language + (existingLang ? ' (from markup)' : ' (auto-detected)'));
 
         pre.className = 'language-' + language + ' line-numbers';
         codeBlock.className = 'language-' + language;

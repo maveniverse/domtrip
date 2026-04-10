@@ -89,7 +89,7 @@ The Maven extension is built on top of the core DomTrip library:
 │  │    ├── Exclusions (add, delete, has)                            ││
 │  │    ├── Convention Detection (style, source, naming)             ││
 │  │    ├── Alignment (addAligned, alignDependency, alignAll)        ││
-│  │    ├── Cross-POM (alignToParent, alignAllToParent)             ││
+│  │    ├── Cross-POM (alignToParent, alignAllToParent)              ││
 │  │    └── Profile Scoping (forProfile)                             ││
 │  │                                                                 ││
 │  │  plugins()      ─── Plugins (add, update, delete, management)   ││
@@ -99,9 +99,9 @@ The Maven extension is built on top of the core DomTrip library:
 │  │  profiles()     ─── Profiles (find, has)                        ││
 │  └─────────────────────────────────────────────────────────────────┘│
 │                                                                     │
-│  ┌──────────────┐ ┌────────────────┐ ┌──────────────┐              │
-│  │SettingsEditor│ │ExtensionsEditor│ │ToolchainsEd. │              │
-│  └──────────────┘ └────────────────┘ └──────────────┘              │
+│  ┌──────────────┐ ┌────────────────┐ ┌──────────────┐               │
+│  │SettingsEditor│ │ExtensionsEditor│ │ToolchainsEd. │               │
+│  └──────────────┘ └────────────────┘ └──────────────┘               │
 │                                                                     │
 │  ┌─────────────────────────────────────────────────────────────────┐│
 │  │  AlignOptions  │  Coordinates  │  Constants Classes             ││
@@ -110,14 +110,14 @@ The Maven extension is built on top of the core DomTrip library:
                               │ extends
                               ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                          domtrip-core                                │
-│  ┌─────────────┐ ┌─────────────────┐ ┌─────────────────────┐       │
-│  │ Editor      │ │ Document        │ │ Configuration       │       │
-│  │ - Lossless  │ │ - Parsing       │ │ - Formatting        │       │
-│  │   editing   │ │ - Serialization │ │ - Whitespace        │       │
-│  │ - Formatting│ │ - Navigation    │ │ - Indentation       │       │
-│  │   preserve  │ │ - Validation    │ │                     │       │
-│  └─────────────┘ └─────────────────┘ └─────────────────────┘       │
+│                          domtrip-core                               │
+│  ┌─────────────┐ ┌─────────────────┐ ┌─────────────────────┐        │
+│  │ Editor      │ │ Document        │ │ Configuration       │        │
+│  │ - Lossless  │ │ - Parsing       │ │ - Formatting        │        │
+│  │   editing   │ │ - Serialization │ │ - Whitespace        │        │
+│  │ - Formatting│ │ - Navigation    │ │ - Indentation       │        │
+│  │   preserve  │ │ - Validation    │ │                     │        │
+│  └─────────────┘ └─────────────────┘ └─────────────────────┘        │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -146,14 +146,14 @@ The Maven extension is perfect for:
 
 | Feature | Standard XML | DomTrip Core | DomTrip Maven |
 |---------|-------------|--------------|---------------|
-| Formatting Preservation | No | Yes | Yes |
-| Comment Preservation | No | Yes | Yes |
-| Whitespace Preservation | No | Yes | Yes |
-| Maven Element Ordering | No | No | Yes |
-| Maven Conventions | No | No | Yes |
-| Dependency Alignment | No | No | Yes |
-| Cross-POM Operations | No | No | Yes |
-| Maven Constants | No | No | Yes |
+| Formatting Preservation | ❌ | ✅ | ✅ |
+| Comment Preservation | ❌ | ✅ | ✅ |
+| Whitespace Preservation | ❌ | ✅ | ✅ |
+| Maven Element Ordering | ❌ | ❌ | ✅ |
+| Maven Conventions | ❌ | ❌ | ✅ |
+| Dependency Alignment | ❌ | ❌ | ✅ |
+| Cross-POM Operations | ❌ | ❌ | ✅ |
+| Maven Constants | ❌ | ❌ | ✅ |
 
 ## Getting Started
 

@@ -265,15 +265,17 @@ public class Parser {
         StringBuilder pendingWhitespace = new StringBuilder();
 
         while (position < length) {
-            char ch = xml.charAt(position);
-
-            if (ch == '<') {
+            if (xml.charAt(position) == '<') {
                 flushPrecedingText(precedingWhitespace, pendingWhitespace, nodeStack);
                 parseTagStart(document, nodeStack, pendingWhitespace);
             } else {
-                // Collect text content and whitespace
-                precedingWhitespace.append(ch);
+                // Collect text content and whitespace in bulk using substring
+                int textStart = position;
                 position++;
+                while (position < length && xml.charAt(position) != '<') {
+                    position++;
+                }
+                precedingWhitespace.append(xml, textStart, position);
             }
         }
 
@@ -308,18 +310,35 @@ public class Parser {
             return;
         }
 
+        // Fast path: check if raw text is whitespace-only before unescaping.
+        // Between elements, whitespace never contains entities, so this avoids
+        // both the unescape and the whitespace-check on decoded text.
+        if (isWhitespaceOnlyBuf(precedingWhitespace)) {
+            pendingWhitespace.append(precedingWhitespace);
+            precedingWhitespace.setLength(0);
+            return;
+        }
+
         String rawText = precedingWhitespace.toString();
         String decodedText = Text.unescapeTextContent(rawText);
 
-        if (isWhitespaceOnly(decodedText)) {
-            pendingWhitespace.append(decodedText);
-        } else {
-            Text textNode = new Text(decodedText, rawText);
-            applyPendingWhitespace(textNode, pendingWhitespace);
-            ContainerNode current = (ContainerNode) nodeStack.peek();
-            current.addChildInternal(textNode);
-        }
+        Text textNode = new Text(decodedText, rawText);
+        applyPendingWhitespace(textNode, pendingWhitespace);
+        ContainerNode current = (ContainerNode) nodeStack.peek();
+        current.addChildInternal(textNode);
         precedingWhitespace.setLength(0);
+    }
+
+    /**
+     * Checks if a StringBuilder contains only whitespace, avoiding toString() allocation.
+     */
+    private static boolean isWhitespaceOnlyBuf(StringBuilder sb) {
+        for (int i = 0, len = sb.length(); i < len; i++) {
+            if (!Character.isWhitespace(sb.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -349,15 +368,16 @@ public class Parser {
      */
     private void parseDeclarationOrSpecial(Document document, Deque<Node> nodeStack, StringBuilder pendingWhitespace)
             throws DomTripException {
-        if (position + 3 < length && xml.startsWith("<!--", position)) {
+        // position is at '<', position+1 is '!'
+        if (position + 3 < length && xml.charAt(position + 2) == '-' && xml.charAt(position + 3) == '-') {
             Comment comment = parseComment();
             applyPendingWhitespace(comment, pendingWhitespace);
             ((ContainerNode) nodeStack.peek()).addChildInternal(comment);
-        } else if (position + 8 < length && xml.startsWith("<![CDATA[", position)) {
+        } else if (position + 8 < length && xml.charAt(position + 2) == '[' && xml.startsWith("<![CDATA[", position)) {
             Text cdata = parseCData();
             applyPendingWhitespace(cdata, pendingWhitespace);
             ((ContainerNode) nodeStack.peek()).addChildInternal(cdata);
-        } else if (position + 9 < length && xml.startsWith("<!DOCTYPE", position)) {
+        } else if (position + 9 < length && xml.charAt(position + 2) == 'D' && xml.startsWith("<!DOCTYPE", position)) {
             String doctype = parseDoctype();
             document.doctype(doctype);
             if (pendingWhitespace.length() > 0) {
@@ -451,14 +471,14 @@ public class Parser {
 
     private Comment parseComment() throws DomTripException {
         position += 4; // Skip "<!--"
+        int contentStart = position;
 
-        StringBuilder content = new StringBuilder();
         while (position + 2 < length) {
-            if (xml.startsWith("-->", position)) {
+            if (xml.charAt(position) == '-' && xml.charAt(position + 1) == '-' && xml.charAt(position + 2) == '>') {
+                String content = xml.substring(contentStart, position);
                 position += 3;
-                return new Comment(content.toString());
+                return new Comment(content);
             }
-            content.append(xml.charAt(position));
             position++;
         }
 
@@ -467,14 +487,14 @@ public class Parser {
 
     private Text parseCData() throws DomTripException {
         position += 9; // Skip "<![CDATA["
+        int contentStart = position;
 
-        StringBuilder content = new StringBuilder();
         while (position + 2 < length) {
-            if (xml.startsWith("]]>", position)) {
+            if (xml.charAt(position) == ']' && xml.charAt(position + 1) == ']' && xml.charAt(position + 2) == '>') {
+                String content = xml.substring(contentStart, position);
                 position += 3;
-                return new Text(content.toString(), true);
+                return new Text(content, true);
             }
-            content.append(xml.charAt(position));
             position++;
         }
 
@@ -486,7 +506,7 @@ public class Parser {
         position += 2; // Skip "<?"
 
         while (position + 1 < length) {
-            if (xml.startsWith("?>", position)) {
+            if (xml.charAt(position) == '?' && xml.charAt(position + 1) == '>') {
                 position += 2;
                 return xml.substring(start, position);
             }
@@ -570,46 +590,42 @@ public class Parser {
         int start = position;
         position++; // Skip '<'
 
-        // Parse element name
-        StringBuilder name = new StringBuilder();
+        // Parse element name using substring
+        int nameStart = position;
         while (position < length
                 && !Character.isWhitespace(xml.charAt(position))
                 && xml.charAt(position) != '>'
                 && xml.charAt(position) != '/') {
-            name.append(xml.charAt(position));
             position++;
         }
 
-        String elementName = name.toString();
-        if (elementName.isEmpty()) {
+        if (position == nameStart) {
             throw new DomTripException("Empty element name", position, xml);
         }
 
+        String elementName = xml.substring(nameStart, position);
         Element element = new Element(elementName);
 
-        // Store original opening tag for whitespace preservation
-
-        // Parse attributes and whitespace
-        StringBuilder currentWhitespace = new StringBuilder();
+        // Parse attributes and whitespace — track whitespace positions
+        // to avoid StringBuilder allocation per attribute
+        int wsStart = position;
         while (position < length
                 && xml.charAt(position) != '>'
                 && !(xml.charAt(position) == '/' && position + 1 < length && xml.charAt(position + 1) == '>')) {
 
             if (Character.isWhitespace(xml.charAt(position))) {
-                // Collect whitespace that precedes the next attribute
-                currentWhitespace.append(xml.charAt(position));
                 position++;
             } else {
-                // Parse attribute with the collected whitespace
-                parseAttribute(element, currentWhitespace.toString());
-                currentWhitespace.setLength(0); // Reset for next attribute
+                // Parse attribute with the collected whitespace (substring from tracked positions)
+                String attrWs = wsStart < position ? xml.substring(wsStart, position) : "";
+                parseAttribute(element, attrWs);
+                wsStart = position; // Reset for next attribute's whitespace
             }
         }
 
         // Capture any remaining whitespace before the closing > or />
-        // This is the openTagWhitespace
-        if (currentWhitespace.length() > 0) {
-            element.openTagWhitespaceInternal(currentWhitespace.toString());
+        if (wsStart < position) {
+            element.openTagWhitespaceInternal(xml.substring(wsStart, position));
         }
 
         // Check for self-closing tag
@@ -624,8 +640,8 @@ public class Parser {
             throw new DomTripException("Unclosed opening tag '" + elementName + "'", position, xml);
         }
 
-        // Store original tag content for formatting preservation
-        element.originalOpenTag(xml.substring(start, position));
+        // Store original tag content as source-backed slice (avoids substring allocation)
+        element.originalOpenTagInternal(xml, start, position);
         return element;
     }
 
@@ -653,12 +669,11 @@ public class Parser {
     }
 
     private String parseAttributeName() {
-        StringBuilder name = new StringBuilder();
+        int nameStart = position;
         while (position < length && xml.charAt(position) != '=' && !Character.isWhitespace(xml.charAt(position))) {
-            name.append(xml.charAt(position));
             position++;
         }
-        return name.toString();
+        return xml.substring(nameStart, position);
     }
 
     private void skipWhitespace() {
@@ -682,19 +697,19 @@ public class Parser {
         char quote = xml.charAt(position);
         position++; // Skip opening quote
 
-        StringBuilder value = new StringBuilder();
+        // Scan for closing quote using substring instead of char-by-char append
+        int valueStart = position;
         while (position < length && xml.charAt(position) != quote) {
-            value.append(xml.charAt(position));
             position++;
         }
 
-        if (position < length) {
-            position++; // Skip closing quote
-        } else {
+        if (position >= length) {
             throw new DomTripException("Unclosed attribute value", position, xml);
         }
 
-        String rawValue = value.toString();
+        String rawValue = xml.substring(valueStart, position);
+        position++; // Skip closing quote
+
         String decodedValue = Text.unescapeTextContent(rawValue);
         String actualWhitespace = precedingWhitespace.isEmpty() ? " " : precedingWhitespace;
         element.attributeInternal(name, decodedValue, quote, actualWhitespace, rawValue);
@@ -715,18 +730,18 @@ public class Parser {
         position += 2; // Skip "</"
 
         // Capture whitespace before the element name
-        StringBuilder closeTagWhitespace = new StringBuilder();
+        int wsStart = position;
         while (position < length && Character.isWhitespace(xml.charAt(position))) {
-            closeTagWhitespace.append(xml.charAt(position));
             position++;
         }
 
-        // Parse tag name
-        StringBuilder name = new StringBuilder();
+        // Parse tag name using substring
+        int nameStart = position;
         while (position < length && xml.charAt(position) != '>' && !Character.isWhitespace(xml.charAt(position))) {
-            name.append(xml.charAt(position));
             position++;
         }
+
+        String closingName = xml.substring(nameStart, position);
 
         // Skip any trailing whitespace after the element name (but don't capture it)
         while (position < length && Character.isWhitespace(xml.charAt(position))) {
@@ -734,21 +749,20 @@ public class Parser {
         }
 
         if (position >= length) {
-            throw new DomTripException("Unclosed closing tag '</" + name + ">'", position, xml);
+            throw new DomTripException("Unclosed closing tag '</" + closingName + ">'", position, xml);
         }
         position++; // Skip '>'
 
         // Pop from stack if names match
-        String closingName = name.toString();
         if (!nodeStack.isEmpty() && nodeStack.peek() instanceof Element) {
             Element element = (Element) nodeStack.peek();
             if (element.name().equals(closingName)) {
-                // Capture the original close tag for whitespace preservation (AFTER consuming all content)
-                element.originalCloseTag(xml.substring(start, position));
+                // Capture the original close tag as source-backed slice (avoids substring allocation)
+                element.originalCloseTagInternal(xml, start, position);
 
                 // Capture the close tag whitespace
-                if (closeTagWhitespace.length() > 0) {
-                    element.closeTagWhitespaceInternal(closeTagWhitespace.toString());
+                if (wsStart < nameStart) {
+                    element.closeTagWhitespaceInternal(xml.substring(wsStart, nameStart));
                 }
 
                 nodeStack.pop();
@@ -765,8 +779,16 @@ public class Parser {
     /**
      * Checks if the given content contains only whitespace characters.
      */
-    private boolean isWhitespaceOnly(String content) {
-        return content != null && content.trim().isEmpty();
+    private static boolean isWhitespaceOnly(String content) {
+        if (content == null) {
+            return false;
+        }
+        for (int i = 0, len = content.length(); i < len; i++) {
+            if (!Character.isWhitespace(content.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

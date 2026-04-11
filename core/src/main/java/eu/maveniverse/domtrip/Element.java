@@ -94,8 +94,17 @@ public class Element extends ContainerNode {
     private String closeTagWhitespace; // Whitespace within the closing tag
     private String innerPrecedingWhitespace; // Whitespace immediately before the closing tag
     private boolean selfClosing;
-    private String originalOpenTag; // Original opening tag for reference
-    private String originalCloseTag; // Original closing tag for reference
+
+    // Source-backed original tag storage — avoids substring allocation during parsing.
+    // When tagSource is non-null and indices are >= 0, the original tag text is a slice
+    // of the source XML. The materialized String fields are lazily populated on first access.
+    private String tagSource; // Reference to source XML string (shared for open + close tags)
+    private int openTagStart = -1; // Start index into tagSource (-1 = not source-backed)
+    private int openTagEnd = -1;
+    private int closeTagStart = -1;
+    private int closeTagEnd = -1;
+    private String originalOpenTag; // Materialized string (from public API or lazily from source)
+    private String originalCloseTag;
 
     /**
      * Creates a new XML element with the specified name.
@@ -118,8 +127,6 @@ public class Element extends ContainerNode {
         this.closeTagWhitespace = "";
         this.innerPrecedingWhitespace = "";
         this.selfClosing = false;
-        this.originalOpenTag = "";
-        this.originalCloseTag = "";
     }
 
     /**
@@ -141,6 +148,11 @@ public class Element extends ContainerNode {
         this.closeTagWhitespace = original.closeTagWhitespace;
         this.innerPrecedingWhitespace = original.innerPrecedingWhitespace;
         this.selfClosing = original.selfClosing;
+        this.tagSource = original.tagSource;
+        this.openTagStart = original.openTagStart;
+        this.openTagEnd = original.openTagEnd;
+        this.closeTagStart = original.closeTagStart;
+        this.closeTagEnd = original.closeTagEnd;
         this.originalOpenTag = original.originalOpenTag;
         this.originalCloseTag = original.originalCloseTag;
 
@@ -565,9 +577,16 @@ public class Element extends ContainerNode {
     /**
      * Gets the original opening tag as it appeared in the source XML.
      *
-     * @return the original opening tag string
+     * @return the original opening tag string, or empty string if not available
      */
     public String originalOpenTag() {
+        if (originalOpenTag == null) {
+            if (openTagStart >= 0) {
+                originalOpenTag = tagSource.substring(openTagStart, openTagEnd);
+            } else {
+                return "";
+            }
+        }
         return originalOpenTag;
     }
 
@@ -579,15 +598,34 @@ public class Element extends ContainerNode {
      */
     public Element originalOpenTag(String originalOpenTag) {
         this.originalOpenTag = originalOpenTag != null ? originalOpenTag : "";
+        this.openTagStart = -1; // No longer source-backed
         return this;
+    }
+
+    /**
+     * Sets the original opening tag as a source-backed slice (avoids substring allocation).
+     * For use during parsing only.
+     */
+    void originalOpenTagInternal(String source, int start, int end) {
+        this.tagSource = source;
+        this.openTagStart = start;
+        this.openTagEnd = end;
+        this.originalOpenTag = null; // Lazily materialized
     }
 
     /**
      * Gets the original closing tag as it appeared in the source XML.
      *
-     * @return the original closing tag string
+     * @return the original closing tag string, or empty string if not available
      */
     public String originalCloseTag() {
+        if (originalCloseTag == null) {
+            if (closeTagStart >= 0) {
+                originalCloseTag = tagSource.substring(closeTagStart, closeTagEnd);
+            } else {
+                return "";
+            }
+        }
         return originalCloseTag;
     }
 
@@ -599,15 +637,63 @@ public class Element extends ContainerNode {
      */
     public Element originalCloseTag(String originalCloseTag) {
         this.originalCloseTag = originalCloseTag != null ? originalCloseTag : "";
+        this.closeTagStart = -1; // No longer source-backed
         return this;
+    }
+
+    /**
+     * Sets the original closing tag as a source-backed slice (avoids substring allocation).
+     * For use during parsing only.
+     */
+    void originalCloseTagInternal(String source, int start, int end) {
+        this.tagSource = source; // Same source reference as open tag
+        this.closeTagStart = start;
+        this.closeTagEnd = end;
+        this.originalCloseTag = null; // Lazily materialized
     }
 
     @Override
     public void toXml(StringBuilder sb) {
-        if (!isModified() && !originalOpenTag.isEmpty()) {
+        if (!isModified() && hasOriginalOpenTag()) {
             toXmlPreserved(sb);
         } else {
             toXmlFromScratch(sb);
+        }
+    }
+
+    /**
+     * Checks if an original open tag is available (either source-backed or materialized).
+     */
+    private boolean hasOriginalOpenTag() {
+        return openTagStart >= 0 || (originalOpenTag != null && !originalOpenTag.isEmpty());
+    }
+
+    /**
+     * Checks if an original close tag is available (either source-backed or materialized).
+     */
+    private boolean hasOriginalCloseTag() {
+        return closeTagStart >= 0 || (originalCloseTag != null && !originalCloseTag.isEmpty());
+    }
+
+    /**
+     * Appends the original open tag directly from source when possible, avoiding String creation.
+     */
+    private void appendOriginalOpenTag(StringBuilder sb) {
+        if (originalOpenTag == null && openTagStart >= 0) {
+            sb.append(tagSource, openTagStart, openTagEnd);
+        } else {
+            sb.append(originalOpenTag());
+        }
+    }
+
+    /**
+     * Appends the original close tag directly from source when possible, avoiding String creation.
+     */
+    private void appendOriginalCloseTag(StringBuilder sb) {
+        if (originalCloseTag == null && closeTagStart >= 0) {
+            sb.append(tagSource, closeTagStart, closeTagEnd);
+        } else {
+            sb.append(originalCloseTag());
         }
     }
 
@@ -618,11 +704,11 @@ public class Element extends ContainerNode {
         sb.append(precedingWhitespace);
 
         if (selfClosing) {
-            sb.append(originalOpenTag);
+            appendOriginalOpenTag(sb);
             return;
         }
 
-        sb.append(originalOpenTag);
+        appendOriginalOpenTag(sb);
 
         appendChildrenAndCloseTag(sb);
     }
@@ -656,8 +742,8 @@ public class Element extends ContainerNode {
         appendChildren(sb);
         sb.append(innerPrecedingWhitespace);
 
-        if (!originalCloseTag.isEmpty()) {
-            sb.append(originalCloseTag);
+        if (hasOriginalCloseTag()) {
+            appendOriginalCloseTag(sb);
         } else {
             sb.append("</").append(name).append(">");
         }

@@ -153,20 +153,48 @@ public class Attribute {
     }
 
     /**
-     * Escapes special characters in attribute values with specific quote character
+     * Escapes special characters in attribute values with specific quote character.
+     * Uses a fast-path check to avoid allocation when no special chars are present.
      */
     private String escapeAttributeValue(String value, char quoteChar) {
         if (value == null) return "";
-        String result = value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 
-        // Only escape the quote character that's being used
-        if (quoteChar == '"') {
-            result = result.replace("\"", "&quot;");
-        } else if (quoteChar == '\'') {
-            result = result.replace("'", "&apos;");
+        // Fast path: scan for any character that needs escaping
+        int len = value.length();
+        int firstSpecial = -1;
+        for (int i = 0; i < len; i++) {
+            char c = value.charAt(i);
+            if (c == '&' || c == '<' || c == '>' || c == quoteChar) {
+                firstSpecial = i;
+                break;
+            }
+        }
+        if (firstSpecial < 0) {
+            return value; // No escaping needed — common case
         }
 
-        return result;
+        // Single-pass escape from the first special character
+        StringBuilder sb = new StringBuilder(len + 16);
+        if (firstSpecial > 0) {
+            sb.append(value, 0, firstSpecial);
+        }
+        for (int i = firstSpecial; i < len; i++) {
+            char c = value.charAt(i);
+            if (c == '&') {
+                sb.append("&amp;");
+            } else if (c == '<') {
+                sb.append("&lt;");
+            } else if (c == '>') {
+                sb.append("&gt;");
+            } else if (c == '"' && quoteChar == '"') {
+                sb.append("&quot;");
+            } else if (c == '\'' && quoteChar == '\'') {
+                sb.append("&apos;");
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     /**

@@ -329,11 +329,44 @@ public class Text extends Node {
     }
 
     /**
-     * Escapes special characters in text content
+     * Escapes special characters in text content.
+     * Uses a fast-path check to avoid allocation when no special chars are present.
      */
-    private String escapeTextContent(String text) {
+    static String escapeTextContent(String text) {
         if (text == null) return "";
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+
+        // Fast path: scan for any character that needs escaping
+        int len = text.length();
+        int firstSpecial = -1;
+        for (int i = 0; i < len; i++) {
+            char c = text.charAt(i);
+            if (c == '&' || c == '<' || c == '>') {
+                firstSpecial = i;
+                break;
+            }
+        }
+        if (firstSpecial < 0) {
+            return text; // No escaping needed — common case
+        }
+
+        // Single-pass escape from the first special character
+        StringBuilder sb = new StringBuilder(len + 16);
+        if (firstSpecial > 0) {
+            sb.append(text, 0, firstSpecial);
+        }
+        for (int i = firstSpecial; i < len; i++) {
+            char c = text.charAt(i);
+            if (c == '&') {
+                sb.append("&amp;");
+            } else if (c == '<') {
+                sb.append("&lt;");
+            } else if (c == '>') {
+                sb.append("&gt;");
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -343,10 +376,21 @@ public class Text extends Node {
     public static String unescapeTextContent(String text) {
         if (text == null) return "";
 
+        // Fast path: if no '&' exists, no unescaping is needed.
+        // This is the common case for most element text content.
+        int ampIdx = text.indexOf('&');
+        if (ampIdx < 0) {
+            return text;
+        }
+
         // Single-pass scanner: resolve numeric references and named entities in one pass
         // to avoid re-decoding (e.g., &#38;lt; must yield "&lt;", not "<")
-        StringBuilder result = new StringBuilder();
-        int i = 0;
+        StringBuilder result = new StringBuilder(text.length());
+        // Bulk-copy everything before the first '&'
+        if (ampIdx > 0) {
+            result.append(text, 0, ampIdx);
+        }
+        int i = ampIdx;
         while (i < text.length()) {
             if (text.charAt(i) == '&') {
                 // Try numeric reference first

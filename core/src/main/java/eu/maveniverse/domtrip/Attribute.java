@@ -143,8 +143,11 @@ public class Attribute {
     }
 
     /**
-     * Gets the value to use for serialization (raw if available, otherwise escaped)
-     */
+         * Provides the attribute value to use during XML serialization, preferring the original raw text when requested.
+         *
+         * @param useRaw if true, return the preserved raw attribute text when present; otherwise produce an escaped form
+         * @return `rawValue` if `useRaw` is true and a raw value exists, otherwise the escaped form of `value` using the active quote character
+         */
     public String getSerializationValue(boolean useRaw) {
         if (useRaw && rawValue != null) {
             return rawValue;
@@ -153,8 +156,11 @@ public class Attribute {
     }
 
     /**
-     * Escapes special characters in attribute values with specific quote character.
-     * Uses a fast-path check to avoid allocation when no special chars are present.
+     * Produce an XML-safe attribute value by escaping '&', '<', '>' and the active quote character.
+     *
+     * @param value the attribute value to escape; if {@code null} it is treated as empty
+     * @param quoteChar the quote character used to delimit the attribute (only this quote is escaped)
+     * @return the escaped attribute value; returns the original string unchanged if no escaping was required
      */
     private String escapeAttributeValue(String value, char quoteChar) {
         if (value == null) return "";

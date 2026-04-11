@@ -302,8 +302,16 @@ public class Parser {
     }
 
     /**
-     * Flushes any accumulated text/whitespace before a tag into the appropriate nodes.
-     */
+         * Attaches accumulated raw text that appears before the next '<' to the parse tree or to pending whitespace.
+         *
+         * If the accumulated text is whitespace only, it is appended to {@code pendingWhitespace}.
+         * Otherwise a Text node is created (preserving both decoded and raw text) and added as a child of the current container node from {@code nodeStack};
+         * any {@code pendingWhitespace} is applied to that Text node before attachment.
+         *
+         * @param precedingWhitespace buffer holding raw characters read up to the next '<'
+         * @param pendingWhitespace buffer of whitespace that should be applied to the next node if the preceding content is whitespace-only or when attaching a new node
+         * @param nodeStack stack of nodes with the current container on top (document is at the bottom)
+         */
     private void flushPrecedingText(
             StringBuilder precedingWhitespace, StringBuilder pendingWhitespace, Deque<Node> nodeStack) {
         if (precedingWhitespace.length() == 0) {
@@ -330,7 +338,10 @@ public class Parser {
     }
 
     /**
-     * Checks if a StringBuilder contains only whitespace, avoiding toString() allocation.
+     * Determines whether the provided StringBuilder contains only Unicode whitespace characters.
+     *
+     * @param sb the StringBuilder to inspect
+     * @return `true` if every character in `sb` is whitespace, `false` otherwise
      */
     private static boolean isWhitespaceOnlyBuf(StringBuilder sb) {
         for (int i = 0, len = sb.length(); i < len; i++) {
@@ -364,8 +375,16 @@ public class Parser {
     }
 
     /**
-     * Parses declarations (comments, CDATA, DOCTYPE, etc.) starting with '<!'.
-     */
+         * Parses a declaration or special XML construct beginning with "<!" (comment, CDATA section,
+         * DOCTYPE, or other declaration) and attaches the resulting node or metadata to the document tree.
+         *
+         * @param document the Document being built and updated (may receive a DOCTYPE or xml-declaration data)
+         * @param nodeStack the current node stack; parsed comment/CDATA nodes are added to the container at the stack top
+         * @param pendingWhitespace buffer of whitespace that should be applied as preceding whitespace to the
+         *                         parsed node or, for DOCTYPE, recorded as doctype preceding whitespace;
+         *                         this buffer may be consumed/cleared by the method
+         * @throws DomTripException if the declaration/special construct is truncated or otherwise malformed
+         */
     private void parseDeclarationOrSpecial(Document document, Deque<Node> nodeStack, StringBuilder pendingWhitespace)
             throws DomTripException {
         // position is at '<', position+1 is '!'
@@ -469,6 +488,16 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses an XML comment at the current parse position and returns a Comment node.
+     *
+     * Assumes the parser is positioned at the start of a "<!--" sequence; consumes the full comment
+     * including the opening "<!--" and the closing "-->" and advances the parser position past the
+     * closing delimiter.
+     *
+     * @return the Comment whose content is the text between "<!--" and "-->"
+     * @throws DomTripException if the comment is not closed before the end of input
+     */
     private Comment parseComment() throws DomTripException {
         position += 4; // Skip "<!--"
         int contentStart = position;
@@ -485,6 +514,12 @@ public class Parser {
         throw new DomTripException("Unclosed comment", position, xml);
     }
 
+    /**
+     * Parses a CDATA section and returns it as a Text node marked as CDATA.
+     *
+     * @return a Text node whose content is the raw CDATA section and that is marked as CDATA
+     * @throws DomTripException if the CDATA section is not closed before the end of input
+     */
     private Text parseCData() throws DomTripException {
         position += 9; // Skip "<![CDATA["
         int contentStart = position;
@@ -501,6 +536,12 @@ public class Parser {
         throw new DomTripException("Unclosed CDATA section", position, xml);
     }
 
+    /**
+     * Extracts a processing instruction starting at the current parse position and returns it including the surrounding "<?" and "?>" delimiters.
+     *
+     * @return the complete processing instruction substring (including leading "<?" and trailing "?>")
+     * @throws DomTripException if the processing instruction is not closed before the end of the input
+     */
     private String parseProcessingInstruction() throws DomTripException {
         int start = position;
         position += 2; // Skip "<?"
@@ -578,12 +619,12 @@ public class Parser {
     }
 
     /**
-     * Parses an opening element tag at the current parser position and returns the created Element.
+     * Parses an opening element tag at the current parser position.
      *
-     * The returned Element contains the element name, parsed attributes, self-closing flag, and preserved
-     * original opening-tag text/whitespace for formatting fidelity.
+     * The resulting Element preserves the element name, parsed attributes, the self-closing flag,
+     * and the original opening-tag text/whitespace for formatting fidelity.
      *
-     * @return the parsed Element corresponding to the opening tag
+     * @return the parsed Element for the opening tag
      * @throws DomTripException if the element name is empty or the opening tag is not properly closed
      */
     private Element parseOpeningTag() throws DomTripException {
@@ -646,18 +687,13 @@ public class Parser {
     }
 
     /**
-     * Parses a single attribute at the parser's current position and attaches it to the given element.
-     *
-     * The method consumes the attribute name, the `=` separator and a quoted attribute value, decodes
-     * the raw value, and calls Element.attributeInternal(...) with the attribute name, decoded value,
-     * the quote character used, the whitespace to associate with the attribute (uses `precedingWhitespace`
-     * or a single space when that is empty), and the raw attribute value.
-     *
-     * @param element the Element to which the parsed attribute will be added
-     * @param precedingWhitespace the exact whitespace string that immediately preceded this attribute in the open tag;
-     *                            if empty, a single space is used when associating whitespace with the attribute
-     * @throws DomTripException if the attribute value is not terminated with a matching quote or if a quoted value is missing
-     */
+         * Parse one attribute from the current parser position and add it to the given element.
+         *
+         * @param element the Element that will receive the parsed attribute
+         * @param precedingWhitespace the exact whitespace that immediately preceded this attribute in the open tag;
+         *                            when empty a single space is associated with the attribute
+         * @throws DomTripException if a quoted attribute value is missing or not terminated with a matching quote
+         */
     private void parseAttribute(Element element, String precedingWhitespace) throws DomTripException {
         String name = parseAttributeName();
         skipWhitespace();
@@ -668,6 +704,13 @@ public class Parser {
         }
     }
 
+    /**
+     * Parse an attribute name from the current parser position and advance the position to the first character after the name.
+     *
+     * The method does not skip leading whitespace; it reads characters until it encounters `=` or any whitespace or end of input.
+     *
+     * @return the attribute name as it appears in the source; may be empty if no name characters were present
+     */
     private String parseAttributeName() {
         int nameStart = position;
         while (position < length && xml.charAt(position) != '=' && !Character.isWhitespace(xml.charAt(position))) {
@@ -676,6 +719,11 @@ public class Parser {
         return xml.substring(nameStart, position);
     }
 
+    /**
+     * Advances the parser cursor past any consecutive Unicode whitespace characters.
+     *
+     * Stops when the cursor reaches the first non-whitespace character or the end of input.
+     */
     private void skipWhitespace() {
         while (position < length && Character.isWhitespace(xml.charAt(position))) {
             position++;
@@ -689,6 +737,14 @@ public class Parser {
         } while (position < length && Character.isWhitespace(xml.charAt(position)));
     }
 
+    /**
+     * Parses a quoted attribute value at the current parse position and adds the attribute to the given element.
+     *
+     * @param element the element to which the parsed attribute will be added
+     * @param name the attribute name
+     * @param precedingWhitespace whitespace that immediately precedes the attribute value token; when empty a single space is used
+     * @throws DomTripException if the attribute value does not start with a quote or if the closing quote is not found before end of input
+     */
     private void parseAttributeValue(Element element, String name, String precedingWhitespace) throws DomTripException {
         if (position >= length || (xml.charAt(position) != '"' && xml.charAt(position) != '\'')) {
             throw new DomTripException("Missing attribute value quote", position, xml);
@@ -716,14 +772,11 @@ public class Parser {
     }
 
     /**
-     * Parses a closing tag at the current parser position, validates it against the provided node stack,
-     * finalizes the corresponding Element (captures original close-tag text and its close-tag whitespace),
-     * removes it from the stack, and returns it.
+     * Parse the closing tag at the current position, validate it against the node stack, finalize the matching Element, and remove it from the stack.
      *
-     * @param nodeStack the stack of open nodes used to validate and pop the matching Element
-     * @return the Element that was closed by this tag
-     * @throws DomTripException if the closing tag is truncated/unterminated, does not match the top Element on the stack,
-     *                          or appears when there is no open Element to match
+     * @param nodeStack the stack of open nodes; the top Element must match the parsed closing tag and will be popped
+     * @return the Element that was closed
+     * @throws DomTripException if the closing tag is truncated, does not match the top Element, or appears with no open Element to match
      */
     private Element parseClosingTag(Deque<Node> nodeStack) throws DomTripException {
         int start = position; // Remember start position for original tag capture
@@ -777,8 +830,11 @@ public class Parser {
     }
 
     /**
-     * Checks if the given content contains only whitespace characters.
-     */
+         * Determine whether a string consists only of whitespace characters.
+         *
+         * @param content the string to test, may be null
+         * @return `true` if {@code content} is non-null and every character is whitespace, `false` otherwise
+         */
     private static boolean isWhitespaceOnly(String content) {
         if (content == null) {
             return false;

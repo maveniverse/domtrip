@@ -312,6 +312,16 @@ public class Text extends Node {
         return !content.isEmpty() && Character.isWhitespace(content.charAt(content.length() - 1));
     }
 
+    /**
+     * Appends this text node's XML representation to the provided StringBuilder.
+     *
+     * The method writes the node's preceding whitespace, then either:
+     * - serializes the content as a CDATA section when this node is marked as CDATA, or
+     * - appends the raw, unescaped content if available and the node has not been modified,
+     *   otherwise appends the escaped text content.
+     *
+     * @param sb the StringBuilder to append XML output to
+     */
     @Override
     public void toXml(StringBuilder sb) {
         sb.append(precedingWhitespace);
@@ -329,8 +339,10 @@ public class Text extends Node {
     }
 
     /**
-     * Escapes special characters in text content.
-     * Uses a fast-path check to avoid allocation when no special chars are present.
+     * Escape XML special characters in the given text for safe inclusion in element content.
+     *
+     * @param text the input text to escape; may be {@code null} (treated as an empty string)
+     * @return the input with `&`, `<`, and `>` replaced by `&amp;`, `&lt;`, and `&gt;` respectively; empty string when input is {@code null}
      */
     static String escapeTextContent(String text) {
         if (text == null) return "";
@@ -370,7 +382,16 @@ public class Text extends Node {
     }
 
     /**
-     * Unescapes XML entities in text content, including numeric character references
+     * Convert XML character and entity references in the given text to their corresponding characters.
+     *
+     * <p>Supports named entities `&lt;`, `&gt;`, `&amp;`, `&quot;`, `&apos;` and numeric character references
+     * in decimal (`&#DDDD;`) and hexadecimal (`&#xHHHH;` / `&#XHHHH;`). Numeric references are validated
+     * against XML 1.0 allowed code point ranges; invalid or malformed references are left unchanged
+     * (the raw `&...` sequence remains in the output). If the input contains no `&` characters it is
+     * returned unchanged. A `null` input yields an empty string.
+     *
+     * @param text the text possibly containing XML entities or numeric references
+     * @return the text with entities and numeric references decoded; empty string when `text` is `null`
      */
     @SuppressWarnings("java:S135") // Multiple continue statements are natural for this single-pass scanner
     public static String unescapeTextContent(String text) {

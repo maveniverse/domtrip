@@ -325,18 +325,27 @@ public class Parser {
     }
 
     /**
-     * Determines whether the provided StringBuilder contains only Unicode whitespace characters.
+     * Determines whether the provided StringBuilder contains only XML whitespace characters
+     * (space, tab, carriage return, line feed) as defined by the XML 1.0 specification.
      *
      * @param sb the StringBuilder to inspect
-     * @return `true` if every character in `sb` is whitespace, `false` otherwise
+     * @return {@code true} if every character in {@code sb} is XML whitespace, {@code false} otherwise
      */
     private static boolean isWhitespaceOnlyBuf(StringBuilder sb) {
         for (int i = 0, len = sb.length(); i < len; i++) {
-            if (!Character.isWhitespace(sb.charAt(i))) {
+            if (!isXmlWhitespace(sb.charAt(i))) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * Checks whether a character is XML whitespace per the XML 1.0 specification:
+     * S ::= (#x20 | #x9 | #xD | #xA)+
+     */
+    private static boolean isXmlWhitespace(char c) {
+        return c == ' ' || c == '\t' || c == '\r' || c == '\n';
     }
 
     /**
@@ -844,17 +853,18 @@ public class Parser {
     }
 
     /**
-     * Determine whether a string consists only of whitespace characters.
+     * Determine whether a string consists only of XML whitespace characters
+     * (space, tab, carriage return, line feed) as defined by the XML 1.0 specification.
      *
      * @param content the string to test, may be null
-     * @return `true` if {@code content} is non-null and every character is whitespace, `false` otherwise
+     * @return {@code true} if {@code content} is non-null and every character is XML whitespace, {@code false} otherwise
      */
     private static boolean isWhitespaceOnly(String content) {
         if (content == null) {
             return false;
         }
         for (int i = 0, len = content.length(); i < len; i++) {
-            if (!Character.isWhitespace(content.charAt(i))) {
+            if (!isXmlWhitespace(content.charAt(i))) {
                 return false;
             }
         }

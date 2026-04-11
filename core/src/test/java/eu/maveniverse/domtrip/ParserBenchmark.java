@@ -7,6 +7,9 @@
  */
 package eu.maveniverse.domtrip;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -34,6 +37,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Warmup(iterations = 3, time = 1)
 @Measurement(iterations = 5, time = 1)
 @Fork(1)
+@SuppressWarnings("java:S3577") // JMH benchmark class does not follow test naming convention
 public class ParserBenchmark {
 
     private Parser parser;
@@ -74,7 +78,6 @@ public class ParserBenchmark {
      *
      * @return the parsed Document representing the tiny XML input
      */
-
     @Benchmark
     public Document parseTiny() {
         return parser.parse(tinyXml);
@@ -115,7 +118,6 @@ public class ParserBenchmark {
      *
      * @return the serialized XML string produced from the small input
      */
-
     @Benchmark
     public String roundTripSmall() {
         return parser.parse(smallXml).toXml();
@@ -146,7 +148,6 @@ public class ParserBenchmark {
      *
      * @return the XML string representation of the pre-parsed small document
      */
-
     @Benchmark
     public String serializeSmall() {
         return smallDoc.toXml();
@@ -177,7 +178,6 @@ public class ParserBenchmark {
      *
      * @return the XML string "<root><child>text</child></root>"
      */
-
     private static String buildTinyXml() {
         return "<root><child>text</child></root>";
     }
@@ -217,14 +217,9 @@ public class ParserBenchmark {
 
     /**
      * Builds a medium-sized Maven POM XML string used as benchmark input.
+     * Includes 20 properties, 20 dependencies, and 5 plugins.
      *
-     * <p>The generated XML includes a project header and:
-     * - a parent declaration and basic coordinates,
-     * - a <properties> section with 20 generated properties,
-     * - a <dependencies> section with 20 generated dependencies (some include `<scope>` or `<optional>`),
-     * - a <build><plugins> section with 5 generated plugins and simple configuration entries.
-     *
-     * @return the XML content of a medium-sized Maven POM used for parsing and serialization benchmarks
+     * @return the XML content of a medium-sized Maven POM
      */
     private static String buildMediumXml() {
         StringBuilder sb = new StringBuilder();
@@ -449,7 +444,8 @@ public class ParserBenchmark {
         Options opt = new OptionsBuilder()
                 .include(ParserBenchmark.class.getSimpleName())
                 .build();
-        new Runner(opt).run();
+        Collection<?> results = new Runner(opt).run();
+        assertFalse(results.isEmpty(), "JMH should have produced benchmark results");
     }
 
     /**

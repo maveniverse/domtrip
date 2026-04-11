@@ -382,18 +382,12 @@ public class Text extends Node {
     }
 
     /**
-     * Convert XML character and entity references in the given text to their corresponding characters.
-     *
-     * <p>Supports named entities `&lt;`, `&gt;`, `&amp;`, `&quot;`, `&apos;` and numeric character references
-     * in decimal (`&#DDDD;`) and hexadecimal (`&#xHHHH;` / `&#XHHHH;`). Numeric references are validated
-     * against XML 1.0 allowed code point ranges; invalid or malformed references are left unchanged
-     * (the raw `&...` sequence remains in the output). If the input contains no `&` characters it is
-     * returned unchanged. A `null` input yields an empty string.
+     * Unescapes XML entities in text content, including numeric character references.
      *
      * @param text the text possibly containing XML entities or numeric references
-     * @return the text with entities and numeric references decoded; empty string when `text` is `null`
+     * @return the text with entities and numeric references decoded; empty string when {@code text} is {@code null}
      */
-    @SuppressWarnings("java:S135") // Multiple continue statements are natural for this single-pass scanner
+    @SuppressWarnings({"java:S135", "java:S3776"}) // Single-pass entity scanner has inherent branching complexity
     public static String unescapeTextContent(String text) {
         if (text == null) return "";
 

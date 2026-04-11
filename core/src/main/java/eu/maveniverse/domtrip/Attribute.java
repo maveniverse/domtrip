@@ -143,11 +143,11 @@ public class Attribute {
     }
 
     /**
-         * Provides the attribute value to use during XML serialization, preferring the original raw text when requested.
-         *
-         * @param useRaw if true, return the preserved raw attribute text when present; otherwise produce an escaped form
-         * @return `rawValue` if `useRaw` is true and a raw value exists, otherwise the escaped form of `value` using the active quote character
-         */
+     * Provides the attribute value to use during XML serialization, preferring the original raw text when requested.
+     *
+     * @param useRaw if true, return the preserved raw attribute text when present; otherwise produce an escaped form
+     * @return `rawValue` if `useRaw` is true and a raw value exists, otherwise the escaped form of `value` using the active quote character
+     */
     public String getSerializationValue(boolean useRaw) {
         if (useRaw && rawValue != null) {
             return rawValue;
@@ -166,41 +166,49 @@ public class Attribute {
         if (value == null) return "";
 
         // Fast path: scan for any character that needs escaping
-        int len = value.length();
-        int firstSpecial = -1;
-        for (int i = 0; i < len; i++) {
-            char c = value.charAt(i);
-            if (c == '&' || c == '<' || c == '>' || c == quoteChar) {
-                firstSpecial = i;
-                break;
-            }
-        }
+        int firstSpecial = indexOfSpecialChar(value, quoteChar);
         if (firstSpecial < 0) {
             return value; // No escaping needed — common case
         }
 
         // Single-pass escape from the first special character
-        StringBuilder sb = new StringBuilder(len + 16);
-        if (firstSpecial > 0) {
-            sb.append(value, 0, firstSpecial);
-        }
-        for (int i = firstSpecial; i < len; i++) {
+        return escapeFrom(value, firstSpecial, quoteChar);
+    }
+
+    private static int indexOfSpecialChar(String value, char quoteChar) {
+        for (int i = 0, len = value.length(); i < len; i++) {
             char c = value.charAt(i);
-            if (c == '&') {
-                sb.append("&amp;");
-            } else if (c == '<') {
-                sb.append("&lt;");
-            } else if (c == '>') {
-                sb.append("&gt;");
-            } else if (c == '"' && quoteChar == '"') {
-                sb.append("&quot;");
-            } else if (c == '\'' && quoteChar == '\'') {
-                sb.append("&apos;");
-            } else {
-                sb.append(c);
+            if (c == '&' || c == '<' || c == '>' || c == quoteChar) {
+                return i;
             }
         }
+        return -1;
+    }
+
+    private static String escapeFrom(String value, int from, char quoteChar) {
+        int len = value.length();
+        StringBuilder sb = new StringBuilder(len + 16);
+        if (from > 0) {
+            sb.append(value, 0, from);
+        }
+        for (int i = from; i < len; i++) {
+            appendEscaped(sb, value.charAt(i), quoteChar);
+        }
         return sb.toString();
+    }
+
+    private static void appendEscaped(StringBuilder sb, char c, char quoteChar) {
+        if (c == '&') {
+            sb.append("&amp;");
+        } else if (c == '<') {
+            sb.append("&lt;");
+        } else if (c == '>') {
+            sb.append("&gt;");
+        } else if (c == quoteChar) {
+            sb.append(quoteChar == '"' ? "&quot;" : "&apos;");
+        } else {
+            sb.append(c);
+        }
     }
 
     /**

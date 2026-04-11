@@ -282,36 +282,23 @@ public class Parser {
         // Handle any remaining whitespace/text
         flushRemainingContent(document, precedingWhitespace, pendingWhitespace);
 
-        // Check for unclosed elements
-        if (nodeStack.size() > 1) {
-            Node unclosed = nodeStack.peek();
-            if (unclosed instanceof Element) {
-                throw new DomTripException("Unclosed element '<" + ((Element) unclosed).name() + ">'");
-            }
-        }
-
-        // Set the document element (first element child)
-        for (Node child : document.children) {
-            if (child instanceof Element) {
-                document.rootInternal((Element) child);
-                break;
-            }
-        }
+        checkUnclosedElements(nodeStack);
+        setDocumentRoot(document);
 
         return document;
     }
 
     /**
-         * Attaches accumulated raw text that appears before the next '<' to the parse tree or to pending whitespace.
-         *
-         * If the accumulated text is whitespace only, it is appended to {@code pendingWhitespace}.
-         * Otherwise a Text node is created (preserving both decoded and raw text) and added as a child of the current container node from {@code nodeStack};
-         * any {@code pendingWhitespace} is applied to that Text node before attachment.
-         *
-         * @param precedingWhitespace buffer holding raw characters read up to the next '<'
-         * @param pendingWhitespace buffer of whitespace that should be applied to the next node if the preceding content is whitespace-only or when attaching a new node
-         * @param nodeStack stack of nodes with the current container on top (document is at the bottom)
-         */
+     * Attaches accumulated raw text that appears before the next '<' to the parse tree or to pending whitespace.
+     *
+     * If the accumulated text is whitespace only, it is appended to {@code pendingWhitespace}.
+     * Otherwise a Text node is created (preserving both decoded and raw text) and added as a child of the current container node from {@code nodeStack};
+     * any {@code pendingWhitespace} is applied to that Text node before attachment.
+     *
+     * @param precedingWhitespace buffer holding raw characters read up to the next '<'
+     * @param pendingWhitespace buffer of whitespace that should be applied to the next node if the preceding content is whitespace-only or when attaching a new node
+     * @param nodeStack stack of nodes with the current container on top (document is at the bottom)
+     */
     private void flushPrecedingText(
             StringBuilder precedingWhitespace, StringBuilder pendingWhitespace, Deque<Node> nodeStack) {
         if (precedingWhitespace.length() == 0) {
@@ -375,16 +362,16 @@ public class Parser {
     }
 
     /**
-         * Parses a declaration or special XML construct beginning with "<!" (comment, CDATA section,
-         * DOCTYPE, or other declaration) and attaches the resulting node or metadata to the document tree.
-         *
-         * @param document the Document being built and updated (may receive a DOCTYPE or xml-declaration data)
-         * @param nodeStack the current node stack; parsed comment/CDATA nodes are added to the container at the stack top
-         * @param pendingWhitespace buffer of whitespace that should be applied as preceding whitespace to the
-         *                         parsed node or, for DOCTYPE, recorded as doctype preceding whitespace;
-         *                         this buffer may be consumed/cleared by the method
-         * @throws DomTripException if the declaration/special construct is truncated or otherwise malformed
-         */
+     * Parses a declaration or special XML construct beginning with "<!" (comment, CDATA section,
+     * DOCTYPE, or other declaration) and attaches the resulting node or metadata to the document tree.
+     *
+     * @param document the Document being built and updated (may receive a DOCTYPE or xml-declaration data)
+     * @param nodeStack the current node stack; parsed comment/CDATA nodes are added to the container at the stack top
+     * @param pendingWhitespace buffer of whitespace that should be applied as preceding whitespace to the
+     *                         parsed node or, for DOCTYPE, recorded as doctype preceding whitespace;
+     *                         this buffer may be consumed/cleared by the method
+     * @throws DomTripException if the declaration/special construct is truncated or otherwise malformed
+     */
     private void parseDeclarationOrSpecial(Document document, Deque<Node> nodeStack, StringBuilder pendingWhitespace)
             throws DomTripException {
         // position is at '<', position+1 is '!'
@@ -485,6 +472,24 @@ public class Parser {
         if (pendingWhitespace.length() > 0) {
             Text trailingWhitespace = new Text(pendingWhitespace.toString());
             document.addChildInternal(trailingWhitespace);
+        }
+    }
+
+    private void checkUnclosedElements(Deque<Node> nodeStack) {
+        if (nodeStack.size() > 1) {
+            Node unclosed = nodeStack.peek();
+            if (unclosed instanceof Element) {
+                throw new DomTripException("Unclosed element '<" + ((Element) unclosed).name() + ">'");
+            }
+        }
+    }
+
+    private void setDocumentRoot(Document document) {
+        for (Node child : document.children) {
+            if (child instanceof Element) {
+                document.rootInternal((Element) child);
+                break;
+            }
         }
     }
 
@@ -647,8 +652,19 @@ public class Parser {
         String elementName = xml.substring(nameStart, position);
         Element element = new Element(elementName);
 
-        // Parse attributes and whitespace — track whitespace positions
-        // to avoid StringBuilder allocation per attribute
+        parseAttributes(element);
+        parseSelfClosingAndEnd(element, elementName);
+
+        // Store original tag content as source-backed slice (avoids substring allocation)
+        element.originalOpenTagInternal(xml, start, position);
+        return element;
+    }
+
+    /**
+     * Parses all attributes and whitespace within an opening tag.
+     * Tracks whitespace positions to avoid StringBuilder allocation per attribute.
+     */
+    private void parseAttributes(Element element) throws DomTripException {
         int wsStart = position;
         while (position < length
                 && xml.charAt(position) != '>'
@@ -657,43 +673,41 @@ public class Parser {
             if (Character.isWhitespace(xml.charAt(position))) {
                 position++;
             } else {
-                // Parse attribute with the collected whitespace (substring from tracked positions)
                 String attrWs = wsStart < position ? xml.substring(wsStart, position) : "";
                 parseAttribute(element, attrWs);
-                wsStart = position; // Reset for next attribute's whitespace
+                wsStart = position;
             }
         }
 
-        // Capture any remaining whitespace before the closing > or />
         if (wsStart < position) {
             element.openTagWhitespaceInternal(xml.substring(wsStart, position));
         }
-
-        // Check for self-closing tag
-        if (position < length && xml.charAt(position) == '/') {
-            element.selfClosingInternal(true);
-            position++; // Skip '/'
-        }
-
-        if (position < length && xml.charAt(position) == '>') {
-            position++; // Skip '>'
-        } else {
-            throw new DomTripException("Unclosed opening tag '" + elementName + "'", position, xml);
-        }
-
-        // Store original tag content as source-backed slice (avoids substring allocation)
-        element.originalOpenTagInternal(xml, start, position);
-        return element;
     }
 
     /**
-         * Parse one attribute from the current parser position and add it to the given element.
-         *
-         * @param element the Element that will receive the parsed attribute
-         * @param precedingWhitespace the exact whitespace that immediately preceded this attribute in the open tag;
-         *                            when empty a single space is associated with the attribute
-         * @throws DomTripException if a quoted attribute value is missing or not terminated with a matching quote
-         */
+     * Handles the self-closing flag and closing '>' of an opening tag.
+     */
+    private void parseSelfClosingAndEnd(Element element, String elementName) throws DomTripException {
+        if (position < length && xml.charAt(position) == '/') {
+            element.selfClosingInternal(true);
+            position++;
+        }
+
+        if (position < length && xml.charAt(position) == '>') {
+            position++;
+        } else {
+            throw new DomTripException("Unclosed opening tag '" + elementName + "'", position, xml);
+        }
+    }
+
+    /**
+     * Parse one attribute from the current parser position and add it to the given element.
+     *
+     * @param element the Element that will receive the parsed attribute
+     * @param precedingWhitespace the exact whitespace that immediately preceded this attribute in the open tag;
+     *                            when empty a single space is associated with the attribute
+     * @throws DomTripException if a quoted attribute value is missing or not terminated with a matching quote
+     */
     private void parseAttribute(Element element, String precedingWhitespace) throws DomTripException {
         String name = parseAttributeName();
         skipWhitespace();
@@ -830,11 +844,11 @@ public class Parser {
     }
 
     /**
-         * Determine whether a string consists only of whitespace characters.
-         *
-         * @param content the string to test, may be null
-         * @return `true` if {@code content} is non-null and every character is whitespace, `false` otherwise
-         */
+     * Determine whether a string consists only of whitespace characters.
+     *
+     * @param content the string to test, may be null
+     * @return `true` if {@code content} is non-null and every character is whitespace, `false` otherwise
+     */
     private static boolean isWhitespaceOnly(String content) {
         if (content == null) {
             return false;

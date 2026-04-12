@@ -146,33 +146,20 @@ public class SAXOutputter {
     private void outputElement(Element element, ContentHandler handler, LexicalHandler lexicalHandler)
             throws SAXException {
         // Collect namespace declarations from this element's attributes
-        List<String[]> namespaceMappings = collectNamespaceDeclarations(element);
+        List<NamespaceMapping> namespaceMappings = collectNamespaceDeclarations(element);
 
         // Emit startPrefixMapping for each namespace declaration
-        for (String[] mapping : namespaceMappings) {
-            handler.startPrefixMapping(mapping[0], mapping[1]);
+        for (NamespaceMapping mapping : namespaceMappings) {
+            handler.startPrefixMapping(mapping.prefix, mapping.uri);
         }
 
         // Build SAX attributes (excluding namespace declarations unless configured)
         AttributesImpl attrs = buildAttributes(element);
 
         // Resolve element namespace
+        String namespaceURI = resolveElementNamespace(element);
         String[] parts = NamespaceResolver.splitQualifiedName(element.name());
-        String prefix = parts[0];
         String localName = parts[1];
-        String namespaceURI = "";
-        if (prefix != null) {
-            String resolved = NamespaceResolver.resolveNamespaceURI(element, prefix);
-            if (resolved != null) {
-                namespaceURI = resolved;
-            }
-        } else {
-            // Check default namespace
-            String defaultNs = NamespaceResolver.resolveNamespaceURI(element, null);
-            if (defaultNs != null) {
-                namespaceURI = defaultNs;
-            }
-        }
 
         handler.startElement(namespaceURI, localName, element.name(), attrs);
 
@@ -185,7 +172,7 @@ public class SAXOutputter {
 
         // Emit endPrefixMapping in reverse order
         for (int i = namespaceMappings.size() - 1; i >= 0; i--) {
-            handler.endPrefixMapping(namespaceMappings.get(i)[0]);
+            handler.endPrefixMapping(namespaceMappings.get(i).prefix);
         }
     }
 
@@ -218,23 +205,36 @@ public class SAXOutputter {
     }
 
     /**
+     * Resolves the namespace URI for an element based on its prefix or the default namespace.
+     */
+    private static String resolveElementNamespace(Element element) {
+        String[] parts = NamespaceResolver.splitQualifiedName(element.name());
+        String prefix = parts[0];
+        String resolved;
+        if (prefix != null) {
+            resolved = NamespaceResolver.resolveNamespaceURI(element, prefix);
+        } else {
+            resolved = NamespaceResolver.resolveNamespaceURI(element, null);
+        }
+        return resolved != null ? resolved : "";
+    }
+
+    /**
      * Collects namespace declarations from an element's attributes.
      *
-     * @return list of {prefix, uri} pairs; prefix is "" for default namespace
+     * @return list of namespace mappings; prefix is "" for default namespace
      */
-    private List<String[]> collectNamespaceDeclarations(Element element) {
-        List<String[]> mappings = new ArrayList<>();
+    private List<NamespaceMapping> collectNamespaceDeclarations(Element element) {
+        List<NamespaceMapping> mappings = new ArrayList<>();
         for (Map.Entry<String, String> entry : element.attributes().entrySet()) {
             String attrName = entry.getKey();
             String attrValue = entry.getValue();
 
             if (Element.XMLNS.equals(attrName)) {
-                // Default namespace declaration
-                mappings.add(new String[] {"", attrValue});
+                mappings.add(new NamespaceMapping("", attrValue));
             } else if (attrName.startsWith(Element.XMLNS_PREFIX)) {
-                // Prefixed namespace declaration
                 String prefix = attrName.substring(Element.XMLNS_PREFIX.length());
-                mappings.add(new String[] {prefix, attrValue});
+                mappings.add(new NamespaceMapping(prefix, attrValue));
             }
         }
         return mappings;
@@ -250,40 +250,53 @@ public class SAXOutputter {
             String attrName = entry.getKey();
             String attrValue = entry.getValue();
 
-            // Skip namespace declarations unless reporting them
             if (isNamespaceDeclaration(attrName)) {
                 if (reportNamespaceDeclarations) {
-                    String nsUri = NamespaceResolver.XMLNS_NAMESPACE_URI;
-                    String localName;
-                    if (Element.XMLNS.equals(attrName)) {
-                        localName = Element.XMLNS;
-                    } else {
-                        localName = attrName.substring(Element.XMLNS_PREFIX.length());
-                    }
-                    attrs.addAttribute(nsUri, localName, attrName, "CDATA", attrValue);
+                    addNamespaceAttribute(attrs, attrName, attrValue);
                 }
                 continue;
             }
 
-            // Regular attribute
-            String[] parts = NamespaceResolver.splitQualifiedName(attrName);
-            String prefix = parts[0];
-            String localName = parts[1];
-            String namespaceURI = "";
-            if (prefix != null) {
-                String resolved = NamespaceResolver.resolveNamespaceURI(element, prefix);
-                if (resolved != null) {
-                    namespaceURI = resolved;
-                }
-            }
-
-            attrs.addAttribute(namespaceURI, localName, attrName, "CDATA", attrValue);
+            addRegularAttribute(attrs, element, attrName, attrValue);
         }
 
         return attrs;
     }
 
+    private static void addNamespaceAttribute(AttributesImpl attrs, String attrName, String attrValue) {
+        String localName =
+                Element.XMLNS.equals(attrName) ? Element.XMLNS : attrName.substring(Element.XMLNS_PREFIX.length());
+        attrs.addAttribute(NamespaceResolver.XMLNS_NAMESPACE_URI, localName, attrName, "CDATA", attrValue);
+    }
+
+    private static void addRegularAttribute(AttributesImpl attrs, Element element, String attrName, String attrValue) {
+        String[] parts = NamespaceResolver.splitQualifiedName(attrName);
+        String prefix = parts[0];
+        String localName = parts[1];
+        String namespaceURI = "";
+        if (prefix != null) {
+            String resolved = NamespaceResolver.resolveNamespaceURI(element, prefix);
+            if (resolved != null) {
+                namespaceURI = resolved;
+            }
+        }
+        attrs.addAttribute(namespaceURI, localName, attrName, "CDATA", attrValue);
+    }
+
     private static boolean isNamespaceDeclaration(String attrName) {
         return Element.XMLNS.equals(attrName) || attrName.startsWith(Element.XMLNS_PREFIX);
+    }
+
+    /**
+     * A namespace prefix-to-URI mapping collected from an element's namespace declarations.
+     */
+    private static final class NamespaceMapping {
+        final String prefix;
+        final String uri;
+
+        NamespaceMapping(String prefix, String uri) {
+            this.prefix = prefix;
+            this.uri = uri;
+        }
     }
 }

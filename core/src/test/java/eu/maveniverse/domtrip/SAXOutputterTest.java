@@ -306,7 +306,8 @@ class SAXOutputterTest {
     @Test
     void nullDocumentThrows() {
         SAXOutputter outputter = new SAXOutputter();
-        assertThrows(IllegalArgumentException.class, () -> outputter.output(null, new DefaultHandler()));
+        DefaultHandler handler = new DefaultHandler();
+        assertThrows(IllegalArgumentException.class, () -> outputter.output(null, handler));
     }
 
     @Test

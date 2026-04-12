@@ -82,6 +82,14 @@ Emit SAX events from a domtrip document for integration with SAX-based XML proce
 - **Content pipeline** integration
 - **Namespace-aware** event emission
 
+### [StAX Stream Reader](stax-bridge/)
+Expose a domtrip document as a StAX XMLStreamReader for pull-based XML processing pipelines.
+
+- **Pull-based** cursor API
+- **JAXP integration** via StAXSource
+- **Namespace-aware** with full NamespaceContext
+- **Selective reading** with getElementText() and nextTag()
+
 ## Why These Features Matter
 
 ### ✅ **Perfect Round-Trip Editing**

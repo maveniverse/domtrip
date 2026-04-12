@@ -14,4 +14,5 @@ module eu.maveniverse.domtrip {
 
     exports eu.maveniverse.domtrip;
     exports eu.maveniverse.domtrip.sax;
+    exports eu.maveniverse.domtrip.stax;
 }

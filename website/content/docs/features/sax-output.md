@@ -186,3 +186,7 @@ reader.parse(new InputSource()); // InputSource is ignored; document was provide
 | `DomTripSAXSource` | `SAXSource` adapter wrapping a domtrip `Document` |
 
 All classes are in the `eu.maveniverse.domtrip.sax` package.
+
+## See Also
+
+- [StAX Stream Reader](../stax-bridge/) -- pull-based StAX bridge for the same interoperability scenarios

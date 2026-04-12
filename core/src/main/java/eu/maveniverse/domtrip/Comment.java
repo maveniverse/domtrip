@@ -109,6 +109,14 @@ public class Comment extends Node {
      * @see #content(String)
      */
     public String content() {
+        return Text.normalizeLineEndings(content);
+    }
+
+    /**
+     * Returns the content without line ending normalization, for serialization.
+     * Package-private so Serializer can preserve original line endings during output.
+     */
+    String serializationContent() {
         return content;
     }
 

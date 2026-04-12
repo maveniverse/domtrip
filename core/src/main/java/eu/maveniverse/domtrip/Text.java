@@ -119,6 +119,14 @@ public class Text extends Node {
     }
 
     public String content() {
+        return normalizeLineEndings(content);
+    }
+
+    /**
+     * Returns the content without line ending normalization, for serialization.
+     * Package-private so Serializer can preserve original line endings during output.
+     */
+    String serializationContent() {
         return content;
     }
     /**
@@ -560,6 +568,29 @@ public class Text extends Node {
     public String toString() {
         String displayContent = content.length() > 50 ? content.substring(0, 47) + "..." : content;
         return "Text{content='" + displayContent.replace("\n", "\\n") + "', isCData=" + isCData + "}";
+    }
+
+    /**
+     * Normalizes line endings per XML 1.0 §2.11.
+     *
+     * <p>The XML specification requires parsers to normalize line endings on input:
+     * {@code \r\n} sequences are replaced with {@code \n}, and standalone {@code \r}
+     * characters are replaced with {@code \n}. This normalization is applied to
+     * API-reported values while preserving original line endings for serialization.</p>
+     *
+     * @param text the text to normalize; may be {@code null}
+     * @return the text with line endings normalized, or {@code null} if input was {@code null}
+     */
+    static String normalizeLineEndings(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        // Fast path: if no \r exists, no normalization needed (common case)
+        if (text.indexOf('\r') < 0) {
+            return text;
+        }
+        // Replace \r\n with \n first, then replace remaining standalone \r with \n
+        return text.replace("\r\n", "\n").replace("\r", "\n");
     }
 
     /**

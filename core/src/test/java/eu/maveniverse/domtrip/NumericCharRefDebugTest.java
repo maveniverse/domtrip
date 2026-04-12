@@ -15,8 +15,8 @@ class NumericCharRefDebugTest {
         Attribute attrObj = root.attributeObject("attr");
         String result = doc.toXml();
 
-        // The attribute value should be decoded
-        assertTrue(root.attribute("attr").contains("\n"), "Should contain newline");
+        // The attribute value should be decoded and whitespace-normalized per §3.3.3
+        assertEquals("line1 line2", root.attribute("attr"), "Newline should be normalized to space");
 
         // The raw value should be preserved
         assertEquals("line1&#10;line2", attrObj.rawValue(), "Raw value should preserve &#10;");

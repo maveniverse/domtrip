@@ -139,6 +139,14 @@ public class ProcessingInstruction extends Node {
     }
 
     public String data() {
+        return Text.normalizeLineEndings(data);
+    }
+
+    /**
+     * Returns the data without line ending normalization, for serialization.
+     * Package-private so Serializer can preserve original line endings during output.
+     */
+    String serializationData() {
         return data;
     }
 

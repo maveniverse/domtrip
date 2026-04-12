@@ -727,9 +727,15 @@ public class Serializer {
 
     private void serializeText(Text text, StringBuilder sb) {
         if (text.cdata()) {
-            sb.append("<![CDATA[").append(text.content()).append("]]>");
+            sb.append("<![CDATA[").append(text.serializationContent()).append("]]>");
         } else {
-            sb.append(escapeTextContent(text.content()));
+            // Use raw content if available and not modified, otherwise escape current content
+            String rawContent = text.rawContent();
+            if (rawContent != null && !text.isModified()) {
+                sb.append(rawContent);
+            } else {
+                sb.append(escapeTextContent(text.serializationContent()));
+            }
         }
     }
 
@@ -742,7 +748,7 @@ public class Serializer {
     }
 
     private void serializeComment(Comment comment, StringBuilder sb) {
-        sb.append("<!--").append(comment.content()).append("-->");
+        sb.append("<!--").append(comment.serializationContent()).append("-->");
     }
 
     private void serializeCommentPretty(Comment comment, StringBuilder sb, int depth) {
@@ -758,8 +764,9 @@ public class Serializer {
     private void serializeProcessingInstruction(ProcessingInstruction pi, StringBuilder sb) {
         sb.append(pi.precedingWhitespace());
         sb.append("<?").append(pi.target());
-        if (!pi.data().isEmpty()) {
-            sb.append(" ").append(pi.data());
+        String data = pi.serializationData();
+        if (!data.isEmpty()) {
+            sb.append(" ").append(data);
         }
         sb.append("?>");
     }
@@ -772,8 +779,9 @@ public class Serializer {
             }
         }
         sb.append("<?").append(pi.target());
-        if (!pi.data().isEmpty()) {
-            sb.append(" ").append(pi.data());
+        String data = pi.serializationData();
+        if (!data.isEmpty()) {
+            sb.append(" ").append(data);
         }
         sb.append("?>");
     }

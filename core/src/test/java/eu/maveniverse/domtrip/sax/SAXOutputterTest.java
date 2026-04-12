@@ -435,6 +435,58 @@ class SAXOutputterTest {
     }
 
     @Test
+    void namespaceShadowing() throws Exception {
+        Document doc = Document.of(
+                "<root xmlns:ns=\"http://original.com\"><ns:child xmlns:ns=\"http://overridden.com\"/></root>");
+        RecordingHandler handler = new RecordingHandler();
+
+        new SAXOutputter().output(doc, handler);
+
+        assertContainsInOrder(
+                handler.events,
+                "startPrefixMapping[ns,http://original.com]",
+                "startElement[,root,root]",
+                "startPrefixMapping[ns,http://overridden.com]",
+                "startElement[http://overridden.com,child,ns:child]",
+                "endElement[http://overridden.com,child,ns:child]",
+                "endPrefixMapping[ns]",
+                "endElement[,root,root]",
+                "endPrefixMapping[ns]");
+    }
+
+    @Test
+    void defaultNamespaceUndeclaration() throws Exception {
+        Document doc = Document.of("<root xmlns=\"http://example.com\"><child xmlns=\"\"/></root>");
+        RecordingHandler handler = new RecordingHandler();
+
+        new SAXOutputter().output(doc, handler);
+
+        assertContainsInOrder(
+                handler.events,
+                "startPrefixMapping[,http://example.com]",
+                "startElement[http://example.com,root,root]",
+                "startPrefixMapping[,]",
+                "startElement[,child,child]",
+                "endElement[,child,child]",
+                "endPrefixMapping[]",
+                "endElement[http://example.com,root,root]",
+                "endPrefixMapping[]");
+    }
+
+    @Test
+    void unprefixedAttributeNotAffectedByDefaultNamespace() throws Exception {
+        Document doc = Document.of("<root xmlns=\"http://example.com\" id=\"1\"/>");
+        RecordingHandler handler = new RecordingHandler();
+
+        new SAXOutputter().output(doc, handler);
+
+        // Element is in default namespace, but unprefixed attribute must be in no namespace.
+        // The attribute URI should be empty (no namespace prefix on attribute URI),
+        // so it appears as "id=1" without a URI prefix in the event format.
+        assertContainsInOrder(handler.events, "startElement[http://example.com,root,root]{id=1}");
+    }
+
+    @Test
     void saxSourceOfNullThrows() {
         assertThrows(IllegalArgumentException.class, () -> DomTripSAXSource.of(null));
     }

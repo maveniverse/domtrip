@@ -742,7 +742,17 @@ public class DomTripStreamReader implements XMLStreamReader {
             if (element == null) {
                 return null;
             }
-            return NamespaceResolver.resolvePrefix(element, namespaceURI);
+            String prefix = NamespaceResolver.resolvePrefix(element, namespaceURI);
+            if (prefix != null) {
+                return prefix;
+            }
+            // resolvePrefix returns null for default namespace matches;
+            // check if the default namespace is bound to this URI
+            String defaultUri = NamespaceResolver.resolveNamespaceURI(element, null);
+            if (namespaceURI.equals(defaultUri)) {
+                return XMLConstants.DEFAULT_NS_PREFIX;
+            }
+            return null;
         }
 
         @Override

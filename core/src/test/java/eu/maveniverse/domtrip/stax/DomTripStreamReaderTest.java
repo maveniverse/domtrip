@@ -180,6 +180,68 @@ class DomTripStreamReaderTest {
     }
 
     @Test
+    void testNamespaceShadowing() throws Exception {
+        Document doc = Document.of(
+                "<root xmlns:ns=\"http://original.com\"><ns:child xmlns:ns=\"http://overridden.com\"/></root>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT root
+        assertEquals("http://original.com", reader.getNamespaceURI("ns"));
+
+        reader.next(); // START_ELEMENT ns:child
+        assertEquals("http://overridden.com", reader.getNamespaceURI());
+        assertEquals("http://overridden.com", reader.getNamespaceURI("ns"));
+    }
+
+    @Test
+    void testDefaultNamespaceUndeclaration() throws Exception {
+        Document doc = Document.of("<root xmlns=\"http://example.com\"><child xmlns=\"\"><grandchild/></child></root>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT root
+        assertEquals("http://example.com", reader.getNamespaceURI());
+
+        reader.next(); // START_ELEMENT child (xmlns="" undeclares default NS)
+        // After undeclaration, element is in no namespace
+        String childUri = reader.getNamespaceURI();
+        assertTrue(
+                childUri == null || childUri.isEmpty(),
+                "After xmlns=\"\" undeclaration, element should be in no namespace");
+
+        reader.next(); // START_ELEMENT grandchild (inherits undeclaration)
+        String grandchildUri = reader.getNamespaceURI();
+        assertTrue(
+                grandchildUri == null || grandchildUri.isEmpty(),
+                "Grandchild should inherit no-namespace from undeclaration");
+    }
+
+    @Test
+    void testUnprefixedAttributeNotAffectedByDefaultNamespace() throws Exception {
+        Document doc = Document.of("<root xmlns=\"http://example.com\" id=\"1\"/>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT
+        // Element itself is in the default namespace
+        assertEquals("http://example.com", reader.getNamespaceURI());
+
+        // But unprefixed attributes must be in no namespace (per XML Namespaces spec)
+        assertEquals(1, reader.getAttributeCount());
+        assertEquals("id", reader.getAttributeLocalName(0));
+        assertEquals("", reader.getAttributeNamespace(0));
+    }
+
+    @Test
+    void testGetPrefixForDefaultNamespaceURI() throws Exception {
+        Document doc = Document.of("<root xmlns=\"http://example.com\"/>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT
+        javax.xml.namespace.NamespaceContext ctx = reader.getNamespaceContext();
+        // getPrefix should return "" (DEFAULT_NS_PREFIX) for default namespace URI
+        assertEquals("", ctx.getPrefix("http://example.com"));
+    }
+
+    @Test
     void testNamespaceURIResolution() throws Exception {
         Document doc = Document.of("<root xmlns=\"http://default.com\" xmlns:ns=\"http://ns.com\"/>");
         DomTripStreamReader reader = new DomTripStreamReader(doc);

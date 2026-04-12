@@ -180,6 +180,18 @@ public class Text extends Node {
     }
 
     /**
+     * {@inheritDoc}
+     * @since 1.3.0
+     */
+    @Override
+    public DomTripVisitor.Action accept(DomTripVisitor visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("Visitor cannot be null");
+        }
+        return visitor.visitText(this);
+    }
+
+    /**
      * Returns true if this text node contains only whitespace
      */
     public boolean isWhitespaceOnly() {

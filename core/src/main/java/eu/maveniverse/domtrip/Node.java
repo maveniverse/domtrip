@@ -380,6 +380,21 @@ public abstract class Node {
     }
 
     /**
+     * Accepts a visitor for depth-first tree traversal.
+     *
+     * <p>This method implements the visitor pattern, allowing structured traversal
+     * of the XML tree with enter/exit lifecycle callbacks. Each node type dispatches
+     * to the appropriate visitor method.</p>
+     *
+     * @param visitor the visitor to accept
+     * @return the action returned by the visitor, indicating how traversal should proceed
+     * @throws IllegalArgumentException if visitor is null
+     * @see DomTripVisitor
+     * @since 1.3.0
+     */
+    public abstract DomTripVisitor.Action accept(DomTripVisitor visitor);
+
+    /**
      * Gets the next sibling that is an Element.
      *
      * @return an Optional containing the next Element sibling, or empty if none exists

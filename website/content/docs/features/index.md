@@ -66,6 +66,14 @@ Compare two XML documents and detect both semantic and formatting-only changes.
 - **Move detection** for reordered elements
 - **Path-based filtering** of changes
 
+### [Visitor and Walker Patterns](visitor-pattern/)
+Structured depth-first tree traversal with enter/exit lifecycle callbacks.
+
+- **Depth-first traversal** with flow control
+- **Enter/exit callbacks** for context tracking
+- **Subtree skipping** and early termination
+- **Lambda-friendly** TreeWalker API
+
 ## Why These Features Matter
 
 ### ✅ **Perfect Round-Trip Editing**

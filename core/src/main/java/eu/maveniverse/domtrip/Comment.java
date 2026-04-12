@@ -166,6 +166,18 @@ public class Comment extends Node {
     }
 
     /**
+     * {@inheritDoc}
+     * @since 1.3.0
+     */
+    @Override
+    public DomTripVisitor.Action accept(DomTripVisitor visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("Visitor cannot be null");
+        }
+        return visitor.visitComment(this);
+    }
+
+    /**
      * Checks if this comment contains only whitespace characters.
      *
      * <p>Returns true if the comment content consists entirely of

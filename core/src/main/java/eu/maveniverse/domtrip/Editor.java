@@ -1110,6 +1110,27 @@ public class Editor {
     }
 
     /**
+     * Walks the entire document tree using the given visitor.
+     *
+     * <p>This is a convenience method equivalent to
+     * {@code document().accept(visitor)}.</p>
+     *
+     * @param visitor the visitor to use for traversal
+     * @return the action indicating whether traversal completed or was stopped
+     * @throws IllegalArgumentException if visitor is null
+     * @throws DomTripException if no document is loaded
+     * @see DomTripVisitor
+     * @see Node#accept(DomTripVisitor)
+     * @since 1.3.0
+     */
+    public DomTripVisitor.Action walk(DomTripVisitor visitor) {
+        if (document == null) {
+            throw new DomTripException("No document loaded");
+        }
+        return document.accept(visitor);
+    }
+
+    /**
      * Validates that the document is well-formed.
      *
      * <p>Performs basic well-formedness validation including checking

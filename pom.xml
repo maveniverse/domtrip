@@ -25,6 +25,7 @@
 
   <modules>
     <module>core</module>
+    <module>jaxen</module>
     <module>maven</module>
     <module>website</module>
   </modules>

@@ -9,6 +9,7 @@ package eu.maveniverse.domtrip;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -1282,6 +1283,53 @@ public class Element extends ContainerNode {
      */
     public ElementQuery query() {
         return new ElementQuery(this);
+    }
+
+    /**
+     * Evaluates a mini-XPath expression against this element and returns all matching elements.
+     *
+     * <p>This is a convenience method that compiles and evaluates the expression in one step.
+     * For repeated evaluation of the same expression, use {@link XPathExpression#compile(String)}
+     * to compile once and reuse.</p>
+     *
+     * <h3>Examples:</h3>
+     * <pre>{@code
+     * List<Element> deps = root.select("dependencies/dependency");
+     * List<Element> allDeps = root.select("//dependency");
+     * List<Element> testDeps = root.select("//dependency[@scope='test']");
+     * }</pre>
+     *
+     * @param expression the mini-XPath expression
+     * @return a list of matching elements, never null
+     * @throws DomTripException if the expression is invalid
+     * @see XPathExpression
+     * @since 1.3.0
+     */
+    public List<Element> select(String expression) {
+        return XPathExpression.compile(expression).select(this);
+    }
+
+    /**
+     * Evaluates a mini-XPath expression against this element and returns the first match.
+     *
+     * <p>This is a convenience method that compiles and evaluates the expression in one step.
+     * For repeated evaluation of the same expression, use {@link XPathExpression#compile(String)}
+     * to compile once and reuse.</p>
+     *
+     * <h3>Examples:</h3>
+     * <pre>{@code
+     * Optional<Element> dep = root.selectFirst("//dependency[groupId='junit']");
+     * Optional<Element> ver = root.selectFirst("project/version");
+     * }</pre>
+     *
+     * @param expression the mini-XPath expression
+     * @return an Optional containing the first matching element, or empty if none found
+     * @throws DomTripException if the expression is invalid
+     * @see XPathExpression
+     * @since 1.3.0
+     */
+    public Optional<Element> selectFirst(String expression) {
+        return XPathExpression.compile(expression).selectFirst(this);
     }
 
     // Path-based navigation methods

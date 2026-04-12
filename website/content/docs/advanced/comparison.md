@@ -14,8 +14,8 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 |---------|---------|-------|------|----------|-------------|
 | **Lossless Round-Trip** | ✅ Perfect | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Comment Preservation** | ✅ Full | ✅ Yes | ✅ Yes | ✅ Yes | ❌ No |
-| **Between-Element Whitespace** | ✅ Exact | ⚠️ Partial | ✅ Yes* | ⚠️ Limited | ❌ No |
-| **In-Element Whitespace** | ✅ Exact | ❌ Lost | ⚠️ Config** | ⚠️ Limited | ❌ No |
+| **Between-Element Whitespace** | ✅ Exact | ✅ Yes* | ✅ Yes* | ⚠️ Limited | ❌ No |
+| **In-Element Whitespace** | ✅ Exact | ✅ Yes* | ⚠️ Config** | ⚠️ Limited | ❌ No |
 | **Entity Preservation** | ✅ Perfect | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Numeric Char Refs** | ✅ Perfect | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Attribute Quote Style** | ✅ Preserved | ❌ No | ❌ No | ❌ No | ❌ No |
@@ -26,7 +26,7 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 | **Namespace Support** | ✅ Comprehensive | ✅ Good | ✅ Good | ✅ Good | ⚠️ Basic |
 | **XML Spec Compliance** | ⚠️ Round-trip focused | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
 
-**\* JDOM**: Use `Format.getRawFormat()` to preserve original whitespace between elements  
+**\* DOM4J/JDOM**: Use compact/raw format with no trimming to preserve whitespace  
 **\*\* JDOM**: Configure with `TextMode.PRESERVE` to maintain text content whitespace
 
 ## Detailed Comparison
@@ -34,13 +34,15 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 ### DomTrip vs DOM4J
 
 **DomTrip Advantages:**
-- **Perfect formatting preservation** - DOM4J loses in-element whitespace and many formatting details
+- **Perfect formatting preservation** - DOM4J with best-effort settings still loses prolog whitespace, quote styles, entity representation, and empty element styles
 - **Modern API** - Fluent builders, Stream navigation, Optional returns
 - **Entity preservation** - Maintains `&lt;`, `&amp;`, etc. exactly as written
 - **Quote style preservation** - Keeps single vs double quotes in attributes
 - **Numeric character reference preservation** - DOM4J decodes these through SAX
+- **No configuration needed** - Works losslessly out of the box
 
 **DOM4J Advantages:**
+- **Good whitespace handling** - With compact format and no trimming, preserves inner and between-element whitespace, CDATA sections, and namespace declarations
 - **Mature ecosystem** - Longer history, more third-party integrations
 - **XPath support** - Built-in XPath query capabilities
 - **Larger community** - More Stack Overflow answers and tutorials

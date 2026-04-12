@@ -214,3 +214,108 @@ Optional<Element> match = root.query()
     })
     .first();
 ```
+
+## Full XPath 1.0 via Jaxen Module
+
+For applications that need full XPath 1.0 support -- including boolean operators (`and`, `or`), functions (`contains()`, `starts-with()`, `not()`), inequality (`!=`), union (`|`), and full axis navigation -- DomTrip provides an optional **Jaxen** module.
+
+### Setup
+
+Add the `domtrip-jaxen` dependency alongside `domtrip-core`:
+
+```xml
+<dependency>
+  <groupId>eu.maveniverse.maven.domtrip</groupId>
+  <artifactId>domtrip-jaxen</artifactId>
+  <version>1.3.0</version>
+</dependency>
+```
+
+### Quick Queries
+
+Use the `XPath` utility class for one-shot queries:
+
+```java
+import eu.maveniverse.domtrip.jaxen.XPath;
+
+// Boolean operators
+List<Element> testJunit = XPath.select(root,
+    "//dependency[scope='test' and groupId='junit']");
+
+// String functions
+List<Element> springDeps = XPath.select(root,
+    "//dependency[contains(groupId, 'spring')]");
+List<Element> orgDeps = XPath.select(root,
+    "//dependency[starts-with(groupId, 'org.')]");
+
+// Negation
+List<Element> nonOptional = XPath.select(root,
+    "//dependency[not(@optional)]");
+
+// Inequality
+List<Element> nonTest = XPath.select(root,
+    "//dependency[@scope!='test']");
+
+// Union (combine results from multiple paths)
+List<Element> ids = XPath.select(root,
+    "//groupId | //artifactId");
+
+// First match
+Optional<Element> first = XPath.selectFirst(root,
+    "//dependency[scope='test']");
+```
+
+### Compiled Expressions
+
+For repeated evaluation, compile the expression once:
+
+```java
+import eu.maveniverse.domtrip.jaxen.DomTripXPath;
+import eu.maveniverse.domtrip.jaxen.XPath;
+
+DomTripXPath expr = XPath.compile("//dependency[scope='test']");
+List<Element> results1 = expr.selectElements(root1);
+List<Element> results2 = expr.selectElements(root2);
+```
+
+### Full Axis Navigation
+
+Jaxen supports all XPath axes that mini-XPath does not:
+
+```java
+// Following siblings
+XPath.select(element, "following-sibling::dependency");
+
+// Preceding siblings
+XPath.select(element, "preceding-sibling::*");
+
+// Ancestors
+XPath.select(element, "ancestor::project");
+
+// Descendants (explicit axis)
+XPath.select(root, "descendant::groupId");
+```
+
+### Namespace-Aware Queries
+
+Register namespace prefixes for namespace-aware queries:
+
+```java
+DomTripXPath xpath = XPath.compile("//soap:Body/soap:Fault");
+xpath.addNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/");
+List<Element> results = xpath.selectElements(root);
+```
+
+### Mini-XPath vs Jaxen
+
+| Aspect | Mini-XPath (core) | Jaxen Module |
+|---|---|---|
+| **Dependencies** | None (built into core) | Requires `jaxen:jaxen` |
+| **Boolean operators** | Not supported | `and`, `or` |
+| **Functions** | `last()` only | `contains()`, `starts-with()`, `not()`, `string-length()`, etc. |
+| **Inequality** | Not supported | `!=` |
+| **Union** | Not supported | `\|` |
+| **Full axes** | `..` only | `ancestor::`, `following-sibling::`, `preceding::`, etc. |
+| **Use case** | Simple queries, zero-dep environments | Complex queries, full XPath 1.0 |
+
+Use mini-XPath for simple queries where you want zero dependencies. Use the Jaxen module when you need the full power of XPath 1.0.

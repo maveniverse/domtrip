@@ -90,6 +90,14 @@
  * String prefix = element.prefix();
  * }</pre>
  *
+ * <h2>Thread Safety</h2>
+ * <p>All types in this package are <strong>not thread-safe</strong>. The DOM tree uses mutable state
+ * and lazy materialization with no synchronization, consistent with standard DOM APIs
+ * (e.g., {@code org.w3c.dom}). External synchronization is required for concurrent access
+ * to any node in a DOM tree. {@link eu.maveniverse.domtrip.Parser} instances also use mutable
+ * state to track parse position and must not be shared across threads concurrently, but may be
+ * reused sequentially.</p>
+ *
  * @version 1.0
  */
 package eu.maveniverse.domtrip;

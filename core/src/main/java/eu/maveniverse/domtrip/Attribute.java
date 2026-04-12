@@ -21,7 +21,7 @@ package eu.maveniverse.domtrip;
  *   <li><strong>Quote Style Preservation</strong> - Maintains single vs double quotes</li>
  *   <li><strong>Whitespace Preservation</strong> - Preserves spacing before attributes</li>
  *   <li><strong>Entity Preservation</strong> - Maintains original entity encoding</li>
- *   <li><strong>Immutable Design</strong> - Thread-safe with builder pattern support</li>
+ *   <li><strong>Fluent Mutation</strong> - Mutable setters with method chaining, plus immutable-style {@code withX()} methods</li>
  *   <li><strong>Fluent API</strong> - Creation and modification with method chaining</li>
  * </ul>
  *

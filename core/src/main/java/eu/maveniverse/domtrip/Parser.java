@@ -86,6 +86,9 @@ import java.util.regex.Pattern;
  * }
  * }</pre>
  *
+ * @implNote This class is not thread-safe. It uses instance fields to track parse state.
+ * A single instance may be reused for sequential parses but must not be shared across threads.
+ *
  * @see Document
  * @see Element
  * @see DomTripException

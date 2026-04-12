@@ -76,6 +76,8 @@ import java.util.stream.Stream;
  * element.attributeObject("class").value("manual");
  * }</pre>
  *
+ * @implNote This class is not thread-safe. It uses mutable state with no synchronization.
+ *
  * @see ContainerNode
  * @see Attribute
  * @see NamespaceContext

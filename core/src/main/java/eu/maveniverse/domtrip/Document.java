@@ -72,6 +72,8 @@ import java.util.stream.Collectors;
  *   <li>An optional DOCTYPE declaration</li>
  * </ul>
  *
+ * @implNote This class is not thread-safe. External synchronization is required for concurrent access.
+ *
  * @see Element
  * @see ContainerNode
  * @see Parser

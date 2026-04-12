@@ -19,7 +19,7 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 | **Entity Preservation** | ✅ Perfect | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Numeric Char Refs** | ✅ Perfect | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Attribute Quote Style** | ✅ Preserved | ❌ No | ❌ No | ❌ No | ❌ No |
-| **Attribute Order** | ✅ Preserved | ❌ Lost | ❌ Lost | ❌ Lost | ❌ No |
+| **Attribute Order** | ✅ Preserved | ✅ Yes | ✅ Yes | ❌ Lost | ❌ No |
 | **Modern Java API** | ✅ Java 8+ | ❌ Legacy | ❌ Legacy | ❌ Legacy | ✅ Modern |
 | **Fluent Builders** | ✅ Full | ❌ No | ❌ No | ❌ No | ⚠️ Limited |
 | **Stream Navigation** | ✅ Native | ❌ No | ❌ No | ❌ No | ❌ No |
@@ -38,29 +38,29 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 - **Modern API** - Fluent builders, Stream navigation, Optional returns
 - **Entity preservation** - Maintains `&lt;`, `&amp;`, etc. exactly as written
 - **Quote style preservation** - Keeps single vs double quotes in attributes
-- **Attribute order preservation** - Maintains original attribute ordering
+- **Numeric character reference preservation** - DOM4J decodes these through SAX
 
 **DOM4J Advantages:**
 - **Mature ecosystem** - Longer history, more third-party integrations
 - **XPath support** - Built-in XPath query capabilities
 - **Larger community** - More Stack Overflow answers and tutorials
-- **Comment preservation** - Can preserve XML comments during processing
 
 ### DomTrip vs JDOM
 
 **DomTrip Advantages:**
-- **Perfect lossless round-trip** - JDOM with `Format.getPrettyFormat()` reformats everything
+- **Perfect lossless round-trip** - Even JDOM's best settings (`getRawFormat()` + `TextMode.PRESERVE` + `omitDeclaration`) still lose formatting details like quote styles, inter-attribute whitespace, entity representation, and numeric character references
 - **No configuration needed** - Works losslessly out of the box
-- **Entity and quote preservation** - JDOM normalizes these during serialization
+- **Quote style preservation** - JDOM always normalizes to double quotes
+- **Entity and numeric char ref preservation** - JDOM decodes these through SAX and re-encodes differently
 - **Better API design** - Type-safe, fluent, modern Java patterns
-- **Comprehensive namespace handling** - Built-in namespace context and resolution
 
 **JDOM Advantages:**
-- **Configurable whitespace handling** - `Format.getRawFormat()` can preserve between-element whitespace
+- **Configurable whitespace handling** - `Format.getRawFormat()` with `TextMode.PRESERVE` can preserve between-element whitespace and mixed content
 - **Simplicity** - Easier learning curve for basic XML processing
 - **Lightweight** - Smaller memory footprint for simple use cases
 - **Wide adoption** - Used in many existing projects
-- **Comment preservation** - Full support for XML comments
+
+Note: JDOM 2.0.6.1 is the latest and final release (Dec 2021). The project is no longer actively developed.
 
 ### DomTrip vs Java DOM
 
@@ -129,7 +129,7 @@ Migrating from other libraries to DomTrip is straightforward. Check out our [Mig
 
 DomTrip provides **perfect round-tripping** for all common XML features with **zero data loss**. However, it deliberately does NOT implement certain XML spec requirements (like line ending normalization per [XML spec §2.11](https://www.w3.org/TR/2008/REC-xml-20081126/#sec-line-ends)) because doing so would break round-tripping.
 
-Based on comprehensive testing with 555+ passing tests, here's what you need to know:
+Based on comprehensive testing with 1250+ passing tests, here's what you need to know:
 
 ### Perfect Round-Tripping ✅
 

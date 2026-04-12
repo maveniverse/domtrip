@@ -254,12 +254,8 @@ public class JdomRawRoundTripTest {
         // But reformats it
         assertNotEquals(xml, jdomResult, "JDOM reformats DOCTYPE");
 
-        // DomTrip preserves DOCTYPE content and formatting, but collapses whitespace
-        // between XML declaration and DOCTYPE (see #190)
-        String domTripResult = domTripRoundTrip(xml);
-        assertTrue(domTripResult.contains("<!DOCTYPE root PUBLIC"), "DomTrip preserves DOCTYPE");
-        assertTrue(domTripResult.contains("xhtml1-strict.dtd"), "DomTrip preserves system ID");
-        assertNotEquals(xml, domTripResult, "DomTrip collapses declaration-to-DOCTYPE whitespace (#190)");
+        // DomTrip preserves exact DOCTYPE formatting
+        assertEquals(xml, domTripRoundTrip(xml), "DomTrip preserves exact DOCTYPE formatting");
     }
 
     @Test

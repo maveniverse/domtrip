@@ -22,7 +22,10 @@ import org.junit.jupiter.api.Test;
  * <p>JDOM 2.0.6.1 is the latest and final release (Dec 2021). The project is
  * effectively in maintenance mode with no commits since Oct 2021.</p>
  */
-public class JdomRawRoundTripTest {
+@SuppressWarnings({"java:S5976", "java:S125"
+}) // S5976: Tests are intentionally separate - each demonstrates a different XML feature; S125: XML entity content is
+// not commented-out code
+class JdomRawRoundTripTest {
 
     /**
      * Round-trips XML through JDOM using best-effort settings:

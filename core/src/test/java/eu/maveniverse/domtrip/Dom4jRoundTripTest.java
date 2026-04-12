@@ -20,7 +20,8 @@ import org.junit.jupiter.api.Test;
  * with {@code setSuppressDeclaration(true)} to isolate the real limitation being
  * demonstrated, rather than penalizing DOM4J for adding an XML declaration.</p>
  */
-public class Dom4jRoundTripTest {
+@SuppressWarnings("java:S5976") // Tests are intentionally separate - each demonstrates a different XML feature
+class Dom4jRoundTripTest {
 
     /**
      * Round-trips XML through DOM4J using best-effort settings:

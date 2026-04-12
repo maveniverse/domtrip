@@ -308,26 +308,36 @@ public class Serializer {
         }
 
         StringBuilder sb = new StringBuilder();
+        serializeProlog(document, sb);
+        serializeChildren(document, sb);
+        return sb.toString();
+    }
 
+    private void serializeProlog(Document document, StringBuilder sb) {
         // Add XML declaration only if it was present in original and not omitted by config
-        if (!document.xmlDeclaration().isEmpty() && !omitXmlDeclaration) {
+        boolean hasXmlDeclaration = !document.xmlDeclaration().isEmpty();
+        if (hasXmlDeclaration && !omitXmlDeclaration) {
             sb.append(document.xmlDeclaration());
         }
 
         // Add DOCTYPE if present (with its preceding whitespace)
         if (!document.doctype().isEmpty()) {
-            boolean emittedXmlDeclaration = !document.xmlDeclaration().isEmpty() && !omitXmlDeclaration;
-            if (prettyPrint) {
-                if (!lineEnding.isEmpty()) {
-                    sb.append(lineEnding);
-                }
-            } else if (emittedXmlDeclaration || document.xmlDeclaration().isEmpty()) {
-                sb.append(document.doctypePrecedingWhitespace());
-            }
+            appendDoctypeWhitespace(document, sb, hasXmlDeclaration && !omitXmlDeclaration);
             sb.append(document.doctype());
         }
+    }
 
-        // Add document element and other children
+    private void appendDoctypeWhitespace(Document document, StringBuilder sb, boolean emittedXmlDeclaration) {
+        if (prettyPrint) {
+            if (!lineEnding.isEmpty()) {
+                sb.append(lineEnding);
+            }
+        } else if (emittedXmlDeclaration || document.xmlDeclaration().isEmpty()) {
+            sb.append(document.doctypePrecedingWhitespace());
+        }
+    }
+
+    private void serializeChildren(Document document, StringBuilder sb) {
         if (prettyPrint) {
             if (!lineEnding.isEmpty()) {
                 sb.append(lineEnding);
@@ -336,8 +346,6 @@ public class Serializer {
         } else {
             serializeNode(document, sb);
         }
-
-        return sb.toString();
     }
 
     /**

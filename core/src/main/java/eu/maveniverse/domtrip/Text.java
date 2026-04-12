@@ -312,6 +312,16 @@ public class Text extends Node {
         return !content.isEmpty() && Character.isWhitespace(content.charAt(content.length() - 1));
     }
 
+    /**
+     * Appends this text node's XML representation to the provided StringBuilder.
+     *
+     * The method writes the node's preceding whitespace, then either:
+     * - serializes the content as a CDATA section when this node is marked as CDATA, or
+     * - appends the raw, unescaped content if available and the node has not been modified,
+     *   otherwise appends the escaped text content.
+     *
+     * @param sb the StringBuilder to append XML output to
+     */
     @Override
     public void toXml(StringBuilder sb) {
         sb.append(precedingWhitespace);
@@ -329,24 +339,73 @@ public class Text extends Node {
     }
 
     /**
-     * Escapes special characters in text content
+     * Escape XML special characters in the given text for safe inclusion in element content.
+     *
+     * @param text the input text to escape; may be {@code null} (treated as an empty string)
+     * @return the input with `&`, `<`, and `>` replaced by `&amp;`, `&lt;`, and `&gt;` respectively; empty string when input is {@code null}
      */
-    private String escapeTextContent(String text) {
+    static String escapeTextContent(String text) {
         if (text == null) return "";
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+
+        // Fast path: scan for any character that needs escaping
+        int len = text.length();
+        int firstSpecial = -1;
+        for (int i = 0; i < len; i++) {
+            char c = text.charAt(i);
+            if (c == '&' || c == '<' || c == '>') {
+                firstSpecial = i;
+                break;
+            }
+        }
+        if (firstSpecial < 0) {
+            return text; // No escaping needed — common case
+        }
+
+        // Single-pass escape from the first special character
+        StringBuilder sb = new StringBuilder(len + 16);
+        if (firstSpecial > 0) {
+            sb.append(text, 0, firstSpecial);
+        }
+        for (int i = firstSpecial; i < len; i++) {
+            char c = text.charAt(i);
+            if (c == '&') {
+                sb.append("&amp;");
+            } else if (c == '<') {
+                sb.append("&lt;");
+            } else if (c == '>') {
+                sb.append("&gt;");
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
     /**
-     * Unescapes XML entities in text content, including numeric character references
+     * Unescapes XML entities in text content, including numeric character references.
+     *
+     * @param text the text possibly containing XML entities or numeric references
+     * @return the text with entities and numeric references decoded; empty string when {@code text} is {@code null}
      */
-    @SuppressWarnings("java:S135") // Multiple continue statements are natural for this single-pass scanner
+    @SuppressWarnings({"java:S135", "java:S3776"}) // Single-pass entity scanner has inherent branching complexity
     public static String unescapeTextContent(String text) {
         if (text == null) return "";
 
+        // Fast path: if no '&' exists, no unescaping is needed.
+        // This is the common case for most element text content.
+        int ampIdx = text.indexOf('&');
+        if (ampIdx < 0) {
+            return text;
+        }
+
         // Single-pass scanner: resolve numeric references and named entities in one pass
         // to avoid re-decoding (e.g., &#38;lt; must yield "&lt;", not "<")
-        StringBuilder result = new StringBuilder();
-        int i = 0;
+        StringBuilder result = new StringBuilder(text.length());
+        // Bulk-copy everything before the first '&'
+        if (ampIdx > 0) {
+            result.append(text, 0, ampIdx);
+        }
+        int i = ampIdx;
         while (i < text.length()) {
             if (text.charAt(i) == '&') {
                 // Try numeric reference first

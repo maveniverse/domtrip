@@ -28,10 +28,46 @@
       <version>${version.junit}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-core</artifactId>
+      <version>1.37</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-generator-annprocess</artifactId>
+      <version>1.37</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <!-- Enable annotation processing for test compilation (parent sets proc=none) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <configuration>
+              <proc>full</proc>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Exclude JMH benchmarks and generated classes from normal test runs -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*Benchmark*</exclude>
+            <exclude>**/jmh_generated/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
       <!-- Javadoc generation -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

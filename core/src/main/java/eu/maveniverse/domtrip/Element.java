@@ -94,18 +94,26 @@ public class Element extends ContainerNode {
     private String closeTagWhitespace; // Whitespace within the closing tag
     private String innerPrecedingWhitespace; // Whitespace immediately before the closing tag
     private boolean selfClosing;
-    private String originalOpenTag; // Original opening tag for reference
-    private String originalCloseTag; // Original closing tag for reference
+
+    // Source-backed original tag storage — avoids substring allocation during parsing.
+    // When tagSource is non-null and indices are >= 0, the original tag text is a slice
+    // of the source XML. The materialized String fields are lazily populated on first access.
+    private String tagSource; // Reference to source XML string (shared for open + close tags)
+    private int openTagStart = -1; // Start index into tagSource (-1 = not source-backed)
+    private int openTagEnd = -1;
+    private int closeTagStart = -1;
+    private int closeTagEnd = -1;
+    private String originalOpenTag; // Materialized string (from public API or lazily from source)
+    private String originalCloseTag;
 
     /**
-     * Creates a new XML element with the specified name.
+     * Create a new Element with the given tag name.
      *
-     * <p>Initializes the element with an empty attribute map, no whitespace,
-     * and sets it as a non-self-closing element. The attribute order is
-     * preserved using a LinkedHashMap.</p>
+     * <p>The element is initialized with an empty, order-preserving attribute map,
+     * default (empty) whitespace/formatting fields, and is not self-closing.</p>
      *
-     * @param name the element name (tag name)
-     * @throws DomTripException if name is null or empty
+     * @param name the element's tag name; leading/trailing whitespace is trimmed
+     * @throws DomTripException if {@code name} is null or blank
      */
     public Element(String name) throws DomTripException {
         super();
@@ -118,12 +126,15 @@ public class Element extends ContainerNode {
         this.closeTagWhitespace = "";
         this.innerPrecedingWhitespace = "";
         this.selfClosing = false;
-        this.originalOpenTag = "";
-        this.originalCloseTag = "";
     }
 
     /**
-     * Private copy constructor for cloning.
+     * Creates a deep copy of the given element.
+     *
+     * The new element contains deep-copied attribute objects and deep-copied child nodes,
+     * preserves whitespace, self-closing flag, and original-tag source/index metadata
+     * (or materialized original tag strings) from the source element.
+     * The clone does not copy the parent reference or the modified state.
      *
      * @param original the element to copy from
      */
@@ -141,8 +152,14 @@ public class Element extends ContainerNode {
         this.closeTagWhitespace = original.closeTagWhitespace;
         this.innerPrecedingWhitespace = original.innerPrecedingWhitespace;
         this.selfClosing = original.selfClosing;
-        this.originalOpenTag = original.originalOpenTag;
-        this.originalCloseTag = original.originalCloseTag;
+        // Materialize original tags to avoid pinning the entire source buffer
+        this.originalOpenTag = original.originalOpenTag();
+        this.originalCloseTag = original.originalCloseTag();
+        this.tagSource = null;
+        this.openTagStart = -1;
+        this.openTagEnd = -1;
+        this.closeTagStart = -1;
+        this.closeTagEnd = -1;
 
         // Copy inherited Node properties
         this.precedingWhitespace = original.precedingWhitespace;
@@ -563,48 +580,110 @@ public class Element extends ContainerNode {
     // Original tag preservation
 
     /**
-     * Gets the original opening tag as it appeared in the source XML.
+     * Provide the original open tag exactly as it appeared in the source, or an empty string if none is available.
      *
-     * @return the original opening tag string
+     * If the element was parsed from a source buffer and the original open-tag slice is available,
+     * the tag is materialized from that source on first access.
+     *
+     * @return the original opening tag string, or empty string if not available
      */
     public String originalOpenTag() {
+        if (originalOpenTag == null) {
+            if (openTagStart >= 0) {
+                originalOpenTag = tagSource.substring(openTagStart, openTagEnd);
+            } else {
+                return "";
+            }
+        }
         return originalOpenTag;
     }
 
     /**
-     * Sets the original opening tag for formatting preservation.
+     * Set the materialized original open tag and disable source-backed tag slicing.
      *
-     * @param originalOpenTag the original opening tag string
+     * @param originalOpenTag the original opening tag; null is treated as an empty string
      * @return this element for method chaining
      */
     public Element originalOpenTag(String originalOpenTag) {
         this.originalOpenTag = originalOpenTag != null ? originalOpenTag : "";
+        this.openTagStart = -1; // No longer source-backed
         return this;
+    }
+
+    /**
+     * Record a source-backed slice for the element's original open tag for lazy materialization; intended for parser-only use.
+     *
+     * @param source the full source string containing the tag
+     * @param start  the inclusive start index of the open-tag slice within {@code source}
+     * @param end    the exclusive end index of the open-tag slice within {@code source}
+     */
+    void originalOpenTagInternal(String source, int start, int end) {
+        this.tagSource = source;
+        this.openTagStart = start;
+        this.openTagEnd = end;
+        this.originalOpenTag = null; // Lazily materialized
     }
 
     /**
      * Gets the original closing tag as it appeared in the source XML.
      *
-     * @return the original closing tag string
+     * @return the original closing tag string, or empty string if not available
      */
     public String originalCloseTag() {
+        if (originalCloseTag == null) {
+            if (closeTagStart >= 0) {
+                originalCloseTag = tagSource.substring(closeTagStart, closeTagEnd);
+            } else {
+                return "";
+            }
+        }
         return originalCloseTag;
     }
 
     /**
-     * Sets the original closing tag for formatting preservation.
+     * Set the materialized original closing tag and disable source-backed close-tag slicing.
      *
-     * @param originalCloseTag the original closing tag string
+     * If `originalCloseTag` is null, an empty string is stored. Calling this method clears any
+     * source-backed close-tag indices so future preserved serialization will use the provided string.
+     *
+     * @param originalCloseTag the original closing tag string (null is stored as an empty string)
      * @return this element for method chaining
      */
     public Element originalCloseTag(String originalCloseTag) {
         this.originalCloseTag = originalCloseTag != null ? originalCloseTag : "";
+        this.closeTagStart = -1; // No longer source-backed
         return this;
     }
 
+    /**
+     * Register a source-backed slice that represents the element's original closing tag (for parsing use only).
+     *
+     * The actual tag string is not allocated now; it will be lazily materialized from {@code source} using the
+     * provided indices when needed.
+     *
+     * @param source the shared source string containing the closing tag
+     * @param start  the inclusive start index of the closing-tag slice in {@code source}
+     * @param end    the exclusive end index of the closing-tag slice in {@code source}
+     */
+    void originalCloseTagInternal(String source, int start, int end) {
+        this.tagSource = source; // Same source reference as open tag
+        this.closeTagStart = start;
+        this.closeTagEnd = end;
+        this.originalCloseTag = null; // Lazily materialized
+    }
+
+    /**
+     * Serialize this element into XML and append the result to the supplied StringBuilder.
+     *
+     * If the element has not been modified and an original open tag is available, the original
+     * tag formatting is preserved; otherwise the element is serialized from scratch using the
+     * element's current state.
+     *
+     * @param sb the StringBuilder to append the XML representation to
+     */
     @Override
     public void toXml(StringBuilder sb) {
-        if (!isModified() && !originalOpenTag.isEmpty()) {
+        if (!isModified() && hasOriginalOpenTag()) {
             toXmlPreserved(sb);
         } else {
             toXmlFromScratch(sb);
@@ -612,17 +691,66 @@ public class Element extends ContainerNode {
     }
 
     /**
-     * Serializes using preserved original formatting.
+     * Determine whether an original open tag is available.
+     *
+     * @return `true` if a source-backed or materialized original open tag is available, `false` otherwise.
+     */
+    private boolean hasOriginalOpenTag() {
+        return openTagStart >= 0 || (originalOpenTag != null && !originalOpenTag.isEmpty());
+    }
+
+    /**
+     * Determine whether a preserved original close tag exists for this element.
+     *
+     * @return `true` if a source-backed close-tag slice is present or a materialized close-tag string is non-empty, `false` otherwise.
+     */
+    private boolean hasOriginalCloseTag() {
+        return closeTagStart >= 0 || (originalCloseTag != null && !originalCloseTag.isEmpty());
+    }
+
+    /**
+     * Appends the element's preserved original open tag to the provided StringBuilder, using the source-backed slice when available.
+     *
+     * @param sb the StringBuilder to append to
+     */
+    private void appendOriginalOpenTag(StringBuilder sb) {
+        if (originalOpenTag == null && openTagStart >= 0) {
+            sb.append(tagSource, openTagStart, openTagEnd);
+        } else {
+            sb.append(originalOpenTag());
+        }
+    }
+
+    /**
+     * Appends the element's preserved original close tag to the provided StringBuilder.
+     *
+     * If a source-backed slice of the original close tag is available, that slice is appended;
+     * otherwise the materialized original close tag string is appended.
+     *
+     * @param sb the StringBuilder to append the close tag to
+     */
+    private void appendOriginalCloseTag(StringBuilder sb) {
+        if (originalCloseTag == null && closeTagStart >= 0) {
+            sb.append(tagSource, closeTagStart, closeTagEnd);
+        } else {
+            sb.append(originalCloseTag());
+        }
+    }
+
+    /**
+     * Serialize this element into the given StringBuilder using preserved original tags and formatting.
+     *
+     * @param sb the StringBuilder to append the serialized element to
      */
     private void toXmlPreserved(StringBuilder sb) {
         sb.append(precedingWhitespace);
 
         if (selfClosing) {
-            sb.append(originalOpenTag);
+            appendOriginalOpenTag(sb);
             return;
         }
 
-        sb.append(originalOpenTag);
+        appendOriginalOpenTag(sb);
 
         appendChildrenAndCloseTag(sb);
     }
@@ -650,14 +778,17 @@ public class Element extends ContainerNode {
     }
 
     /**
-     * Appends children and closing tag for preserved formatting mode.
+     * Append this element's children, then its inner preceding whitespace, and finally the closing tag to the provided StringBuilder,
+     * using the preserved original close-tag text when available.
+     *
+     * @param sb the StringBuilder to append XML content to
      */
     private void appendChildrenAndCloseTag(StringBuilder sb) {
         appendChildren(sb);
         sb.append(innerPrecedingWhitespace);
 
-        if (!originalCloseTag.isEmpty()) {
-            sb.append(originalCloseTag);
+        if (hasOriginalCloseTag()) {
+            appendOriginalCloseTag(sb);
         } else {
             sb.append("</").append(name).append(">");
         }

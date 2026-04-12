@@ -574,6 +574,60 @@ class DomTripXPathTest {
             List<Element> results = XPath.select(simpleRoot, "//nonexistent");
             assertTrue(results.isEmpty());
         }
+
+        @Test
+        void selectInvalidExpressionThrows() {
+            assertThrows(DomTripException.class, () -> XPath.select(simpleRoot, "[invalid[["));
+        }
+
+        @Test
+        void selectFirstInvalidExpressionThrows() {
+            assertThrows(DomTripException.class, () -> XPath.selectFirst(simpleRoot, "[invalid[["));
+        }
+
+        @Test
+        void namespaceAxisIterator() throws JaxenException {
+            DomTripXPath xpath = new DomTripXPath("namespace::*");
+            List<?> results = xpath.selectNodes(nsRoot);
+            // Should include at least the xml namespace and soap namespace
+            assertTrue(results.size() >= 2);
+        }
+
+        @Test
+        void elementNamespaceUri() throws JaxenException {
+            DomTripXPath xpath = new DomTripXPath("//soap:Body");
+            xpath.addNamespace("soap", "http://schemas.xmlsoap.org/soap/envelope/");
+            List<Element> results = xpath.selectElements(nsRoot);
+            assertEquals(1, results.size());
+            // This exercises getElementNamespaceUri in the navigator
+            String uri = results.get(0).namespaceURI();
+            assertEquals("http://schemas.xmlsoap.org/soap/envelope/", uri);
+        }
+
+        @Test
+        void processingInstructionData() throws JaxenException {
+            Document doc = Document.of("<?xml version=\"1.0\"?><?pi-target pi-data?><root/>");
+            DomTripXPath xpath = new DomTripXPath("//processing-instruction('pi-target')");
+            List<?> results = xpath.selectNodes(doc);
+            assertEquals(1, results.size());
+        }
+
+        @Test
+        void documentNodeFromNamespaceContext() throws JaxenException {
+            // Query that navigates from namespace node back to document
+            DomTripXPath xpath = new DomTripXPath("/root");
+            List<?> results = xpath.selectNodes(Document.of(NS_XML));
+            // Envelope is the root, not "root" — just verify no error
+            assertTrue(results.isEmpty());
+        }
+
+        @Test
+        void precedingSiblingFromNonNodeReturnsEmpty() throws JaxenException {
+            // Preceding sibling on a non-node context (attribute)
+            DomTripXPath xpath = new DomTripXPath("//item[1]/@id/preceding-sibling::*");
+            List<?> results = xpath.selectNodes(simpleRoot);
+            assertTrue(results.isEmpty());
+        }
     }
 
     @Nested

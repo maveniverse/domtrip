@@ -10,5 +10,7 @@
  * DomTrip core module for lossless XML editing.
  */
 module eu.maveniverse.domtrip {
+    requires java.xml;
+
     exports eu.maveniverse.domtrip;
 }

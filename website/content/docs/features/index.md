@@ -58,6 +58,14 @@ Efficient processing of large XML documents with streaming capabilities.
 - **Streaming API** support
 - **Performance optimization**
 
+### [XML-Aware Structural Diff](xml-diff/)
+Compare two XML documents and detect both semantic and formatting-only changes.
+
+- **Semantic vs. formatting** change classification
+- **Configurable element matching** by identity keys
+- **Move detection** for reordered elements
+- **Path-based filtering** of changes
+
 ## Why These Features Matter
 
 ### ✅ **Perfect Round-Trip Editing**

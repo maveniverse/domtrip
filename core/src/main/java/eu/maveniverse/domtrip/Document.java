@@ -510,6 +510,36 @@ public class Document extends ContainerNode {
     }
 
     /**
+     * Accepts a visitor for depth-first tree traversal of the entire document.
+     *
+     * <p>Visits all children of the document (comments, processing instructions,
+     * and the root element) in document order.</p>
+     *
+     * @param visitor the visitor to accept
+     * @return the action indicating how traversal should proceed
+     * @throws IllegalArgumentException if visitor is null
+     * @see DomTripVisitor
+     * @since 1.3.0
+     */
+    @Override
+    public DomTripVisitor.Action accept(DomTripVisitor visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("Visitor cannot be null");
+        }
+        // Use snapshot to tolerate structural mutations during traversal
+        for (Node child : new java.util.ArrayList<>(children)) {
+            if (child.accept(visitor) == DomTripVisitor.Action.STOP) {
+                return DomTripVisitor.Action.STOP;
+            }
+        }
+        // Visit root element if set and not already in children
+        if (root != null && !children.contains(root)) {
+            return root.accept(visitor);
+        }
+        return DomTripVisitor.Action.CONTINUE;
+    }
+
+    /**
      * Serializes this document to an OutputStream using the document's encoding.
      *
      * <p>This method uses the document's encoding property to determine the character

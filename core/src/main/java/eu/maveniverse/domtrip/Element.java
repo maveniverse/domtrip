@@ -1332,6 +1332,69 @@ public class Element extends ContainerNode {
         return XPathExpression.compile(expression).selectFirst(this);
     }
 
+    /**
+     * Accepts a visitor for depth-first tree traversal.
+     *
+     * <p>Calls {@link DomTripVisitor#enterElement(Element)} before visiting children
+     * and {@link DomTripVisitor#exitElement(Element)} after. If {@code enterElement}
+     * returns {@link DomTripVisitor.Action#SKIP}, children are not visited but
+     * {@code exitElement} is still called. If any visit method returns
+     * {@link DomTripVisitor.Action#STOP}, traversal aborts immediately.</p>
+     *
+     * @param visitor the visitor to accept
+     * @return the action indicating how traversal should proceed
+     * @throws IllegalArgumentException if visitor is null
+     * @see DomTripVisitor
+     * @since 1.3.0
+     */
+    @Override
+    public DomTripVisitor.Action accept(DomTripVisitor visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("Visitor cannot be null");
+        }
+        DomTripVisitor.Action action = visitor.enterElement(this);
+        if (action == DomTripVisitor.Action.STOP) {
+            return DomTripVisitor.Action.STOP;
+        }
+        if (action != DomTripVisitor.Action.SKIP) {
+            // Use snapshot to tolerate structural mutations during traversal
+            for (Node child : new java.util.ArrayList<>(children)) {
+                if (child.accept(visitor) == DomTripVisitor.Action.STOP) {
+                    return DomTripVisitor.Action.STOP;
+                }
+            }
+        }
+        visitor.exitElement(this);
+        return DomTripVisitor.Action.CONTINUE;
+    }
+
+    /**
+     * Creates a lambda-friendly tree walker starting from this element.
+     *
+     * <p>This provides a fluent API alternative to implementing
+     * {@link DomTripVisitor} directly:</p>
+     * <pre>{@code
+     * element.walk()
+     *     .onEnter(e -> {
+     *         if ("secret".equals(e.localName())) {
+     *             e.textContent("***");
+     *             return Action.SKIP;
+     *         }
+     *         return Action.CONTINUE;
+     *     })
+     *     .onExit(e -> { /* cleanup *&#47; })
+     *     .onText(t -> { /* process text *&#47; })
+     *     .execute();
+     * }</pre>
+     *
+     * @return a new TreeWalker for fluent traversal configuration
+     * @see TreeWalker
+     * @since 1.3.0
+     */
+    public TreeWalker walk() {
+        return new TreeWalker(this);
+    }
+
     // Path-based navigation methods
 
     /**

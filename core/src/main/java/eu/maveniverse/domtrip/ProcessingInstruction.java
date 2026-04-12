@@ -162,6 +162,18 @@ public class ProcessingInstruction extends Node {
         return NodeType.PROCESSING_INSTRUCTION;
     }
 
+    /**
+     * {@inheritDoc}
+     * @since 1.3.0
+     */
+    @Override
+    public DomTripVisitor.Action accept(DomTripVisitor visitor) {
+        if (visitor == null) {
+            throw new IllegalArgumentException("Visitor cannot be null");
+        }
+        return visitor.visitProcessingInstruction(this);
+    }
+
     @Override
     public void toXml(StringBuilder sb) {
         // Add preceding whitespace

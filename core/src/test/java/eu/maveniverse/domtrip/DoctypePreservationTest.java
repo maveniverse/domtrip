@@ -182,7 +182,9 @@ class DoctypePreservationTest {
         Element name = root.childElement("name").orElseThrow();
         name.textContent("modified");
 
-        String result = doc.toXml();
+        // Use Editor.toXml() to exercise the Serializer fallback path
+        Editor editor = new Editor(doc);
+        String result = editor.toXml();
         assertTrue(result.startsWith("<?xml version=\"1.0\"?>\n<!DOCTYPE project>\n"));
         assertTrue(result.contains("<name>modified</name>"));
     }

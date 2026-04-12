@@ -316,9 +316,12 @@ public class Serializer {
 
         // Add DOCTYPE if present (with its preceding whitespace)
         if (!document.doctype().isEmpty()) {
-            if (prettyPrint && !lineEnding.isEmpty()) {
-                sb.append(lineEnding);
-            } else {
+            boolean emittedXmlDeclaration = !document.xmlDeclaration().isEmpty() && !omitXmlDeclaration;
+            if (prettyPrint) {
+                if (!lineEnding.isEmpty()) {
+                    sb.append(lineEnding);
+                }
+            } else if (emittedXmlDeclaration || document.xmlDeclaration().isEmpty()) {
                 sb.append(document.doctypePrecedingWhitespace());
             }
             sb.append(document.doctype());
@@ -527,6 +530,9 @@ public class Serializer {
     public String serialize(Node node) {
         if (node == null) {
             return "";
+        }
+        if (node.type() == Node.NodeType.DOCUMENT) {
+            return serialize((Document) node);
         }
 
         if (!prettyPrint && !node.isModified()) {

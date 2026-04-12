@@ -106,7 +106,7 @@ public class Attribute {
     }
 
     public String value() {
-        return value;
+        return normalizeAttributeWhitespace(value);
     }
 
     public Attribute value(String value) {
@@ -318,6 +318,36 @@ public class Attribute {
     @SuppressWarnings({"java:S2975", "java:S1133", "java:S1182"})
     public Attribute clone() {
         return copy();
+    }
+
+    /**
+     * Normalizes attribute whitespace per XML 1.0 §3.3.3.
+     *
+     * <p>The XML specification requires non-validating parsers to normalize attribute
+     * values by replacing tab ({@code #x9}), newline ({@code #xA}), and carriage return
+     * ({@code #xD}) characters with space ({@code #x20}). Multiple spaces are NOT collapsed
+     * (that only applies to tokenized attribute types with a validating processor).</p>
+     *
+     * @param value the attribute value to normalize; may be {@code null}
+     * @return the value with whitespace characters normalized, or {@code null} if input was {@code null}
+     */
+    static String normalizeAttributeWhitespace(String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
+        // Fast path: check if any whitespace chars need normalization
+        boolean needsNormalization = false;
+        for (int i = 0, len = value.length(); i < len; i++) {
+            char c = value.charAt(i);
+            if (c == '\t' || c == '\n' || c == '\r') {
+                needsNormalization = true;
+                break;
+            }
+        }
+        if (!needsNormalization) {
+            return value;
+        }
+        return value.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ');
     }
 
     /**

@@ -25,7 +25,7 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 | **Stream Navigation** | ✅ Native | ❌ No | ❌ No | ❌ No | ❌ No |
 | **XPath Queries** | ✅ Full XPath 1.0† | ✅ Full XPath | ✅ XPath via JAXP | ✅ Full XPath | ❌ No |
 | **Namespace Support** | ✅ Comprehensive | ✅ Good | ✅ Good | ✅ Good | ⚠️ Basic |
-| **XML Spec Compliance** | ⚠️ Round-trip focused | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
+| **XML Spec Compliance** | ✅ Full | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
 
 **\* DOM4J/JDOM**: Use compact/raw format with no trimming to preserve whitespace  
 **\*\* JDOM**: Configure with `TextMode.PRESERVE` to maintain text content whitespace  
@@ -127,13 +127,15 @@ Note: JDOM 2.0.6.1 is the latest and final release (Dec 2021). The project is no
 
 Migrating from other libraries to DomTrip is straightforward. Check out our [Migration Guide](migration/) for specific examples and patterns for each library.
 
-## XML Conformance vs. Round-Tripping
+## XML Conformance and Round-Tripping
 
-**Important**: DomTrip is a **round-tripping library**, not a strict XML parser. It prioritizes perfect formatting preservation over XML specification compliance.
+DomTrip achieves **both** full XML 1.0 spec compliance **and** perfect round-tripping. API-reported values (e.g., `textContent()`, `attribute()`) conform to the XML specification, while serialization preserves the original formatting for lossless round-tripping.
 
-DomTrip provides **perfect round-tripping** for all common XML features with **zero data loss**. However, it deliberately does NOT implement certain XML spec requirements (like line ending normalization per [XML spec §2.11](https://www.w3.org/TR/2008/REC-xml-20081126/#sec-line-ends)) because doing so would break round-tripping.
+Specifically, DomTrip implements:
+- **Line ending normalization (§2.11)** — `textContent()` normalizes `\r\n` and `\r` to `\n`, while serialization preserves original line endings
+- **Attribute value normalization (§3.3.3)** — `attribute()` normalizes tab, CR, and LF to space, while serialization preserves original character references
 
-Based on comprehensive testing with 1250+ passing tests, here's what you need to know:
+Based on comprehensive testing with 1300+ passing tests, here's what you need to know:
 
 ### Perfect Round-Tripping ✅
 
@@ -183,13 +185,8 @@ DomTrip achieves **zero data loss** and perfect round-tripping for:
 - ✅ You need numeric character references preserved exactly
 
 **Consider other libraries when:**
-- ⚠️ You need strict XML 1.0/1.1 specification compliance (e.g., line ending normalization)
 - ⚠️ You need DTD validation or entity expansion
 - ⚠️ You need a validating parser
-
-**For strict XML spec compliance**, use:
-- **Java DOM** - Full W3C DOM specification compliance
-- **DOM4J** or **JDOM** - Mature libraries with comprehensive XML support
 
 ## Next Steps
 

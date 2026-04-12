@@ -628,6 +628,8 @@ public class DomTripStreamReader implements XMLStreamReader {
             attrPrefix = name.substring(0, colonIdx);
             attrLocalName = name.substring(colonIdx + 1);
             String resolved = NamespaceResolver.resolveNamespaceURI(element, attrPrefix);
+            // Unresolved prefix is kept as-is with empty URI rather than throwing, since
+            // domtrip preserves the original document structure even if not namespace-well-formed.
             if (resolved != null) {
                 attrUri = resolved;
             }
@@ -658,6 +660,7 @@ public class DomTripStreamReader implements XMLStreamReader {
         return prefix != null ? prefix : "";
     }
 
+    // Per XMLStreamReader.getAttributeValue spec: null namespaceURI means "do not check namespace"
     private static boolean matchesAttribute(String[] attr, String namespaceURI, String localName) {
         boolean uriMatch = namespaceURI == null || namespaceURI.equals(attr[0]);
         return uriMatch && localName.equals(attr[1]);

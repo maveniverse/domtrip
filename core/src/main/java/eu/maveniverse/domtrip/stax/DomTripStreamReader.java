@@ -165,14 +165,25 @@ public class DomTripStreamReader implements XMLStreamReader {
             currentElement = (Element) child;
             cacheElementInfo(currentElement);
             eventType = XMLStreamConstants.START_ELEMENT;
-        } else if (child instanceof Text) {
-            eventType = ((Text) child).cdata() ? XMLStreamConstants.CDATA : XMLStreamConstants.CHARACTERS;
-        } else if (child instanceof Comment) {
-            eventType = XMLStreamConstants.COMMENT;
-        } else if (child instanceof ProcessingInstruction) {
-            eventType = XMLStreamConstants.PROCESSING_INSTRUCTION;
         } else {
-            eventType = XMLStreamConstants.CHARACTERS;
+            // For non-element events, update currentElement to the enclosing element
+            // so namespace resolution (getNamespaceURI, getNamespaceContext) resolves
+            // against the correct container, not a previously visited sibling element.
+            Frame frame = frameStack.peek();
+            if (frame != null && frame.container instanceof Element) {
+                currentElement = (Element) frame.container;
+            } else {
+                currentElement = null;
+            }
+            if (child instanceof Text) {
+                eventType = ((Text) child).cdata() ? XMLStreamConstants.CDATA : XMLStreamConstants.CHARACTERS;
+            } else if (child instanceof Comment) {
+                eventType = XMLStreamConstants.COMMENT;
+            } else if (child instanceof ProcessingInstruction) {
+                eventType = XMLStreamConstants.PROCESSING_INSTRUCTION;
+            } else {
+                eventType = XMLStreamConstants.CHARACTERS;
+            }
         }
         return eventType;
     }
@@ -183,6 +194,7 @@ public class DomTripStreamReader implements XMLStreamReader {
             cacheElementInfo(currentElement);
             eventType = XMLStreamConstants.END_ELEMENT;
         } else {
+            currentElement = null;
             eventType = XMLStreamConstants.END_DOCUMENT;
         }
         return eventType;

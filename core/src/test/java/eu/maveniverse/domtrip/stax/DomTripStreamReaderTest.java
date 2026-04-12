@@ -231,6 +231,25 @@ class DomTripStreamReaderTest {
     }
 
     @Test
+    void testNamespaceResolutionDuringTextEvent() throws Exception {
+        // After visiting <b xmlns="http://b"/>, the text node "text" is a child of <a>,
+        // so namespace resolution must use <a>'s namespace, not <b>'s.
+        Document doc = Document.of("<a xmlns=\"http://a\"><b xmlns=\"http://b\"/>text</a>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT a
+        assertEquals("http://a", reader.getNamespaceURI(""));
+
+        reader.next(); // START_ELEMENT b
+        assertEquals("http://b", reader.getNamespaceURI(""));
+
+        reader.next(); // END_ELEMENT b
+        reader.next(); // CHARACTERS "text"
+        assertEquals(XMLStreamConstants.CHARACTERS, reader.getEventType());
+        assertEquals("http://a", reader.getNamespaceURI(""));
+    }
+
+    @Test
     void testGetPrefixForDefaultNamespaceURI() throws Exception {
         Document doc = Document.of("<root xmlns=\"http://example.com\"/>");
         DomTripStreamReader reader = new DomTripStreamReader(doc);

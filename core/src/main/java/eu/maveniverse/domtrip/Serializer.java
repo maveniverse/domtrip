@@ -549,6 +549,18 @@ public class Serializer {
         return sb.toString();
     }
 
+    /**
+     * Serializes the given node into the provided StringBuilder while applying preservation
+     * and filtering rules.
+     *
+     * <p>If the node is a comment or processing instruction and the corresponding preservation
+     * flag is disabled, the node is skipped. If the node is not a DOCUMENT and is unmodified,
+     * the node's original XML is appended via {@code node.toXml(sb)}. Otherwise the node is
+     * dispatched to the appropriate type-specific serializer.
+     *
+     * @param node the node to serialize
+     * @param sb the StringBuilder to append serialized XML to
+     */
     private void serializeNode(Node node, StringBuilder sb) {
         // Check filtering rules first (comments and PIs can be suppressed by config)
         if (node.type() == Node.NodeType.COMMENT && !preserveComments) {

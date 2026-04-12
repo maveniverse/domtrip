@@ -408,7 +408,14 @@ public class Parser {
     }
 
     /**
-     * Parses a processing instruction tag starting with '<?'.
+     * Parses a processing instruction and either records it as the document's XML declaration
+     * (when it contains a `version` attribute) or attaches it as a ProcessingInstruction node
+     * to the current container.
+     *
+     * @param document the Document being constructed; used to store an XML declaration when present
+     * @param nodeStack the stack of open nodes whose peek is the current container for added nodes
+     * @param pendingWhitespace accumulated whitespace to attach to the created ProcessingInstruction node
+     * @throws DomTripException if the processing instruction is unterminated or otherwise malformed
      */
     private void parseProcessingInstructionTag(
             Document document, Deque<Node> nodeStack, StringBuilder pendingWhitespace) throws DomTripException {

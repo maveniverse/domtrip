@@ -200,6 +200,17 @@ public class Document extends ContainerNode {
     }
 
     /**
+     * Set the XML declaration without marking the document as modified.
+     *
+     * Normalizes a null value to an empty string; intended for internal use (e.g., during parsing).
+     *
+     * @param xmlDeclaration the XML declaration text, or `null` to clear it (stored as an empty string)
+     */
+    void xmlDeclarationInternal(String xmlDeclaration) {
+        this.xmlDeclaration = xmlDeclaration != null ? xmlDeclaration : "";
+    }
+
+    /**
      * Gets the DOCTYPE declaration for this document.
      *
      * <p>The DOCTYPE declaration defines the document type and may include
@@ -230,6 +241,28 @@ public class Document extends ContainerNode {
         this.doctype = doctype != null ? doctype : "";
         markModified();
         return this;
+    }
+
+    /**
+     * Set the DOCTYPE declaration without marking the document as modified.
+     *
+     * @param doctype the DOCTYPE text to set; {@code null} is treated as the empty string
+     */
+    void doctypeInternal(String doctype) {
+        this.doctype = doctype != null ? doctype : "";
+    }
+
+    /**
+     * Gets the whitespace before the DOCTYPE declaration.
+     *
+     * <p>This whitespace appears between the XML declaration and the DOCTYPE
+     * declaration. It is preserved during round-trip parsing and serialization
+     * to maintain document fidelity.</p>
+     *
+     * @return the whitespace before the DOCTYPE declaration, or empty string if none
+     */
+    public String doctypePrecedingWhitespace() {
+        return doctypePrecedingWhitespace;
     }
 
     /**
@@ -304,13 +337,11 @@ public class Document extends ContainerNode {
     }
 
     /**
-     * Sets the character encoding for this document.
+     * Set the document's character encoding used for serialization.
      *
-     * <p>Setting this value marks the document as modified. The encoding
-     * affects how the document is serialized and should match the actual
-     * character encoding used.</p>
+     * <p>If {@code encoding} is {@code null}, the default {@code "UTF-8"} is used. This method marks the document as modified.</p>
      *
-     * @param encoding the character encoding to use, or null to use default "UTF-8"
+     * @param encoding the character encoding to use, or {@code null} to reset to the default {@code "UTF-8"}
      * @return this document for method chaining
      * @see #encoding()
      */
@@ -318,6 +349,15 @@ public class Document extends ContainerNode {
         this.encoding = encoding != null ? encoding : DEFAULT_ENCODING;
         markModified();
         return this;
+    }
+
+    /**
+     * Set the document's encoding without marking the document as modified (intended for internal use during parsing).
+     *
+     * @param encoding the encoding to set, or `null` to use {@code DEFAULT_ENCODING}
+     */
+    void encodingInternal(String encoding) {
+        this.encoding = encoding != null ? encoding : DEFAULT_ENCODING;
     }
 
     /**
@@ -334,19 +374,27 @@ public class Document extends ContainerNode {
     }
 
     /**
-     * Sets the XML version for this document.
+     * Set the XML version of this document.
      *
-     * <p>Setting this value marks the document as modified. Most documents
-     * should use version "1.0" unless specific XML 1.1 features are required.</p>
+     * <p>Marks the document as modified.</p>
      *
-     * @param version the XML version to use, or null to use default "1.0"
-     * @return this document for method chaining
+     * @param version the XML version to use, or null to use "1.0"
+     * @return this document
      * @see #version()
      */
     public Document version(String version) {
         this.version = version != null ? version : "1.0";
         markModified();
         return this;
+    }
+
+    /**
+     * Set the document's XML version without marking the document as modified.
+     *
+     * @param version the XML version to assign; if `null`, the version will be set to "1.0"
+     */
+    void versionInternal(String version) {
+        this.version = version != null ? version : "1.0";
     }
 
     /**
@@ -377,6 +425,15 @@ public class Document extends ContainerNode {
         this.standalone = standalone;
         markModified();
         return this;
+    }
+
+    /**
+     * Set the document's standalone flag without marking the document as modified.
+     *
+     * @param standalone true to indicate the document is standalone, false otherwise
+     */
+    void standaloneInternal(boolean standalone) {
+        this.standalone = standalone;
     }
 
     /**

@@ -226,7 +226,7 @@ public class Parser {
             // This must happen AFTER updateDocumentFromXmlDeclaration, because the detected
             // encoding (from BOM or byte patterns) takes precedence over the declared encoding
             // in the XML declaration (which may be inaccurate).
-            document.encoding(detectedCharset.name());
+            document.encodingInternal(detectedCharset.name());
 
             return document;
 
@@ -397,7 +397,7 @@ public class Parser {
             ((ContainerNode) nodeStack.peek()).addChildInternal(cdata);
         } else if (position + 9 < length && xml.charAt(position + 2) == 'D' && xml.startsWith("<!DOCTYPE", position)) {
             String doctype = parseDoctype();
-            document.doctype(doctype);
+            document.doctypeInternal(doctype);
             if (pendingWhitespace.length() > 0) {
                 document.doctypePrecedingWhitespace(pendingWhitespace.toString());
                 pendingWhitespace.setLength(0);
@@ -408,13 +408,20 @@ public class Parser {
     }
 
     /**
-     * Parses a processing instruction tag starting with '<?'.
+     * Parses a processing instruction and either records it as the document's XML declaration
+     * (when it contains a `version` attribute) or attaches it as a ProcessingInstruction node
+     * to the current container.
+     *
+     * @param document the Document being constructed; used to store an XML declaration when present
+     * @param nodeStack the stack of open nodes whose peek is the current container for added nodes
+     * @param pendingWhitespace accumulated whitespace to attach to the created ProcessingInstruction node
+     * @throws DomTripException if the processing instruction is unterminated or otherwise malformed
      */
     private void parseProcessingInstructionTag(
             Document document, Deque<Node> nodeStack, StringBuilder pendingWhitespace) throws DomTripException {
         String pi = parseProcessingInstruction();
         if (pi.startsWith(XML_DECL_PREFIX + " ") && pi.contains("version=")) {
-            document.xmlDeclaration(pi);
+            document.xmlDeclarationInternal(pi);
             updateDocumentFromXmlDeclaration(document, pi);
         } else {
             ProcessingInstruction piNode = new ProcessingInstruction(pi);
@@ -1042,13 +1049,13 @@ public class Parser {
             String standalone = matcher.group(3);
 
             if (version != null) {
-                document.version(version);
+                document.versionInternal(version);
             }
             if (encoding != null) {
-                document.encoding(encoding);
+                document.encodingInternal(encoding);
             }
             if (standalone != null) {
-                document.standalone("yes".equalsIgnoreCase(standalone));
+                document.standaloneInternal("yes".equalsIgnoreCase(standalone));
             }
         }
     }

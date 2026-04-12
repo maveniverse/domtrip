@@ -17,21 +17,36 @@ import org.junit.jupiter.api.Test;
  * versus DomTrip's lossless round-trip preservation.
  *
  * <p>Each test gives DOM4J its best chance by using a raw {@link OutputFormat}
- * with {@code setSuppressDeclaration(true)} to isolate the real limitation being
- * demonstrated, rather than penalizing DOM4J for adding an XML declaration.</p>
+ * with no trimming/indenting. Declaration suppression is conditional: only applied
+ * when the input has no XML declaration, to prevent DOM4J from adding one.</p>
  */
 @SuppressWarnings("java:S5976") // Tests are intentionally separate - each demonstrates a different XML feature
 class Dom4jRoundTripTest {
 
     /**
+     * Creates a SAXReader with external DTD/entity loading disabled
+     * to prevent network I/O during tests.
+     */
+    private SAXReader safeSaxReader() throws Exception {
+        SAXReader reader = new SAXReader();
+        reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        return reader;
+    }
+
+    /**
      * Round-trips XML through DOM4J using best-effort settings:
-     * no added declaration, no newlines, no trimming.
+     * no newlines, no trimming. Suppresses declaration only when
+     * input has none, to avoid DOM4J adding one.
      */
     private String dom4jBestEffort(String xml) throws Exception {
-        SAXReader reader = new SAXReader();
+        SAXReader reader = safeSaxReader();
         Document doc = reader.read(new StringReader(xml));
         OutputFormat format = OutputFormat.createCompactFormat();
-        format.setSuppressDeclaration(true);
+        if (!xml.startsWith("<?xml")) {
+            format.setSuppressDeclaration(true);
+        }
         format.setNewlines(false);
         format.setIndent(false);
         format.setTrimText(false);
@@ -339,7 +354,7 @@ class Dom4jRoundTripTest {
                 """;
 
         // DOM4J with best-effort settings
-        SAXReader reader = new SAXReader();
+        SAXReader reader = safeSaxReader();
         Document doc = reader.read(new StringReader(xml));
         OutputFormat format = OutputFormat.createCompactFormat();
         format.setNewlines(false);

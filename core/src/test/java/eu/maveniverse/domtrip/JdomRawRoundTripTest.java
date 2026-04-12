@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
  * versus DomTrip's lossless round-trip preservation.
  *
  * <p>Each test gives JDOM its best chance by using {@code Format.getRawFormat()}
- * with {@code setOmitDeclaration(true)} to isolate the real limitation being
- * demonstrated, rather than penalizing JDOM for adding an XML declaration.</p>
+ * with {@code TextMode.PRESERVE}. Declaration omission is conditional: only applied
+ * when the input has no XML declaration, to prevent JDOM from adding one.</p>
  *
  * <p>JDOM 2.0.6.1 is the latest and final release (Dec 2021). The project is
  * effectively in maintenance mode with no commits since Oct 2021.</p>
@@ -28,14 +28,29 @@ import org.junit.jupiter.api.Test;
 class JdomRawRoundTripTest {
 
     /**
+     * Creates a SAXBuilder with external DTD/entity loading disabled
+     * to prevent network I/O during tests.
+     */
+    private SAXBuilder safeSaxBuilder() {
+        SAXBuilder builder = new SAXBuilder();
+        builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        builder.setFeature("http://xml.org/sax/features/external-general-entities", false);
+        builder.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        return builder;
+    }
+
+    /**
      * Round-trips XML through JDOM using best-effort settings:
-     * raw format + omit declaration + PRESERVE text mode.
+     * raw format + PRESERVE text mode. Omits declaration only when
+     * input has none, to avoid JDOM adding one.
      */
     private String jdomBestEffort(String xml) throws Exception {
-        SAXBuilder builder = new SAXBuilder();
+        SAXBuilder builder = safeSaxBuilder();
         Document doc = builder.build(new StringReader(xml));
         Format format = Format.getRawFormat();
-        format.setOmitDeclaration(true);
+        if (!xml.startsWith("<?xml")) {
+            format.setOmitDeclaration(true);
+        }
         format.setTextMode(Format.TextMode.PRESERVE);
         XMLOutputter outputter = new XMLOutputter(format);
         return outputter.outputString(doc);
@@ -140,10 +155,9 @@ class JdomRawRoundTripTest {
 
         // Even with explicit CRLF line separator, JDOM can't match because
         // it also changes other formatting
-        SAXBuilder builder = new SAXBuilder();
+        SAXBuilder builder = safeSaxBuilder();
         Document doc = builder.build(new StringReader(xml));
         Format format = Format.getRawFormat();
-        format.setOmitDeclaration(true);
         format.setLineSeparator("\r\n");
         XMLOutputter outputter = new XMLOutputter(format);
         String crlfResult = outputter.outputString(doc);
@@ -324,7 +338,7 @@ class JdomRawRoundTripTest {
         assertNotEquals(xml, jdomResult, "JDOM default converts expanded to self-closing");
 
         // With expandEmptyElements: converts all to expanded form
-        SAXBuilder builder = new SAXBuilder();
+        SAXBuilder builder = safeSaxBuilder();
         Document doc = builder.build(new StringReader(xml));
         Format format = Format.getRawFormat();
         format.setOmitDeclaration(true);
@@ -398,8 +412,7 @@ class JdomRawRoundTripTest {
                 """;
 
         // JDOM with all best-effort settings
-        SAXBuilder builder = new SAXBuilder();
-        builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        SAXBuilder builder = safeSaxBuilder();
         Document doc = builder.build(new StringReader(xml));
 
         Format format = Format.getRawFormat();

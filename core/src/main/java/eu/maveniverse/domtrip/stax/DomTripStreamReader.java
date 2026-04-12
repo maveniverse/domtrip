@@ -758,8 +758,8 @@ public class DomTripStreamReader implements XMLStreamReader {
             if (prefix != null) {
                 return prefix;
             }
-            // resolvePrefix returns null for default namespace matches;
-            // check if the default namespace is bound to this URI
+            // The resolver does not return a result when the default namespace matches,
+            // so we fall back to checking the default namespace binding explicitly.
             String defaultUri = NamespaceResolver.resolveNamespaceURI(element, null);
             if (namespaceURI.equals(defaultUri)) {
                 return XMLConstants.DEFAULT_NS_PREFIX;
@@ -781,27 +781,37 @@ public class DomTripStreamReader implements XMLStreamReader {
             if (element == null) {
                 return Collections.emptyIterator();
             }
+            List<String> matching = collectMatchingPrefixes(namespaceURI);
+            return Collections.unmodifiableList(matching).iterator();
+        }
+
+        private List<String> collectMatchingPrefixes(String namespaceURI) {
             Set<String> seen = new HashSet<>();
             List<String> matching = new ArrayList<>();
             Element current = element;
             while (current != null) {
-                for (Map.Entry<String, String> entry : current.attributes().entrySet()) {
-                    String attrName = entry.getKey();
-                    if (XMLNS.equals(attrName)) {
-                        if (seen.add("") && namespaceURI.equals(entry.getValue())) {
-                            matching.add(XMLConstants.DEFAULT_NS_PREFIX);
-                        }
-                    } else if (attrName.startsWith(XMLNS_PREFIX)) {
-                        String p = attrName.substring(XMLNS_PREFIX.length());
-                        if (seen.add(p) && namespaceURI.equals(entry.getValue())) {
-                            matching.add(p);
-                        }
-                    }
-                }
+                collectPrefixesFromElement(current, namespaceURI, seen, matching);
                 Node parent = current.parent();
                 current = (parent instanceof Element) ? (Element) parent : null;
             }
-            return Collections.unmodifiableList(matching).iterator();
+            return matching;
+        }
+
+        private void collectPrefixesFromElement(
+                Element el, String namespaceURI, Set<String> seen, List<String> matching) {
+            for (Map.Entry<String, String> entry : el.attributes().entrySet()) {
+                String attrName = entry.getKey();
+                if (XMLNS.equals(attrName)) {
+                    if (seen.add("") && namespaceURI.equals(entry.getValue())) {
+                        matching.add(XMLConstants.DEFAULT_NS_PREFIX);
+                    }
+                } else if (attrName.startsWith(XMLNS_PREFIX)) {
+                    String p = attrName.substring(XMLNS_PREFIX.length());
+                    if (seen.add(p) && namespaceURI.equals(entry.getValue())) {
+                        matching.add(p);
+                    }
+                }
+            }
         }
     }
 }

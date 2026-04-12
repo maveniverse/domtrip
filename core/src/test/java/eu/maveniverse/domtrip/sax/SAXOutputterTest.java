@@ -119,6 +119,7 @@ class SAXOutputterTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5976") // Not parameterizable: each test exercises a different handler type
     void cdataWithoutLexicalHandlerEmitsCharacters() throws Exception {
         Document doc = Document.of("<root><![CDATA[cdata content]]></root>");
         RecordingHandler handler = new RecordingHandler();

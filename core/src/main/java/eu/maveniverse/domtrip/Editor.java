@@ -1072,6 +1072,44 @@ public class Editor {
     }
 
     /**
+     * Evaluates a mini-XPath expression against the document root and returns all matching elements.
+     *
+     * <h3>Examples:</h3>
+     * <pre>{@code
+     * List<Element> deps = editor.select("//dependency");
+     * List<Element> testDeps = editor.select("//dependency[@scope='test']");
+     * }</pre>
+     *
+     * @param expression the mini-XPath expression
+     * @return a list of matching elements, never null
+     * @throws DomTripException if the expression is invalid or no document is loaded
+     * @see XPathExpression
+     * @since 1.3.0
+     */
+    public java.util.List<Element> select(String expression) {
+        return XPathExpression.compile(expression).select(root());
+    }
+
+    /**
+     * Evaluates a mini-XPath expression against the document root and returns the first match.
+     *
+     * <h3>Examples:</h3>
+     * <pre>{@code
+     * Optional<Element> dep = editor.selectFirst("//dependency[@scope='test']");
+     * Optional<Element> ver = editor.selectFirst("project/version");
+     * }</pre>
+     *
+     * @param expression the mini-XPath expression
+     * @return an Optional containing the first matching element, or empty if none found
+     * @throws DomTripException if the expression is invalid or no document is loaded
+     * @see XPathExpression
+     * @since 1.3.0
+     */
+    public java.util.Optional<Element> selectFirst(String expression) {
+        return XPathExpression.compile(expression).selectFirst(root());
+    }
+
+    /**
      * Validates that the document is well-formed.
      *
      * <p>Performs basic well-formedness validation including checking

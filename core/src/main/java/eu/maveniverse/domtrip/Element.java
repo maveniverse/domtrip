@@ -152,13 +152,14 @@ public class Element extends ContainerNode {
         this.closeTagWhitespace = original.closeTagWhitespace;
         this.innerPrecedingWhitespace = original.innerPrecedingWhitespace;
         this.selfClosing = original.selfClosing;
-        this.tagSource = original.tagSource;
-        this.openTagStart = original.openTagStart;
-        this.openTagEnd = original.openTagEnd;
-        this.closeTagStart = original.closeTagStart;
-        this.closeTagEnd = original.closeTagEnd;
-        this.originalOpenTag = original.originalOpenTag;
-        this.originalCloseTag = original.originalCloseTag;
+        // Materialize original tags to avoid pinning the entire source buffer
+        this.originalOpenTag = original.originalOpenTag();
+        this.originalCloseTag = original.originalCloseTag();
+        this.tagSource = null;
+        this.openTagStart = -1;
+        this.openTagEnd = -1;
+        this.closeTagStart = -1;
+        this.closeTagEnd = -1;
 
         // Copy inherited Node properties
         this.precedingWhitespace = original.precedingWhitespace;

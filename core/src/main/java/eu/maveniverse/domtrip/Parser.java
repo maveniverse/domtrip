@@ -648,7 +648,7 @@ public class Parser {
         // Parse element name using substring
         int nameStart = position;
         while (position < length
-                && !Character.isWhitespace(xml.charAt(position))
+                && !isXmlWhitespace(xml.charAt(position))
                 && xml.charAt(position) != '>'
                 && xml.charAt(position) != '/') {
             position++;
@@ -679,7 +679,7 @@ public class Parser {
                 && xml.charAt(position) != '>'
                 && !(xml.charAt(position) == '/' && position + 1 < length && xml.charAt(position + 1) == '>')) {
 
-            if (Character.isWhitespace(xml.charAt(position))) {
+            if (isXmlWhitespace(xml.charAt(position))) {
                 position++;
             } else {
                 String attrWs = wsStart < position ? xml.substring(wsStart, position) : "";
@@ -736,19 +736,19 @@ public class Parser {
      */
     private String parseAttributeName() {
         int nameStart = position;
-        while (position < length && xml.charAt(position) != '=' && !Character.isWhitespace(xml.charAt(position))) {
+        while (position < length && xml.charAt(position) != '=' && !isXmlWhitespace(xml.charAt(position))) {
             position++;
         }
         return xml.substring(nameStart, position);
     }
 
     /**
-     * Advances the parser cursor past any consecutive Unicode whitespace characters.
+     * Advances the parser cursor past any consecutive XML whitespace characters.
      *
      * Stops when the cursor reaches the first non-whitespace character or the end of input.
      */
     private void skipWhitespace() {
-        while (position < length && Character.isWhitespace(xml.charAt(position))) {
+        while (position < length && isXmlWhitespace(xml.charAt(position))) {
             position++;
         }
     }
@@ -757,7 +757,7 @@ public class Parser {
         // Skip '=' and any whitespace after it
         do {
             position++;
-        } while (position < length && Character.isWhitespace(xml.charAt(position)));
+        } while (position < length && isXmlWhitespace(xml.charAt(position)));
     }
 
     /**
@@ -807,20 +807,20 @@ public class Parser {
 
         // Capture whitespace before the element name
         int wsStart = position;
-        while (position < length && Character.isWhitespace(xml.charAt(position))) {
+        while (position < length && isXmlWhitespace(xml.charAt(position))) {
             position++;
         }
 
         // Parse tag name using substring
         int nameStart = position;
-        while (position < length && xml.charAt(position) != '>' && !Character.isWhitespace(xml.charAt(position))) {
+        while (position < length && xml.charAt(position) != '>' && !isXmlWhitespace(xml.charAt(position))) {
             position++;
         }
 
         String closingName = xml.substring(nameStart, position);
 
         // Skip any trailing whitespace after the element name (but don't capture it)
-        while (position < length && Character.isWhitespace(xml.charAt(position))) {
+        while (position < length && isXmlWhitespace(xml.charAt(position))) {
             position++;
         }
 

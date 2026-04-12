@@ -376,7 +376,8 @@ class SAXOutputterTest {
         Document doc = Document.of("<root/>");
         DomTripXMLReader reader = new DomTripXMLReader(doc);
 
-        assertThrows(IllegalStateException.class, () -> reader.parse(new org.xml.sax.InputSource()));
+        org.xml.sax.InputSource input = new org.xml.sax.InputSource();
+        assertThrows(IllegalStateException.class, () -> reader.parse(input));
     }
 
     @Test
@@ -464,7 +465,9 @@ class SAXOutputterTest {
         final List<String> events = new ArrayList<>();
 
         @Override
-        public void setDocumentLocator(Locator locator) {}
+        public void setDocumentLocator(Locator locator) {
+            // Not needed for event recording
+        }
 
         @Override
         public void startDocument() {

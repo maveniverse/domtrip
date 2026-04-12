@@ -68,6 +68,7 @@ public class SAXOutputter {
 
     private static final String XMLNS = "xmlns";
     private static final String XMLNS_PREFIX = "xmlns:";
+    private static final String CDATA_TYPE = "CDATA";
 
     private boolean reportNamespaceDeclarations;
 
@@ -205,38 +206,7 @@ public class SAXOutputter {
             throws SAXException {
         // Separate namespace declarations from regular attributes
         List<String[]> nsDecls = new ArrayList<>();
-        AttributesImpl attrs = new AttributesImpl();
-
-        for (Map.Entry<String, String> entry : element.attributes().entrySet()) {
-            String name = entry.getKey();
-            String value = entry.getValue();
-
-            if (XMLNS.equals(name)) {
-                nsDecls.add(new String[] {"", value});
-                if (reportNamespaceDeclarations) {
-                    attrs.addAttribute(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLNS, XMLNS, "CDATA", value);
-                }
-            } else if (name.startsWith(XMLNS_PREFIX)) {
-                String prefix = name.substring(XMLNS_PREFIX.length());
-                nsDecls.add(new String[] {prefix, value});
-                if (reportNamespaceDeclarations) {
-                    attrs.addAttribute(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, prefix, name, "CDATA", value);
-                }
-            } else {
-                String attrUri = "";
-                String attrLocalName = name;
-                int colonIdx = name.indexOf(':');
-                if (colonIdx > 0) {
-                    String attrPrefix = name.substring(0, colonIdx);
-                    attrLocalName = name.substring(colonIdx + 1);
-                    String resolved = NamespaceResolver.resolveNamespaceURI(element, attrPrefix);
-                    if (resolved != null) {
-                        attrUri = resolved;
-                    }
-                }
-                attrs.addAttribute(attrUri, attrLocalName, name, "CDATA", value);
-            }
-        }
+        AttributesImpl attrs = buildAttributes(element, nsDecls);
 
         // Emit startPrefixMapping for each namespace declaration
         for (String[] nsDecl : nsDecls) {
@@ -262,6 +232,47 @@ public class SAXOutputter {
         for (int i = nsDecls.size() - 1; i >= 0; i--) {
             handler.endPrefixMapping(nsDecls.get(i)[0]);
         }
+    }
+
+    private AttributesImpl buildAttributes(Element element, List<String[]> nsDecls) {
+        AttributesImpl attrs = new AttributesImpl();
+
+        for (Map.Entry<String, String> entry : element.attributes().entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue();
+
+            if (XMLNS.equals(name)) {
+                nsDecls.add(new String[] {"", value});
+                if (reportNamespaceDeclarations) {
+                    attrs.addAttribute(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, XMLNS, XMLNS, CDATA_TYPE, value);
+                }
+            } else if (name.startsWith(XMLNS_PREFIX)) {
+                String prefix = name.substring(XMLNS_PREFIX.length());
+                nsDecls.add(new String[] {prefix, value});
+                if (reportNamespaceDeclarations) {
+                    attrs.addAttribute(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, prefix, name, CDATA_TYPE, value);
+                }
+            } else {
+                addRegularAttribute(element, attrs, name, value);
+            }
+        }
+
+        return attrs;
+    }
+
+    private static void addRegularAttribute(Element element, AttributesImpl attrs, String name, String value) {
+        String attrUri = "";
+        String attrLocalName = name;
+        int colonIdx = name.indexOf(':');
+        if (colonIdx > 0) {
+            String attrPrefix = name.substring(0, colonIdx);
+            attrLocalName = name.substring(colonIdx + 1);
+            String resolved = NamespaceResolver.resolveNamespaceURI(element, attrPrefix);
+            if (resolved != null) {
+                attrUri = resolved;
+            }
+        }
+        attrs.addAttribute(attrUri, attrLocalName, name, CDATA_TYPE, value);
     }
 
     private void processText(Text text, ContentHandler handler, LexicalHandler lexicalHandler) throws SAXException {

@@ -88,6 +88,18 @@ public class DomTripStreamReader implements XMLStreamReader {
             this.children = collectChildren(container);
             this.childIndex = 0;
         }
+
+        private static List<Node> collectChildren(ContainerNode container) {
+            List<Node> result = new ArrayList<>();
+            container.children().forEach(result::add);
+            if (container instanceof Document) {
+                Element root = ((Document) container).root();
+                if (root != null && !result.contains(root)) {
+                    result.add(root);
+                }
+            }
+            return result;
+        }
     }
 
     /**
@@ -118,7 +130,7 @@ public class DomTripStreamReader implements XMLStreamReader {
         return advance();
     }
 
-    private int advance() throws XMLStreamException {
+    private int advance() {
         switch (eventType) {
             case XMLStreamConstants.START_DOCUMENT:
                 frameStack.push(new Frame(document));
@@ -150,27 +162,28 @@ public class DomTripStreamReader implements XMLStreamReader {
         if (child instanceof Element) {
             currentElement = (Element) child;
             cacheElementInfo(currentElement);
-            return eventType = XMLStreamConstants.START_ELEMENT;
+            eventType = XMLStreamConstants.START_ELEMENT;
+        } else if (child instanceof Text) {
+            eventType = ((Text) child).cdata() ? XMLStreamConstants.CDATA : XMLStreamConstants.CHARACTERS;
+        } else if (child instanceof Comment) {
+            eventType = XMLStreamConstants.COMMENT;
+        } else if (child instanceof ProcessingInstruction) {
+            eventType = XMLStreamConstants.PROCESSING_INSTRUCTION;
+        } else {
+            eventType = XMLStreamConstants.CHARACTERS;
         }
-        if (child instanceof Text) {
-            return eventType = ((Text) child).cdata() ? XMLStreamConstants.CDATA : XMLStreamConstants.CHARACTERS;
-        }
-        if (child instanceof Comment) {
-            return eventType = XMLStreamConstants.COMMENT;
-        }
-        if (child instanceof ProcessingInstruction) {
-            return eventType = XMLStreamConstants.PROCESSING_INSTRUCTION;
-        }
-        return eventType = XMLStreamConstants.CHARACTERS;
+        return eventType;
     }
 
     private int endContainer(Frame frame) {
         if (frame != null && frame.container instanceof Element) {
             currentElement = (Element) frame.container;
             cacheElementInfo(currentElement);
-            return eventType = XMLStreamConstants.END_ELEMENT;
+            eventType = XMLStreamConstants.END_ELEMENT;
+        } else {
+            eventType = XMLStreamConstants.END_DOCUMENT;
         }
-        return eventType = XMLStreamConstants.END_DOCUMENT;
+        return eventType;
     }
 
     @Override
@@ -633,18 +646,6 @@ public class DomTripStreamReader implements XMLStreamReader {
 
     private boolean isNonWhitespaceText(int event) {
         return (event == XMLStreamConstants.CHARACTERS || event == XMLStreamConstants.CDATA) && !isWhiteSpace();
-    }
-
-    private static List<Node> collectChildren(ContainerNode container) {
-        List<Node> result = new ArrayList<>();
-        container.children().forEach(result::add);
-        if (container instanceof Document) {
-            Element root = ((Document) container).root();
-            if (root != null && !result.contains(root)) {
-                result.add(root);
-            }
-        }
-        return result;
     }
 
     // ── Inner classes ───────────────────────────────────────────────────

@@ -54,6 +54,7 @@ public class DomTripStAXSource extends StAXSource {
         }
     }
 
+    @SuppressWarnings("java:S1130")
     private DomTripStAXSource(DomTripStreamReader reader) throws XMLStreamException {
         super(reader);
     }

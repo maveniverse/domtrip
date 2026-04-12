@@ -19,10 +19,12 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -215,13 +217,13 @@ public class DomTripStreamReader implements XMLStreamReader {
     @Override
     public String getPrefix() {
         requireElementState();
-        return prefixOrEmpty(currentElement);
+        return currentElement.prefix();
     }
 
     @Override
     public String getNamespaceURI() {
         requireElementState();
-        return resolveElementNamespace(currentElement);
+        return NamespaceResolver.resolveNamespaceURI(currentElement, currentElement.prefix());
     }
 
     // ── Attribute access (START_ELEMENT only) ───────────────────────────
@@ -310,12 +312,11 @@ public class DomTripStreamReader implements XMLStreamReader {
 
     @Override
     public String getNamespaceURI(String prefix) {
-        if (currentElement != null) {
-            String effectivePrefix = (prefix == null || prefix.isEmpty()) ? null : prefix;
-            String uri = NamespaceResolver.resolveNamespaceURI(currentElement, effectivePrefix);
-            return uri != null ? uri : XMLConstants.NULL_NS_URI;
+        if (prefix == null) {
+            throw new IllegalArgumentException("Prefix cannot be null");
         }
-        return XMLConstants.NULL_NS_URI;
+        String effectivePrefix = prefix.isEmpty() ? null : prefix;
+        return NamespaceResolver.resolveNamespaceURI(currentElement, effectivePrefix);
     }
 
     @Override
@@ -353,8 +354,21 @@ public class DomTripStreamReader implements XMLStreamReader {
     public int getTextCharacters(int sourceStart, char[] target, int targetStart, int length)
             throws XMLStreamException {
         requireTextState();
+        if (target == null) {
+            throw new NullPointerException("target cannot be null");
+        }
+        if (sourceStart < 0 || targetStart < 0 || length < 0) {
+            throw new IndexOutOfBoundsException("sourceStart, targetStart, and length must be non-negative");
+        }
         char[] chars = getTextContent().toCharArray();
+        if (sourceStart > chars.length) {
+            throw new IndexOutOfBoundsException(
+                    "sourceStart (" + sourceStart + ") > source length (" + chars.length + ")");
+        }
         int count = Math.min(length, chars.length - sourceStart);
+        if (targetStart + count > target.length) {
+            throw new IndexOutOfBoundsException("target too small for requested copy");
+        }
         if (count > 0) {
             System.arraycopy(chars, sourceStart, target, targetStart, count);
         }
@@ -455,8 +469,15 @@ public class DomTripStreamReader implements XMLStreamReader {
     }
 
     private void requireMatchingNamespace(String expected) throws XMLStreamException {
-        if (expected != null && !expected.equals(getNamespaceURI())) {
-            throw new XMLStreamException("Expected namespace URI '" + expected + "'");
+        if (expected != null) {
+            String actual = getNamespaceURI();
+            // Normalize: both "" and null represent "no namespace"
+            if (actual == null) {
+                actual = "";
+            }
+            if (!expected.equals(actual)) {
+                throw new XMLStreamException("Expected namespace URI '" + expected + "'");
+            }
         }
     }
 
@@ -578,7 +599,7 @@ public class DomTripStreamReader implements XMLStreamReader {
 
     private void classifyAttribute(Element element, String name, String value) {
         if (XMLNS.equals(name)) {
-            namespaceDecls.add(new String[] {"", value});
+            namespaceDecls.add(new String[] {null, value});
         } else if (name.startsWith(XMLNS_PREFIX)) {
             namespaceDecls.add(new String[] {name.substring(XMLNS_PREFIX.length()), value});
         } else {
@@ -726,11 +747,39 @@ public class DomTripStreamReader implements XMLStreamReader {
 
         @Override
         public Iterator<String> getPrefixes(String namespaceURI) {
-            String prefix = getPrefix(namespaceURI);
-            if (prefix == null) {
+            if (namespaceURI == null) {
+                throw new IllegalArgumentException("Namespace URI cannot be null");
+            }
+            if (XMLConstants.XML_NS_URI.equals(namespaceURI)) {
+                return Collections.singleton(XMLConstants.XML_NS_PREFIX).iterator();
+            }
+            if (XMLConstants.XMLNS_ATTRIBUTE_NS_URI.equals(namespaceURI)) {
+                return Collections.singleton(XMLConstants.XMLNS_ATTRIBUTE).iterator();
+            }
+            if (element == null) {
                 return Collections.emptyIterator();
             }
-            return Collections.singleton(prefix).iterator();
+            Set<String> seen = new HashSet<>();
+            List<String> matching = new ArrayList<>();
+            Element current = element;
+            while (current != null) {
+                for (Map.Entry<String, String> entry : current.attributes().entrySet()) {
+                    String attrName = entry.getKey();
+                    if (XMLNS.equals(attrName)) {
+                        if (seen.add("") && namespaceURI.equals(entry.getValue())) {
+                            matching.add(XMLConstants.DEFAULT_NS_PREFIX);
+                        }
+                    } else if (attrName.startsWith(XMLNS_PREFIX)) {
+                        String p = attrName.substring(XMLNS_PREFIX.length());
+                        if (seen.add(p) && namespaceURI.equals(entry.getValue())) {
+                            matching.add(p);
+                        }
+                    }
+                }
+                Node parent = current.parent();
+                current = (parent instanceof Element) ? (Element) parent : null;
+            }
+            return Collections.unmodifiableList(matching).iterator();
         }
     }
 }

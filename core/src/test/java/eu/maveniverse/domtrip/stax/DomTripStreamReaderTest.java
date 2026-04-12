@@ -12,7 +12,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import eu.maveniverse.domtrip.Document;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -128,9 +131,9 @@ class DomTripStreamReaderTest {
         reader.next(); // START_ELEMENT
         assertEquals("root", reader.getLocalName());
         assertEquals("http://example.com", reader.getNamespaceURI());
-        assertEquals("", reader.getPrefix());
+        assertNull(reader.getPrefix());
         assertEquals(1, reader.getNamespaceCount());
-        assertEquals("", reader.getNamespacePrefix(0));
+        assertNull(reader.getNamespacePrefix(0));
         assertEquals("http://example.com", reader.getNamespaceURI(0));
     }
 
@@ -184,7 +187,16 @@ class DomTripStreamReaderTest {
         reader.next(); // START_ELEMENT
         assertEquals("http://default.com", reader.getNamespaceURI(""));
         assertEquals("http://ns.com", reader.getNamespaceURI("ns"));
-        assertEquals("", reader.getNamespaceURI("undefined"));
+        assertNull(reader.getNamespaceURI("undefined"));
+    }
+
+    @Test
+    void testGetNamespaceURINullPrefixThrows() throws Exception {
+        Document doc = Document.of("<root/>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT
+        assertThrows(IllegalArgumentException.class, () -> reader.getNamespaceURI((String) null));
     }
 
     @Test
@@ -214,6 +226,24 @@ class DomTripStreamReaderTest {
         javax.xml.namespace.NamespaceContext ctx = reader.getNamespaceContext();
         assertThrows(IllegalArgumentException.class, () -> ctx.getNamespaceURI(null));
         assertThrows(IllegalArgumentException.class, () -> ctx.getPrefix(null));
+        assertThrows(IllegalArgumentException.class, () -> ctx.getPrefixes(null));
+    }
+
+    @Test
+    void testGetPrefixesMultiplePrefixesSameURI() throws Exception {
+        Document doc = Document.of("<root xmlns:a=\"http://example.com\" xmlns:b=\"http://example.com\"/>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT
+        javax.xml.namespace.NamespaceContext ctx = reader.getNamespaceContext();
+        Iterator<String> prefixes = ctx.getPrefixes("http://example.com");
+        Set<String> prefixSet = new HashSet<>();
+        while (prefixes.hasNext()) {
+            prefixSet.add(prefixes.next());
+        }
+        assertEquals(2, prefixSet.size());
+        assertTrue(prefixSet.contains("a"));
+        assertTrue(prefixSet.contains("b"));
     }
 
     @Test
@@ -437,6 +467,31 @@ class DomTripStreamReaderTest {
         int count = reader.getTextCharacters(0, target, 0, 10);
         assertEquals(5, count);
         assertEquals("hello", new String(target, 0, count));
+    }
+
+    @Test
+    void testGetTextCharactersValidation() throws Exception {
+        Document doc = Document.of("<root>hello</root>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT
+        reader.next(); // CHARACTERS
+
+        // null target
+        assertThrows(NullPointerException.class, () -> reader.getTextCharacters(0, null, 0, 5));
+
+        // negative parameters
+        char[] target = new char[10];
+        assertThrows(IndexOutOfBoundsException.class, () -> reader.getTextCharacters(-1, target, 0, 5));
+        assertThrows(IndexOutOfBoundsException.class, () -> reader.getTextCharacters(0, target, -1, 5));
+        assertThrows(IndexOutOfBoundsException.class, () -> reader.getTextCharacters(0, target, 0, -1));
+
+        // sourceStart beyond source length
+        assertThrows(IndexOutOfBoundsException.class, () -> reader.getTextCharacters(10, target, 0, 5));
+
+        // target too small
+        char[] smallTarget = new char[2];
+        assertThrows(IndexOutOfBoundsException.class, () -> reader.getTextCharacters(0, smallTarget, 0, 5));
     }
 
     @Test

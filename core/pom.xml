@@ -56,15 +56,42 @@
 
   <build>
     <plugins>
-      <!-- Enable annotation processing for test compilation (parent sets proc=none) -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <executions>
           <execution>
+            <id>default-compile</id>
+            <configuration>
+              <release>8</release>
+              <excludes>
+                <exclude>module-info.java</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compile-module-info</id>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <release>9</release>
+              <includes>
+                <include>module-info.java</include>
+              </includes>
+            </configuration>
+          </execution>
+          <!-- Enable annotation processing for test compilation (parent sets proc=none) -->
+          <execution>
             <id>default-testCompile</id>
             <configuration>
               <proc>full</proc>
+              <compilerArgs>
+                <arg>--add-modules</arg>
+                <arg>java.xml</arg>
+                <arg>--add-reads</arg>
+                <arg>eu.maveniverse.domtrip=java.xml</arg>
+              </compilerArgs>
             </configuration>
           </execution>
         </executions>

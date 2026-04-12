@@ -190,6 +190,42 @@ class DoctypePreservationTest {
     }
 
     @Test
+    void testDoctypeWhitespaceNotLeakedWhenXmlDeclarationOmitted() throws DomTripException {
+        String xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE root>\n<root/>";
+        Document doc = Document.of(xml);
+
+        // Serialize with omitXmlDeclaration - the whitespace between declaration and
+        // DOCTYPE should not leak as leading whitespace
+        DomTripConfig config = DomTripConfig.defaults().withXmlDeclaration(false);
+        Serializer serializer = new Serializer(config);
+        String result = serializer.serialize(doc);
+        assertTrue(result.startsWith("<!DOCTYPE root>"));
+    }
+
+    @Test
+    void testSerializeNodeDelegatesToSerializeDocumentForDocumentNodes() throws DomTripException {
+        String xml = "<?xml version=\"1.0\"?>\n<!-- comment -->\n<root/>";
+        Document doc = Document.of(xml);
+
+        // Using minimal config (omits comments) through serialize(Node) should still
+        // apply comment filtering by delegating to serialize(Document)
+        Serializer serializer = new Serializer(DomTripConfig.minimal());
+        String result = serializer.serialize((Node) doc);
+        assertFalse(result.contains("<!--"));
+    }
+
+    @Test
+    void testDoctypeWhitespacePreservedWithPrettyPrint() throws DomTripException {
+        String xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE root>\n<root/>";
+        Document doc = Document.of(xml);
+
+        Serializer serializer = new Serializer(DomTripConfig.prettyPrint());
+        String result = serializer.serialize(doc);
+        assertTrue(result.contains("<?xml version=\"1.0\"?>"));
+        assertTrue(result.contains("<!DOCTYPE root>"));
+    }
+
+    @Test
     void testLosslessRoundTrip() throws DomTripException {
         String originalXml = """
             <?xml version="1.0" encoding="UTF-8"?>

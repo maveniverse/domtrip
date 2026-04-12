@@ -200,6 +200,13 @@ public class Document extends ContainerNode {
     }
 
     /**
+     * Sets the XML declaration without marking the document as modified (for internal use during parsing).
+     */
+    void xmlDeclarationInternal(String xmlDeclaration) {
+        this.xmlDeclaration = xmlDeclaration != null ? xmlDeclaration : "";
+    }
+
+    /**
      * Gets the DOCTYPE declaration for this document.
      *
      * <p>The DOCTYPE declaration defines the document type and may include
@@ -230,6 +237,26 @@ public class Document extends ContainerNode {
         this.doctype = doctype != null ? doctype : "";
         markModified();
         return this;
+    }
+
+    /**
+     * Sets the DOCTYPE declaration without marking the document as modified (for internal use during parsing).
+     */
+    void doctypeInternal(String doctype) {
+        this.doctype = doctype != null ? doctype : "";
+    }
+
+    /**
+     * Gets the whitespace before the DOCTYPE declaration.
+     *
+     * <p>This whitespace appears between the XML declaration and the DOCTYPE
+     * declaration. It is preserved during round-trip parsing and serialization
+     * to maintain document fidelity.</p>
+     *
+     * @return the whitespace before the DOCTYPE declaration, or empty string if none
+     */
+    public String doctypePrecedingWhitespace() {
+        return doctypePrecedingWhitespace;
     }
 
     /**
@@ -321,6 +348,13 @@ public class Document extends ContainerNode {
     }
 
     /**
+     * Sets the encoding without marking the document as modified (for internal use during parsing).
+     */
+    void encodingInternal(String encoding) {
+        this.encoding = encoding != null ? encoding : DEFAULT_ENCODING;
+    }
+
+    /**
      * Gets the XML version for this document.
      *
      * <p>The XML version indicates which version of the XML specification
@@ -347,6 +381,13 @@ public class Document extends ContainerNode {
         this.version = version != null ? version : "1.0";
         markModified();
         return this;
+    }
+
+    /**
+     * Sets the version without marking the document as modified (for internal use during parsing).
+     */
+    void versionInternal(String version) {
+        this.version = version != null ? version : "1.0";
     }
 
     /**
@@ -377,6 +418,13 @@ public class Document extends ContainerNode {
         this.standalone = standalone;
         markModified();
         return this;
+    }
+
+    /**
+     * Sets the standalone flag without marking the document as modified (for internal use during parsing).
+     */
+    void standaloneInternal(boolean standalone) {
+        this.standalone = standalone;
     }
 
     /**

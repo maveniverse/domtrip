@@ -164,6 +164,30 @@ class DoctypePreservationTest {
     }
 
     @Test
+    void testWhitespaceBetweenXmlDeclarationAndDoctype() throws DomTripException {
+        String xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE root>\n<root/>";
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        String result = editor.toXml();
+        assertEquals(xml, result);
+    }
+
+    @Test
+    void testWhitespaceBetweenXmlDeclarationAndDoctypeAfterModification() throws DomTripException {
+        String xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE project>\n<project><name>test</name></project>";
+        Document doc = Document.of(xml);
+
+        // Modify the document
+        Element root = doc.root();
+        Element name = root.childElement("name").orElseThrow();
+        name.textContent("modified");
+
+        String result = doc.toXml();
+        assertTrue(result.startsWith("<?xml version=\"1.0\"?>\n<!DOCTYPE project>\n"));
+        assertTrue(result.contains("<name>modified</name>"));
+    }
+
+    @Test
     void testLosslessRoundTrip() throws DomTripException {
         String originalXml = """
             <?xml version="1.0" encoding="UTF-8"?>

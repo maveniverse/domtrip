@@ -314,10 +314,12 @@ public class Serializer {
             sb.append(document.xmlDeclaration());
         }
 
-        // Add DOCTYPE if present
+        // Add DOCTYPE if present (with its preceding whitespace)
         if (!document.doctype().isEmpty()) {
             if (prettyPrint && !lineEnding.isEmpty()) {
                 sb.append(lineEnding);
+            } else {
+                sb.append(document.doctypePrecedingWhitespace());
             }
             sb.append(document.doctype());
         }
@@ -550,8 +552,10 @@ public class Serializer {
             return;
         }
 
-        if (!node.isModified()) {
-            // Use original formatting for unmodified nodes when not pretty printing
+        if (node.type() != Node.NodeType.DOCUMENT && !node.isModified()) {
+            // Use original formatting for unmodified nodes when not pretty printing.
+            // Document nodes are excluded because serialize(Document) handles the XML
+            // declaration and DOCTYPE separately, and children need filtering applied.
             node.toXml(sb);
             return;
         }

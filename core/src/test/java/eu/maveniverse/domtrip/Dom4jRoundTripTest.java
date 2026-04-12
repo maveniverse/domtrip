@@ -353,21 +353,8 @@ class Dom4jRoundTripTest {
                 </project>
                 """;
 
-        // DOM4J with best-effort settings
-        SAXReader reader = safeSaxReader();
-        Document doc = reader.read(new StringReader(xml));
-        OutputFormat format = OutputFormat.createCompactFormat();
-        format.setNewlines(false);
-        format.setIndent(false);
-        format.setTrimText(false);
-        format.setPadText(false);
-        StringWriter writer = new StringWriter();
-        XMLWriter xmlWriter = new XMLWriter(writer, format);
-        xmlWriter.write(doc);
-        String dom4jResult = writer.toString();
-
         // DOM4J fails on: single quotes, attribute whitespace/newlines, namespace formatting
-        assertNotEquals(xml, dom4jResult, "DOM4J best practice still loses formatting");
+        assertNotEquals(xml, dom4jBestEffort(xml), "DOM4J best practice still loses formatting");
 
         assertEquals(xml, domTripRoundTrip(xml), "DomTrip achieves perfect round-trip");
     }

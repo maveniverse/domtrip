@@ -23,6 +23,7 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 | **Modern Java API** | ✅ Java 8+ | ❌ Legacy | ❌ Legacy | ❌ Legacy | ✅ Modern |
 | **Fluent Builders** | ✅ Full | ❌ No | ❌ No | ❌ No | ⚠️ Limited |
 | **Stream Navigation** | ✅ Native | ❌ No | ❌ No | ❌ No | ❌ No |
+| **XPath Queries** | ⚠️ Mini-XPath subset | ✅ Full XPath | ✅ XPath via JAXP | ✅ Full XPath | ❌ No |
 | **Namespace Support** | ✅ Comprehensive | ✅ Good | ✅ Good | ✅ Good | ⚠️ Basic |
 | **XML Spec Compliance** | ⚠️ Round-trip focused | ✅ Full | ✅ Full | ✅ Full | ✅ Full |
 
@@ -44,7 +45,7 @@ DomTrip offers unique advantages over traditional XML processing libraries. Here
 **DOM4J Advantages:**
 - **Good whitespace handling** - With compact format and no trimming, preserves inner and between-element whitespace, CDATA sections, and namespace declarations
 - **Mature ecosystem** - Longer history, more third-party integrations
-- **XPath support** - Built-in XPath query capabilities
+- **Full XPath support** - Complete XPath 1.0 implementation (DomTrip supports a practical mini-XPath subset)
 - **Larger community** - More Stack Overflow answers and tutorials
 
 ### DomTrip vs JDOM

@@ -206,9 +206,9 @@ public class XPathExpression {
         for (int i = start; i < expression.length(); i++) {
             char c = expression.charAt(i);
             if (inSQ) {
-                inSQ = c != '\'';
+                inSQ = c != '\''; // stay in single-quote mode unless this char closes it
             } else if (inDQ) {
-                inDQ = c != '"';
+                inDQ = c != '"'; // stay in double-quote mode unless this char closes it
             } else if (c == '\'') {
                 inSQ = true;
             } else if (c == '"') {

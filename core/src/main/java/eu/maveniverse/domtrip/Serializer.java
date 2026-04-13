@@ -101,6 +101,9 @@ import java.nio.charset.StandardCharsets;
  *   <li>Provides both string and StringBuilder output methods</li>
  * </ul>
  *
+ * @implNote This class is not thread-safe. A single instance may be shared for concurrent
+ *           serialization only if no setter methods are called after construction.
+ *
  * @see Parser
  * @see DomTripConfig
  * @see DomTripConfig#raw()
@@ -631,21 +634,25 @@ public class Serializer {
     }
 
     private void serializeDocument(Document document, StringBuilder sb) {
-        for (Node child : document.children) {
+        // Snapshot children to ensure consistent root-in-children check
+        java.util.List<Node> snapshot = new java.util.ArrayList<>(document.children);
+        for (Node child : snapshot) {
             serializeNode(child, sb);
         }
 
-        if (document.root() != null && !document.children.contains(document.root())) {
+        if (document.root() != null && !snapshot.contains(document.root())) {
             serializeNode(document.root(), sb);
         }
     }
 
     private void serializeDocumentPretty(Document document, StringBuilder sb, int depth) {
-        for (Node child : document.children) {
+        // Snapshot children to ensure consistent root-in-children check
+        java.util.List<Node> snapshot = new java.util.ArrayList<>(document.children);
+        for (Node child : snapshot) {
             serializeNodePretty(child, sb, depth);
         }
 
-        if (document.root() != null && !document.children.contains(document.root())) {
+        if (document.root() != null && !snapshot.contains(document.root())) {
             serializeNodePretty(document.root(), sb, depth);
         }
     }

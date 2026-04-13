@@ -60,6 +60,8 @@ import org.xml.sax.helpers.AttributesImpl;
  * {@link #setReportNamespaceDeclarations(boolean)} to {@code true} to include them,
  * matching the SAX {@code namespace-prefixes} feature behavior.</p>
  *
+ * @implNote This class is not thread-safe. External synchronization is required for concurrent access.
+ *
  * @see DomTripSAXSource
  * @see DomTripXMLReader
  * @since 1.3.0
@@ -137,15 +139,15 @@ public class SAXOutputter {
 
         handler.startDocument();
 
-        // Process all children in document order
-        List<Node> children = doc.children().collect(Collectors.toList());
-        for (Node child : children) {
+        // Process all children in document order (snapshot for consistent root check)
+        List<Node> snapshot = doc.children().collect(Collectors.toList());
+        for (Node child : snapshot) {
             processNode(child, handler, lexicalHandler);
         }
 
         // Process root element if not already in children list
         Element root = doc.root();
-        if (root != null && !children.contains(root)) {
+        if (root != null && !snapshot.contains(root)) {
             processNode(root, handler, lexicalHandler);
         }
 

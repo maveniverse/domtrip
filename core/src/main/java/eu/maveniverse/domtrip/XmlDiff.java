@@ -120,6 +120,7 @@ public final class XmlDiff {
         compareAttributes(before, after, path, changes);
         compareTextContent(before, after, path, changes);
         compareComments(before, after, path, changes);
+        compareProcessingInstructions(before, after, path, changes);
         compareChildElements(before, after, path, config, changes);
     }
 
@@ -300,6 +301,46 @@ public final class XmlDiff {
     /** Builds an XPath-like comment path, adding a positional index when multiple comments exist. */
     private static String commentPath(String path, int index, boolean needsIndex) {
         return needsIndex ? path + "/comment()[" + (index + 1) + "]" : path + "/comment()";
+    }
+
+    // --- Processing instruction comparison ---
+
+    private static void compareProcessingInstructions(
+            Element before, Element after, String path, List<XmlChange> changes) {
+        List<ProcessingInstruction> beforePIs = getProcessingInstructions(before);
+        List<ProcessingInstruction> afterPIs = getProcessingInstructions(after);
+
+        int matchCount = Math.min(beforePIs.size(), afterPIs.size());
+        boolean needsIndex = beforePIs.size() > 1 || afterPIs.size() > 1;
+
+        for (int i = 0; i < matchCount; i++) {
+            ProcessingInstruction bp = beforePIs.get(i);
+            ProcessingInstruction ap = afterPIs.get(i);
+            String piDesc = bp.target() + (bp.data() != null ? " " + bp.data() : "");
+            String apiDesc = ap.target() + (ap.data() != null ? " " + ap.data() : "");
+            if (!Objects.equals(bp.target(), ap.target()) || !Objects.equals(bp.data(), ap.data())) {
+                changes.add(new XmlChange(ChangeType.PI_CHANGED, piPath(path, i, needsIndex), piDesc, apiDesc, bp, ap));
+            }
+        }
+
+        for (int i = matchCount; i < beforePIs.size(); i++) {
+            ProcessingInstruction bp = beforePIs.get(i);
+            String piDesc = bp.target() + (bp.data() != null ? " " + bp.data() : "");
+            changes.add(new XmlChange(ChangeType.PI_REMOVED, piPath(path, i, needsIndex), piDesc, null, bp, null));
+        }
+
+        for (int i = matchCount; i < afterPIs.size(); i++) {
+            ProcessingInstruction ap = afterPIs.get(i);
+            String apiDesc = ap.target() + (ap.data() != null ? " " + ap.data() : "");
+            changes.add(new XmlChange(ChangeType.PI_ADDED, piPath(path, i, needsIndex), null, apiDesc, null, ap));
+        }
+    }
+
+    /** Builds an XPath-like processing-instruction path, adding a positional index when multiple PIs exist. */
+    private static String piPath(String path, int index, boolean needsIndex) {
+        return needsIndex
+                ? path + "/processing-instruction()[" + (index + 1) + "]"
+                : path + "/processing-instruction()";
     }
 
     // --- Child element comparison ---
@@ -549,6 +590,13 @@ public final class XmlDiff {
                 .collect(Collectors.toList());
     }
 
+    private static List<ProcessingInstruction> getProcessingInstructions(Element element) {
+        return element.children()
+                .filter(ProcessingInstruction.class::isInstance)
+                .map(ProcessingInstruction.class::cast)
+                .collect(Collectors.toList());
+    }
+
     private static String joinTextContent(List<Text> texts) {
         StringBuilder sb = new StringBuilder();
         for (Text t : texts) {
@@ -595,11 +643,11 @@ public final class XmlDiff {
      * Internal result of the child matching algorithm.
      */
     static class MatchResult {
-        final List<int[]> matched; // Each entry: [beforeIdx, afterIdx, keyMatched (1=key, 0=positional)]
-        final List<Integer> removed;
-        final List<Integer> added;
-        final Set<Integer> matchedBeforeSet;
-        final Set<Integer> matchedAfterSet;
+        private final List<int[]> matched; // Each entry: [beforeIdx, afterIdx, keyMatched (1=key, 0=positional)]
+        private final List<Integer> removed;
+        private final List<Integer> added;
+        private final Set<Integer> matchedBeforeSet;
+        private final Set<Integer> matchedAfterSet;
 
         MatchResult(
                 List<int[]> matched,
@@ -607,11 +655,11 @@ public final class XmlDiff {
                 List<Integer> added,
                 Set<Integer> matchedBeforeSet,
                 Set<Integer> matchedAfterSet) {
-            this.matched = matched;
-            this.removed = removed;
-            this.added = added;
-            this.matchedBeforeSet = matchedBeforeSet;
-            this.matchedAfterSet = matchedAfterSet;
+            this.matched = Collections.unmodifiableList(new ArrayList<>(matched));
+            this.removed = Collections.unmodifiableList(new ArrayList<>(removed));
+            this.added = Collections.unmodifiableList(new ArrayList<>(added));
+            this.matchedBeforeSet = Collections.unmodifiableSet(new LinkedHashSet<>(matchedBeforeSet));
+            this.matchedAfterSet = Collections.unmodifiableSet(new LinkedHashSet<>(matchedAfterSet));
         }
     }
 }

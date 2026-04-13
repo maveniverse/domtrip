@@ -546,6 +546,7 @@ class XmlDiffTest {
 
         // /project/name should only match changes at /project/name, not /project/namespace
         List<XmlChange> nameChanges = result.changesUnder("/project/name");
+        assertFalse(nameChanges.isEmpty(), "changesUnder('/project/name') should return at least one change");
         assertTrue(nameChanges.stream()
                 .allMatch(c -> c.path().equals("/project/name")
                         || c.path().startsWith("/project/name/")

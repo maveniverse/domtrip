@@ -634,26 +634,28 @@ public class Serializer {
     }
 
     private void serializeDocument(Document document, StringBuilder sb) {
-        // Snapshot children to ensure consistent root-in-children check
+        // Snapshot both root and children for a consistent view
+        Element rootSnapshot = document.root();
         java.util.List<Node> snapshot = new java.util.ArrayList<>(document.children);
         for (Node child : snapshot) {
             serializeNode(child, sb);
         }
 
-        if (document.root() != null && !snapshot.contains(document.root())) {
-            serializeNode(document.root(), sb);
+        if (rootSnapshot != null && !snapshot.contains(rootSnapshot)) {
+            serializeNode(rootSnapshot, sb);
         }
     }
 
     private void serializeDocumentPretty(Document document, StringBuilder sb, int depth) {
-        // Snapshot children to ensure consistent root-in-children check
+        // Snapshot both root and children for a consistent view
+        Element rootSnapshot = document.root();
         java.util.List<Node> snapshot = new java.util.ArrayList<>(document.children);
         for (Node child : snapshot) {
             serializeNodePretty(child, sb, depth);
         }
 
-        if (document.root() != null && !snapshot.contains(document.root())) {
-            serializeNodePretty(document.root(), sb, depth);
+        if (rootSnapshot != null && !snapshot.contains(rootSnapshot)) {
+            serializeNodePretty(rootSnapshot, sb, depth);
         }
     }
 

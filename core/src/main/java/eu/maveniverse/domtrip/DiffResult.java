@@ -172,6 +172,9 @@ public class DiffResult {
      * must not match {@code /project/namespace}).
      */
     private static boolean isAtOrUnder(String changePath, String basePath) {
+        if ("/".equals(basePath)) {
+            return changePath.startsWith("/");
+        }
         return changePath.equals(basePath)
                 || changePath.startsWith(basePath + "/")
                 || changePath.startsWith(basePath + "/@");

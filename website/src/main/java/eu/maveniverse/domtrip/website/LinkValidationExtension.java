@@ -306,21 +306,24 @@ public class LinkValidationExtension {
      * For other files, this is the parent directory of the file.</p>
      */
     private String resolveRelativeUrlFromContainingDir(String url, String currentFilePath) {
+        // Normalize to forward slashes for consistent resolution on all platforms
+        String normalizedPath = currentFilePath.replace('\\', '/');
+
         if (url.startsWith("/")) {
             return url;
         }
 
         String baseDir;
-        if (currentFilePath.endsWith(INDEX_HTML_SUFFIX)) {
+        if (normalizedPath.endsWith(INDEX_HTML_SUFFIX)) {
             // For index.html, resolve from the directory containing it
             // e.g., docs/getting-started/quick-start/index.html -> /docs/getting-started/quick-start/
-            String dirPath = currentFilePath.substring(0, currentFilePath.length() - INDEX_HTML_SUFFIX.length());
+            String dirPath = normalizedPath.substring(0, normalizedPath.length() - INDEX_HTML_SUFFIX.length());
             baseDir = "/" + dirPath + "/";
         } else {
             // For other files, resolve from the file's parent directory
-            int lastSlash = currentFilePath.lastIndexOf('/');
+            int lastSlash = normalizedPath.lastIndexOf('/');
             if (lastSlash >= 0) {
-                baseDir = "/" + currentFilePath.substring(0, lastSlash + 1);
+                baseDir = "/" + normalizedPath.substring(0, lastSlash + 1);
             } else {
                 baseDir = "/";
             }

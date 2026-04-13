@@ -499,15 +499,16 @@ public class Document extends ContainerNode {
         sb.append(precedingWhitespace);
 
         // Add all children (comments, processing instructions, document element)
-        // Use snapshot to avoid issues if the children list is mutated concurrently
+        // Snapshot both children and root for a consistent view
+        Element rootSnapshot = root;
         List<Node> snapshot = new java.util.ArrayList<>(children);
         for (Node child : snapshot) {
             child.toXml(sb);
         }
 
         // Add document element if set and not already in children
-        if (root != null && !snapshot.contains(root)) {
-            root.toXml(sb);
+        if (rootSnapshot != null && !snapshot.contains(rootSnapshot)) {
+            rootSnapshot.toXml(sb);
         }
     }
 
@@ -528,8 +529,8 @@ public class Document extends ContainerNode {
         if (visitor == null) {
             throw new IllegalArgumentException("Visitor cannot be null");
         }
-        // Use snapshot to tolerate structural mutations during traversal
-        // and to ensure consistent root-in-children check
+        // Snapshot both children and root for a consistent view
+        Element rootSnapshot = root;
         List<Node> snapshot = new java.util.ArrayList<>(children);
         for (Node child : snapshot) {
             if (child.accept(visitor) == DomTripVisitor.Action.STOP) {
@@ -537,8 +538,8 @@ public class Document extends ContainerNode {
             }
         }
         // Visit root element if set and not already in children
-        if (root != null && !snapshot.contains(root)) {
-            return root.accept(visitor);
+        if (rootSnapshot != null && !snapshot.contains(rootSnapshot)) {
+            return rootSnapshot.accept(visitor);
         }
         return DomTripVisitor.Action.CONTINUE;
     }

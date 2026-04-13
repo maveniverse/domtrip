@@ -316,22 +316,26 @@ public final class XmlDiff {
         for (int i = 0; i < matchCount; i++) {
             ProcessingInstruction bp = beforePIs.get(i);
             ProcessingInstruction ap = afterPIs.get(i);
-            String piDesc = bp.target() + (bp.data() != null ? " " + bp.data() : "");
-            String apiDesc = ap.target() + (ap.data() != null ? " " + ap.data() : "");
-            if (!Objects.equals(bp.target(), ap.target()) || !Objects.equals(bp.data(), ap.data())) {
+            String beforeData = bp.data() == null ? "" : bp.data();
+            String afterData = ap.data() == null ? "" : ap.data();
+            String piDesc = beforeData.isEmpty() ? bp.target() : bp.target() + " " + beforeData;
+            String apiDesc = afterData.isEmpty() ? ap.target() : ap.target() + " " + afterData;
+            if (!Objects.equals(bp.target(), ap.target()) || !beforeData.equals(afterData)) {
                 changes.add(new XmlChange(ChangeType.PI_CHANGED, piPath(path, i, needsIndex), piDesc, apiDesc, bp, ap));
             }
         }
 
         for (int i = matchCount; i < beforePIs.size(); i++) {
             ProcessingInstruction bp = beforePIs.get(i);
-            String piDesc = bp.target() + (bp.data() != null ? " " + bp.data() : "");
+            String beforeData = bp.data() == null ? "" : bp.data();
+            String piDesc = beforeData.isEmpty() ? bp.target() : bp.target() + " " + beforeData;
             changes.add(new XmlChange(ChangeType.PI_REMOVED, piPath(path, i, needsIndex), piDesc, null, bp, null));
         }
 
         for (int i = matchCount; i < afterPIs.size(); i++) {
             ProcessingInstruction ap = afterPIs.get(i);
-            String apiDesc = ap.target() + (ap.data() != null ? " " + ap.data() : "");
+            String afterData = ap.data() == null ? "" : ap.data();
+            String apiDesc = afterData.isEmpty() ? ap.target() : ap.target() + " " + afterData;
             changes.add(new XmlChange(ChangeType.PI_ADDED, piPath(path, i, needsIndex), null, apiDesc, null, ap));
         }
     }

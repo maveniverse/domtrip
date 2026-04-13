@@ -144,7 +144,7 @@ Now that you've mastered the basics, explore more advanced features:
 - 🏗️ [Builder Patterns](../../advanced/factory-methods/) - Fluent APIs for complex XML
 - 🌐 [Namespace Support](../../features/namespace-support/) - Working with XML namespaces
 - ⚙️ [Configuration](../../api/configuration/) - Customizing DomTrip's behavior
-- 📖 [Examples](../../examples/) - Real-world use cases
+- 📖 [Examples](../../../examples/) - Real-world use cases
 
 ## Tips for Success
 

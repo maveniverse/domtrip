@@ -333,4 +333,4 @@ DomTripConfig config = DomTripConfig.defaults()
 
 - 📝 [Editor API](../editor/) - Using the Editor class
 - 🏗️ [Builder Patterns](../../advanced/factory-methods/) - Creating XML structures
-- 📖 [Examples](../../examples/) - Real-world usage examples
+- 📖 [Examples](../../../examples/) - Real-world usage examples

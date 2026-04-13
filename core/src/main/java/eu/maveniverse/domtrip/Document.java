@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -501,7 +502,7 @@ public class Document extends ContainerNode {
         // Add all children (comments, processing instructions, document element)
         // Snapshot both children and root for a consistent view
         Element rootSnapshot = root;
-        List<Node> snapshot = new java.util.ArrayList<>(children);
+        List<Node> snapshot = new ArrayList<>(children);
         for (Node child : snapshot) {
             child.toXml(sb);
         }
@@ -531,7 +532,7 @@ public class Document extends ContainerNode {
         }
         // Snapshot both children and root for a consistent view
         Element rootSnapshot = root;
-        List<Node> snapshot = new java.util.ArrayList<>(children);
+        List<Node> snapshot = new ArrayList<>(children);
         for (Node child : snapshot) {
             if (child.accept(visitor) == DomTripVisitor.Action.STOP) {
                 return DomTripVisitor.Action.STOP;

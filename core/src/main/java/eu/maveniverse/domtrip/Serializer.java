@@ -13,6 +13,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Serializes XML node trees back to XML string format with configurable
@@ -636,7 +638,7 @@ public class Serializer {
     private void serializeDocument(Document document, StringBuilder sb) {
         // Snapshot both root and children for a consistent view
         Element rootSnapshot = document.root();
-        java.util.List<Node> snapshot = new java.util.ArrayList<>(document.children);
+        List<Node> snapshot = new ArrayList<>(document.children);
         for (Node child : snapshot) {
             serializeNode(child, sb);
         }
@@ -649,7 +651,7 @@ public class Serializer {
     private void serializeDocumentPretty(Document document, StringBuilder sb, int depth) {
         // Snapshot both root and children for a consistent view
         Element rootSnapshot = document.root();
-        java.util.List<Node> snapshot = new java.util.ArrayList<>(document.children);
+        List<Node> snapshot = new ArrayList<>(document.children);
         for (Node child : snapshot) {
             serializeNodePretty(child, sb, depth);
         }

@@ -316,28 +316,47 @@ public final class XmlDiff {
         for (int i = 0; i < matchCount; i++) {
             ProcessingInstruction bp = beforePIs.get(i);
             ProcessingInstruction ap = afterPIs.get(i);
-            String beforeData = bp.data() == null ? "" : bp.data();
-            String afterData = ap.data() == null ? "" : ap.data();
-            String piDesc = beforeData.isEmpty() ? bp.target() : bp.target() + " " + beforeData;
-            String apiDesc = afterData.isEmpty() ? ap.target() : ap.target() + " " + afterData;
+            String beforeData = normalizeData(bp.data());
+            String afterData = normalizeData(ap.data());
             if (!Objects.equals(bp.target(), ap.target()) || !beforeData.equals(afterData)) {
-                changes.add(new XmlChange(ChangeType.PI_CHANGED, piPath(path, i, needsIndex), piDesc, apiDesc, bp, ap));
+                changes.add(new XmlChange(
+                        ChangeType.PI_CHANGED,
+                        piPath(path, i, needsIndex),
+                        piDescription(bp),
+                        piDescription(ap),
+                        bp,
+                        ap));
             }
         }
 
         for (int i = matchCount; i < beforePIs.size(); i++) {
-            ProcessingInstruction bp = beforePIs.get(i);
-            String beforeData = bp.data() == null ? "" : bp.data();
-            String piDesc = beforeData.isEmpty() ? bp.target() : bp.target() + " " + beforeData;
-            changes.add(new XmlChange(ChangeType.PI_REMOVED, piPath(path, i, needsIndex), piDesc, null, bp, null));
+            changes.add(new XmlChange(
+                    ChangeType.PI_REMOVED,
+                    piPath(path, i, needsIndex),
+                    piDescription(beforePIs.get(i)),
+                    null,
+                    beforePIs.get(i),
+                    null));
         }
 
         for (int i = matchCount; i < afterPIs.size(); i++) {
-            ProcessingInstruction ap = afterPIs.get(i);
-            String afterData = ap.data() == null ? "" : ap.data();
-            String apiDesc = afterData.isEmpty() ? ap.target() : ap.target() + " " + afterData;
-            changes.add(new XmlChange(ChangeType.PI_ADDED, piPath(path, i, needsIndex), null, apiDesc, null, ap));
+            changes.add(new XmlChange(
+                    ChangeType.PI_ADDED,
+                    piPath(path, i, needsIndex),
+                    null,
+                    piDescription(afterPIs.get(i)),
+                    null,
+                    afterPIs.get(i)));
         }
+    }
+
+    private static String normalizeData(String data) {
+        return data == null ? "" : data;
+    }
+
+    private static String piDescription(ProcessingInstruction pi) {
+        String data = normalizeData(pi.data());
+        return data.isEmpty() ? pi.target() : pi.target() + " " + data;
     }
 
     /** Builds an XPath-like processing-instruction path, adding a positional index when multiple PIs exist. */

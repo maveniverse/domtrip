@@ -703,7 +703,7 @@ public class DomTripStreamReader implements XMLStreamReader {
             case XMLStreamConstants.END_DOCUMENT:
                 return "END_DOCUMENT";
             case XMLStreamConstants.CDATA:
-                return "CDATA";
+                return CDATA_TYPE;
             default:
                 return String.valueOf(eventType);
         }

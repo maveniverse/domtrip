@@ -67,13 +67,13 @@ class NamespaceNodeTest {
     @Test
     void notEqualNull() {
         NamespaceNode a = new NamespaceNode(element, "ns", "http://example.com");
-        assertNotEquals(a, null);
+        assertNotEquals(null, a);
     }
 
     @Test
     void notEqualDifferentType() {
         NamespaceNode a = new NamespaceNode(element, "ns", "http://example.com");
-        assertNotEquals(a, "ns");
+        assertNotEquals("ns", a);
     }
 
     @Test

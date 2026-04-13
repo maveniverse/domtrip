@@ -66,14 +66,14 @@ class AttributeNodeTest {
     void notEqualNull() {
         AttributeNode a =
                 new AttributeNode(element, "id", element.attributeObjects().get("id"));
-        assertNotEquals(a, null);
+        assertNotEquals(null, a);
     }
 
     @Test
     void notEqualDifferentType() {
         AttributeNode a =
                 new AttributeNode(element, "id", element.attributeObjects().get("id"));
-        assertNotEquals(a, "id");
+        assertNotEquals("id", a);
     }
 
     @Test

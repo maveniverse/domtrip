@@ -41,6 +41,10 @@ import org.jaxen.JaxenException;
  *   <li>Full axis navigation: {@code ancestor::}, {@code following-sibling::}, etc.</li>
  * </ul>
  *
+ * @implNote This class is NOT thread-safe due to mutable namespace and variable contexts
+ *           inherited from Jaxen's {@link BaseXPath}. Create separate instances per thread
+ *           or synchronize access externally.
+ *
  * @since 1.3.0
  * @see XPath
  * @see DomTripNavigator

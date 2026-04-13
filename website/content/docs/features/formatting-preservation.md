@@ -269,6 +269,6 @@ Formatting preservation has minimal performance impact:
 
 ## Next Steps
 
-- 🔄 [Lossless Parsing](../../docs/features/lossless-parsing/) - Understanding the parsing process
-- 🌐 [Namespace Support](../../docs/features/namespace-support/) - Working with XML namespaces
-- 🏗️ [Builder Patterns](../../docs/advanced/factory-methods/) - Creating complex structures
+- 🔄 [Lossless Parsing](../lossless-parsing/) - Understanding the parsing process
+- 🌐 [Namespace Support](../namespace-support/) - Working with XML namespaces
+- 🏗️ [Builder Patterns](../../advanced/factory-methods/) - Creating complex structures

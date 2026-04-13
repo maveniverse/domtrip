@@ -59,6 +59,8 @@ import javax.xml.stream.XMLStreamReader;
  * transformer.transform(source, result);
  * }</pre>
  *
+ * @implNote This class is not thread-safe. External synchronization is required for concurrent access.
+ *
  * @see DomTripStAXSource
  * @since 1.3.0
  */
@@ -235,7 +237,7 @@ public class DomTripStreamReader implements XMLStreamReader {
     @Override
     public String getNamespaceURI() {
         requireElementState();
-        return NamespaceResolver.resolveNamespaceURI(currentElement, currentElement.prefix());
+        return resolveElementNamespace(currentElement);
     }
 
     // ── Attribute access (START_ELEMENT only) ───────────────────────────
@@ -526,7 +528,7 @@ public class DomTripStreamReader implements XMLStreamReader {
             event = next();
         }
         if (event != XMLStreamConstants.START_ELEMENT && event != XMLStreamConstants.END_ELEMENT) {
-            throw new XMLStreamException("Expected START_ELEMENT or END_ELEMENT, got " + event);
+            throw new XMLStreamException("Expected START_ELEMENT or END_ELEMENT, got " + eventTypeName(event));
         }
         return event;
     }
@@ -682,6 +684,29 @@ public class DomTripStreamReader implements XMLStreamReader {
 
     private boolean isNonWhitespaceText(int event) {
         return (event == XMLStreamConstants.CHARACTERS || event == XMLStreamConstants.CDATA) && !isWhiteSpace();
+    }
+
+    private static String eventTypeName(int eventType) {
+        switch (eventType) {
+            case XMLStreamConstants.START_ELEMENT:
+                return "START_ELEMENT";
+            case XMLStreamConstants.END_ELEMENT:
+                return "END_ELEMENT";
+            case XMLStreamConstants.PROCESSING_INSTRUCTION:
+                return "PROCESSING_INSTRUCTION";
+            case XMLStreamConstants.CHARACTERS:
+                return "CHARACTERS";
+            case XMLStreamConstants.COMMENT:
+                return "COMMENT";
+            case XMLStreamConstants.START_DOCUMENT:
+                return "START_DOCUMENT";
+            case XMLStreamConstants.END_DOCUMENT:
+                return "END_DOCUMENT";
+            case XMLStreamConstants.CDATA:
+                return CDATA_TYPE;
+            default:
+                return String.valueOf(eventType);
+        }
     }
 
     // ── Inner classes ───────────────────────────────────────────────────

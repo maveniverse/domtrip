@@ -11,10 +11,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Configuration for XML diff operations.
@@ -28,7 +26,6 @@ import java.util.Set;
  * DiffConfig config = DiffConfig.builder()
  *     .matchBy("dependency", "groupId", "artifactId")
  *     .matchBy("*", "id")
- *     .orderSensitive("modules/module")
  *     .build();
  * }</pre>
  *
@@ -39,17 +36,12 @@ public class DiffConfig {
 
     private final Map<String, List<String>> matchKeys;
     private final List<String> wildcardMatchKeys;
-    private final Set<String> orderSensitivePaths;
 
-    private DiffConfig(
-            Map<String, List<String>> matchKeys, List<String> wildcardMatchKeys, Set<String> orderSensitivePaths) {
+    private DiffConfig(Map<String, List<String>> matchKeys, List<String> wildcardMatchKeys) {
         this.matchKeys = Collections.unmodifiableMap(new LinkedHashMap<>(matchKeys));
         this.wildcardMatchKeys = wildcardMatchKeys.isEmpty()
                 ? Collections.<String>emptyList()
                 : Collections.unmodifiableList(new ArrayList<>(wildcardMatchKeys));
-        this.orderSensitivePaths = orderSensitivePaths.isEmpty()
-                ? Collections.<String>emptySet()
-                : Collections.unmodifiableSet(new LinkedHashSet<>(orderSensitivePaths));
     }
 
     /**
@@ -58,10 +50,7 @@ public class DiffConfig {
      * @return the default configuration
      */
     public static DiffConfig defaults() {
-        return new DiffConfig(
-                Collections.<String, List<String>>emptyMap(),
-                Collections.<String>emptyList(),
-                Collections.<String>emptySet());
+        return new DiffConfig(Collections.<String, List<String>>emptyMap(), Collections.<String>emptyList());
     }
 
     /**
@@ -89,23 +78,12 @@ public class DiffConfig {
     }
 
     /**
-     * Returns whether the given path should use order-sensitive comparison.
-     *
-     * @param path the path to check
-     * @return {@code true} if order-sensitive
-     */
-    public boolean isOrderSensitive(String path) {
-        return orderSensitivePaths.contains(path);
-    }
-
-    /**
      * Builder for {@link DiffConfig}.
      */
     public static class Builder {
 
         private final Map<String, List<String>> matchKeys = new LinkedHashMap<>();
         private final List<String> wildcardMatchKeys = new ArrayList<>();
-        private final Set<String> orderSensitivePaths = new LinkedHashSet<>();
 
         /**
          * Configures match keys for an element name. Use {@code "*"} as the element
@@ -128,24 +106,12 @@ public class DiffConfig {
         }
 
         /**
-         * Marks a path as order-sensitive, meaning element reordering under this
-         * path will be detected as moves.
-         *
-         * @param path the path to mark as order-sensitive
-         * @return this builder
-         */
-        public Builder orderSensitive(String path) {
-            orderSensitivePaths.add(path);
-            return this;
-        }
-
-        /**
          * Builds the configuration.
          *
          * @return the built configuration
          */
         public DiffConfig build() {
-            return new DiffConfig(matchKeys, wildcardMatchKeys, orderSensitivePaths);
+            return new DiffConfig(matchKeys, wildcardMatchKeys);
         }
     }
 }

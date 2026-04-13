@@ -13,6 +13,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Serializes XML node trees back to XML string format with configurable
@@ -100,6 +102,9 @@ import java.nio.charset.StandardCharsets;
  *   <li>Avoids re-serializing unmodified content when possible</li>
  *   <li>Provides both string and StringBuilder output methods</li>
  * </ul>
+ *
+ * @implNote This class is not thread-safe. A single instance may be shared for concurrent
+ *           serialization only if no setter methods are called after construction.
  *
  * @see Parser
  * @see DomTripConfig
@@ -631,22 +636,28 @@ public class Serializer {
     }
 
     private void serializeDocument(Document document, StringBuilder sb) {
-        for (Node child : document.children) {
+        // Snapshot both root and children for a consistent view
+        Element rootSnapshot = document.root();
+        List<Node> snapshot = new ArrayList<>(document.children);
+        for (Node child : snapshot) {
             serializeNode(child, sb);
         }
 
-        if (document.root() != null && !document.children.contains(document.root())) {
-            serializeNode(document.root(), sb);
+        if (rootSnapshot != null && !snapshot.contains(rootSnapshot)) {
+            serializeNode(rootSnapshot, sb);
         }
     }
 
     private void serializeDocumentPretty(Document document, StringBuilder sb, int depth) {
-        for (Node child : document.children) {
+        // Snapshot both root and children for a consistent view
+        Element rootSnapshot = document.root();
+        List<Node> snapshot = new ArrayList<>(document.children);
+        for (Node child : snapshot) {
             serializeNodePretty(child, sb, depth);
         }
 
-        if (document.root() != null && !document.children.contains(document.root())) {
-            serializeNodePretty(document.root(), sb, depth);
+        if (rootSnapshot != null && !snapshot.contains(rootSnapshot)) {
+            serializeNodePretty(rootSnapshot, sb, depth);
         }
     }
 

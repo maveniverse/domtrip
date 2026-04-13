@@ -125,7 +125,7 @@ Note: JDOM 2.0.6.1 is the latest and final release (Dec 2021). The project is no
 
 ## Migration Guide
 
-Migrating from other libraries to DomTrip is straightforward. Check out our [Migration Guide](migration/) for specific examples and patterns for each library.
+Migrating from other libraries to DomTrip is straightforward. Check out our [Migration Guide](../migration/) for specific examples and patterns for each library.
 
 ## XML Conformance and Round-Tripping
 
@@ -190,6 +190,6 @@ DomTrip achieves **zero data loss** and perfect round-tripping for:
 
 ## Next Steps
 
-- 📚 [Migration Guide](migration/) - Moving from other XML libraries
-- 🚀 [Quick Start](../../docs/getting-started/quick-start/) - Get started with DomTrip
-- 📖 [Examples](../../examples/) - Real-world usage examples
+- 📚 [Migration Guide](../migration/) - Moving from other XML libraries
+- 🚀 [Quick Start](../../getting-started/quick-start/) - Get started with DomTrip
+- 📖 [Examples](../../../examples/) - Real-world usage examples

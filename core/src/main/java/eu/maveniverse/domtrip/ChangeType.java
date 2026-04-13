@@ -51,6 +51,15 @@ public enum ChangeType {
     /** Comment content was modified. */
     COMMENT_CHANGED,
 
+    /** A processing instruction was inserted. */
+    PI_ADDED,
+
+    /** A processing instruction was deleted. */
+    PI_REMOVED,
+
+    /** A processing instruction was modified. */
+    PI_CHANGED,
+
     /** A namespace declaration was modified. */
     NAMESPACE_CHANGED,
 

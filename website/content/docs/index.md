@@ -12,34 +12,34 @@ Welcome to the complete documentation for DomTrip, the lossless XML editing libr
 
 Perfect for developers new to DomTrip:
 
-- **[Installation](../docs/getting-started/installation/)** - Add DomTrip to your project in minutes
-- **[Quick Start](../docs/getting-started/quick-start/)** - Your first DomTrip program with examples
-- **[Basic Concepts](../docs/getting-started/basic-concepts/)** - Understanding DomTrip's unique approach
+- **[Installation](getting-started/installation/)** - Add DomTrip to your project in minutes
+- **[Quick Start](getting-started/quick-start/)** - Your first DomTrip program with examples
+- **[Basic Concepts](getting-started/basic-concepts/)** - Understanding DomTrip's unique approach
 
 ## ⭐ Core Features
 
 Discover what makes DomTrip special:
 
-- **[Lossless Parsing](../docs/features/lossless-parsing/)** - Perfect round-trip preservation of all formatting
-- **[Formatting Preservation](../docs/features/formatting-preservation/)** - Maintaining original whitespace and style
-- **[Stream Support](../docs/features/stream-support/)** - InputStream/OutputStream processing with encoding detection
-- **[Namespace Support](../docs/features/namespace-support/)** - Comprehensive XML namespace handling
+- **[Lossless Parsing](features/lossless-parsing/)** - Perfect round-trip preservation of all formatting
+- **[Formatting Preservation](features/formatting-preservation/)** - Maintaining original whitespace and style
+- **[Stream Support](features/stream-support/)** - InputStream/OutputStream processing with encoding detection
+- **[Namespace Support](features/namespace-support/)** - Comprehensive XML namespace handling
 
 ## 🏗️ Advanced Topics
 
 For power users and complex scenarios:
 
-- **[Factory Methods](../docs/advanced/factory-methods/)** - Object creation patterns and document factories
-- **[Builder Patterns](../docs/advanced/builder-patterns/)** - Fluent APIs for creating complex XML structures
-- **[Library Comparison](../docs/advanced/comparison/)** - How DomTrip compares to DOM4J, JDOM, and others
-- **[Migration Guide](../docs/advanced/migration/)** - Step-by-step migration from other XML libraries
+- **[Factory Methods](advanced/factory-methods/)** - Object creation patterns and document factories
+- **[Builder Patterns](advanced/builder-patterns/)** - Fluent APIs for creating complex XML structures
+- **[Library Comparison](advanced/comparison/)** - How DomTrip compares to DOM4J, JDOM, and others
+- **[Migration Guide](advanced/migration/)** - Step-by-step migration from other XML libraries
 
 ## 📚 API Reference
 
 Complete API documentation:
 
-- **[Editor API](../docs/api/editor/)** - Main entry point for XML editing operations
-- **[Configuration](../docs/api/configuration/)** - Customizing DomTrip behavior and presets
+- **[Editor API](api/editor/)** - Main entry point for XML editing operations
+- **[Configuration](api/configuration/)** - Customizing DomTrip behavior and presets
 
 ## 📖 Examples & Use Cases
 
@@ -53,16 +53,16 @@ Real-world examples and patterns:
 
 ### By Use Case
 
-- **Configuration File Editing** → [Quick Start](../docs/getting-started/quick-start/) + [Examples](../examples/)
-- **Maven POM Manipulation** → [Examples](../examples/) + [Factory Methods](../docs/advanced/factory-methods/)
-- **SOAP Message Processing** → [Namespace Support](../docs/features/namespace-support/)
-- **XML Transformation Tools** → [Lossless Parsing](../docs/features/lossless-parsing/)
+- **Configuration File Editing** → [Quick Start](getting-started/quick-start/) + [Examples](../examples/)
+- **Maven POM Manipulation** → [Examples](../examples/) + [Factory Methods](advanced/factory-methods/)
+- **SOAP Message Processing** → [Namespace Support](features/namespace-support/)
+- **XML Transformation Tools** → [Lossless Parsing](features/lossless-parsing/)
 
 ### By Experience Level
 
-- **New to DomTrip** → [Installation](../docs/getting-started/installation/) → [Quick Start](../docs/getting-started/quick-start/)
-- **Migrating from other libraries** → [Library Comparison](../docs/advanced/comparison/) → [Migration Guide](../docs/advanced/migration/)
-- **Advanced usage** → [Factory Methods](../docs/advanced/factory-methods/) → [Configuration](../docs/api/configuration/)
+- **New to DomTrip** → [Installation](getting-started/installation/) → [Quick Start](getting-started/quick-start/)
+- **Migrating from other libraries** → [Library Comparison](advanced/comparison/) → [Migration Guide](advanced/migration/)
+- **Advanced usage** → [Factory Methods](advanced/factory-methods/) → [Configuration](api/configuration/)
 
 ## 💡 Key Benefits
 

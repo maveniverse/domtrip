@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -499,13 +500,16 @@ public class Document extends ContainerNode {
         sb.append(precedingWhitespace);
 
         // Add all children (comments, processing instructions, document element)
-        for (Node child : children) {
+        // Snapshot both children and root for a consistent view
+        Element rootSnapshot = root;
+        List<Node> snapshot = new ArrayList<>(children);
+        for (Node child : snapshot) {
             child.toXml(sb);
         }
 
         // Add document element if set and not already in children
-        if (root != null && !children.contains(root)) {
-            root.toXml(sb);
+        if (rootSnapshot != null && !snapshot.contains(rootSnapshot)) {
+            rootSnapshot.toXml(sb);
         }
     }
 
@@ -526,15 +530,17 @@ public class Document extends ContainerNode {
         if (visitor == null) {
             throw new IllegalArgumentException("Visitor cannot be null");
         }
-        // Use snapshot to tolerate structural mutations during traversal
-        for (Node child : new java.util.ArrayList<>(children)) {
+        // Snapshot both children and root for a consistent view
+        Element rootSnapshot = root;
+        List<Node> snapshot = new ArrayList<>(children);
+        for (Node child : snapshot) {
             if (child.accept(visitor) == DomTripVisitor.Action.STOP) {
                 return DomTripVisitor.Action.STOP;
             }
         }
         // Visit root element if set and not already in children
-        if (root != null && !children.contains(root)) {
-            return root.accept(visitor);
+        if (rootSnapshot != null && !snapshot.contains(rootSnapshot)) {
+            return rootSnapshot.accept(visitor);
         }
         return DomTripVisitor.Action.CONTINUE;
     }

@@ -40,6 +40,8 @@ import org.xml.sax.ext.LexicalHandler;
  *       for comment and CDATA events</li>
  * </ul>
  *
+ * @implNote This class is not thread-safe. External synchronization is required for concurrent access.
+ *
  * @see DomTripSAXSource
  * @see SAXOutputter
  * @since 1.3.0

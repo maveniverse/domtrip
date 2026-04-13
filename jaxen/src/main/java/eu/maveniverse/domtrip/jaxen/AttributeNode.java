@@ -58,4 +58,22 @@ class AttributeNode {
     Attribute attribute() {
         return attribute;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AttributeNode that = (AttributeNode) o;
+        return element == that.element && name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * System.identityHashCode(element) + name.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "AttributeNode{name='" + name + "', value='" + attribute.value() + "'}";
+    }
 }

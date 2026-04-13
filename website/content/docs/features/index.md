@@ -42,6 +42,14 @@ Advanced element positioning and manipulation capabilities.
 - **Parent-child relationships**
 - **Document structure** management
 
+### [Element Selection](element-selection/)
+Powerful element selection and querying using mini-XPath and programmatic APIs.
+
+- **Mini-XPath expressions** for concise string-based queries
+- **ElementQuery API** for type-safe programmatic queries
+- **Attribute-based filtering** with predicate support
+- **Descendant search** with `//` syntax
+
 ### [Commenting](commenting/)
 Rich support for XML comments with positioning preservation.
 

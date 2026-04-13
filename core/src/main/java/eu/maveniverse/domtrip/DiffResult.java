@@ -80,11 +80,16 @@ public class DiffResult {
     /**
      * Returns changes under the specified path prefix.
      *
+     * <p>This method uses boundary-aware matching: a change path must either equal
+     * the given path exactly, or start with the path followed by {@code /} or {@code /@}.
+     * For example, path {@code /project/name} will NOT match a change at
+     * {@code /project/namespace}.</p>
+     *
      * @param path the path prefix to filter by
      * @return the list of changes under the given path
      */
     public List<XmlChange> changesUnder(String path) {
-        return changes.stream().filter(c -> c.path().startsWith(path)).collect(Collectors.toList());
+        return changes.stream().filter(c -> isAtOrUnder(c.path(), path)).collect(Collectors.toList());
     }
 
     /**
@@ -131,7 +136,7 @@ public class DiffResult {
         Set<String> matchedPaths =
                 matched.stream().map(DiffResult::computeElementPath).collect(Collectors.toSet());
         return changes.stream()
-                .filter(c -> matchedPaths.stream().anyMatch(p -> c.path().startsWith(p)))
+                .filter(c -> matchedPaths.stream().anyMatch(p -> isAtOrUnder(c.path(), p)))
                 .collect(Collectors.toList());
     }
 
@@ -159,6 +164,22 @@ public class DiffResult {
             return "No changes";
         }
         return changes.stream().map(XmlChange::toString).collect(Collectors.joining("\n"));
+    }
+
+    /**
+     * Returns {@code true} if {@code changePath} is at or under {@code basePath},
+     * using boundary-aware matching to avoid false positives (e.g., {@code /project/name}
+     * must not match {@code /project/namespace}).
+     */
+    private static boolean isAtOrUnder(String changePath, String basePath) {
+        if ("/".equals(basePath)) {
+            return changePath.startsWith("/");
+        }
+        // Strip trailing slash so "/project/" matches the same as "/project"
+        String normalized = basePath.endsWith("/") ? basePath.substring(0, basePath.length() - 1) : basePath;
+        return changePath.equals(normalized)
+                || changePath.startsWith(normalized + "/")
+                || changePath.startsWith(normalized + "/@");
     }
 
     /** Computes the XPath-like path for an element by walking up the parent chain. */

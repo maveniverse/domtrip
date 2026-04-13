@@ -150,14 +150,14 @@ repositories {
 Now that DomTrip is installed, choose your path:
 
 ### Core Library
-- 📚 [Quick Start Guide](../../docs/getting-started/quick-start/) - Your first DomTrip program
-- 🧠 [Basic Concepts](../../docs/getting-started/basic-concepts/) - Understanding DomTrip's approach
-- 🚀 [API Reference](../../docs/api/editor/) - Detailed API documentation
+- 📚 [Quick Start Guide](../../getting-started/quick-start/) - Your first DomTrip program
+- 🧠 [Basic Concepts](../../getting-started/basic-concepts/) - Understanding DomTrip's approach
+- 🚀 [API Reference](../../api/editor/) - Detailed API documentation
 
 ### Maven Extension
-- 🏗️ [Maven Quick Start](../../docs/maven/quick-start/) - Maven POM editing in 5 minutes
-- 📖 [Maven Overview](../../docs/maven/overview/) - Understanding Maven-specific features
-- 🔧 [Maven API Reference](../../docs/maven/api/) - Complete PomEditor documentation
+- 🏗️ [Maven Quick Start](../../maven/quick-start/) - Maven POM editing in 5 minutes
+- 📖 [Maven Overview](../../maven/overview/) - Understanding Maven-specific features
+- 🔧 [Maven API Reference](../../maven/api/) - Complete PomEditor documentation
 
 ## Troubleshooting
 

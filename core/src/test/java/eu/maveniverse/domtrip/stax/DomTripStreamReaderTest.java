@@ -496,6 +496,35 @@ class DomTripStreamReaderTest {
     }
 
     @Test
+    void testGetNamespaceURIReturnsEmptyStringForNoNamespace() throws Exception {
+        Document doc = Document.of("<root/>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT
+        String uri = reader.getNamespaceURI();
+        assertNotNull(uri, "getNamespaceURI() must not return null for elements without a namespace");
+        assertEquals("", uri, "getNamespaceURI() must return empty string (not null) for elements without a namespace");
+    }
+
+    @Test
+    void testNextTagFailsWithReadableEventTypeNameInMessage() throws Exception {
+        // Position reader just before END_DOCUMENT: nextTag() will call next(), get END_DOCUMENT,
+        // which is not skippable and not START/END_ELEMENT, triggering the eventTypeName() path.
+        Document doc = Document.of("<root/>");
+        DomTripStreamReader reader = new DomTripStreamReader(doc);
+
+        reader.next(); // START_ELEMENT root
+        reader.next(); // END_ELEMENT root
+        // Now at END_ELEMENT. nextTag() calls next() -> END_DOCUMENT, which is not skippable
+        // and not a tag event, so it throws with the event type name.
+        XMLStreamException ex = assertThrows(XMLStreamException.class, reader::nextTag);
+        String message = ex.getMessage();
+        assertNotNull(message);
+        // The error message must contain the human-readable name "END_DOCUMENT", not the raw integer (8)
+        assertTrue(message.contains("END_DOCUMENT"), "Error message should contain 'END_DOCUMENT' but was: " + message);
+    }
+
+    @Test
     void testRequireSuccess() throws Exception {
         Document doc = Document.of("<root/>");
         DomTripStreamReader reader = new DomTripStreamReader(doc);

@@ -141,10 +141,10 @@ DomTrip provides robust error handling:
 
 Now that you've mastered the basics, explore more advanced features:
 
-- 🏗️ [Builder Patterns](../../docs/advanced/factory-methods/) - Fluent APIs for complex XML
-- 🌐 [Namespace Support](../../docs/features/namespace-support/) - Working with XML namespaces
-- ⚙️ [Configuration](../../docs/api/configuration/) - Customizing DomTrip's behavior
-- 📖 [Examples](../../examples/) - Real-world use cases
+- 🏗️ [Builder Patterns](../../advanced/factory-methods/) - Fluent APIs for complex XML
+- 🌐 [Namespace Support](../../features/namespace-support/) - Working with XML namespaces
+- ⚙️ [Configuration](../../api/configuration/) - Customizing DomTrip's behavior
+- 📖 [Examples](../../../examples/) - Real-world use cases
 
 ## Tips for Success
 

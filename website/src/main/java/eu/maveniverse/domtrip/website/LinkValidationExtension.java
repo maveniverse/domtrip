@@ -236,7 +236,12 @@ public class LinkValidationExtension {
     }
 
     /**
-     * Validates a link using proper relative path resolution.
+     * Validates a link using browser-consistent relative path resolution.
+     *
+     * <p>For {@code index.html} files, browsers resolve relative URLs from the directory
+     * containing the file (e.g., {@code docs/getting-started/quick-start/index.html} resolves
+     * from {@code docs/getting-started/quick-start/}). This method mirrors that behavior
+     * exactly — no fallback strategies that could mask broken links.</p>
      */
     private boolean isValidInternalLinkWithStrategies(String url, String currentFilePath, Set<String> existingFiles) {
         // If URL starts with /, it's already absolute
@@ -246,28 +251,10 @@ public class LinkValidationExtension {
             return isValidInternalLink(normalizedUrl, existingFiles);
         }
 
-        // For relative URLs, try multiple resolution strategies for index.html files
-        if (currentFilePath.endsWith(INDEX_HTML_SUFFIX)) {
-            // Strategy 1: Resolve relative to parent directory (e.g., javadoc/snapshot/index.html -> javadoc/snapshot/)
-            String resolvedUrl = resolveRelativeUrlFromParent(url, currentFilePath);
-            if (isValidInternalLink(resolvedUrl, existingFiles)) {
-                return true;
-            }
-
-            // Strategy 2: Resolve relative to grandparent directory (e.g., examples/index.html -> /)
-            String resolvedFromGrandparent = resolveRelativeUrlFromGrandparent(url, currentFilePath);
-            if (isValidInternalLink(resolvedFromGrandparent, existingFiles)) {
-                return true;
-            }
-        } else {
-            // For non-index files, use standard resolution
-            String resolvedUrl = resolveRelativeUrl(url, currentFilePath);
-            if (isValidInternalLink(resolvedUrl, existingFiles)) {
-                return true;
-            }
-        }
-
-        return false;
+        // Resolve relative URL from the directory containing the current file.
+        // For index.html, this is the directory itself (browser behavior).
+        String resolvedUrl = resolveRelativeUrlFromContainingDir(url, currentFilePath);
+        return isValidInternalLink(resolvedUrl, existingFiles);
     }
 
     /**
@@ -313,89 +300,36 @@ public class LinkValidationExtension {
     }
 
     /**
-     * Resolves a relative URL based on the current file's location.
+     * Resolves a relative URL from the directory containing the current file.
+     *
+     * <p>For {@code index.html} files, this is the directory itself (matching browser behavior).
+     * For other files, this is the parent directory of the file.</p>
      */
-    private String resolveRelativeUrl(String url, String currentFilePath) {
-        // If URL starts with /, it's already absolute
+    private String resolveRelativeUrlFromContainingDir(String url, String currentFilePath) {
+        // Normalize to forward slashes for consistent resolution on all platforms
+        String normalizedPath = currentFilePath.replace('\\', '/');
+
         if (url.startsWith("/")) {
             return url;
         }
 
-        // For index.html files, resolve relative to the parent directory
-        // e.g., docs/features/namespace-support/index.html should resolve links relative to docs/features/
-        String baseDir = "/";
-        if (currentFilePath.endsWith(INDEX_HTML_SUFFIX)) {
-            // Remove /index.html to get the directory containing the index.html
-            String dirPath = currentFilePath.substring(0, currentFilePath.length() - INDEX_HTML_SUFFIX.length());
-            // Then get the parent of that directory
-            int lastSlash = dirPath.lastIndexOf('/');
+        String baseDir;
+        if (normalizedPath.endsWith(INDEX_HTML_SUFFIX)) {
+            // For index.html, resolve from the directory containing it
+            // e.g., docs/getting-started/quick-start/index.html -> /docs/getting-started/quick-start/
+            String dirPath = normalizedPath.substring(0, normalizedPath.length() - INDEX_HTML_SUFFIX.length());
+            baseDir = "/" + dirPath + "/";
+        } else {
+            // For other files, resolve from the file's parent directory
+            int lastSlash = normalizedPath.lastIndexOf('/');
             if (lastSlash >= 0) {
-                baseDir = "/" + dirPath.substring(0, lastSlash + 1);
+                baseDir = "/" + normalizedPath.substring(0, lastSlash + 1);
             } else {
                 baseDir = "/";
             }
-        } else {
-            // For non-index files, get the directory of the current file (without the filename)
-            int lastSlash = currentFilePath.lastIndexOf('/');
-            if (lastSlash >= 0) {
-                baseDir = "/" + currentFilePath.substring(0, lastSlash);
-                if (!baseDir.endsWith("/")) {
-                    baseDir += "/";
-                }
-            }
         }
 
-        // Combine base directory with relative URL
-        String combined = baseDir + url;
-
-        // Normalize the result
-        return normalizeUrl(combined);
-    }
-
-    /**
-     * Resolves a relative URL from the parent directory of an index.html file.
-     * e.g., javadoc/snapshot/index.html -> resolve from javadoc/snapshot/
-     */
-    private String resolveRelativeUrlFromParent(String url, String currentFilePath) {
-        if (url.startsWith("/")) {
-            return url;
-        }
-
-        // Remove /index.html to get the directory containing the index.html
-        String dirPath = currentFilePath.substring(0, currentFilePath.length() - INDEX_HTML_SUFFIX.length());
-        String baseDir = "/" + dirPath + "/";
-
-        // Combine base directory with relative URL
-        String combined = baseDir + url;
-
-        // Normalize the result
-        return normalizeUrl(combined);
-    }
-
-    /**
-     * Resolves a relative URL from the grandparent directory of an index.html file.
-     * e.g., examples/index.html -> resolve from /
-     */
-    private String resolveRelativeUrlFromGrandparent(String url, String currentFilePath) {
-        if (url.startsWith("/")) {
-            return url;
-        }
-
-        // Remove /index.html to get the directory containing the index.html
-        String dirPath = currentFilePath.substring(0, currentFilePath.length() - INDEX_HTML_SUFFIX.length());
-
-        // Get the parent of that directory (grandparent)
-        int lastSlash = dirPath.lastIndexOf('/');
-        String baseDir = "/";
-        if (lastSlash >= 0) {
-            baseDir = "/" + dirPath.substring(0, lastSlash + 1);
-        }
-
-        // Combine base directory with relative URL
-        String combined = baseDir + url;
-
-        // Normalize the result
-        return normalizeUrl(combined);
+        return normalizeUrl(baseDir + url);
     }
 
     private boolean isValidInternalLink(String url, Set<String> existingFiles) {

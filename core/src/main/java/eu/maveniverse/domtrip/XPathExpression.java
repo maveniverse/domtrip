@@ -70,6 +70,9 @@ import java.util.stream.Stream;
  * @see Element#selectFirst(String)
  * @see Editor#select(String)
  * @see Editor#selectFirst(String)
+ * @implNote Compiled expressions are immutable and thread-safe. They can be safely shared
+ *           across threads and evaluated concurrently against different context elements.
+ *
  * @see ElementQuery
  * @since 1.3.0
  */

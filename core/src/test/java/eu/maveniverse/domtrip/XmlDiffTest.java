@@ -310,7 +310,6 @@ class XmlDiffTest {
     void diffConfigDefaults() {
         DiffConfig config = DiffConfig.defaults();
         assertTrue(config.matchKeysFor("anything").isEmpty());
-        assertFalse(config.isOrderSensitive("any/path"));
     }
 
     @Test
@@ -318,12 +317,10 @@ class XmlDiffTest {
         DiffConfig config = DiffConfig.builder()
                 .matchBy("dependency", "groupId", "artifactId")
                 .matchBy("*", "id")
-                .orderSensitive("modules/module")
                 .build();
 
         assertEquals(2, config.matchKeysFor("dependency").size());
         assertEquals(1, config.matchKeysFor("other").size()); // wildcard
-        assertTrue(config.isOrderSensitive("modules/module"));
     }
 
     @Test
@@ -338,6 +335,9 @@ class XmlDiffTest {
         assertTrue(ChangeType.COMMENT_ADDED.isSemantic());
         assertTrue(ChangeType.COMMENT_REMOVED.isSemantic());
         assertTrue(ChangeType.COMMENT_CHANGED.isSemantic());
+        assertTrue(ChangeType.PI_ADDED.isSemantic());
+        assertTrue(ChangeType.PI_REMOVED.isSemantic());
+        assertTrue(ChangeType.PI_CHANGED.isSemantic());
         assertTrue(ChangeType.NAMESPACE_CHANGED.isSemantic());
 
         assertTrue(ChangeType.WHITESPACE_CHANGED.isFormattingOnly());
@@ -504,6 +504,54 @@ class XmlDiffTest {
 
         List<XmlChange> noChanges = result.changesFor("//nonexistent", after);
         assertTrue(noChanges.isEmpty());
+    }
+
+    @Test
+    void detectsProcessingInstructionAdded() {
+        Document before = Document.of("<root>text</root>");
+        Document after = Document.of("<root><?target data?>text</root>");
+        DiffResult result = XmlDiff.diff(before, after);
+        assertChange(result, ChangeType.PI_ADDED, "/root/processing-instruction()");
+    }
+
+    @Test
+    void detectsProcessingInstructionRemoved() {
+        Document before = Document.of("<root><?target data?>text</root>");
+        Document after = Document.of("<root>text</root>");
+        DiffResult result = XmlDiff.diff(before, after);
+        assertChange(result, ChangeType.PI_REMOVED, "/root/processing-instruction()");
+    }
+
+    @Test
+    void detectsProcessingInstructionChanged() {
+        Document before = Document.of("<root><?target old?></root>");
+        Document after = Document.of("<root><?target new?></root>");
+        DiffResult result = XmlDiff.diff(before, after);
+        assertChange(result, ChangeType.PI_CHANGED, "/root/processing-instruction()");
+    }
+
+    @Test
+    void detectsNamespaceChange() {
+        Document before = Document.of("<root xmlns=\"http://old.ns\"/>");
+        Document after = Document.of("<root xmlns=\"http://new.ns\"/>");
+        DiffResult result = XmlDiff.diff(before, after);
+        assertChange(result, ChangeType.NAMESPACE_CHANGED, "/root");
+    }
+
+    @Test
+    void changesUnderUsesBoundaryAwareMatching() {
+        Document before = Document.of("<project><name>old</name><namespace>ns</namespace></project>");
+        Document after = Document.of("<project><name>new</name><namespace>ns2</namespace></project>");
+        DiffResult result = XmlDiff.diff(before, after);
+
+        // /project/name should only match changes at /project/name, not /project/namespace
+        List<XmlChange> nameChanges = result.changesUnder("/project/name");
+        assertFalse(nameChanges.isEmpty(), "changesUnder('/project/name') should return at least one change");
+        assertTrue(nameChanges.stream()
+                .allMatch(c -> c.path().equals("/project/name")
+                        || c.path().startsWith("/project/name/")
+                        || c.path().startsWith("/project/name/@")));
+        assertFalse(nameChanges.stream().anyMatch(c -> c.path().startsWith("/project/namespace")));
     }
 
     // --- Assertion helpers ---

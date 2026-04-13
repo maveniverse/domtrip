@@ -35,6 +35,9 @@ import java.util.function.Function;
  *     .execute();
  * }</pre>
  *
+ * @implNote This class is not thread-safe. Each TreeWalker instance should be
+ *           configured and executed from a single thread.
+ *
  * @see DomTripVisitor
  * @see Element#walk()
  * @since 1.3.0

@@ -191,5 +191,5 @@ DomTrip achieves **zero data loss** and perfect round-tripping for:
 ## Next Steps
 
 - 📚 [Migration Guide](migration/) - Moving from other XML libraries
-- 🚀 [Quick Start](../../docs/getting-started/quick-start/) - Get started with DomTrip
+- 🚀 [Quick Start](../../getting-started/quick-start/) - Get started with DomTrip
 - 📖 [Examples](../../examples/) - Real-world usage examples

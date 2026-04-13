@@ -50,7 +50,7 @@ Built for modern Java applications with clean, type-safe APIs.
 1. **[Install DomTrip](installation/)** in your project
 2. **[Try the Quick Start](quick-start/)** example
 3. **[Learn the Basic Concepts](basic-concepts/)**
-4. **[Explore the API Reference](../docs/api/)**
+4. **[Explore the API Reference](../api/)**
 5. **[Check out Examples](../examples/)**
 
 ## Need Help?

@@ -169,6 +169,6 @@ DomTripConfig config = DomTripConfig.defaults()
 
 ## Next Steps
 
-- 🔄 [Lossless Parsing](../../docs/features/lossless-parsing/) - Understanding preservation
-- 📝 [Formatting Preservation](../../docs/features/formatting-preservation/) - Maintaining formatting
-- 🏗️ [Builder Patterns](../../docs/advanced/factory-methods/) - Creating complex structures
+- 🔄 [Lossless Parsing](../lossless-parsing/) - Understanding preservation
+- 📝 [Formatting Preservation](../formatting-preservation/) - Maintaining formatting
+- 🏗️ [Builder Patterns](../../advanced/factory-methods/) - Creating complex structures

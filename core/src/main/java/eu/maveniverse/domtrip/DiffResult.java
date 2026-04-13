@@ -175,9 +175,11 @@ public class DiffResult {
         if ("/".equals(basePath)) {
             return changePath.startsWith("/");
         }
-        return changePath.equals(basePath)
-                || changePath.startsWith(basePath + "/")
-                || changePath.startsWith(basePath + "/@");
+        // Strip trailing slash so "/project/" matches the same as "/project"
+        String normalized = basePath.endsWith("/") ? basePath.substring(0, basePath.length() - 1) : basePath;
+        return changePath.equals(normalized)
+                || changePath.startsWith(normalized + "/")
+                || changePath.startsWith(normalized + "/@");
     }
 
     /** Computes the XPath-like path for an element by walking up the parent chain. */

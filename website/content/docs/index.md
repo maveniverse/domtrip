@@ -77,4 +77,3 @@ Real-world examples and patterns:
 
 - 🐛 **[Report Issues](https://github.com/maveniverse/domtrip/issues)** - Found a bug or have a feature request?
 - 💬 **[Discussions](https://github.com/maveniverse/domtrip/discussions)** - Ask questions and share ideas
-- 📧 **[Contact](mailto:support@maveniverse.eu)** - Direct support for enterprise users

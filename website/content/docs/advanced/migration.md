@@ -286,4 +286,3 @@ If you encounter issues during migration:
 - 🐛 [Report Issues](https://github.com/maveniverse/domtrip/issues)
 - 💬 [Ask Questions](https://github.com/maveniverse/domtrip/discussions)
 - 📚 [Check Documentation](../../introduction/)
-- 📧 [Contact Support](mailto:support@maveniverse.eu)

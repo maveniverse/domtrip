@@ -176,4 +176,3 @@ Now that DomTrip is installed, choose your path:
 
 - 🐛 [Report Issues](https://github.com/maveniverse/domtrip/issues)
 - 💬 [Discussions](https://github.com/maveniverse/domtrip/discussions)
-- 📧 [Contact](mailto:support@maveniverse.eu)

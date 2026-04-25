@@ -720,7 +720,7 @@ public class Serializer {
         boolean hasElementChildren = element.children.stream().anyMatch(Element.class::isInstance);
 
         for (Node child : element.children) {
-            if (hasElementChildren && child instanceof Element) {
+            if (hasElementChildren && !(child instanceof Text)) {
                 serializeNodePretty(child, sb, depth + 1);
             } else {
                 serializeNode(child, sb);

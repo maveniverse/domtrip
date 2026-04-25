@@ -532,4 +532,63 @@ class SerializerExtendedTest {
         byte[] out = baos.toByteArray();
         assertTrue(new String(out, StandardCharsets.UTF_8).contains("caf\u00e9"));
     }
+
+    @Test
+    void testPrettyPrintCommentAlignedWithSiblingElement() {
+        String xml = """
+                <project>
+                    <properties>
+                        <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
+                        <lombok.version>1.18.44</lombok.version>
+                    </properties>
+                </project>
+                """;
+        Document doc = Document.of(xml);
+        Serializer s = new Serializer(DomTripConfig.prettyPrint());
+        String result = s.serialize(doc);
+
+        assertTrue(result.contains("    <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->"));
+        assertTrue(result.contains("    <lombok.version>1.18.44</lombok.version>"));
+
+        String[] lines = result.split("\n");
+        String commentLine = null;
+        String elementLine = null;
+        for (String line : lines) {
+            if (line.contains("<!--")) commentLine = line;
+            if (line.contains("lombok.version")) elementLine = line;
+        }
+        assertNotNull(commentLine);
+        assertNotNull(elementLine);
+        int commentIndent = commentLine.indexOf("<!--");
+        int elementIndent = elementLine.indexOf("<lombok");
+        assertEquals(elementIndent, commentIndent, "Comment and element should have the same indentation");
+    }
+
+    @Test
+    void testPrettyPrintProcessingInstructionAlignedWithSiblingElement() {
+        String xml = """
+                <root>
+                    <parent>
+                        <?target data?>
+                        <child>value</child>
+                    </parent>
+                </root>
+                """;
+        Document doc = Document.of(xml);
+        Serializer s = new Serializer(DomTripConfig.prettyPrint());
+        String result = s.serialize(doc);
+
+        String[] lines = result.split("\n");
+        String piLine = null;
+        String elementLine = null;
+        for (String line : lines) {
+            if (line.contains("<?target")) piLine = line;
+            if (line.contains("<child>")) elementLine = line;
+        }
+        assertNotNull(piLine);
+        assertNotNull(elementLine);
+        int piIndent = piLine.indexOf("<?target");
+        int elementIndent = elementLine.indexOf("<child>");
+        assertEquals(elementIndent, piIndent, "Processing instruction and element should have the same indentation");
+    }
 }

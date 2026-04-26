@@ -568,19 +568,13 @@ public class PomEditor extends AbstractMavenEditor {
             if (coordinates.version() == null) {
                 throw new DomTripException("Version is required for updateManagedDependencyAligned");
             }
+            if (options == null) {
+                options = AlignOptions.defaults();
+            }
 
             Object[] conventions = resolveConventions(options);
             AlignOptions.VersionSource versionSource = (AlignOptions.VersionSource) conventions[1];
             AlignOptions.PropertyNamingConvention naming = (AlignOptions.PropertyNamingConvention) conventions[2];
-
-            String actualVersion = coordinates.version();
-            String versionForElement = actualVersion;
-
-            if (versionSource == AlignOptions.VersionSource.PROPERTY) {
-                String propName = resolvePropertyName(coordinates, naming, options);
-                upsertVersionProperty(propName, actualVersion);
-                versionForElement = "${" + propName + "}";
-            }
 
             Element dependencyManagement = findOrCreateElement(root(), DEPENDENCY_MANAGEMENT, upsert);
             if (dependencyManagement == null) {
@@ -597,20 +591,30 @@ public class PomEditor extends AbstractMavenEditor {
                     .findFirst()
                     .orElse(null);
 
-            if (dependency == null && upsert) {
+            if (dependency == null && !upsert) {
+                return false;
+            }
+
+            String actualVersion = coordinates.version();
+            String versionForElement = actualVersion;
+
+            if (versionSource == AlignOptions.VersionSource.PROPERTY) {
+                String propName = resolvePropertyName(coordinates, naming, options);
+                upsertVersionProperty(propName, actualVersion);
+                versionForElement = "${" + propName + "}";
+            }
+
+            if (dependency == null) {
                 createNewDependency(dependencies, coordinates.withVersion(versionForElement));
                 return true;
             }
-            if (dependency != null) {
-                java.util.Optional<Element> versionEl = dependency.childElement(VERSION);
-                if (versionEl.isPresent()) {
-                    versionEl.get().textContent(versionForElement);
-                } else {
-                    insertMavenElement(dependency, VERSION, versionForElement);
-                }
-                return true;
+            java.util.Optional<Element> versionEl = dependency.childElement(VERSION);
+            if (versionEl.isPresent()) {
+                versionEl.get().textContent(versionForElement);
+            } else {
+                insertMavenElement(dependency, VERSION, versionForElement);
             }
-            return false;
+            return true;
         }
 
         private Element findOrCreateElement(Element parent, String childName, boolean create) throws DomTripException {

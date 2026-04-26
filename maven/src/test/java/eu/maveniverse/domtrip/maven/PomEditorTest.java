@@ -2126,6 +2126,19 @@ class PomEditorTest {
     }
 
     @Test
+    void testUpdateManagedDependencyAlignedNoUpsertPropertyConvention() {
+        PomEditor editor = editorOf(POM_MANAGED_PROPERTY);
+        Coordinates dep = Coordinates.of("com.example", "nonexistent-lib", "1.0.0");
+
+        boolean result = editor.dependencies().updateManagedDependencyAligned(false, dep);
+        assertFalse(result);
+
+        String xml = editor.toXml();
+        assertFalse(xml.contains("nonexistent-lib"), "No dependency element should be created");
+        assertFalse(xml.contains("nonexistent-lib.version"), "No property should be created");
+    }
+
+    @Test
     void testUpdateManagedDependencyAlignedWithoutVersionThrows() {
         PomEditor editor = editorOf(POM_INLINE_LITERAL);
         Coordinates noVersion = Coordinates.of("com.example", "lib", null);

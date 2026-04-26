@@ -62,9 +62,9 @@ Apply conventions consistently across all dependencies in a single call:
 ## Updating Managed Dependencies (Aligned)
 
 Use `updateManagedDependencyAligned()` to add or update entries in `<dependencyManagement>`
-while following the project's detected conventions. Unlike `updateManagedDependency()` which
-always inlines the raw version string, this method creates version properties when the project
-convention calls for them:
+while following the project's detected conventions. Where `updateManagedDependency()` stores
+the version string you pass in directly, this method creates version properties when the
+project convention calls for them:
 
 ```java
 {cdi:snippets.snippet('update-managed-aligned')}

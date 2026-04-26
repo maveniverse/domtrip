@@ -2043,6 +2043,38 @@ class PomEditorTest {
     }
 
     @Test
+    void testFindManagedVersionFound() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_MANAGED_DEPENDENCY);
+        Coordinates coords = Coordinates.of("org.springframework", "spring-core", "5.3.20");
+        String version = editor.dependencies().findManagedVersion(coords);
+        assertEquals("5.3.20", version);
+    }
+
+    @Test
+    void testFindManagedVersionNotFound() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_MANAGED_DEPENDENCY);
+        Coordinates coords = Coordinates.of("org.example", "nonexistent", "1.0.0");
+        String version = editor.dependencies().findManagedVersion(coords);
+        assertNull(version);
+    }
+
+    @Test
+    void testFindManagedVersionNoDependencyManagement() throws DomTripException {
+        PomEditor editor = editorOf("<project></project>");
+        Coordinates coords = Coordinates.of("org.springframework", "spring-core", "5.3.20");
+        String version = editor.dependencies().findManagedVersion(coords);
+        assertNull(version);
+    }
+
+    @Test
+    void testFindManagedVersionEmptyDependencyManagement() throws DomTripException {
+        PomEditor editor = editorOf(POM_WITH_EMPTY_DEPENDENCY_MANAGEMENT);
+        Coordinates coords = Coordinates.of("org.springframework", "spring-core", "5.3.20");
+        String version = editor.dependencies().findManagedVersion(coords);
+        assertNull(version);
+    }
+
+    @Test
     void testUpdateManagedDependencyNoUpsert() throws DomTripException {
         String pom = "<project></project>";
         PomEditor editor = editorOf(pom);

@@ -2045,7 +2045,7 @@ class PomEditorTest {
     @Test
     void testFindManagedVersionFound() throws DomTripException {
         PomEditor editor = editorOf(POM_WITH_MANAGED_DEPENDENCY);
-        Coordinates coords = Coordinates.of("org.springframework", "spring-core", "5.3.20");
+        Coordinates coords = Coordinates.of("org.springframework", "spring-core", null);
         String version = editor.dependencies().findManagedVersion(coords);
         assertEquals("5.3.20", version);
     }
@@ -2053,7 +2053,7 @@ class PomEditorTest {
     @Test
     void testFindManagedVersionNotFound() throws DomTripException {
         PomEditor editor = editorOf(POM_WITH_MANAGED_DEPENDENCY);
-        Coordinates coords = Coordinates.of("org.example", "nonexistent", "1.0.0");
+        Coordinates coords = Coordinates.of("org.example", "nonexistent", null);
         String version = editor.dependencies().findManagedVersion(coords);
         assertNull(version);
     }
@@ -2061,7 +2061,7 @@ class PomEditorTest {
     @Test
     void testFindManagedVersionNoDependencyManagement() throws DomTripException {
         PomEditor editor = editorOf("<project></project>");
-        Coordinates coords = Coordinates.of("org.springframework", "spring-core", "5.3.20");
+        Coordinates coords = Coordinates.of("org.springframework", "spring-core", null);
         String version = editor.dependencies().findManagedVersion(coords);
         assertNull(version);
     }
@@ -2069,9 +2069,31 @@ class PomEditorTest {
     @Test
     void testFindManagedVersionEmptyDependencyManagement() throws DomTripException {
         PomEditor editor = editorOf(POM_WITH_EMPTY_DEPENDENCY_MANAGEMENT);
-        Coordinates coords = Coordinates.of("org.springframework", "spring-core", "5.3.20");
+        Coordinates coords = Coordinates.of("org.springframework", "spring-core", null);
         String version = editor.dependencies().findManagedVersion(coords);
         assertNull(version);
+    }
+
+    @Test
+    void testFindManagedVersionPropertyReference() throws DomTripException {
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-core</artifactId>
+                        <version>${spring.version}</version>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                </project>
+                """;
+        PomEditor editor = editorOf(pom);
+        Coordinates coords = Coordinates.of("org.springframework", "spring-core", null);
+        String version = editor.dependencies().findManagedVersion(coords);
+        assertEquals("${spring.version}", version);
     }
 
     @Test

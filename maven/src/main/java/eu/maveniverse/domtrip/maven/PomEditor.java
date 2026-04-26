@@ -1769,7 +1769,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @return the version text from the managed dependency, or {@code null} if not found
          * @since 1.2.0
          */
-        private String findManagedVersion(Coordinates coords) {
+        public String findManagedVersion(Coordinates coords) {
             Element depMgmt = findChildElement(root(), DEPENDENCY_MANAGEMENT);
             if (depMgmt == null) {
                 return null;

@@ -59,6 +59,17 @@ Apply conventions consistently across all dependencies in a single call:
 {cdi:snippets.snippet('align-all')}
 ```
 
+## Updating Managed Dependencies (Aligned)
+
+Use `updateManagedDependencyAligned()` to add or update entries in `<dependencyManagement>`
+while following the project's detected conventions. Unlike `updateManagedDependency()` which
+always inlines the raw version string, this method creates version properties when the project
+convention calls for them:
+
+```java
+{cdi:snippets.snippet('update-managed-aligned')}
+```
+
 ## AlignOptions
 
 `AlignOptions` controls how alignment operations behave. Use the builder for explicit control,

@@ -529,7 +529,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param coordinates the artifact coordinates (version is required)
          * @return true if the dependency was updated or created, false otherwise
          * @throws DomTripException if the coordinates are invalid or version is null
-         * @since 1.2.0
+         * @since 1.4.0
          */
         public boolean updateManagedDependencyAligned(boolean upsert, Coordinates coordinates) throws DomTripException {
             return updateManagedDependencyAligned(upsert, coordinates, AlignOptions.defaults());
@@ -560,7 +560,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param options     alignment options (null fields are auto-detected from the POM)
          * @return true if the dependency was updated or created, false otherwise
          * @throws DomTripException if the coordinates are invalid or version is null
-         * @since 1.2.0
+         * @since 1.4.0
          */
         public boolean updateManagedDependencyAligned(boolean upsert, Coordinates coordinates, AlignOptions options)
                 throws DomTripException {
@@ -1369,7 +1369,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param parentEditor the parent POM editor where the managed dependency will be created
          * @param options alignment options controlling version source and property naming in the parent
          * @return {@code true} if the dependency was moved, {@code false} if not found or already version-less
-         * @since 1.2.0
+         * @since 1.4.0
          */
         public boolean alignToParent(Coordinates coords, PomEditor parentEditor, AlignOptions options) {
             requireGA(DEPENDENCY_LABEL, coords);
@@ -1414,7 +1414,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param parentEditor the parent POM editor where managed dependencies will be created
          * @param options alignment options controlling version source and property naming in the parent
          * @return the number of dependencies that were moved to the parent
-         * @since 1.2.0
+         * @since 1.4.0
          */
         public int alignAllToParent(PomEditor parentEditor, AlignOptions options) {
             Element deps = findChildElement(root(), DEPENDENCIES);
@@ -1526,7 +1526,7 @@ public class PomEditor extends AbstractMavenEditor {
          *
          * @param versionText the version text to resolve
          * @return the resolved literal version value
-         * @since 1.2.0
+         * @since 1.4.0
          */
         private String resolveVersionValue(String versionText) {
             if (!isPropertyReference(versionText)) {
@@ -1694,7 +1694,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param versionEl the {@code <version>} element to update
          * @param versionText the current text content of the version element
          * @return the resolved literal value if a change was made, or {@code null} if already literal or unresolvable
-         * @since 1.2.0
+         * @since 1.4.0
          */
         private String alignVersionToLiteral(Element versionEl, String versionText) {
             if (!isPropertyReference(versionText)) {
@@ -1767,7 +1767,7 @@ public class PomEditor extends AbstractMavenEditor {
          *
          * @param coords the dependency coordinates (matched by groupId/artifactId/type/classifier)
          * @return the version text from the managed dependency, or {@code null} if not found
-         * @since 1.2.0
+         * @since 1.4.0
          */
         public String findManagedVersion(Coordinates coords) {
             Element depMgmt = findChildElement(root(), DEPENDENCY_MANAGEMENT);

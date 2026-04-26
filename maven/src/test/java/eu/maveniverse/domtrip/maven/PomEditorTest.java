@@ -2106,4 +2106,118 @@ class PomEditorTest {
         String xml = editor.toXml();
         assertFalse(xml.contains("<dependencyManagement>"), "No dependencyManagement should be created");
     }
+
+    @Test
+    void testUpdateManagedDependencyAlignedCreatesProperty() {
+        PomEditor editor = editorOf(POM_MANAGED_PROPERTY);
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+
+        boolean added = editor.dependencies().updateManagedDependencyAligned(true, jackson);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<jackson-databind.version>2.15.0</jackson-databind.version>"));
+        assertTrue(xml.contains("${jackson-databind.version}"));
+    }
+
+    @Test
+    void testUpdateManagedDependencyAlignedLiteralConvention() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+
+        boolean added = editor.dependencies().updateManagedDependencyAligned(true, jackson);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<version>2.15.0</version>"));
+        assertFalse(xml.contains("jackson-databind.version"));
+    }
+
+    @Test
+    void testUpdateManagedDependencyAlignedUpdatesExistingProperty() {
+        PomEditor editor = editorOf(POM_MANAGED_PROPERTY);
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", "33.0.0-jre");
+
+        boolean updated = editor.dependencies().updateManagedDependencyAligned(false, guava);
+        assertTrue(updated);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<guava.version>33.0.0-jre</guava.version>"));
+        assertTrue(xml.contains("${guava.version}"));
+    }
+
+    @Test
+    void testUpdateManagedDependencyAlignedWithExplicitOptions() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+
+        boolean added = editor.dependencies()
+                .updateManagedDependencyAligned(
+                        true,
+                        jackson,
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+                                .build());
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<jackson-databind.version>2.15.0</jackson-databind.version>"));
+        assertTrue(xml.contains("${jackson-databind.version}"));
+    }
+
+    @Test
+    void testUpdateManagedDependencyAlignedNoUpsert() {
+        String pom = "<project></project>";
+        PomEditor editor = editorOf(pom);
+        Coordinates dep = Coordinates.of("com.example", "lib", "1.0.0");
+
+        boolean result = editor.dependencies().updateManagedDependencyAligned(false, dep);
+        assertFalse(result);
+
+        String xml = editor.toXml();
+        assertFalse(xml.contains("<dependencyManagement>"));
+    }
+
+    @Test
+    void testUpdateManagedDependencyAlignedNoUpsertPropertyConvention() {
+        PomEditor editor = editorOf(POM_MANAGED_PROPERTY);
+        Coordinates dep = Coordinates.of("com.example", "nonexistent-lib", "1.0.0");
+
+        boolean result = editor.dependencies().updateManagedDependencyAligned(false, dep);
+        assertFalse(result);
+
+        String xml = editor.toXml();
+        assertFalse(xml.contains("nonexistent-lib"), "No dependency element should be created");
+        assertFalse(xml.contains("nonexistent-lib.version"), "No property should be created");
+    }
+
+    @Test
+    void testUpdateManagedDependencyAlignedWithoutVersionThrows() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates noVersion = Coordinates.of("com.example", "lib", null);
+        PomEditor.Dependencies deps = editor.dependencies();
+
+        assertThrows(DomTripException.class, () -> deps.updateManagedDependencyAligned(true, noVersion));
+    }
+
+    @Test
+    void testUpdateManagedDependencyAlignedWithPropertyNameGenerator() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+
+        boolean added = editor.dependencies()
+                .updateManagedDependencyAligned(
+                        true,
+                        jackson,
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .propertyNameGenerator(coords -> coords.groupId() + ".version")
+                                .build());
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<com.fasterxml.jackson.core.version>2.15.0</com.fasterxml.jackson.core.version>"));
+        assertTrue(xml.contains("${com.fasterxml.jackson.core.version}"));
+    }
 }

@@ -102,6 +102,9 @@ Access via `editor.dependencies()`.
 {cdi:snippets.snippet('dependency-management-ops')}
 ```
 
+For convention-aware managed dependency updates (creating version properties automatically),
+see `updateManagedDependencyAligned()` in [Dependency Alignment](../alignment/).
+
 ### Exclusion Management
 
 See [Exclusion Management](../exclusions/) for full documentation.

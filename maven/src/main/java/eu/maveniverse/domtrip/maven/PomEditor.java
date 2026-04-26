@@ -506,6 +506,117 @@ public class PomEditor extends AbstractMavenEditor {
             return updateOrCreateDependencyInContainer(dependencies, upsert, coordinates);
         }
 
+        /**
+         * Convention-aware version of {@link #updateManagedDependency(boolean, Coordinates)}.
+         *
+         * <p>Detects the project's version conventions and, when the convention calls for property-backed
+         * versions, creates (or updates) a version property and stores a {@code ${propName}} reference
+         * in the managed dependency element instead of the raw version string.</p>
+         *
+         * <p>This is equivalent to calling
+         * {@link #updateManagedDependencyAligned(boolean, Coordinates, AlignOptions)
+         * updateManagedDependencyAligned(upsert, coordinates, AlignOptions.defaults())}.</p>
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+         * // Auto-detects conventions; creates a property if the project uses property-backed versions
+         * editor.dependencies().updateManagedDependencyAligned(true, jackson);
+         * }</pre>
+         *
+         * @param upsert      whether to create the dependency if it doesn't exist
+         * @param coordinates the artifact coordinates (version is required)
+         * @return true if the dependency was updated or created, false otherwise
+         * @throws DomTripException if the coordinates are invalid or version is null
+         * @since 1.4.0
+         */
+        public boolean updateManagedDependencyAligned(boolean upsert, Coordinates coordinates) throws DomTripException {
+            return updateManagedDependencyAligned(upsert, coordinates, AlignOptions.defaults());
+        }
+
+        /**
+         * Convention-aware version of {@link #updateManagedDependency(boolean, Coordinates)} with
+         * explicit alignment options.
+         *
+         * <p>Resolves conventions (auto-detecting any fields left {@code null} in {@code options})
+         * and, when the effective version source is {@link AlignOptions.VersionSource#PROPERTY},
+         * creates or updates a version property and uses its {@code ${...}} reference as the
+         * version in the managed dependency element.</p>
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-databind", "2.15.0");
+         * editor.dependencies().updateManagedDependencyAligned(true, jackson,
+         *     AlignOptions.builder()
+         *         .versionSource(AlignOptions.VersionSource.PROPERTY)
+         *         .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+         *         .build());
+         * }</pre>
+         *
+         * @param upsert      whether to create the dependency if it doesn't exist
+         * @param coordinates the artifact coordinates (version is required)
+         * @param options     alignment options (null fields are auto-detected from the POM)
+         * @return true if the dependency was updated or created, false otherwise
+         * @throws DomTripException if the coordinates are invalid or version is null
+         * @since 1.4.0
+         */
+        public boolean updateManagedDependencyAligned(boolean upsert, Coordinates coordinates, AlignOptions options)
+                throws DomTripException {
+            requireGA(DEPENDENCY_LABEL, coordinates);
+            if (coordinates.version() == null) {
+                throw new DomTripException("Version is required for updateManagedDependencyAligned");
+            }
+            if (options == null) {
+                options = AlignOptions.defaults();
+            }
+
+            Object[] conventions = resolveConventions(options);
+            AlignOptions.VersionSource versionSource = (AlignOptions.VersionSource) conventions[1];
+            AlignOptions.PropertyNamingConvention naming = (AlignOptions.PropertyNamingConvention) conventions[2];
+
+            Element dependencyManagement = findOrCreateElement(root(), DEPENDENCY_MANAGEMENT, upsert);
+            if (dependencyManagement == null) {
+                return false;
+            }
+            Element dependencies = findOrCreateElement(dependencyManagement, DEPENDENCIES, upsert);
+            if (dependencies == null) {
+                return false;
+            }
+
+            Element dependency = dependencies
+                    .childElements(DEPENDENCY)
+                    .filter(coordinates.predicateGATC())
+                    .findFirst()
+                    .orElse(null);
+
+            if (dependency == null && !upsert) {
+                return false;
+            }
+
+            String actualVersion = coordinates.version();
+            String versionForElement = actualVersion;
+
+            if (versionSource == AlignOptions.VersionSource.PROPERTY) {
+                String propName = resolvePropertyName(coordinates, naming, options);
+                upsertVersionProperty(propName, actualVersion);
+                versionForElement = "${" + propName + "}";
+            }
+
+            if (dependency == null) {
+                createNewDependency(dependencies, coordinates.withVersion(versionForElement));
+                return true;
+            }
+            java.util.Optional<Element> versionEl = dependency.childElement(VERSION);
+            if (versionEl.isPresent()) {
+                versionEl.get().textContent(versionForElement);
+            } else {
+                insertMavenElement(dependency, VERSION, versionForElement);
+            }
+            return true;
+        }
+
         private Element findOrCreateElement(Element parent, String childName, boolean create) throws DomTripException {
             Element child = findChildElement(parent, childName);
             if (child == null && create) {
@@ -1258,7 +1369,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param parentEditor the parent POM editor where the managed dependency will be created
          * @param options alignment options controlling version source and property naming in the parent
          * @return {@code true} if the dependency was moved, {@code false} if not found or already version-less
-         * @since 1.2.0
+         * @since 1.4.0
          */
         public boolean alignToParent(Coordinates coords, PomEditor parentEditor, AlignOptions options) {
             requireGA(DEPENDENCY_LABEL, coords);
@@ -1303,7 +1414,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param parentEditor the parent POM editor where managed dependencies will be created
          * @param options alignment options controlling version source and property naming in the parent
          * @return the number of dependencies that were moved to the parent
-         * @since 1.2.0
+         * @since 1.4.0
          */
         public int alignAllToParent(PomEditor parentEditor, AlignOptions options) {
             Element deps = findChildElement(root(), DEPENDENCIES);
@@ -1415,7 +1526,7 @@ public class PomEditor extends AbstractMavenEditor {
          *
          * @param versionText the version text to resolve
          * @return the resolved literal version value
-         * @since 1.2.0
+         * @since 1.4.0
          */
         private String resolveVersionValue(String versionText) {
             if (!isPropertyReference(versionText)) {
@@ -1583,7 +1694,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param versionEl the {@code <version>} element to update
          * @param versionText the current text content of the version element
          * @return the resolved literal value if a change was made, or {@code null} if already literal or unresolvable
-         * @since 1.2.0
+         * @since 1.4.0
          */
         private String alignVersionToLiteral(Element versionEl, String versionText) {
             if (!isPropertyReference(versionText)) {
@@ -1656,7 +1767,7 @@ public class PomEditor extends AbstractMavenEditor {
          *
          * @param coords the dependency coordinates (matched by groupId/artifactId/type/classifier)
          * @return the version text from the managed dependency, or {@code null} if not found
-         * @since 1.2.0
+         * @since 1.4.0
          */
         public String findManagedVersion(Coordinates coords) {
             Element depMgmt = findChildElement(root(), DEPENDENCY_MANAGEMENT);

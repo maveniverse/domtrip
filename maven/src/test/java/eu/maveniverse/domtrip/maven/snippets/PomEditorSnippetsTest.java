@@ -60,6 +60,7 @@ class PomEditorSnippetsTest {
         addAligned();
         alignExistingDependency();
         alignAllDependencies();
+        updateManagedDependencyAligned();
     }
 
     @Test
@@ -748,6 +749,74 @@ class PomEditorSnippetsTest {
         // END: align-all
 
         assertEquals(2, changed);
+    }
+
+    void updateManagedDependencyAligned() throws DomTripException {
+        // START: update-managed-aligned
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>my-project</artifactId>
+                  <version>1.0.0</version>
+                  <properties>
+                    <slf4j.version>2.0.7</slf4j.version>
+                  </properties>
+                  <dependencyManagement>
+                    <dependencies>
+                      <dependency>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                        <version>${slf4j.version}</version>
+                      </dependency>
+                    </dependencies>
+                  </dependencyManagement>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.slf4j</groupId>
+                      <artifactId>slf4j-api</artifactId>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """;
+
+        PomEditor editor = new PomEditor(Document.of(pom));
+
+        // Add a new managed dependency following auto-detected conventions
+        // Detects PROPERTY + DOT_SUFFIX → creates property and uses ${...} reference
+        Coordinates jackson = Coordinates.of("com.fasterxml.jackson.core", "jackson-core", "2.15.2");
+        editor.dependencies().updateManagedDependencyAligned(true, jackson);
+
+        // Use explicit options to force property-backed version
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", "33.0.0-jre");
+        editor.dependencies()
+                .updateManagedDependencyAligned(
+                        true,
+                        guava,
+                        AlignOptions.builder()
+                                .versionSource(AlignOptions.VersionSource.PROPERTY)
+                                .namingConvention(AlignOptions.PropertyNamingConvention.DOT_SUFFIX)
+                                .build());
+
+        // Use explicit property name to update an existing managed dependency
+        Coordinates slf4j = Coordinates.of("org.slf4j", "slf4j-api", "2.0.13");
+        editor.dependencies()
+                .updateManagedDependencyAligned(
+                        false,
+                        slf4j,
+                        AlignOptions.builder().propertyName("slf4j.version").build());
+        // END: update-managed-aligned
+
+        String result = editor.toXml();
+        // New dependency got an auto-generated property
+        assertTrue(result.contains("<jackson-core.version>2.15.2</jackson-core.version>"));
+        assertTrue(result.contains("${jackson-core.version}"));
+        // Explicit options created property
+        assertTrue(result.contains("<guava.version>33.0.0-jre</guava.version>"));
+        assertTrue(result.contains("${guava.version}"));
+        // Explicit property name preserved existing convention
+        assertTrue(result.contains("<slf4j.version>2.0.13</slf4j.version>"));
     }
 
     // ========== PROFILE SNIPPETS (profiles.md) ==========

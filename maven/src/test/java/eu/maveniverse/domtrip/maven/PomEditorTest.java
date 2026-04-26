@@ -2129,9 +2129,9 @@ class PomEditorTest {
     void testUpdateManagedDependencyAlignedWithoutVersionThrows() {
         PomEditor editor = editorOf(POM_INLINE_LITERAL);
         Coordinates noVersion = Coordinates.of("com.example", "lib", null);
+        PomEditor.Dependencies deps = editor.dependencies();
 
-        assertThrows(
-                DomTripException.class, () -> editor.dependencies().updateManagedDependencyAligned(true, noVersion));
+        assertThrows(DomTripException.class, () -> deps.updateManagedDependencyAligned(true, noVersion));
     }
 
     @Test

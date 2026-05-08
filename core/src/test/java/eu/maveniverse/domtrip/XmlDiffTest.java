@@ -554,6 +554,20 @@ class XmlDiffTest {
         assertFalse(nameChanges.stream().anyMatch(c -> c.path().startsWith("/project/namespace")));
     }
 
+    @Test
+    void detectsAttributeReorderingAsAttributeMoved() {
+        Document before = Document.of("<root a=\"1\" b=\"2\"/>");
+        Document after = Document.of("<root b=\"2\" a=\"1\"/>");
+
+        DiffResult result = XmlDiff.diff(before, after);
+
+        // Attribute reordering should be formatting-only and reported as ATTRIBUTE_MOVED
+        assertTrue(
+                result.changes().stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED),
+                "Expected ATTRIBUTE_MOVED for reordered attributes");
+        assertFalse(result.hasSemanticChanges(), "Attribute reordering should not be semantic");
+    }
+
     // --- Assertion helpers ---
 
     private static void assertChange(DiffResult result, ChangeType expectedType, String expectedPath) {

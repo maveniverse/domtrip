@@ -197,7 +197,7 @@ public final class XmlDiff {
             Element after,
             List<XmlChange> changes) {
         // We might have different length of lists and / or different attributes, to not double-detect these as order
-        // changers we first filter both
+        // changes we first filter both
         // for the same keys.
         Set<String> commonKeys = new LinkedHashSet<>(beforeAttrs.keySet());
         commonKeys.retainAll(afterAttrs.keySet());

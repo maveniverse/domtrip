@@ -7,7 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Tests for XML-aware structural diff.
@@ -554,64 +558,78 @@ class XmlDiffTest {
         assertFalse(nameChanges.stream().anyMatch(c -> c.path().startsWith("/project/namespace")));
     }
 
-    @Test
-    void detectsAttributeReorderingAsAttributeMoved() {
-        Document before = Document.of("<root a=\"1\" b=\"2\"/>");
-        Document after = Document.of("<root b=\"2\" a=\"1\"/>");
+    private static Stream<Arguments> attributeReorderingCases() {
+        return Stream.of(
+                // Reordered attributes, no semantic change
+                Arguments.of("reordered attributes", "<root a=\"1\" b=\"2\"/>", "<root b=\"2\" a=\"1\"/>", false),
+                // Reordered attributes with namespaces, no semantic change
+                Arguments.of(
+                        "reordered attributes with namespaces",
+                        "<root xmlns1:a=\"1\" xmlns2:b=\"2\"/>",
+                        "<root xmlns2:b=\"2\" xmlns1:a=\"1\"/>",
+                        false),
+                // Attribute 'a' moved and its value changed from 1 to 3 -> ATTRIBUTE_MOVED + ATTRIBUTE_CHANGED
+                Arguments.of(
+                        "reordered and changed attribute", "<root a=\"1\" b=\"2\"/>", "<root b=\"2\" a=\"3\"/>", true));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("attributeReorderingCases")
+    void detectsAttributeReorderingAsAttributeMoved(
+            String description, String beforeXml, String afterXml, boolean expectSemanticChange) {
+        Document before = Document.of(beforeXml);
+        Document after = Document.of(afterXml);
 
         DiffResult result = XmlDiff.diff(before, after);
 
-        // Attribute reordering should be formatting-only and reported as ATTRIBUTE_MOVED
+        // Attribute reordering should always be reported as ATTRIBUTE_MOVED in these scenarios
         assertTrue(
                 result.changes().stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED),
                 "Expected ATTRIBUTE_MOVED for reordered attributes");
         assertTrue(result.hasAttributeOrderChanges(), "Expected hasAttributeOrderChanges() to be true");
-        assertFalse(result.hasSemanticChanges(), "Attribute reordering should not be semantic");
+
+        if (expectSemanticChange) {
+            assertTrue(result.hasSemanticChanges(), "Expected semantic changes for this scenario");
+        } else {
+            assertFalse(result.hasSemanticChanges(), "Attribute reordering alone should not be semantic");
+        }
     }
 
-    @Test
-    void detectsNoAttributeReorderingIfMissing() {
-        Document before = Document.of("<root a=\"1\" b=\"2\" c=\"3\"/>");
-        Document after = Document.of("<root b=\"2\" c=\"3\"/>");
+    private static Stream<Arguments> attributesNotReorderedCases() {
+        return Stream.of(
+                // 1) Attributes identical – no changes at all
+                Arguments.of(
+                        "same attributes", "<root a=\"1\" b=\"2\" c=\"3\"/>", "<root a=\"1\" b=\"2\" c=\"3\"/>", false),
+                // 2) One attribute missing
+                Arguments.of("missing attribute", "<root a=\"1\" b=\"2\" c=\"3\"/>", "<root b=\"2\" c=\"3\"/>", true),
+                // 3) Different attribute set
+                Arguments.of(
+                        "different attributes",
+                        "<root a=\"1\" b=\"2\" c=\"3\"/>",
+                        "<root b=\"2\" c=\"3\" d=\"3\"/>",
+                        true));
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("attributesNotReorderedCases")
+    void detectsNoAttributeReordering(
+            String description, String beforeXml, String afterXml, boolean expectedHasChanges) {
+        Document before = Document.of(beforeXml);
+        Document after = Document.of(afterXml);
 
         DiffResult result = XmlDiff.diff(before, after);
 
-        // Attribute reordering should be formatting-only and reported as ATTRIBUTE_MOVED
+        // Attribute reordering should not be reported in these scenarios
         assertFalse(
                 result.changes().stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED),
-                "Expected no ATTRIBUTE_MOVED for reordered attributes");
+                "Expected no ATTRIBUTE_MOVED for these attribute differences");
         assertFalse(result.hasAttributeOrderChanges(), "Expected hasAttributeOrderChanges() to be false");
-        assertTrue(result.hasChanges(), "Attribute missing should be detected");
-    }
 
-    @Test
-    void detectsNoAttributeReorderingIfDifferent() {
-        Document before = Document.of("<root a=\"1\" b=\"2\" c=\"3\"/>");
-        Document after = Document.of("<root b=\"2\" c=\"3\" d=\"3\"/>");
-
-        DiffResult result = XmlDiff.diff(before, after);
-
-        // Attribute reordering should be formatting-only and reported as ATTRIBUTE_MOVED
-        assertFalse(
-                result.changes().stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED),
-                "Expected no ATTRIBUTE_MOVED for reordered attributes");
-        assertFalse(result.hasAttributeOrderChanges(), "Expected hasAttributeOrderChanges() to be false");
-        assertTrue(result.hasChanges(), "Attribute missing should be detected");
-    }
-
-    @Test
-    void detectsAttributeReorderingAsAttributeMovedWithNamespaces() {
-        Document before = Document.of("<root xmlns1:a=\"1\" xmlns2:b=\"2\"/>");
-        Document after = Document.of("<root xmlns2:b=\"2\" xmlns1:a=\"1\"/>");
-
-        DiffResult result = XmlDiff.diff(before, after);
-
-        // Attribute reordering should be formatting-only and reported as ATTRIBUTE_MOVED
-        assertTrue(
-                result.changes().stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED),
-                "Expected ATTRIBUTE_MOVED for reordered attributes with namespaces");
-        assertTrue(result.hasAttributeOrderChanges(), "Expected hasAttributeOrderChanges() to be true");
-        assertFalse(result.hasSemanticChanges(), "Attribute reordering should not be semantic");
+        if (expectedHasChanges) {
+            assertTrue(result.hasChanges(), "Attribute difference should be detected");
+        } else {
+            assertFalse(result.hasChanges(), "No changes should be detected when attributes are identical");
+        }
     }
 
     // --- Assertion helpers ---

@@ -565,6 +565,7 @@ class XmlDiffTest {
         assertTrue(
                 result.changes().stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED),
                 "Expected ATTRIBUTE_MOVED for reordered attributes");
+        assertTrue(result.hasAttributeOrderChanges(), "Expected hasAttributeOrderChanges() to be true");
         assertFalse(result.hasSemanticChanges(), "Attribute reordering should not be semantic");
     }
 

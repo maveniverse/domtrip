@@ -170,7 +170,7 @@ public class DiffResult {
      * {@link ChangeType#ATTRIBUTE_MOVED} change.</p>
      *
      * @return {@code true} if there are attribute order changes
-     * @since 1.4.0
+     * @since 1.5.0
      */
     public boolean hasAttributeOrderChanges() {
         return changes.stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED);

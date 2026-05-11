@@ -569,6 +569,21 @@ class XmlDiffTest {
         assertFalse(result.hasSemanticChanges(), "Attribute reordering should not be semantic");
     }
 
+    @Test
+    void detectsNoAttributeReorderingIfMissing() {
+        Document before = Document.of("<root a=\"1\" b=\"2\" c=\"3\"/>");
+        Document after = Document.of("<root b=\"2\" c=\"3\"/>");
+
+        DiffResult result = XmlDiff.diff(before, after);
+
+        // Attribute reordering should be formatting-only and reported as ATTRIBUTE_MOVED
+        assertFalse(
+                result.changes().stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED),
+                "Expected no ATTRIBUTE_MOVED for reordered attributes");
+        assertFalse(result.hasAttributeOrderChanges(), "Expected hasAttributeOrderChanges() to be false");
+        assertTrue(result.hasChanges(), "Attribute missing should be detected");
+    }
+
     // --- Assertion helpers ---
 
     private static void assertChange(DiffResult result, ChangeType expectedType, String expectedPath) {

@@ -599,6 +599,21 @@ class XmlDiffTest {
         assertTrue(result.hasChanges(), "Attribute missing should be detected");
     }
 
+    @Test
+    void detectsAttributeReorderingAsAttributeMovedWithNamespaces() {
+        Document before = Document.of("<root xmlns1:a=\"1\" xmlns2:b=\"2\"/>");
+        Document after = Document.of("<root xmlns2:b=\"2\" xmlns1:a=\"1\"/>");
+
+        DiffResult result = XmlDiff.diff(before, after);
+
+        // Attribute reordering should be formatting-only and reported as ATTRIBUTE_MOVED
+        assertTrue(
+                result.changes().stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED),
+                "Expected ATTRIBUTE_MOVED for reordered attributes with namespaces");
+        assertTrue(result.hasAttributeOrderChanges(), "Expected hasAttributeOrderChanges() to be true");
+        assertFalse(result.hasSemanticChanges(), "Attribute reordering should not be semantic");
+    }
+
     // --- Assertion helpers ---
 
     private static void assertChange(DiffResult result, ChangeType expectedType, String expectedPath) {

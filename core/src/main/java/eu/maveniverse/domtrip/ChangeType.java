@@ -42,6 +42,9 @@ public enum ChangeType {
     /** An attribute value was modified. */
     ATTRIBUTE_CHANGED,
 
+    /** An attribute was moved. */
+    ATTRIBUTE_MOVED,
+
     /** A comment was inserted. */
     COMMENT_ADDED,
 
@@ -87,6 +90,7 @@ public enum ChangeType {
             case QUOTE_STYLE_CHANGED:
             case ENTITY_FORM_CHANGED:
             case EMPTY_ELEMENT_STYLE_CHANGED:
+            case ATTRIBUTE_MOVED:
                 return false;
             default:
                 return true;

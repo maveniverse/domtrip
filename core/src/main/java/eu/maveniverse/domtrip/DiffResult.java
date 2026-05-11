@@ -158,6 +158,24 @@ public class DiffResult {
         return changes.stream().anyMatch(XmlChange::isFormattingOnly);
     }
 
+    /**
+     * Returns {@code true} if any changes affecting attribute order were detected.
+     *
+     * <p>Attribute order is not considered a semantic difference in XML, but in
+     * many real-world use cases (configuration files, generated build metadata
+     * etc.) it is desirable to detect reordering separately from other
+     * formatting-only changes like whitespace or quote styles.</p>
+     *
+     * <p>This method reports {@code true} when the diff contains an
+     * {@link ChangeType#ATTRIBUTE_MOVED} change.</p>
+     *
+     * @return {@code true} if there are attribute order changes
+     * @since 1.5.0
+     */
+    public boolean hasAttributeOrderChanges() {
+        return changes.stream().anyMatch(c -> c.type() == ChangeType.ATTRIBUTE_MOVED);
+    }
+
     @Override
     public String toString() {
         if (changes.isEmpty()) {

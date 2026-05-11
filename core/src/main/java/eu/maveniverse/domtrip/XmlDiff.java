@@ -183,6 +183,50 @@ public final class XmlDiff {
                         after));
             }
         }
+
+        // Attribute reordering: if the same set of attributes with the same values
+        // exists in both elements, detect changes in their relative order.
+        detectAttributeOrderChanges(beforeAttrs, afterAttrs, path, before, after, changes);
+    }
+
+    private static void detectAttributeOrderChanges(
+            Map<String, Attribute> beforeAttrs,
+            Map<String, Attribute> afterAttrs,
+            String path,
+            Element before,
+            Element after,
+            List<XmlChange> changes) {
+        // We might have different length of lists and / or different attributes, to not double-detect these as order
+        // changes we first filter both
+        // for the same keys.
+        Set<String> commonKeys = new LinkedHashSet<>(beforeAttrs.keySet());
+        commonKeys.retainAll(afterAttrs.keySet());
+
+        // Build ordered lists (keySet of LinkedHashMap is ordered) of common attributes
+        List<String> beforeCommonKeys =
+                beforeAttrs.keySet().stream().filter(commonKeys::contains).collect(Collectors.toList());
+        List<String> afterCommonKeys =
+                afterAttrs.keySet().stream().filter(commonKeys::contains).collect(Collectors.toList());
+
+        if (beforeCommonKeys.equals(afterCommonKeys)) {
+            return; // No reordering
+        }
+
+        // Emit ATTRIBUTE_MOVED for attributes whose position changed.
+        for (String name : beforeCommonKeys) {
+            int beforeIndex = beforeCommonKeys.indexOf(name);
+            int afterIndex = afterCommonKeys.indexOf(name);
+            if (beforeIndex != afterIndex) {
+                String attrPath = path + "/@" + name;
+                changes.add(new XmlChange(
+                        ChangeType.ATTRIBUTE_MOVED,
+                        attrPath,
+                        Integer.toString(beforeIndex),
+                        Integer.toString(afterIndex),
+                        before,
+                        after));
+            }
+        }
     }
 
     private static void compareAttributeValues(

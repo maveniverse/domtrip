@@ -565,8 +565,8 @@ class XmlDiffTest {
                 // Reordered attributes with namespaces, no semantic change
                 Arguments.of(
                         "reordered attributes with namespaces",
-                        "<root xmlns1:a=\"1\" xmlns2:b=\"2\"/>",
-                        "<root xmlns2:b=\"2\" xmlns1:a=\"1\"/>",
+                        "<root xmlns:n1=\"urn:one\" xmlns:n2=\"urn:two\" n1:a=\"1\" n2:b=\"2\"/>",
+                        "<root xmlns:n1=\"urn:one\" xmlns:n2=\"urn:two\" n2:b=\"2\" n1:a=\"1\"/>",
                         false),
                 // Attribute 'a' moved and its value changed from 1 to 3 -> ATTRIBUTE_MOVED + ATTRIBUTE_CHANGED
                 Arguments.of(

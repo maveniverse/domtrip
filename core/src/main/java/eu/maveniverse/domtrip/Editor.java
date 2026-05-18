@@ -363,7 +363,7 @@ public class Editor {
 
     private void handleOnlyElementRemoval(ContainerNode container) {
         if (container instanceof Element) {
-            ((Element) container).innerPrecedingWhitespace("\n");
+            ((Element) container).innerPrecedingWhitespace(lineEnding);
         }
     }
 
@@ -404,7 +404,7 @@ public class Editor {
         String[] lines = whitespace.split("\\r?\\n", -1);
         if (lines.length > 1) {
             // Return newline + last line (which should be the indentation)
-            return "\n" + lines[lines.length - 1];
+            return lineEnding + lines[lines.length - 1];
         } else {
             // No newlines, return as-is
             return whitespace;
@@ -431,7 +431,7 @@ public class Editor {
         String indentation = lines[lines.length - 1];
 
         // Return just newline + indentation, removing any extra blank lines
-        return "\n" + indentation;
+        return lineEnding + indentation;
     }
 
     /**
@@ -1681,7 +1681,7 @@ public class Editor {
         }
 
         // Extract the pattern after the last newline (including the newline)
-        int lastNewline = existingWhitespace.lastIndexOf(lineEnding.charAt(lineEnding.length() - 1));
+        int lastNewline = existingWhitespace.lastIndexOf(lineEnding);
         if (lastNewline >= 0) {
             // Return from the newline onwards (including the newline)
             return existingWhitespace.substring(lastNewline);

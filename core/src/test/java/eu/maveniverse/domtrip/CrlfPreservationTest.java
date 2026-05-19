@@ -51,7 +51,7 @@ class CrlfPreservationTest {
 
         String result = editor.toXml();
 
-        assertFalse(result.contains("\r\n2.0"), "Modified text should not introduce bare LF before value");
+        assertFalse(result.contains("\n2.0"), "Modified text should not introduce bare LF before value");
         assertTrue(result.contains("2.0"), "Modified text should be present");
         assertNoCrlfCorruption(result);
     }

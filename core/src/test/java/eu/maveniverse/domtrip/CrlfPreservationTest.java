@@ -143,6 +143,23 @@ class CrlfPreservationTest {
     }
 
     @Test
+    void testRemoveMiddleElementWithInlineNextPreservesCrlf() throws Exception {
+        String xml = "<root>\r\n  <a/>\r\n  <b/> <c/>\r\n</root>";
+
+        Document doc = Document.of(xml);
+        Editor editor = new Editor(doc);
+        Element b = doc.root().childElement("b").orElseThrow();
+        editor.removeElement(b);
+
+        String result = editor.toXml();
+
+        assertTrue(result.contains("<a/>"));
+        assertTrue(result.contains("<c/>"));
+        assertFalse(result.contains("<b/>"));
+        assertNoCrlfCorruption(result);
+    }
+
+    @Test
     void testMultipleModificationsPreserveCrlf() throws Exception {
         String xml = crlfXml(
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",

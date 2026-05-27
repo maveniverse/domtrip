@@ -2091,21 +2091,33 @@ public class Editor {
     }
 
     public void addBlankLineBefore(Element element) {
-        element.precedingWhitespace(lineEnding + element.precedingWhitespace());
+        String ws = element.precedingWhitespace();
+        if (!hasBlankLine(ws)) {
+            element.precedingWhitespace(lineEnding + ws);
+        }
     }
 
     public void addBlankLineAfter(Element element) {
-        // Add an extra newline to create a blank line
         if (element.parent() instanceof Element) {
             Element parentElement = (Element) element.parent();
             int index = parentElement.children.indexOf(element);
             if (index == parentElement.children.size() - 1) {
-                parentElement.innerPrecedingWhitespace(lineEnding + parentElement.innerPrecedingWhitespace());
+                String ws = parentElement.innerPrecedingWhitespace();
+                if (!hasBlankLine(ws)) {
+                    parentElement.innerPrecedingWhitespace(lineEnding + ws);
+                }
             } else {
                 Node nextSibling = parentElement.children.get(index + 1);
-                nextSibling.precedingWhitespace(lineEnding + nextSibling.precedingWhitespace());
+                String ws = nextSibling.precedingWhitespace();
+                if (!hasBlankLine(ws)) {
+                    nextSibling.precedingWhitespace(lineEnding + ws);
+                }
             }
         }
+    }
+
+    private boolean hasBlankLine(String whitespace) {
+        return whitespace != null && whitespace.contains(lineEnding + lineEnding);
     }
 
     /**

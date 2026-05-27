@@ -311,6 +311,19 @@ class EditorInsertRemoveTest {
     }
 
     @Test
+    void testAddBlankLineBeforeNoOpForRawFormatting() throws DomTripException {
+        String xml = "<root><existing>content</existing><other>value</other></root>";
+
+        Document doc = Document.of(xml);
+        editor = new Editor(doc);
+        Element other = doc.root().childElement("other").orElseThrow();
+
+        editor.addBlankLineBefore(other);
+
+        assertEquals(xml, editor.toXml());
+    }
+
+    @Test
     void testRemoveElementNullHandling() throws DomTripException {
         // Test null element
         assertFalse(editor.removeElement(null));

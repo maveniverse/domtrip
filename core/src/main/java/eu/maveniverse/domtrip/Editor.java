@@ -2117,7 +2117,16 @@ public class Editor {
     }
 
     private boolean hasBlankLine(String whitespace) {
-        return whitespace != null && whitespace.contains(lineEnding + lineEnding);
+        if (whitespace == null || lineEnding.isEmpty()) {
+            return false;
+        }
+        String[] lines = whitespace.split(lineEnding, -1);
+        for (int i = 1; i < lines.length - 1; i++) {
+            if (lines[i].trim().isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

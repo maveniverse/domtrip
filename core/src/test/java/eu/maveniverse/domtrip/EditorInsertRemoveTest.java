@@ -283,6 +283,34 @@ class EditorInsertRemoveTest {
     }
 
     @Test
+    void testAddBlankLineBeforeIsIdempotentWithWhitespaceOnlyBlankLine() throws DomTripException {
+        String xml = "<root>\n    <existing>content</existing>\n    \n    <other>value</other>\n</root>";
+
+        Document doc = Document.of(xml);
+        editor = new Editor(doc);
+        Element other = doc.root().childElement("other").orElseThrow();
+
+        editor.addBlankLineBefore(other);
+        String result = editor.toXml();
+
+        assertEquals(xml, result);
+    }
+
+    @Test
+    void testAddBlankLineAfterIsIdempotentWithWhitespaceOnlyBlankLine() throws DomTripException {
+        String xml = "<root>\n    <existing>content</existing>\n    \n    <other>value</other>\n</root>";
+
+        Document doc = Document.of(xml);
+        editor = new Editor(doc);
+        Element existing = doc.root().childElement("existing").orElseThrow();
+
+        editor.addBlankLineAfter(existing);
+        String result = editor.toXml();
+
+        assertEquals(xml, result);
+    }
+
+    @Test
     void testRemoveElementNullHandling() throws DomTripException {
         // Test null element
         assertFalse(editor.removeElement(null));

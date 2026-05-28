@@ -245,6 +245,85 @@ class EditorInsertRemoveTest {
     }
 
     @Test
+    void testAddBlankLineBeforeIsIdempotent() throws DomTripException {
+        String xml = """
+            <root>
+                <existing>content</existing>
+
+                <other>value</other>
+            </root>""";
+
+        Document doc = Document.of(xml);
+        editor = new Editor(doc);
+        Element other = doc.root().childElement("other").orElseThrow();
+
+        editor.addBlankLineBefore(other);
+        String result = editor.toXml();
+
+        assertEquals(xml, result);
+    }
+
+    @Test
+    void testAddBlankLineAfterIsIdempotent() throws DomTripException {
+        String xml = """
+            <root>
+                <existing>content</existing>
+
+                <other>value</other>
+            </root>""";
+
+        Document doc = Document.of(xml);
+        editor = new Editor(doc);
+        Element existing = doc.root().childElement("existing").orElseThrow();
+
+        editor.addBlankLineAfter(existing);
+        String result = editor.toXml();
+
+        assertEquals(xml, result);
+    }
+
+    @Test
+    void testAddBlankLineBeforeIsIdempotentWithWhitespaceOnlyBlankLine() throws DomTripException {
+        String xml = "<root>\n    <existing>content</existing>\n    \n    <other>value</other>\n</root>";
+
+        Document doc = Document.of(xml);
+        editor = new Editor(doc);
+        Element other = doc.root().childElement("other").orElseThrow();
+
+        editor.addBlankLineBefore(other);
+        String result = editor.toXml();
+
+        assertEquals(xml, result);
+    }
+
+    @Test
+    void testAddBlankLineAfterIsIdempotentWithWhitespaceOnlyBlankLine() throws DomTripException {
+        String xml = "<root>\n    <existing>content</existing>\n    \n    <other>value</other>\n</root>";
+
+        Document doc = Document.of(xml);
+        editor = new Editor(doc);
+        Element existing = doc.root().childElement("existing").orElseThrow();
+
+        editor.addBlankLineAfter(existing);
+        String result = editor.toXml();
+
+        assertEquals(xml, result);
+    }
+
+    @Test
+    void testAddBlankLineBeforeNoOpForRawFormatting() throws DomTripException {
+        String xml = "<root><existing>content</existing><other>value</other></root>";
+
+        Document doc = Document.of(xml);
+        editor = new Editor(doc);
+        Element other = doc.root().childElement("other").orElseThrow();
+
+        editor.addBlankLineBefore(other);
+
+        assertEquals(xml, editor.toXml());
+    }
+
+    @Test
     void testRemoveElementNullHandling() throws DomTripException {
         // Test null element
         assertFalse(editor.removeElement(null));

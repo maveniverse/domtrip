@@ -155,6 +155,7 @@ public final class MavenPomElements {
         public static final String COMBINE_OVERRIDE = "override";
         public static final String COMBINE_MERGE = "merge";
         public static final String COMBINE_APPEND = "append";
+        public static final String COMBINE_REMOVE = "remove";
 
         private Attributes() {
             // Utility class

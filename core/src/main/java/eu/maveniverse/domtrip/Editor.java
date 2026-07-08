@@ -604,6 +604,117 @@ public class Editor {
         return comment;
     }
 
+    /**
+     * Inserts a comment before the specified reference element.
+     *
+     * <p>This method creates a new comment and inserts it immediately before
+     * the reference element in the parent's child list. The comment's whitespace
+     * is automatically inferred from the reference element's context, matching
+     * the behavior of {@link #insertElementBefore(Element, String)}.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // Before:
+     * // <plugins>
+     * //     <plugin>...</plugin>
+     * // </plugins>
+     *
+     * editor.insertCommentBefore(pluginElement, " Override version inherited from parent ");
+     *
+     * // After:
+     * // <plugins>
+     * //     <!-- Override version inherited from parent -->
+     * //     <plugin>...</plugin>
+     * // </plugins>
+     * }</pre>
+     *
+     * @param referenceElement the element to insert the comment before
+     * @param text the comment text (without the {@code <!-- -->} delimiters)
+     * @return the newly created comment
+     * @throws DomTripException if the reference element is null, has no parent, or is not found in its parent
+     * @see #insertCommentAfter(Element, String)
+     * @see #addComment(ContainerNode, String)
+     */
+    public Comment insertCommentBefore(Element referenceElement, String text) throws DomTripException {
+        return insertCommentRelativeTo(referenceElement, text, 0);
+    }
+
+    /**
+     * Inserts a comment after the specified reference element.
+     *
+     * <p>This method creates a new comment and inserts it immediately after
+     * the reference element in the parent's child list. The comment's whitespace
+     * is automatically inferred from the reference element's context, matching
+     * the behavior of {@link #insertElementAfter(Element, String)}.</p>
+     *
+     * <h3>Example:</h3>
+     * <pre>{@code
+     * // Before:
+     * // <plugins>
+     * //     <plugin>...</plugin>
+     * //     <plugin>...</plugin>
+     * // </plugins>
+     *
+     * editor.insertCommentAfter(firstPlugin, " Next plugin section ");
+     *
+     * // After:
+     * // <plugins>
+     * //     <plugin>...</plugin>
+     * //     <!-- Next plugin section -->
+     * //     <plugin>...</plugin>
+     * // </plugins>
+     * }</pre>
+     *
+     * @param referenceElement the element to insert the comment after
+     * @param text the comment text (without the {@code <!-- -->} delimiters)
+     * @return the newly created comment
+     * @throws DomTripException if the reference element is null, has no parent, or is not found in its parent
+     * @see #insertCommentBefore(Element, String)
+     * @see #addComment(ContainerNode, String)
+     */
+    public Comment insertCommentAfter(Element referenceElement, String text) throws DomTripException {
+        return insertCommentRelativeTo(referenceElement, text, 1);
+    }
+
+    /**
+     * Shared implementation for {@link #insertCommentBefore} and {@link #insertCommentAfter}.
+     * Validates inputs, creates the comment with inferred whitespace, and inserts it at the
+     * reference element's index plus the given offset.
+     *
+     * @param referenceElement the element to position relative to
+     * @param text the comment text
+     * @param indexOffset 0 to insert before the reference element, 1 to insert after
+     * @return the newly created comment
+     */
+    private Comment insertCommentRelativeTo(Element referenceElement, String text, int indexOffset)
+            throws DomTripException {
+        if (referenceElement == null) {
+            throw new DomTripException("Reference element cannot be null");
+        }
+
+        ContainerNode parent = referenceElement.parent();
+        if (parent == null) {
+            throw new DomTripException("Reference element has no parent");
+        }
+
+        int index = parent.children.indexOf(referenceElement);
+        if (index < 0) {
+            throw new DomTripException("Reference element not found in parent");
+        }
+
+        Comment comment = new Comment(text != null ? text : "");
+
+        // Normalize whitespace and adjust index (same as element insertion)
+        index = normalizeWhitespaces(parent, index);
+
+        // Infer proper indentation from the parent context
+        String properIndentation = inferIndentation(parent);
+        comment.precedingWhitespace(lineEnding + properIndentation);
+
+        parent.insertChild(index + indexOffset, comment);
+        return comment;
+    }
+
     // ========== ELEMENT COMMENTING METHODS ==========
 
     /**
@@ -881,29 +992,7 @@ public class Editor {
      * @throws DomTripException if the insertion fails
      */
     public Element insertElementBefore(Element referenceElement, String elementName) throws DomTripException {
-        if (referenceElement == null) {
-            throw new DomTripException("Reference element cannot be null");
-        }
-        if (elementName == null || elementName.trim().isEmpty()) {
-            throw new DomTripException("Element name cannot be null or empty");
-        }
-
-        ContainerNode parent = referenceElement.parent();
-        if (parent == null) {
-            throw new DomTripException("Reference element has no parent");
-        }
-
-        int index = parent.children.indexOf(referenceElement);
-        if (index < 0) {
-            throw new DomTripException("Reference element not found in parent");
-        }
-
-        Element newElement = new Element(elementName.trim());
-
-        // Use centralized node insertion with automatic whitespace normalization
-        insertChild(parent, newElement, index);
-
-        return newElement;
+        return insertElementRelativeTo(referenceElement, elementName, 0);
     }
 
     /**
@@ -943,6 +1032,21 @@ public class Editor {
      * @throws DomTripException if the insertion fails
      */
     public Element insertElementAfter(Element referenceElement, String elementName) throws DomTripException {
+        return insertElementRelativeTo(referenceElement, elementName, 1);
+    }
+
+    /**
+     * Shared implementation for {@link #insertElementBefore} and {@link #insertElementAfter}.
+     * Validates inputs, creates the element, and inserts it at the reference element's index
+     * plus the given offset.
+     *
+     * @param referenceElement the element to position relative to
+     * @param elementName the name of the new element
+     * @param indexOffset 0 to insert before the reference element, 1 to insert after
+     * @return the newly created element
+     */
+    private Element insertElementRelativeTo(Element referenceElement, String elementName, int indexOffset)
+            throws DomTripException {
         if (referenceElement == null) {
             throw new DomTripException("Reference element cannot be null");
         }
@@ -963,7 +1067,7 @@ public class Editor {
         Element newElement = new Element(elementName.trim());
 
         // Use centralized node insertion with automatic whitespace normalization
-        insertChild(parent, newElement, index + 1);
+        insertChild(parent, newElement, index + indexOffset);
 
         return newElement;
     }

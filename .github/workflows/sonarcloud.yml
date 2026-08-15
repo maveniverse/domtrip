@@ -50,7 +50,7 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: >-
         ./mvnw --no-transfer-progress
-        org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report sonar:sonar
+        org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report org.sonarsource.scanner.maven:sonar-maven-plugin:5.7.0.6970:sonar
         -Dsonar.projectKey=maveniverse_domtrip
         -Dsonar.organization=maveniverse
         -Dsonar.host.url=https://sonarcloud.io

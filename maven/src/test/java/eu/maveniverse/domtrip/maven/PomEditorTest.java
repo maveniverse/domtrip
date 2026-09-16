@@ -1583,12 +1583,46 @@ class PomEditorTest {
     }
 
     @Test
-    void testAddAlignedWithoutVersionThrows() {
+    void testAddAlignedNullVersionAddsWithoutVersionElement() {
+        // Null version = dependency already managed by ancestor BOM/parent POM
         PomEditor editor = editorOf(POM_INLINE_LITERAL);
-        Coordinates noVersion = Coordinates.of("com.example", "no-version", null);
-        PomEditor.Dependencies deps = editor.dependencies();
+        Coordinates managed = Coordinates.of("org.slf4j", "slf4j-simple", null);
 
-        assertThrows(DomTripException.class, () -> deps.addAligned(noVersion));
+        boolean added = editor.dependencies().addAligned(managed);
+
+        assertTrue(added);
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<artifactId>slf4j-simple</artifactId>"));
+        // No <version> element for the newly added dep
+        int slf4jStart = xml.indexOf("<artifactId>slf4j-simple</artifactId>");
+        int slf4jEnd = xml.indexOf("</dependency>", slf4jStart);
+        assertFalse(
+                xml.substring(slf4jStart, slf4jEnd).contains("<version>"),
+                "null-version dependency must not emit <version>");
+    }
+
+    @Test
+    void testAddAlignedNullVersionWithScopeAndClassifier() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates managed = Coordinates.of("com.example", "my-lib", null, "tests", "jar");
+
+        boolean added = editor.dependencies()
+                .addAligned(managed, AlignOptions.builder().scope("test").build());
+
+        assertTrue(added);
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<artifactId>my-lib</artifactId>"));
+        assertTrue(xml.contains("<classifier>tests</classifier>"));
+        assertTrue(xml.contains("<scope>test</scope>"));
+        // No <version> for this dep
+        int myLibStart = xml.indexOf("<artifactId>my-lib</artifactId>");
+        int myLibEnd = xml.indexOf("</dependency>", myLibStart);
+        assertFalse(
+                xml.substring(myLibStart, myLibEnd).contains("<version>"),
+                "null-version dependency must not emit <version>");
+        // Adding again returns false (already exists)
+        assertFalse(editor.dependencies()
+                .addAligned(managed, AlignOptions.builder().scope("test").build()));
     }
 
     // ========== PROFILE-SCOPED DEPENDENCY TESTS ==========

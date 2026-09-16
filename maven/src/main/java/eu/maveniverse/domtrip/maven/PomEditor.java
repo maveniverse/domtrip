@@ -1830,7 +1830,7 @@ public class PomEditor extends AbstractMavenEditor {
          *
          * Inserts a `<type>` element if the coordinate's type is non-null and not "jar",
          * a `<classifier>` element if the coordinate's classifier is non-null, and
-         * a `<scope>` element if the provided align options include a non-null scope.
+         * a `<scope>` element if the provided align options include a non-null, non-empty scope.
          *
          * @param dep the `<dependency>` element to modify
          * @param coords the dependency coordinates providing `type` and `classifier`

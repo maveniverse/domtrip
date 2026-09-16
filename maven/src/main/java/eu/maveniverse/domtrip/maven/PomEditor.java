@@ -1113,9 +1113,14 @@ public class PomEditor extends AbstractMavenEditor {
          * property naming convention) and adds the dependency accordingly. If the dependency already
          * exists, returns false.</p>
          *
-         * @param coords the dependency coordinates (version is required)
+         * <p>When {@code coords.version()} is {@code null} the dependency is added without a
+         * {@code <version>} element — suitable for dependencies whose version is already pinned
+         * by an ancestor BOM or parent POM. Convention detection and property/managed-style
+         * machinery are skipped in this case.</p>
+         *
+         * @param coords the dependency coordinates; version may be null for ancestor-managed deps
          * @return true if the dependency was added, false if it already existed
-         * @throws DomTripException if the coordinates are invalid or version is null
+         * @throws DomTripException if the coordinates are invalid (groupId or artifactId missing)
          * @since 1.1.0
          */
         public boolean addAligned(Coordinates coords) {
@@ -1144,19 +1149,27 @@ public class PomEditor extends AbstractMavenEditor {
          * editor.dependencies().addAligned(junit, AlignOptions.builder()
          *     .scope("test")
          *     .build());
+         *
+         * // Add a dependency whose version is already managed by an ancestor BOM/parent POM
+         * Coordinates managed = Coordinates.of("org.slf4j", "slf4j-api", null);
+         * editor.dependencies().addAligned(managed, AlignOptions.builder()
+         *     .scope("compile")
+         *     .build());
          * }</pre>
          *
-         * @param coords the dependency coordinates (version is required)
+         * <p>When {@code coords.version()} is {@code null} the dependency is added without a
+         * {@code <version>} element — suitable for dependencies whose version is already pinned
+         * by an ancestor BOM or parent POM. Convention detection and property/managed-style
+         * machinery are skipped in this case.</p>
+         *
+         * @param coords the dependency coordinates; version may be null for ancestor-managed deps
          * @param options alignment options (null fields are auto-detected)
          * @return true if the dependency was added, false if it already existed
-         * @throws DomTripException if the coordinates are invalid or version is null
+         * @throws DomTripException if the coordinates are invalid (groupId or artifactId missing)
          * @since 1.1.0
          */
         public boolean addAligned(Coordinates coords, AlignOptions options) {
             requireGA(DEPENDENCY_LABEL, coords);
-            if (coords.version() == null) {
-                throw new DomTripException("Version is required for addAligned");
-            }
 
             // Check if dependency already exists
             Element deps = findChildElement(root(), DEPENDENCIES);
@@ -1168,6 +1181,17 @@ public class PomEditor extends AbstractMavenEditor {
                 if (existing != null) {
                     return false;
                 }
+            }
+
+            // Null version: dependency is already managed by an ancestor BOM/parent POM —
+            // add without <version> and skip all convention/property/managed-style machinery.
+            if (coords.version() == null) {
+                if (deps == null) {
+                    deps = insertMavenElement(root(), DEPENDENCIES);
+                }
+                Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), null);
+                addOptionalDependencyElements(dep, coords, options);
+                return true;
             }
 
             // Resolve conventions

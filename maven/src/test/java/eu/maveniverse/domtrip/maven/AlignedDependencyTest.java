@@ -695,7 +695,7 @@ class AlignedDependencyTest {
     }
 
     @Test
-    void addAlignedRequiresVersion() {
+    void addAlignedNullVersionAddsWithoutVersionElement() {
         PomEditor editor = editorOf("""
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -707,7 +707,11 @@ class AlignedDependencyTest {
                 """);
 
         Coordinates noVersion = Coordinates.of("com.google.guava", "guava", null);
-        assertThrows(Exception.class, () -> editor.dependencies().addAligned(noVersion));
+        assertTrue(editor.dependencies().addAligned(noVersion));
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<artifactId>guava</artifactId>"));
+        // The newly added dependency must not have a <version> element
+        assertFalse(xml.contains("<artifactId>guava</artifactId>\n          <version>"));
     }
 
     @Test

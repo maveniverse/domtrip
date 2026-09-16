@@ -1583,12 +1583,38 @@ class PomEditorTest {
     }
 
     @Test
-    void testAddAlignedWithoutVersionThrows() {
+    void testAddAlignedNullVersionAddsWithoutVersionElement() {
+        // Null version = dependency already managed by ancestor BOM/parent POM
         PomEditor editor = editorOf(POM_INLINE_LITERAL);
-        Coordinates noVersion = Coordinates.of("com.example", "no-version", null);
-        PomEditor.Dependencies deps = editor.dependencies();
+        Coordinates managed = Coordinates.of("org.slf4j", "slf4j-simple", null);
 
-        assertThrows(DomTripException.class, () -> deps.addAligned(noVersion));
+        boolean added = editor.dependencies().addAligned(managed);
+
+        assertTrue(added);
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<artifactId>slf4j-simple</artifactId>"));
+        // No <version> element for the newly added dep
+        assertFalse(xml.contains("<artifactId>slf4j-simple</artifactId>\n          <version>"));
+    }
+
+    @Test
+    void testAddAlignedNullVersionWithScopeAndClassifier() {
+        PomEditor editor = editorOf(POM_INLINE_LITERAL);
+        Coordinates managed = Coordinates.of("com.example", "my-lib", null, "tests", "jar");
+
+        boolean added = editor.dependencies()
+                .addAligned(managed, AlignOptions.builder().scope("test").build());
+
+        assertTrue(added);
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<artifactId>my-lib</artifactId>"));
+        assertTrue(xml.contains("<classifier>tests</classifier>"));
+        assertTrue(xml.contains("<scope>test</scope>"));
+        // No <version> for this dep
+        assertFalse(xml.contains("<artifactId>my-lib</artifactId>\n          <version>"));
+        // Adding again returns false (already exists)
+        assertFalse(editor.dependencies()
+                .addAligned(managed, AlignOptions.builder().scope("test").build()));
     }
 
     // ========== PROFILE-SCOPED DEPENDENCY TESTS ==========

@@ -695,7 +695,8 @@ class AlignedDependencyTest {
     }
 
     @Test
-    void addAlignedRequiresVersion() {
+    void addAlignedNullVersionAddsWithoutVersionElement() {
+        // Null version = dependency whose version is already covered by an ancestor BOM or parent POM
         PomEditor editor = editorOf("""
                 <?xml version="1.0" encoding="UTF-8"?>
                 <project xmlns="http://maven.apache.org/POM/4.0.0">
@@ -706,8 +707,121 @@ class AlignedDependencyTest {
                 </project>
                 """);
 
-        Coordinates noVersion = Coordinates.of("com.google.guava", "guava", null);
-        assertThrows(Exception.class, () -> editor.dependencies().addAligned(noVersion));
+        Coordinates managed = Coordinates.of("com.google.guava", "guava", null);
+        assertTrue(editor.dependencies().addAligned(managed));
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<artifactId>guava</artifactId>"));
+        // The newly added dependency must not have a <version> element
+        int guavaStart = xml.indexOf("<artifactId>guava</artifactId>");
+        int guavaEnd = xml.indexOf("</dependency>", guavaStart);
+        assertFalse(
+                xml.substring(guavaStart, guavaEnd).contains("<version>"),
+                "null-version dependency must not emit <version>");
+        // Adding again returns false (already exists)
+        assertFalse(editor.dependencies().addAligned(managed));
+    }
+
+    @Test
+    void scopeNullIsNotWritten() {
+        PomEditor editor = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", "32.1.2-jre");
+        editor.dependencies()
+                .addAligned(guava, AlignOptions.builder().scope(null).build());
+        String xml = editor.toXml();
+        assertFalse(xml.contains("<scope>"), "null scope should not be written");
+    }
+
+    @Test
+    void scopeEmptyIsNotWritten() {
+        PomEditor editor = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", "32.1.2-jre");
+        editor.dependencies().addAligned(guava, AlignOptions.builder().scope("").build());
+        String xml = editor.toXml();
+        assertFalse(xml.contains("<scope>"), "empty scope should not be written");
+    }
+
+    @Test
+    void scopeCompileIsWrittenAsExplicitOverride() {
+        // "compile" must be written when explicitly passed — it may override a
+        // parent-managed "runtime" scope; silently dropping it would corrupt semantics.
+        PomEditor editor = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                </project>
+                """);
+
+        Coordinates guava = Coordinates.of("com.google.guava", "guava", "32.1.2-jre");
+        editor.dependencies()
+                .addAligned(guava, AlignOptions.builder().scope("compile").build());
+        String xml = editor.toXml();
+        assertTrue(
+                xml.contains("<scope>compile</scope>"),
+                "explicit compile scope must be written to allow overriding parent-managed runtime scope");
+    }
+
+    @Test
+    void scopeTestIsWritten() {
+        PomEditor editor = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                </project>
+                """);
+
+        Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", "5.10.0");
+        editor.dependencies()
+                .addAligned(junit, AlignOptions.builder().scope("test").build());
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<scope>test</scope>"));
+    }
+
+    @Test
+    void scopeTestIsWrittenForNullVersion() {
+        PomEditor editor = editorOf("""
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test</artifactId>
+                  <version>1.0.0</version>
+                </project>
+                """);
+
+        Coordinates junit = Coordinates.of("org.junit.jupiter", "junit-jupiter", null);
+        editor.dependencies()
+                .addAligned(junit, AlignOptions.builder().scope("test").build());
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<scope>test</scope>"));
+        int junitStart = xml.indexOf("<artifactId>junit-jupiter</artifactId>");
+        int junitEnd = xml.indexOf("</dependency>", junitStart);
+        assertFalse(
+                xml.substring(junitStart, junitEnd).contains("<version>"),
+                "null-version dependency must not emit <version>");
     }
 
     @Test

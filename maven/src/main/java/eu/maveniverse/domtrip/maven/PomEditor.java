@@ -1104,18 +1104,24 @@ public class PomEditor extends AbstractMavenEditor {
                     .build();
         }
 
-        // ========== ALIGNED OPERATIONS ==========
-
         /**
          * Adds a dependency aligned with the project's auto-detected conventions.
          *
-         * <p>Detects the project's dependency management style (managed vs inline, property vs literal,
-         * property naming convention) and adds the dependency accordingly. If the dependency already
-         * exists, returns false.</p>
+         * <p>This method covers two distinct use cases:</p>
          *
-         * @param coords the dependency coordinates (version is required)
+         * <ul>
+         *   <li><b>Versioned dependency</b>: when {@code coords.version()} is non-null, the dependency
+         *       is added with a version, following the project's detected conventions (inline version,
+         *       property reference, or managed in {@code <dependencyManagement>}).</li>
+         *   <li><b>Version-less dependency</b>: when {@code coords.version()} is {@code null}, no
+         *       {@code <version>} element is written. Use this when the version is already provided
+         *       by an ancestor BOM or parent POM's {@code <dependencyManagement>} section and should
+         *       not be repeated in the child POM.</li>
+         * </ul>
+         *
+         * @param coords the dependency coordinates; version may be null for BOM/parent-managed deps
          * @return true if the dependency was added, false if it already existed
-         * @throws DomTripException if the coordinates are invalid or version is null
+         * @throws DomTripException if groupId or artifactId is missing
          * @since 1.1.0
          */
         public boolean addAligned(Coordinates coords) {
@@ -1125,38 +1131,56 @@ public class PomEditor extends AbstractMavenEditor {
         /**
          * Adds a dependency aligned with the specified options, auto-detecting any unspecified conventions.
          *
+         * <p>This method covers two distinct use cases:</p>
+         *
+         * <ul>
+         *   <li><b>Versioned dependency</b>: when {@code coords.version()} is non-null, the dependency
+         *       is added with a version element (or property reference, or managed entry in
+         *       {@code <dependencyManagement>}), following the project's detected or explicit
+         *       {@link AlignOptions}.</li>
+         *   <li><b>Version-less dependency</b>: when {@code coords.version()} is {@code null}, no
+         *       {@code <version>} element is written. The dependency version is expected to be provided
+         *       by an ancestor BOM or parent POM's {@code <dependencyManagement>} section.
+         *       In this case, {@link AlignOptions} fields related to version ({@code versionStyle},
+         *       {@code versionSource}, {@code propertyName}) are ignored — only {@code scope},
+         *       {@code classifier}, and {@code type} are applied.</li>
+         * </ul>
+         *
          * <p>Example usage:</p>
          * <pre>{@code
          * PomEditor editor = new PomEditor(document);
-         * Coordinates guava = Coordinates.of("com.google.guava", "guava", "32.1.2-jre");
          *
-         * // Auto-detect all conventions
+         * // Versioned: auto-detect all conventions
+         * Coordinates guava = Coordinates.of("com.google.guava", "guava", "32.1.2-jre");
          * editor.dependencies().addAligned(guava);
          *
-         * // Force managed + property with explicit property name
+         * // Versioned: force managed + property with explicit property name
          * editor.dependencies().addAligned(guava, AlignOptions.builder()
          *     .versionStyle(AlignOptions.VersionStyle.MANAGED)
          *     .versionSource(AlignOptions.VersionSource.PROPERTY)
          *     .propertyName("guava.version")
          *     .build());
          *
-         * // Add as test dependency
+         * // Versioned: add as test dependency
          * editor.dependencies().addAligned(junit, AlignOptions.builder()
          *     .scope("test")
          *     .build());
+         *
+         * // Version-less: version already managed by ancestor BOM or parent POM
+         * String version = ancestorManagedGAs.contains(dep.ga()) ? null : gaToVersion.get(dep.ga());
+         * editor.dependencies().addAligned(
+         *     Coordinates.of(dep.groupId(), dep.artifactId(), version),
+         *     AlignOptions.builder().scope(dep.scope()).build());
          * }</pre>
          *
-         * @param coords the dependency coordinates (version is required)
-         * @param options alignment options (null fields are auto-detected)
+         * @param coords  the dependency coordinates; version may be null for BOM/parent-managed deps
+         * @param options alignment options (null fields are auto-detected; version options ignored when version is null)
          * @return true if the dependency was added, false if it already existed
-         * @throws DomTripException if the coordinates are invalid or version is null
+         * @throws DomTripException if groupId or artifactId is missing
          * @since 1.1.0
          */
         public boolean addAligned(Coordinates coords, AlignOptions options) {
             requireGA(DEPENDENCY_LABEL, coords);
-            if (coords.version() == null) {
-                throw new DomTripException("Version is required for addAligned");
-            }
 
             // Check if dependency already exists
             Element deps = findChildElement(root(), DEPENDENCIES);
@@ -1170,39 +1194,51 @@ public class PomEditor extends AbstractMavenEditor {
                 }
             }
 
-            // Resolve conventions
-            Object[] conventions = resolveConventions(options);
-            AlignOptions.VersionStyle versionStyle = (AlignOptions.VersionStyle) conventions[0];
-            AlignOptions.VersionSource versionSource = (AlignOptions.VersionSource) conventions[1];
-            AlignOptions.PropertyNamingConvention naming = (AlignOptions.PropertyNamingConvention) conventions[2];
-
-            String actualVersion = coords.version();
-            String versionForElement = actualVersion;
-
-            // Create property if needed
-            if (versionSource == AlignOptions.VersionSource.PROPERTY) {
-                String propName = resolvePropertyName(coords, naming, options);
-                upsertVersionProperty(propName, actualVersion);
-                versionForElement = "${" + propName + "}";
-            }
-
-            // Add to dependencyManagement if managed style
-            if (versionStyle == AlignOptions.VersionStyle.MANAGED) {
-                ensureManagedDependency(
-                        coords.groupId(), coords.artifactId(), versionForElement, coords.classifier(), coords.type());
-                // Add version-less dependency
+            // Resolve conventions and add dependency
+            if (coords.version() == null) {
+                // Version-less: version already provided by ancestor BOM or parent POM's dependencyManagement
                 if (deps == null) {
                     deps = insertMavenElement(root(), DEPENDENCIES);
                 }
                 Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), null);
                 addOptionalDependencyElements(dep, coords, options);
             } else {
-                // Add with inline version
-                if (deps == null) {
-                    deps = insertMavenElement(root(), DEPENDENCIES);
+                // Versioned: resolve conventions and add with version
+                Object[] conventions = resolveConventions(options);
+                AlignOptions.VersionStyle versionStyle = (AlignOptions.VersionStyle) conventions[0];
+                AlignOptions.VersionSource versionSource = (AlignOptions.VersionSource) conventions[1];
+                AlignOptions.PropertyNamingConvention naming = (AlignOptions.PropertyNamingConvention) conventions[2];
+
+                String actualVersion = coords.version();
+                String versionForElement = actualVersion;
+
+                // Create property if needed
+                if (versionSource == AlignOptions.VersionSource.PROPERTY) {
+                    String propName = resolvePropertyName(coords, naming, options);
+                    upsertVersionProperty(propName, actualVersion);
+                    versionForElement = "${" + propName + "}";
                 }
-                Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), versionForElement);
-                addOptionalDependencyElements(dep, coords, options);
+
+                // Add to dependencyManagement if managed style
+                if (versionStyle == AlignOptions.VersionStyle.MANAGED) {
+                    ensureManagedDependency(
+                            coords.groupId(),
+                            coords.artifactId(),
+                            versionForElement,
+                            coords.classifier(),
+                            coords.type());
+                    if (deps == null) {
+                        deps = insertMavenElement(root(), DEPENDENCIES);
+                    }
+                    Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), null);
+                    addOptionalDependencyElements(dep, coords, options);
+                } else {
+                    if (deps == null) {
+                        deps = insertMavenElement(root(), DEPENDENCIES);
+                    }
+                    Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), versionForElement);
+                    addOptionalDependencyElements(dep, coords, options);
+                }
             }
 
             return true;
@@ -1794,7 +1830,7 @@ public class PomEditor extends AbstractMavenEditor {
          *
          * Inserts a `<type>` element if the coordinate's type is non-null and not "jar",
          * a `<classifier>` element if the coordinate's classifier is non-null, and
-         * a `<scope>` element if the provided align options include a non-null scope.
+         * a `<scope>` element if the provided align options include a non-null, non-empty scope.
          *
          * @param dep the `<dependency>` element to modify
          * @param coords the dependency coordinates providing `type` and `classifier`
@@ -1807,7 +1843,7 @@ public class PomEditor extends AbstractMavenEditor {
             if (coords.classifier() != null) {
                 insertMavenElement(dep, CLASSIFIER, coords.classifier());
             }
-            if (options.scope() != null) {
+            if (options.scope() != null && !options.scope().isEmpty()) {
                 insertMavenElement(dep, SCOPE, options.scope());
             }
         }

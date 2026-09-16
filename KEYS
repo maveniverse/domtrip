@@ -1,8 +1,9 @@
 This file contains the GPG public keys used to sign releases of Domtrip.
 
-Releases are signed by the "Maveniverse Release" key, which uses the same
-email address (gnodet@gmail.com) as the main Guillaume Nodet key listed on
-the Ubuntu keyserver: https://keyserver.ubuntu.com/pks/lookup?search=gnodet&op=index
+Releases are signed by the "Maveniverse Release" key. This key is cross-signed
+by the main Guillaume Nodet key (ecdfea3cb4493b94, gnodet@gmail.com /
+gnodet@apache.org), establishing cryptographic attribution to the project
+maintainer.
 
 To verify a release artifact, import this key and check the signature:
 
@@ -18,6 +19,7 @@ Or fetch directly from the keyserver:
 pub   rsa4096/A1011D0A89C9E497 2026-04-03 [SC] [expires: 2028-04-02]
       3F068505A1DF611935F03FB1A1011D0A89C9E497
 uid   Maveniverse Release <gnodet@gmail.com>
+sig   ecdfea3cb4493b94 (Guillaume Nodet <gnodet@gmail.com>)
 
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Comment: Hostname:
@@ -47,6 +49,8 @@ EZkDxuKQdhksbk5qP86lie60dLYeW/iqu0sI1zcaDmjOlbjfOyk2Y5XTBb9GbYEg
 qIQqHJN91lCEuBE207v3Ep1hQGbm2tkMFUPVu+/avge0a061Da8uW9iRp2YQPu1H
 XS94wJpSeDLHYr9tSHZY5WHTuOCO1xUK5ZFqsfKF5+mKMveSDg6L73ejq720zSSb
 KIyq6SkmNJAjk4CTeEnEVDIJTcOdLCDL5oPI/V56YZ8zGoHQRoHgsgyUPNFQ49pS
-w6klZLXDEZqxYLg/sSHpOIIz
-=iuun
+w6klZLXDEZqxYLg/sSHpOIIzwl0EEBEKAB0WIQTqI9sTYNkClIHn8u/s3+o8tEk7
+lAUCaqsPAwAKCRDs3+o8tEk7lBbJAKCWqJoF+kWV4T5krJ6yKENNtYBETACgt1uW
+liZvZOTjbOgEO0UJrLitXDY=
+=qYp+
 -----END PGP PUBLIC KEY BLOCK-----

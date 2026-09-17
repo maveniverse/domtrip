@@ -417,6 +417,8 @@ class AlignedDependencyTest {
         assertEquals(AlignOptions.VersionStyle.MANAGED, detected.versionStyle());
         assertEquals(AlignOptions.VersionSource.PROPERTY, detected.versionSource());
         assertEquals(AlignOptions.PropertyNamingConvention.DOT_SUFFIX, detected.namingConvention());
+        // Only 1 dep in <dependencies> → below the 3-dep threshold → null (auto-detect, not explicit NONE)
+        assertNull(detected.insertionOrdering());
     }
 
     // ========== ADD ALIGNED TESTS ==========

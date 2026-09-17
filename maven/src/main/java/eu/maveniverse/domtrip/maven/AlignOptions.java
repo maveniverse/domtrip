@@ -74,6 +74,22 @@ public final class AlignOptions {
     }
 
     /**
+     * Ordering convention for dependency insertion.
+     *
+     * @since 1.7.0
+     */
+    public enum InsertionOrdering {
+        /** No ordering detected or enforced — insert at end. */
+        NONE,
+        /** Dependencies ordered alphabetically by groupId:artifactId. */
+        ALPHA,
+        /** Dependencies ordered by Maven scope (compile, provided, runtime, system, test, import). */
+        SCOPE,
+        /** Dependencies ordered by scope first, then alphabetically within each scope group. */
+        SCOPE_THEN_ALPHA
+    }
+
+    /**
      * Naming convention for version properties.
      *
      * @since 1.1.0
@@ -92,6 +108,7 @@ public final class AlignOptions {
     private final VersionStyle versionStyle;
     private final VersionSource versionSource;
     private final PropertyNamingConvention namingConvention;
+    private final InsertionOrdering insertionOrdering;
     private final Function<Coordinates, String> propertyNameGenerator;
     private final String propertyName;
     private final String scope;
@@ -105,6 +122,7 @@ public final class AlignOptions {
      * @param versionStyle         placement of dependency versions (inline vs managed); {@code null} means auto-detect
      * @param versionSource        whether versions are literal or property references; {@code null} means auto-detect
      * @param namingConvention     property naming convention to use; {@code null} means auto-detect
+     * @param insertionOrdering    ordering convention for dependency insertion; {@code null} means auto-detect
      * @param propertyNameGenerator optional custom generator for property names; {@code null} to use convention-based generation
      * @param propertyName         explicit property name override; {@code null} to allow auto-generation
      * @param scope                Maven dependency scope override; {@code null} to use the default scope
@@ -113,12 +131,14 @@ public final class AlignOptions {
             VersionStyle versionStyle,
             VersionSource versionSource,
             PropertyNamingConvention namingConvention,
+            InsertionOrdering insertionOrdering,
             Function<Coordinates, String> propertyNameGenerator,
             String propertyName,
             String scope) {
         this.versionStyle = versionStyle;
         this.versionSource = versionSource;
         this.namingConvention = namingConvention;
+        this.insertionOrdering = insertionOrdering;
         this.propertyNameGenerator = propertyNameGenerator;
         this.propertyName = propertyName;
         this.scope = scope;
@@ -131,7 +151,7 @@ public final class AlignOptions {
      * @since 1.1.0
      */
     public static AlignOptions defaults() {
-        return new AlignOptions(null, null, null, null, null, null);
+        return new AlignOptions(null, null, null, null, null, null, null);
     }
 
     /**
@@ -172,6 +192,16 @@ public final class AlignOptions {
      */
     public PropertyNamingConvention namingConvention() {
         return namingConvention;
+    }
+
+    /**
+     * The insertion ordering convention to use, or null to indicate auto-detection.
+     *
+     * @return the insertion ordering override, or {@code null} if it should be auto-detected
+     * @since 1.7.0
+     */
+    public InsertionOrdering insertionOrdering() {
+        return insertionOrdering;
     }
 
     /**
@@ -278,6 +308,7 @@ public final class AlignOptions {
         private VersionStyle versionStyle;
         private VersionSource versionSource;
         private PropertyNamingConvention namingConvention;
+        private InsertionOrdering insertionOrdering;
         private Function<Coordinates, String> propertyNameGenerator;
         private String propertyName;
         private String scope;
@@ -317,6 +348,18 @@ public final class AlignOptions {
          */
         public Builder namingConvention(PropertyNamingConvention namingConvention) {
             this.namingConvention = namingConvention;
+            return this;
+        }
+
+        /**
+         * Sets the insertion ordering convention override.
+         *
+         * @param insertionOrdering the ordering convention (null for auto-detection)
+         * @return this builder
+         * @since 1.7.0
+         */
+        public Builder insertionOrdering(InsertionOrdering insertionOrdering) {
+            this.insertionOrdering = insertionOrdering;
             return this;
         }
 
@@ -372,7 +415,13 @@ public final class AlignOptions {
          */
         public AlignOptions build() {
             return new AlignOptions(
-                    versionStyle, versionSource, namingConvention, propertyNameGenerator, propertyName, scope);
+                    versionStyle,
+                    versionSource,
+                    namingConvention,
+                    insertionOrdering,
+                    propertyNameGenerator,
+                    propertyName,
+                    scope);
         }
     }
 }

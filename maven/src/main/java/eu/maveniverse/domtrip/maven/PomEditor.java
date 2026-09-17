@@ -72,6 +72,13 @@ public class PomEditor extends AbstractMavenEditor {
     /** Label for dependency coordinate validation in {@code requireGA} calls. */
     private static final String DEPENDENCY_LABEL = "Dependency";
 
+    /** Default scope when none is specified — equivalent to "compile" in Maven. */
+    private static final String DEFAULT_SCOPE = "compile";
+
+    /** Canonical Maven scope ordering for insertion-order detection. */
+    private static final List<String> SCOPE_ORDER =
+            asList(DEFAULT_SCOPE, "provided", "runtime", "system", "test", "import");
+
     // Element ordering configuration for Maven POM elements
     private static final Map<String, List<String>> ELEMENT_ORDER = new HashMap<>();
 
@@ -1097,10 +1104,17 @@ public class PomEditor extends AbstractMavenEditor {
          * @since 1.1.0
          */
         public AlignOptions detectConventions() {
+            Element directDeps = findChildElement(root(), DEPENDENCIES);
+            // Return null (not NONE) when the direct-deps container is absent or has fewer than
+            // 3 entries — a null field means "auto-detect", so addAligned and
+            // ensureManagedDependency can still derive ordering from the appropriate container.
+            AlignOptions.InsertionOrdering detectedOrdering = detectInsertionOrdering(directDeps);
             return AlignOptions.builder()
                     .versionStyle(detectVersionStyle())
                     .versionSource(detectVersionSource())
                     .namingConvention(detectPropertyNamingConvention())
+                    .insertionOrdering(
+                            detectedOrdering == AlignOptions.InsertionOrdering.NONE ? null : detectedOrdering)
                     .build();
         }
 
@@ -1194,13 +1208,26 @@ public class PomEditor extends AbstractMavenEditor {
                 }
             }
 
+            // Resolve the effective insertion ordering: explicit option wins, else auto-detect
+            // from the appropriate container (direct deps for inline; managed deps container
+            // for MANAGED style — detected lazily below when the container is known).
+            AlignOptions.InsertionOrdering explicitOrdering = options.insertionOrdering();
+
+            // Ordering for the direct <dependencies> container (auto-detect when not explicit)
+            AlignOptions.InsertionOrdering ordering =
+                    explicitOrdering != null ? explicitOrdering : detectInsertionOrdering(deps);
+
+            // Effective scope for ordering purposes
+            String effectiveScope = (options.scope() != null && !options.scope().isEmpty()) ? options.scope() : null;
+
             // Resolve conventions and add dependency
             if (coords.version() == null) {
                 // Version-less: version already provided by ancestor BOM or parent POM's dependencyManagement
                 if (deps == null) {
                     deps = insertMavenElement(root(), DEPENDENCIES);
                 }
-                Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), null);
+                Element anchor = findInsertionAnchor(deps, coords, ordering, effectiveScope);
+                Element dep = addDependencyPositional(deps, coords.groupId(), coords.artifactId(), null, anchor);
                 addOptionalDependencyElements(dep, coords, options);
             } else {
                 // Versioned: resolve conventions and add with version
@@ -1221,22 +1248,28 @@ public class PomEditor extends AbstractMavenEditor {
 
                 // Add to dependencyManagement if managed style
                 if (versionStyle == AlignOptions.VersionStyle.MANAGED) {
+                    // For managed deps, detect ordering from the managed container independently
+                    // (explicit override still applies to both containers)
                     ensureManagedDependency(
                             coords.groupId(),
                             coords.artifactId(),
                             versionForElement,
                             coords.classifier(),
-                            coords.type());
+                            coords.type(),
+                            explicitOrdering);
                     if (deps == null) {
                         deps = insertMavenElement(root(), DEPENDENCIES);
                     }
-                    Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), null);
+                    Element anchor = findInsertionAnchor(deps, coords, ordering, effectiveScope);
+                    Element dep = addDependencyPositional(deps, coords.groupId(), coords.artifactId(), null, anchor);
                     addOptionalDependencyElements(dep, coords, options);
                 } else {
                     if (deps == null) {
                         deps = insertMavenElement(root(), DEPENDENCIES);
                     }
-                    Element dep = addDependency(deps, coords.groupId(), coords.artifactId(), versionForElement);
+                    Element anchor = findInsertionAnchor(deps, coords, ordering, effectiveScope);
+                    Element dep = addDependencyPositional(
+                            deps, coords.groupId(), coords.artifactId(), versionForElement, anchor);
                     addOptionalDependencyElements(dep, coords, options);
                 }
             }
@@ -1765,6 +1798,17 @@ public class PomEditor extends AbstractMavenEditor {
          */
         private void ensureManagedDependency(
                 String groupId, String artifactId, String version, String classifier, String type) {
+            ensureManagedDependency(
+                    groupId, artifactId, version, classifier, type, AlignOptions.InsertionOrdering.NONE);
+        }
+
+        private void ensureManagedDependency(
+                String groupId,
+                String artifactId,
+                String version,
+                String classifier,
+                String type,
+                AlignOptions.InsertionOrdering ordering) {
             Element root = root();
             Element depMgmt = findChildElement(root, DEPENDENCY_MANAGEMENT);
             if (depMgmt == null) {
@@ -1781,7 +1825,13 @@ public class PomEditor extends AbstractMavenEditor {
                     .findFirst()
                     .orElse(null);
             if (managedDep == null) {
-                managedDep = addDependency(managedDeps, groupId, artifactId, version);
+                // Auto-detect ordering from the managed container when no explicit override given.
+                // Managed deps have no scope element — pass null for scope in anchor search.
+                AlignOptions.InsertionOrdering effectiveOrdering =
+                        ordering != null ? ordering : detectInsertionOrdering(managedDeps);
+                Coordinates insertCoords = Coordinates.of(groupId, artifactId, version, classifier, type);
+                Element anchor = findInsertionAnchor(managedDeps, insertCoords, effectiveOrdering, null);
+                managedDep = addDependencyPositional(managedDeps, groupId, artifactId, version, anchor);
                 if (type != null && !"jar".equals(type)) {
                     insertMavenElement(managedDep, TYPE, type);
                 }
@@ -1961,6 +2011,157 @@ public class PomEditor extends AbstractMavenEditor {
                 return options.propertyNameGenerator().apply(coords);
             }
             return AlignOptions.generatePropertyName(coords, naming);
+        }
+
+        // ---- Insertion ordering helpers ----
+
+        private int scopeRank(String scope) {
+            String s = (scope == null || scope.isEmpty()) ? DEFAULT_SCOPE : scope;
+            int idx = SCOPE_ORDER.indexOf(s);
+            return idx < 0 ? 0 : idx;
+        }
+
+        private String depGA(Element dep) {
+            String g = dep.childTextOr("groupId", "");
+            String a = dep.childTextOr("artifactId", "");
+            return g + ":" + a;
+        }
+
+        private String depScope(Element dep) {
+            String s = dep.childTextOr("scope", null);
+            return (s == null || s.isEmpty()) ? DEFAULT_SCOPE : s;
+        }
+
+        /**
+         * Scores three ordering properties across all consecutive pairs of {@code children}.
+         * Returns an {@code int[4]} where:
+         * <ul>
+         *   <li>[0] — number of alpha-ordered consecutive pairs</li>
+         *   <li>[1] — number of scope-ordered consecutive pairs</li>
+         *   <li>[2] — number of scope-then-alpha-ordered consecutive pairs</li>
+         *   <li>[3] — 1 if at least one pair has different scope ranks, 0 otherwise</li>
+         * </ul>
+         */
+        private int[] scoreOrderingPairs(List<Element> children) {
+            int alpha = 0;
+            int scope = 0;
+            int scopeAlpha = 0;
+            int multiScope = 0;
+            for (int i = 0; i < children.size() - 1; i++) {
+                String gaA = depGA(children.get(i));
+                String gaB = depGA(children.get(i + 1));
+                int rankA = scopeRank(depScope(children.get(i)));
+                int rankB = scopeRank(depScope(children.get(i + 1)));
+                if (rankA != rankB) {
+                    multiScope = 1;
+                }
+                if (gaA.compareTo(gaB) <= 0) {
+                    alpha++;
+                }
+                if (rankA <= rankB) {
+                    scope++;
+                }
+                if (rankA < rankB || (rankA == rankB && gaA.compareTo(gaB) <= 0)) {
+                    scopeAlpha++;
+                }
+            }
+            return new int[] {alpha, scope, scopeAlpha, multiScope};
+        }
+
+        /**
+         * Detects the insertion ordering convention of the given {@code <dependencies>} container.
+         *
+         * <p>Returns {@link AlignOptions.InsertionOrdering#NONE} when the container is {@code null},
+         * has fewer than 3 children, or the signal is below the 75% threshold.</p>
+         *
+         * @param deps the {@code <dependencies>} element to analyse, or {@code null}
+         * @return the detected ordering
+         * @since 1.7.0
+         */
+        public AlignOptions.InsertionOrdering detectInsertionOrdering(Element deps) {
+            if (deps == null) {
+                return AlignOptions.InsertionOrdering.NONE;
+            }
+            List<Element> children = deps.childElements(DEPENDENCY).collect(Collectors.toList());
+            if (children.size() < 3) {
+                return AlignOptions.InsertionOrdering.NONE;
+            }
+            int pairs = children.size() - 1;
+            int[] scores = scoreOrderingPairs(children);
+            boolean hasMultipleScopes = scores[3] == 1;
+            double alphaPct = (double) scores[0] / pairs;
+            double scopePct = (double) scores[1] / pairs;
+            double scopeAlphaPct = (double) scores[2] / pairs;
+            // SCOPE_THEN_ALPHA requires actual scope variation — an all-same-scope list
+            // that is alpha-ordered is purely ALPHA, not SCOPE_THEN_ALPHA.
+            if (hasMultipleScopes && scopeAlphaPct >= 0.75) {
+                return AlignOptions.InsertionOrdering.SCOPE_THEN_ALPHA;
+            } else if (hasMultipleScopes && scopePct >= 0.75) {
+                return AlignOptions.InsertionOrdering.SCOPE;
+            } else if (alphaPct >= 0.75) {
+                return AlignOptions.InsertionOrdering.ALPHA;
+            } else {
+                return AlignOptions.InsertionOrdering.NONE;
+            }
+        }
+
+        /**
+         * Finds the anchor element before which a new dependency should be inserted,
+         * given the resolved ordering convention.
+         *
+         * @param deps         the {@code <dependencies>} container
+         * @param coords       coordinates of the dependency to insert
+         * @param ordering     the resolved ordering convention
+         * @param scope        the effective scope of the new dependency (null treated as "compile")
+         * @return the first existing {@code <dependency>} that the new one must precede, or {@code null} to append
+         * @since 1.7.0
+         */
+        private Element findInsertionAnchor(
+                Element deps, Coordinates coords, AlignOptions.InsertionOrdering ordering, String scope) {
+            if (ordering == null || ordering == AlignOptions.InsertionOrdering.NONE) {
+                return null;
+            }
+            String newGA = coords.groupId() + ":" + coords.artifactId();
+            int newRank = scopeRank(scope);
+
+            return deps.childElements(DEPENDENCY)
+                    .filter(dep -> {
+                        String depGA = depGA(dep);
+                        int depRank = scopeRank(depScope(dep));
+                        switch (ordering) {
+                            case ALPHA:
+                                return depGA.compareTo(newGA) > 0;
+                            case SCOPE:
+                                return depRank > newRank;
+                            case SCOPE_THEN_ALPHA:
+                                return depRank > newRank || (depRank == newRank && depGA.compareTo(newGA) > 0);
+                            default:
+                                return false;
+                        }
+                    })
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        /**
+         * Creates a new {@code <dependency>} element, either inserted before {@code anchor}
+         * (when non-null) or appended to the container.
+         */
+        private Element addDependencyPositional(
+                Element dependenciesElement, String groupId, String artifactId, String version, Element anchor)
+                throws DomTripException {
+            Element dependency;
+            if (anchor != null) {
+                dependency = insertElementBefore(anchor, DEPENDENCY);
+            } else {
+                dependency = insertMavenElement(dependenciesElement, DEPENDENCY);
+            }
+            insertMavenElement(dependency, GROUP_ID, groupId);
+            insertMavenElement(dependency, ARTIFACT_ID, artifactId);
+            if (version != null && !version.trim().isEmpty()) {
+                insertMavenElement(dependency, VERSION, version);
+            }
+            return dependency;
         }
 
         /**

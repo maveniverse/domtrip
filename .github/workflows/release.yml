@@ -18,6 +18,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   release:
@@ -31,6 +32,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
+          persist-credentials: false
 
       - name: Verify tag state
         id: version
@@ -73,35 +75,35 @@ jobs:
           VERSION: ${{ steps.version.outputs.version }}
         shell: bash
         run: |
-          gh extension install valeriobelli/gh-milestone
+          gh extension install valeriobelli/gh-milestone --pin v2.2.0
           version="$VERSION"
+          # Validate semantic version before using in jq/shell
+          if ! [[ $version =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            echo "ERROR: Version $version is not a valid semantic version (x.y.z)"
+            exit 1
+          fi
+          major=${BASH_REMATCH[1]}
+          minor=${BASH_REMATCH[2]}
+          patch=${BASH_REMATCH[3]}
+
           echo "Trying to find milestone $version"
-          milestone=$(gh milestone list --json number,title,state --jq "map(select(.title == \"${version}\" and .state == \"OPEN\"))[].number")
+          milestone=$(gh milestone list --json number,title,state --jq --arg v "$version" 'map(select(.title == $v and .state == "OPEN"))[].number')
           if [ ! -z "$milestone" ]; then
               echo "Found milestone $version, closing it"
               gh milestone edit $milestone --state closed
           fi
 
-          # Parse semantic version and increment patch version
-          if [[ $version =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
-            major=${BASH_REMATCH[1]}
-            minor=${BASH_REMATCH[2]}
-            patch=${BASH_REMATCH[3]}
+          # Increment patch version for next development cycle
+          next_patch=$((patch + 1))
+          next_version="${major}.${minor}.${next_patch}"
 
-            next_patch=$((patch + 1))
-            next_version="${major}.${minor}.${next_patch}"
+          echo "Preparing development $next_version"
+          echo "Trying to find milestone $next_version"
 
-            echo "Preparing development $next_version"
-            echo "Trying to find milestone $next_version"
-
-            milestone=$(gh milestone list --json number,title,state --jq "map(select(.title == \"${next_version}\" and .state == \"OPEN\"))[].number")
-            if [ -z "$milestone" ]; then
-              echo "Creating milestone $next_version"
-              gh milestone create --title $next_version || echo "Milestone already exists, skipping"
-            fi
-          else
-            echo "ERROR: Version $version is not a valid semantic version (x.y.z)"
-            exit 1
+          milestone=$(gh milestone list --json number,title,state --jq --arg v "$next_version" 'map(select(.title == $v and .state == "OPEN"))[].number')
+          if [ -z "$milestone" ]; then
+            echo "Creating milestone $next_version"
+            gh milestone create --title $next_version || echo "Milestone already exists, skipping"
           fi
 
           name="DomTrip"

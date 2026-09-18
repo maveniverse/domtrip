@@ -2254,4 +2254,208 @@ class PomEditorTest {
         assertTrue(xml.contains("<com.fasterxml.jackson.core.version>2.15.0</com.fasterxml.jackson.core.version>"));
         assertTrue(xml.contains("${com.fasterxml.jackson.core.version}"));
     }
+
+    // ========== PROFILE-SCOPED PLUGIN TESTS ==========
+
+    private static final String POM_WITH_PROFILE_PLUGINS = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <build>
+                <plugins>
+                  <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.10.0</version>
+                  </plugin>
+                </plugins>
+              </build>
+              <profiles>
+                <profile>
+                  <id>ci</id>
+                  <build>
+                    <plugins>
+                      <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.0.0</version>
+                      </plugin>
+                    </plugins>
+                  </build>
+                </profile>
+              </profiles>
+            </project>
+            """;
+
+    private static final String POM_WITH_PROFILE_MANAGED_PLUGINS = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <project xmlns="http://maven.apache.org/POM/4.0.0">
+              <modelVersion>4.0.0</modelVersion>
+              <groupId>com.example</groupId>
+              <artifactId>test-project</artifactId>
+              <version>1.0.0</version>
+              <profiles>
+                <profile>
+                  <id>release</id>
+                  <properties>
+                    <surefire.version>3.0.0</surefire.version>
+                  </properties>
+                  <build>
+                    <pluginManagement>
+                      <plugins>
+                        <plugin>
+                          <groupId>org.apache.maven.plugins</groupId>
+                          <artifactId>maven-surefire-plugin</artifactId>
+                          <version>${surefire.version}</version>
+                        </plugin>
+                      </plugins>
+                    </pluginManagement>
+                  </build>
+                </profile>
+              </profiles>
+            </project>
+            """;
+
+    @Test
+    void testUpdatePluginWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_PLUGINS);
+        Coordinates surefire = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.2.0");
+
+        boolean updated = editor.plugins().forProfile("ci").updatePlugin(false, surefire);
+        assertTrue(updated);
+
+        String xml = editor.toXml();
+        // The updated version should be inside the profile
+        int profileStart = xml.indexOf("<id>ci</id>");
+        int surefireVersionPos = xml.indexOf("3.2.0");
+        assertTrue(surefireVersionPos > profileStart, "Updated surefire version should be inside the profile");
+        // The top-level compiler plugin should be unchanged
+        assertTrue(xml.contains("<version>3.10.0</version>"), "Top-level compiler plugin should be unchanged");
+    }
+
+    @Test
+    void testUpdatePluginWithinProfileDoesNotAffectRoot() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_PLUGINS);
+        Coordinates compiler = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", "3.99.0");
+
+        // Update compiler plugin scoped to profile — it doesn't exist there, so upsert=false returns false
+        boolean updated = editor.plugins().forProfile("ci").updatePlugin(false, compiler);
+        assertFalse(updated, "Profile does not have compiler plugin; upsert=false should return false");
+
+        // Top-level compiler plugin must remain at 3.10.0
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<version>3.10.0</version>"), "Top-level compiler plugin must remain unchanged");
+        assertFalse(xml.contains("3.99.0"), "No 3.99.0 should appear anywhere");
+    }
+
+    @Test
+    void testUpdatePluginWithinProfileUpsert() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_PLUGINS);
+        Coordinates failsafe = Coordinates.of("org.apache.maven.plugins", "maven-failsafe-plugin", "3.2.0");
+
+        boolean added = editor.plugins().forProfile("ci").updatePlugin(true, failsafe);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        int profileStart = xml.indexOf("<id>ci</id>");
+        int failsafePos = xml.indexOf("<artifactId>maven-failsafe-plugin</artifactId>");
+        assertTrue(failsafePos > profileStart, "failsafe plugin should be inside the profile");
+        // Top-level should not have failsafe
+        String beforeProfile = xml.substring(0, profileStart);
+        assertFalse(beforeProfile.contains("maven-failsafe-plugin"), "Top-level should not have failsafe plugin");
+    }
+
+    @Test
+    void testUpdateManagedPluginWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_MANAGED_PLUGINS);
+        Coordinates surefire = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.2.0");
+
+        boolean updated = editor.plugins().forProfile("release").updateManagedPlugin(false, surefire);
+        assertTrue(updated);
+
+        String xml = editor.toXml();
+        // Property should be updated inside profile
+        assertTrue(xml.contains("<surefire.version>3.2.0</surefire.version>"));
+        // No top-level build/pluginManagement should have been created
+        int profileStart = xml.indexOf("<profiles>");
+        String beforeProfiles = xml.substring(0, profileStart);
+        assertFalse(beforeProfiles.contains("<pluginManagement>"), "Top-level should not have pluginManagement");
+    }
+
+    @Test
+    void testUpdateManagedPluginUpsertWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_PLUGINS);
+        Coordinates surefire = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.2.0");
+
+        // Profile 'ci' has no pluginManagement; upsert should create it inside the profile
+        boolean added = editor.plugins().forProfile("ci").updateManagedPlugin(true, surefire);
+        assertTrue(added);
+
+        String xml = editor.toXml();
+        int profileStart = xml.indexOf("<id>ci</id>");
+        int pmPos = xml.indexOf("<pluginManagement>");
+        assertTrue(pmPos > profileStart, "pluginManagement should be inside the profile");
+        // No top-level pluginManagement
+        String beforeProfile = xml.substring(0, profileStart);
+        assertFalse(beforeProfile.contains("<pluginManagement>"), "Top-level should not have pluginManagement");
+    }
+
+    @Test
+    void testDeletePluginWithinProfile() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_PLUGINS);
+        Coordinates surefire = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", null);
+
+        boolean deleted = editor.plugins().forProfile("ci").deletePlugin(surefire);
+        assertTrue(deleted);
+
+        String xml = editor.toXml();
+        // surefire should be gone
+        assertFalse(xml.contains("maven-surefire-plugin"), "surefire should be removed from profile");
+        // top-level compiler must remain
+        assertTrue(xml.contains("maven-compiler-plugin"), "Top-level compiler plugin should still exist");
+    }
+
+    @Test
+    void testForPluginsProfileWithNonExistentProfileThrows() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_PLUGINS);
+        PomEditor.Plugins plugins = editor.plugins();
+
+        assertThrows(DomTripException.class, () -> plugins.forProfile("nonexistent"));
+    }
+
+    @Test
+    void testForPluginsProfileWithNullProfileIdThrows() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_PLUGINS);
+        PomEditor.Plugins plugins = editor.plugins();
+
+        assertThrows(DomTripException.class, () -> plugins.forProfile((String) null));
+    }
+
+    @Test
+    void testForPluginsProfileWithNonProfileElementThrows() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_PLUGINS);
+        Element root = editor.root();
+        PomEditor.Plugins plugins = editor.plugins();
+
+        assertThrows(DomTripException.class, () -> plugins.forProfile(root));
+    }
+
+    @Test
+    void testForPluginsProfileViaElement() {
+        PomEditor editor = editorOf(POM_WITH_PROFILE_PLUGINS);
+        Element profileElement = editor.profiles().findProfile("ci");
+        assertNotNull(profileElement);
+
+        Coordinates surefire = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.2.0");
+        boolean updated = editor.plugins().forProfile(profileElement).updatePlugin(false, surefire);
+        assertTrue(updated);
+
+        String xml = editor.toXml();
+        int profileStart = xml.indexOf("<id>ci</id>");
+        int versionPos = xml.indexOf("3.2.0");
+        assertTrue(versionPos > profileStart, "Updated version should be inside the profile");
+    }
 }

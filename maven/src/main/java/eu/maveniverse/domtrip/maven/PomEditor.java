@@ -2230,23 +2230,6 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Checks whether the given string is a single Maven-style property reference of the form {@code ${name}}.
-         *
-         * <p>Returns {@code false} for compound expressions (e.g. {@code ${a}-${b}}),
-         * interpolated strings (e.g. {@code ${version}-SNAPSHOT}), or null/empty values.</p>
-         *
-         * @param value the string to inspect
-         * @return {@code true} if {@code value} is a single property reference, {@code false} otherwise
-         * @since 1.1.0
-         */
-        private boolean isPropertyReference(String value) {
-            return value != null
-                    && value.startsWith("${")
-                    && value.endsWith("}")
-                    && value.indexOf('}') == value.length() - 1;
-        }
-
-        /**
          * Updates a version element, resolving property references relative to this Dependencies' context.
          *
          * <p>Shadows {@link PomEditor#updateVersionElement(Element, String)} so that profile-scoped
@@ -2257,7 +2240,7 @@ public class PomEditor extends AbstractMavenEditor {
             java.util.Optional<Element> version = parent.childElement(VERSION);
             if (version.isPresent()) {
                 String versionValue = version.get().textContent();
-                if (versionValue != null && versionValue.startsWith("${") && versionValue.endsWith("}")) {
+                if (isPropertyReference(versionValue)) {
                     String propertyKey = versionValue.substring(2, versionValue.length() - 1);
                     Element properties = root().childElement(PROPERTIES).orElse(null);
                     if (properties != null) {
@@ -2289,7 +2272,93 @@ public class PomEditor extends AbstractMavenEditor {
         return new Dependencies();
     }
 
+    /**
+     * Provides high-level operations for plugin management in a Maven POM.
+     *
+     * <p>Provides operations for adding, updating, and deleting plugins in
+     * {@code build/plugins} and {@code build/pluginManagement/plugins}.</p>
+     *
+     * <p>By default, operations resolve relative to the project root ({@code <project>}).
+     * Use {@link #forProfile(String)} or {@link #forProfile(Element)} to obtain a profile-scoped
+     * instance whose operations resolve relative to a specific {@code <profile>} element.</p>
+     *
+     * @since 0.3.0
+     */
     public class Plugins {
+
+        private final Element contextElement;
+
+        Plugins() {
+            this.contextElement = null;
+        }
+
+        private Plugins(Element contextElement) {
+            this.contextElement = contextElement;
+        }
+
+        /**
+         * Returns the context element for plugin resolution.
+         *
+         * <p>Shadows {@link PomEditor#root()} so that all existing methods in this class
+         * automatically resolve relative to the correct element — the project root for
+         * top-level operations, or a {@code <profile>} element for profile-scoped operations.</p>
+         */
+        private Element root() {
+            return contextElement != null ? contextElement : PomEditor.this.root();
+        }
+
+        /**
+         * Returns a Plugins instance scoped to the specified Maven profile.
+         *
+         * <p>All plugin operations on the returned instance will resolve paths relative to the
+         * profile element instead of the project root. For example, {@code updatePlugin} will target
+         * {@code project/profiles/profile[id=X]/build/plugins} instead of {@code project/build/plugins}.</p>
+         *
+         * @param profileId the {@code <id>} of the profile to scope to
+         * @return a Plugins instance scoped to the profile
+         * @throws DomTripException if the profile is not found
+         * @since 1.8.0
+         */
+        public Plugins forProfile(String profileId) {
+            if (profileId == null || profileId.trim().isEmpty()) {
+                throw new DomTripException("Profile id cannot be null or empty");
+            }
+            Element profile = findProfileElement(profileId);
+            if (profile == null) {
+                throw new DomTripException("Profile '" + profileId + "' not found");
+            }
+            return forProfile(profile);
+        }
+
+        /**
+         * Returns a Plugins instance scoped to the given profile element.
+         *
+         * <p>This overload accepts a pre-resolved {@code <profile>} element, which can be
+         * obtained via {@link Profiles#findProfile(String)}. This is useful when the caller
+         * has already located the profile or wants to check its existence before scoping.</p>
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * Element profile = editor.profiles().findProfile("my-profile");
+         * if (profile != null) {
+         *     editor.plugins().forProfile(profile).updatePlugin(false, coords);
+         * }
+         * }</pre>
+         *
+         * @param profileElement the {@code <profile>} element to scope to
+         * @return a Plugins instance scoped to the profile
+         * @since 1.8.0
+         */
+        public Plugins forProfile(Element profileElement) {
+            if (profileElement == null) {
+                throw new DomTripException("Profile element cannot be null");
+            }
+            if (!PROFILE.equals(profileElement.name())) {
+                throw new DomTripException("Expected a <profile> element but got <" + profileElement.name() + ">");
+            }
+            return new Plugins(profileElement);
+        }
+
         /**
          * Adds a plugin element with the specified coordinates.
          *
@@ -2362,6 +2431,36 @@ public class PomEditor extends AbstractMavenEditor {
                 return plugins;
             }
             return null;
+        }
+
+        /**
+         * Updates a version element, resolving property references relative to this Plugins' context.
+         *
+         * <p>Shadows {@link PomEditor#updateVersionElement(Element, String)} so that profile-scoped
+         * instances update properties under the profile's {@code <properties>} rather than the
+         * project root's.</p>
+         */
+        private boolean updateVersionElement(Element parent, String newVersion) throws DomTripException {
+            java.util.Optional<Element> version = parent.childElement(VERSION);
+            if (version.isPresent()) {
+                String versionValue = version.get().textContent();
+                if (isPropertyReference(versionValue)) {
+                    String propertyKey = versionValue.substring(2, versionValue.length() - 1);
+                    Element properties = root().childElement(PROPERTIES).orElse(null);
+                    if (properties != null) {
+                        Element property = properties.childElement(propertyKey).orElse(null);
+                        if (property != null) {
+                            property.textContent(newVersion);
+                            return true;
+                        }
+                    }
+                    return false;
+                } else {
+                    version.get().textContent(newVersion);
+                    return true;
+                }
+            }
+            return false;
         }
 
         /**
@@ -2855,7 +2954,8 @@ public class PomEditor extends AbstractMavenEditor {
      *
      * <p>Provides methods to find and check the existence of {@code <profile>} elements
      * by their {@code <id>}. The returned elements can be passed to
-     * {@link Dependencies#forProfile(Element)} for profile-scoped dependency operations.</p>
+     * {@link Dependencies#forProfile(Element)} for profile-scoped dependency operations, and
+     * {@link Plugins#forProfile(Element)} for profile-scoped plugin operations.</p>
      *
      * @since 1.1.0
      */
@@ -3086,6 +3186,24 @@ public class PomEditor extends AbstractMavenEditor {
     }
 
     /**
+     * Returns {@code true} if {@code value} is a single property reference of the form
+     * {@code ${key}} with no nested or compound expressions.
+     *
+     * <p>Compound expressions such as {@code ${revision}${changelist}} contain more than one
+     * closing brace, so {@code indexOf('}')} returns a position before the last character and
+     * this method correctly returns {@code false}.</p>
+     *
+     * @param value the string to inspect
+     * @return {@code true} if {@code value} is a single property reference, {@code false} otherwise
+     */
+    private static boolean isPropertyReference(String value) {
+        return value != null
+                && value.startsWith("${")
+                && value.endsWith("}")
+                && value.indexOf('}') == value.length() - 1;
+    }
+
+    /**
      * Updates a version element, handling property references intelligently.
      *
      * <p>If the version element contains a property reference (${property.name}), this method
@@ -3101,7 +3219,7 @@ public class PomEditor extends AbstractMavenEditor {
         if (version.isPresent()) {
             String versionValue = version.orElseThrow(() -> new NoSuchElementException("No value present"))
                     .textContent();
-            if (versionValue != null && versionValue.startsWith("${") && versionValue.endsWith("}")) {
+            if (isPropertyReference(versionValue)) {
                 String propertyKey = versionValue.substring(2, versionValue.length() - 1);
                 return properties().updateProperty(false, propertyKey, newVersion);
             } else {

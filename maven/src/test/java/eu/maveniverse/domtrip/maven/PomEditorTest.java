@@ -2458,4 +2458,47 @@ class PomEditorTest {
         int versionPos = xml.indexOf("3.2.0");
         assertTrue(versionPos > profileStart, "Updated version should be inside the profile");
     }
+
+    @Test
+    void testUpdatePluginWithinProfileCompoundVersionTreatedAsLiteral() throws DomTripException {
+        // A compound expression such as ${revision}${changelist} must NOT be parsed as a
+        // single-property reference — isPropertyReference() returns false, so updateVersionElement
+        // must update the version element directly (literal branch) instead of doing property lookup.
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>com.example</groupId>
+                  <artifactId>test-project</artifactId>
+                  <version>1.0.0</version>
+                  <profiles>
+                    <profile>
+                      <id>release</id>
+                      <build>
+                        <plugins>
+                          <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-surefire-plugin</artifactId>
+                            <version>${revision}${changelist}</version>
+                          </plugin>
+                        </plugins>
+                      </build>
+                    </profile>
+                  </profiles>
+                </project>
+                """;
+        PomEditor editor = editorOf(pom);
+        Coordinates surefire = Coordinates.of("org.apache.maven.plugins", "maven-surefire-plugin", "3.2.0");
+
+        boolean updated = editor.plugins().forProfile("release").updatePlugin(false, surefire);
+        assertTrue(updated, "updatePlugin should succeed for compound version (literal branch)");
+
+        String xml = editor.toXml();
+        // The version element must be rewritten to the literal value
+        assertTrue(
+                xml.contains("<version>3.2.0</version>"),
+                "Compound version should be replaced by the literal new version");
+        // No property key derived from the compound expression must appear
+        assertFalse(xml.contains("revision}${changelist"), "Compound expression must not remain in the POM");
+    }
 }

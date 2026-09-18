@@ -2230,23 +2230,6 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Checks whether the given string is a single Maven-style property reference of the form {@code ${name}}.
-         *
-         * <p>Returns {@code false} for compound expressions (e.g. {@code ${a}-${b}}),
-         * interpolated strings (e.g. {@code ${version}-SNAPSHOT}), or null/empty values.</p>
-         *
-         * @param value the string to inspect
-         * @return {@code true} if {@code value} is a single property reference, {@code false} otherwise
-         * @since 1.1.0
-         */
-        private boolean isPropertyReference(String value) {
-            return value != null
-                    && value.startsWith("${")
-                    && value.endsWith("}")
-                    && value.indexOf('}') == value.length() - 1;
-        }
-
-        /**
          * Updates a version element, resolving property references relative to this Dependencies' context.
          *
          * <p>Shadows {@link PomEditor#updateVersionElement(Element, String)} so that profile-scoped
@@ -2257,10 +2240,7 @@ public class PomEditor extends AbstractMavenEditor {
             java.util.Optional<Element> version = parent.childElement(VERSION);
             if (version.isPresent()) {
                 String versionValue = version.get().textContent();
-                if (versionValue != null
-                        && versionValue.startsWith("${")
-                        && versionValue.endsWith("}")
-                        && versionValue.indexOf('}') == versionValue.length() - 1) {
+                if (isPropertyReference(versionValue)) {
                     String propertyKey = versionValue.substring(2, versionValue.length() - 1);
                     Element properties = root().childElement(PROPERTIES).orElse(null);
                     if (properties != null) {
@@ -2454,23 +2434,6 @@ public class PomEditor extends AbstractMavenEditor {
         }
 
         /**
-         * Finds a plugin element by artifact coordinates.
-         *
-         * @param plugins the plugins container element
-         * @param coordinates the artifact to find
-         * @return the plugin element, or null if not found
-         */
-        private Element findPlugin(Element plugins, Coordinates coordinates) {
-            if (plugins == null) {
-                return null;
-            }
-            return plugins.childElements(PLUGIN)
-                    .filter(coordinates.predicateGA())
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        /**
          * Updates a version element, resolving property references relative to this Plugins' context.
          *
          * <p>Shadows {@link PomEditor#updateVersionElement(Element, String)} so that profile-scoped
@@ -2481,10 +2444,7 @@ public class PomEditor extends AbstractMavenEditor {
             java.util.Optional<Element> version = parent.childElement(VERSION);
             if (version.isPresent()) {
                 String versionValue = version.get().textContent();
-                if (versionValue != null
-                        && versionValue.startsWith("${")
-                        && versionValue.endsWith("}")
-                        && versionValue.indexOf('}') == versionValue.length() - 1) {
+                if (isPropertyReference(versionValue)) {
                     String propertyKey = versionValue.substring(2, versionValue.length() - 1);
                     Element properties = root().childElement(PROPERTIES).orElse(null);
                     if (properties != null) {
@@ -2501,6 +2461,23 @@ public class PomEditor extends AbstractMavenEditor {
                 }
             }
             return false;
+        }
+
+        /**
+         * Finds a plugin element by artifact coordinates.
+         *
+         * @param plugins the plugins container element
+         * @param coordinates the artifact to find
+         * @return the plugin element, or null if not found
+         */
+        private Element findPlugin(Element plugins, Coordinates coordinates) {
+            if (plugins == null) {
+                return null;
+            }
+            return plugins.childElements(PLUGIN)
+                    .filter(coordinates.predicateGA())
+                    .findFirst()
+                    .orElse(null);
         }
 
         /**
@@ -3209,6 +3186,24 @@ public class PomEditor extends AbstractMavenEditor {
     }
 
     /**
+     * Returns {@code true} if {@code value} is a single property reference of the form
+     * {@code ${key}} with no nested or compound expressions.
+     *
+     * <p>Compound expressions such as {@code ${revision}${changelist}} contain more than one
+     * closing brace, so {@code indexOf('}')} returns a position before the last character and
+     * this method correctly returns {@code false}.</p>
+     *
+     * @param value the string to inspect
+     * @return {@code true} if {@code value} is a single property reference, {@code false} otherwise
+     */
+    private static boolean isPropertyReference(String value) {
+        return value != null
+                && value.startsWith("${")
+                && value.endsWith("}")
+                && value.indexOf('}') == value.length() - 1;
+    }
+
+    /**
      * Updates a version element, handling property references intelligently.
      *
      * <p>If the version element contains a property reference (${property.name}), this method
@@ -3224,10 +3219,7 @@ public class PomEditor extends AbstractMavenEditor {
         if (version.isPresent()) {
             String versionValue = version.orElseThrow(() -> new NoSuchElementException("No value present"))
                     .textContent();
-            if (versionValue != null
-                    && versionValue.startsWith("${")
-                    && versionValue.endsWith("}")
-                    && versionValue.indexOf('}') == versionValue.length() - 1) {
+            if (isPropertyReference(versionValue)) {
                 String propertyKey = versionValue.substring(2, versionValue.length() - 1);
                 return properties().updateProperty(false, propertyKey, newVersion);
             } else {

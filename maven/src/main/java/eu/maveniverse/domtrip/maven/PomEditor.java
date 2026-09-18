@@ -2257,7 +2257,10 @@ public class PomEditor extends AbstractMavenEditor {
             java.util.Optional<Element> version = parent.childElement(VERSION);
             if (version.isPresent()) {
                 String versionValue = version.get().textContent();
-                if (versionValue != null && versionValue.startsWith("${") && versionValue.endsWith("}")) {
+                if (versionValue != null
+                        && versionValue.startsWith("${")
+                        && versionValue.endsWith("}")
+                        && versionValue.indexOf('}') == versionValue.length() - 1) {
                     String propertyKey = versionValue.substring(2, versionValue.length() - 1);
                     Element properties = root().childElement(PROPERTIES).orElse(null);
                     if (properties != null) {
@@ -2334,7 +2337,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param profileId the {@code <id>} of the profile to scope to
          * @return a Plugins instance scoped to the profile
          * @throws DomTripException if the profile is not found
-         * @since 1.2.0
+         * @since 1.8.0
          */
         public Plugins forProfile(String profileId) {
             if (profileId == null || profileId.trim().isEmpty()) {
@@ -2364,7 +2367,7 @@ public class PomEditor extends AbstractMavenEditor {
          *
          * @param profileElement the {@code <profile>} element to scope to
          * @return a Plugins instance scoped to the profile
-         * @since 1.2.0
+         * @since 1.8.0
          */
         public Plugins forProfile(Element profileElement) {
             if (profileElement == null) {
@@ -2478,7 +2481,10 @@ public class PomEditor extends AbstractMavenEditor {
             java.util.Optional<Element> version = parent.childElement(VERSION);
             if (version.isPresent()) {
                 String versionValue = version.get().textContent();
-                if (versionValue != null && versionValue.startsWith("${") && versionValue.endsWith("}")) {
+                if (versionValue != null
+                        && versionValue.startsWith("${")
+                        && versionValue.endsWith("}")
+                        && versionValue.indexOf('}') == versionValue.length() - 1) {
                     String propertyKey = versionValue.substring(2, versionValue.length() - 1);
                     Element properties = root().childElement(PROPERTIES).orElse(null);
                     if (properties != null) {
@@ -3218,7 +3224,10 @@ public class PomEditor extends AbstractMavenEditor {
         if (version.isPresent()) {
             String versionValue = version.orElseThrow(() -> new NoSuchElementException("No value present"))
                     .textContent();
-            if (versionValue != null && versionValue.startsWith("${") && versionValue.endsWith("}")) {
+            if (versionValue != null
+                    && versionValue.startsWith("${")
+                    && versionValue.endsWith("}")
+                    && versionValue.indexOf('}') == versionValue.length() - 1) {
                 String propertyKey = versionValue.substring(2, versionValue.length() - 1);
                 return properties().updateProperty(false, propertyKey, newVersion);
             } else {

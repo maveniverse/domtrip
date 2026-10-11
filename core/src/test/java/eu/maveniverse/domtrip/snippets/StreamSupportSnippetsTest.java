@@ -218,8 +218,12 @@ class StreamSupportSnippetsTest extends BaseSnippetTest {
                 .findFirst();
 
         // Check if any runtime dependencies exist
-        boolean hasRuntime = dependencies.childElements("dependency").anyMatch(dep -> "runtime"
-                .equals(dep.childElement("scope").map(Element::textContent).orElse("")));
+        boolean hasRuntime = dependencies
+                .childElements("dependency")
+                .anyMatch(dep -> "runtime"
+                        .equals(dep.childElement("scope")
+                                .map(Element::textContent)
+                                .orElse("")));
         // END: stream-aggregation
 
         Assertions.assertEquals(2, testCount);

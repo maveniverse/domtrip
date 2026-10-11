@@ -1941,8 +1941,9 @@ public class PomEditor extends AbstractMavenEditor {
             if (dependencies == null) {
                 return;
             }
-            dependencies.childElements(DEPENDENCY).forEach(dep -> dep.childElement(VERSION)
-                    .ifPresent(version -> {
+            dependencies
+                    .childElements(DEPENDENCY)
+                    .forEach(dep -> dep.childElement(VERSION).ifPresent(version -> {
                         String v = version.textContent();
                         if (isPropertyReference(v)) {
                             String propName = v.substring(2, v.length() - 1);

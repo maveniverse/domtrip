@@ -2627,6 +2627,339 @@ public class PomEditor extends AbstractMavenEditor {
             }
             return false;
         }
+
+        /**
+         * Returns a {@link PluginDependencies} editor scoped to the {@code <dependencies>} of a plugin
+         * in {@code project/build/plugins/plugin[GA]}.
+         *
+         * <p>Use this to manage the runtime dependencies declared inside a plugin element, i.e. the
+         * entries under {@code <plugin><dependencies><dependency>}.</p>
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates plugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", null);
+         * Coordinates dep = Coordinates.of("asm", "asm", "3.3.1");
+         * editor.plugins().pluginDependencies(false, plugin).updateDependency(true, dep);
+         * }</pre>
+         *
+         * @param upsert      when true, the plugin (and its {@code <dependencies>} container) will be
+         *                    created if absent; when false, returns {@code null} if the plugin does not exist
+         * @param plugin      the plugin coordinates matched by GA
+         * @return a {@link PluginDependencies} scoped to that plugin, or {@code null} if the plugin does
+         *         not exist and {@code upsert} is {@code false}
+         * @throws DomTripException if an error occurs during editing
+         * @since 1.9.0
+         */
+        public PluginDependencies pluginDependencies(boolean upsert, Coordinates plugin) throws DomTripException {
+            return pluginDependenciesFor(upsert, plugin, false);
+        }
+
+        /**
+         * Returns a {@link PluginDependencies} editor scoped to the {@code <dependencies>} of a managed
+         * plugin in {@code project/build/pluginManagement/plugins/plugin[GA]}.
+         *
+         * <p>Use this to manage the runtime dependencies declared inside a managed plugin element.</p>
+         *
+         * <h4>Example:</h4>
+         * <pre>{@code
+         * PomEditor editor = new PomEditor(document);
+         * Coordinates plugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", null);
+         * Coordinates dep = Coordinates.of("asm", "asm", "3.3.1");
+         * editor.plugins().managedPluginDependencies(false, plugin).updateDependency(true, dep);
+         * }</pre>
+         *
+         * @param upsert      when true, the managed plugin (and its {@code <dependencies>} container) will
+         *                    be created if absent; when false, returns {@code null} if the plugin does not exist
+         * @param plugin      the plugin coordinates matched by GA
+         * @return a {@link PluginDependencies} scoped to that managed plugin, or {@code null} if the plugin
+         *         does not exist and {@code upsert} is {@code false}
+         * @throws DomTripException if an error occurs during editing
+         * @since 1.9.0
+         */
+        public PluginDependencies managedPluginDependencies(boolean upsert, Coordinates plugin)
+                throws DomTripException {
+            return pluginDependenciesFor(upsert, plugin, true);
+        }
+
+        private PluginDependencies pluginDependenciesFor(boolean upsert, Coordinates plugin, boolean managed)
+                throws DomTripException {
+            Element plugins = managed ? findOrCreateManagedPlugins(upsert) : findOrCreatePlugins(upsert);
+            if (plugins == null) {
+                return null;
+            }
+            Element pluginEl = findPlugin(plugins, plugin);
+            if (pluginEl == null) {
+                if (!upsert) {
+                    return null;
+                }
+                pluginEl = addPlugin(plugins, plugin.groupId(), plugin.artifactId(), plugin.version());
+            }
+            return new PluginDependencies(pluginEl);
+        }
+
+        /**
+         * Returns a {@link PluginDependencies} editor scoped to the {@code <dependencies>} of the given
+         * pre-resolved {@code <plugin>} element.
+         *
+         * <p>Use this when you have already located the plugin element via
+         * {@link #findPlugin(Element, Coordinates)} or similar means.</p>
+         *
+         * @param pluginElement the {@code <plugin>} element to scope to
+         * @return a {@link PluginDependencies} scoped to that plugin element
+         * @throws DomTripException if {@code pluginElement} is {@code null} or is not a {@code <plugin>}
+         * @since 1.9.0
+         */
+        public PluginDependencies pluginDependencies(Element pluginElement) throws DomTripException {
+            if (pluginElement == null) {
+                throw new DomTripException("Plugin element cannot be null");
+            }
+            if (!PLUGIN.equals(pluginElement.name())) {
+                throw new DomTripException("Expected a <plugin> element but got <" + pluginElement.name() + ">");
+            }
+            return new PluginDependencies(pluginElement);
+        }
+
+        /**
+         * Provides high-level CRUD operations for the {@code <dependencies>} section inside a
+         * {@code <plugin>} or {@code <pluginManagement>/<plugins>/<plugin>} element.
+         *
+         * <p>Instances are obtained via {@link Plugins#pluginDependencies(boolean, Coordinates)},
+         * {@link Plugins#managedPluginDependencies(boolean, Coordinates)}, or
+         * {@link Plugins#pluginDependencies(Element)}.</p>
+         *
+         * @since 1.9.0
+         */
+        public class PluginDependencies {
+
+            private final Element pluginElement;
+
+            PluginDependencies(Element pluginElement) {
+                this.pluginElement = pluginElement;
+            }
+
+            /**
+             * Returns the {@code <plugin>} element this instance is scoped to.
+             *
+             * @return the plugin element
+             */
+            public Element pluginElement() {
+                return pluginElement;
+            }
+
+            private Element findOrCreateDependencies(boolean upsert) throws DomTripException {
+                Element deps = findChildElement(pluginElement, DEPENDENCIES);
+                if (deps == null && upsert) {
+                    deps = insertMavenElement(pluginElement, DEPENDENCIES);
+                }
+                return deps;
+            }
+
+            private Element findDependency(Element dependencies, Coordinates coordinates) {
+                return dependencies
+                        .childElements(DEPENDENCY)
+                        .filter(coordinates.predicateGATC())
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            /**
+             * Adds a new {@code <dependency>} element to the plugin's dependency list.
+             *
+             * <p>The {@code <dependencies>} container will be created if absent.</p>
+             *
+             * @param groupId    the dependency groupId
+             * @param artifactId the dependency artifactId
+             * @param version    the dependency version (can be {@code null})
+             * @return the newly created dependency element
+             * @throws DomTripException if the element cannot be added
+             */
+            public Element addDependency(String groupId, String artifactId, String version) throws DomTripException {
+                Element deps = findOrCreateDependencies(true);
+                Element dep = insertMavenElement(deps, DEPENDENCY);
+                insertMavenElement(dep, GROUP_ID, groupId);
+                insertMavenElement(dep, ARTIFACT_ID, artifactId);
+                if (version != null && !version.trim().isEmpty()) {
+                    insertMavenElement(dep, VERSION, version);
+                }
+                return dep;
+            }
+
+            /**
+             * Updates or inserts a dependency in the plugin's {@code <dependencies>} list.
+             *
+             * <p>If the dependency already exists (matched by GA), its version is updated in place.
+             * If {@code upsert} is {@code true} and the dependency does not exist, it is created.</p>
+             *
+             * @param upsert      whether to create the dependency if it does not exist
+             * @param coordinates the artifact coordinates
+             * @return {@code true} if the dependency was updated or created, {@code false} otherwise
+             * @throws DomTripException if an error occurs during editing
+             */
+            public boolean updateDependency(boolean upsert, Coordinates coordinates) throws DomTripException {
+                Element deps = findOrCreateDependencies(upsert);
+                if (deps == null) {
+                    return false;
+                }
+                Element dep = findDependency(deps, coordinates);
+                if (dep == null && upsert) {
+                    addDependency(coordinates.groupId(), coordinates.artifactId(), coordinates.version());
+                    return true;
+                }
+                if (dep != null) {
+                    java.util.Optional<Element> version = dep.childElement(VERSION);
+                    if (version.isPresent()) {
+                        version.get().textContent(coordinates.version());
+                        return true;
+                    }
+                    if (upsert && coordinates.version() != null) {
+                        insertMavenElement(dep, VERSION, coordinates.version());
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            /**
+             * Removes a dependency from the plugin's {@code <dependencies>} list.
+             *
+             * @param coordinates the artifact to remove (matched by GA)
+             * @return {@code true} if the dependency was removed, {@code false} if it did not exist
+             * @throws DomTripException if an error occurs during editing
+             */
+            public boolean deleteDependency(Coordinates coordinates) throws DomTripException {
+                Element deps = findOrCreateDependencies(false);
+                if (deps == null) {
+                    return false;
+                }
+                Element dep = findDependency(deps, coordinates);
+                if (dep != null) {
+                    return removeElement(dep);
+                }
+                return false;
+            }
+
+            /**
+             * Removes only the {@code <version>} element from a plugin dependency, leaving the rest
+             * of the dependency element intact.
+             *
+             * @param coordinates the artifact to target (matched by GA)
+             * @return {@code true} if the version was removed, {@code false} if the dependency or its
+             *         version did not exist
+             * @throws DomTripException if an error occurs during editing
+             */
+            public boolean deleteDependencyVersion(Coordinates coordinates) throws DomTripException {
+                Element deps = findOrCreateDependencies(false);
+                if (deps == null) {
+                    return false;
+                }
+                Element dep = findDependency(deps, coordinates);
+                if (dep != null) {
+                    return dep.childElement(VERSION).filter(dep::removeChild).isPresent();
+                }
+                return false;
+            }
+
+            /**
+             * Adds an exclusion to a plugin dependency. Creates the {@code <exclusions>} wrapper if absent.
+             *
+             * @param dependency the dependency to target (matched by GATC; groupId and artifactId required)
+             * @param exclusion  the artifact to exclude (groupId and artifactId are required)
+             * @return the newly created exclusion element
+             * @throws DomTripException if either coordinates are invalid, the dependencies container does
+             *                         not exist, or the dependency is not found
+             */
+            public Element addExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
+                requireGA(dependency);
+                requireGA(exclusion);
+                Element deps = findOrCreateDependencies(false);
+                if (deps == null) {
+                    throw new DomTripException("No dependencies element found in plugin");
+                }
+                Element dep = findDependency(deps, dependency);
+                if (dep == null) {
+                    throw new DomTripException("Plugin dependency not found: " + dependency.toGA());
+                }
+                Element exclusions = findChildElement(dep, EXCLUSIONS);
+                if (exclusions == null) {
+                    exclusions = insertMavenElement(dep, EXCLUSIONS);
+                }
+                Element exclEl = insertMavenElement(exclusions, EXCLUSION);
+                insertMavenElement(exclEl, GROUP_ID, exclusion.groupId());
+                insertMavenElement(exclEl, ARTIFACT_ID, exclusion.artifactId());
+                return exclEl;
+            }
+
+            private void requireGA(Coordinates coordinates) {
+                if (coordinates.groupId() == null
+                        || coordinates.groupId().trim().isEmpty()) {
+                    throw new DomTripException("Coordinates groupId cannot be null or empty");
+                }
+                if (coordinates.artifactId() == null
+                        || coordinates.artifactId().trim().isEmpty()) {
+                    throw new DomTripException("Coordinates artifactId cannot be null or empty");
+                }
+            }
+
+            /**
+             * Removes an exclusion from a plugin dependency.
+             *
+             * @param dependency the dependency to target (matched by GATC)
+             * @param exclusion  the exclusion to remove (matched by GA)
+             * @return {@code true} if the exclusion was removed, {@code false} if not found
+             * @throws DomTripException if an error occurs during editing
+             */
+            public boolean deleteExclusion(Coordinates dependency, Coordinates exclusion) throws DomTripException {
+                Element deps = findOrCreateDependencies(false);
+                if (deps == null) {
+                    return false;
+                }
+                Element dep = findDependency(deps, dependency);
+                if (dep == null) {
+                    return false;
+                }
+                Element exclusions = findChildElement(dep, EXCLUSIONS);
+                if (exclusions == null) {
+                    return false;
+                }
+                Element excl = exclusions
+                        .childElements(EXCLUSION)
+                        .filter(exclusion.predicateGA())
+                        .findFirst()
+                        .orElse(null);
+                if (excl != null) {
+                    removeElement(excl);
+                    if (!exclusions.childElements(EXCLUSION).findFirst().isPresent()) {
+                        removeElement(exclusions);
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            /**
+             * Checks whether a plugin dependency has a specific exclusion.
+             *
+             * @param dependency the dependency to target (matched by GATC)
+             * @param exclusion  the exclusion to look for (matched by GA)
+             * @return {@code true} if the exclusion exists, {@code false} otherwise
+             */
+            public boolean hasExclusion(Coordinates dependency, Coordinates exclusion) {
+                Element deps = findChildElement(pluginElement, DEPENDENCIES);
+                if (deps == null) {
+                    return false;
+                }
+                Element dep = findDependency(deps, dependency);
+                if (dep == null) {
+                    return false;
+                }
+                Element exclusions = findChildElement(dep, EXCLUSIONS);
+                if (exclusions == null) {
+                    return false;
+                }
+                return exclusions.childElements(EXCLUSION).anyMatch(exclusion.predicateGA());
+            }
+        }
     }
 
     public Plugins plugins() {

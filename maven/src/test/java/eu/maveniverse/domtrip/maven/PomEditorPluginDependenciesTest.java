@@ -781,4 +781,27 @@ class PomEditorPluginDependenciesTest {
         assertTrue(xml.contains("<profiles>"));
         assertTrue(xml.contains("<groupId>asm</groupId>"));
     }
+
+    @Test
+    void testPluginDependencies_implicitGroupId() throws DomTripException {
+        // Plugin declared without <groupId> — relies on default org.apache.maven.plugins
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project>
+                  <build>
+                    <plugins>
+                      <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.11.0</version>
+                      </plugin>
+                    </plugins>
+                  </build>
+                </project>
+                """;
+        PomEditor editor = editorOf(pom);
+        // Lookup by full GA must still find the plugin (predicatePluginGA handles missing <groupId>)
+        Coordinates plugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", null);
+        PomEditor.Plugins.PluginDependencies pd = editor.plugins().pluginDependencies(false, plugin);
+        assertNotNull(pd, "Plugin without <groupId> should be found via predicatePluginGA()");
+    }
 }

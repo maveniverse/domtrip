@@ -2649,7 +2649,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @return a {@link PluginDependencies} scoped to that plugin, or {@code null} if the plugin does
          *         not exist and {@code upsert} is {@code false}
          * @throws DomTripException if an error occurs during editing
-         * @since 1.8.1
+         * @since 1.9.0
          */
         public PluginDependencies pluginDependencies(boolean upsert, Coordinates plugin) throws DomTripException {
             return pluginDependenciesFor(upsert, plugin, false);
@@ -2675,7 +2675,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @return a {@link PluginDependencies} scoped to that managed plugin, or {@code null} if the plugin
          *         does not exist and {@code upsert} is {@code false}
          * @throws DomTripException if an error occurs during editing
-         * @since 1.8.1
+         * @since 1.9.0
          */
         public PluginDependencies managedPluginDependencies(boolean upsert, Coordinates plugin)
                 throws DomTripException {
@@ -2708,7 +2708,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param pluginElement the {@code <plugin>} element to scope to
          * @return a {@link PluginDependencies} scoped to that plugin element
          * @throws DomTripException if {@code pluginElement} is {@code null} or is not a {@code <plugin>}
-         * @since 1.8.1
+         * @since 1.9.0
          */
         public PluginDependencies pluginDependencies(Element pluginElement) throws DomTripException {
             if (pluginElement == null) {
@@ -2728,7 +2728,7 @@ public class PomEditor extends AbstractMavenEditor {
          * {@link Plugins#managedPluginDependencies(boolean, Coordinates)}, or
          * {@link Plugins#pluginDependencies(Element)}.</p>
          *
-         * @since 1.8.1
+         * @since 1.9.0
          */
         public class PluginDependencies {
 

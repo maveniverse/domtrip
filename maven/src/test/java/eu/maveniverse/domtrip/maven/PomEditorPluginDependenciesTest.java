@@ -232,6 +232,34 @@ class PomEditorPluginDependenciesTest {
     }
 
     @Test
+    void testPluginDependencies_updateUpsertPreservesTypeAndClassifier() throws DomTripException {
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project>
+                  <build>
+                    <plugins>
+                      <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.11.0</version>
+                      </plugin>
+                    </plugins>
+                  </build>
+                </project>
+                """;
+        PomEditor editor = editorOf(pom);
+        Coordinates plugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", null);
+        Coordinates dep = Coordinates.of("org.example", "my-lib", "1.0.0", "tests", "test-jar");
+
+        boolean updated = editor.plugins().pluginDependencies(true, plugin).updateDependency(true, dep);
+        assertTrue(updated);
+
+        String xml = editor.toXml();
+        assertTrue(xml.contains("<classifier>tests</classifier>"), "classifier must be preserved");
+        assertTrue(xml.contains("<type>test-jar</type>"), "type must be preserved");
+    }
+
+    @Test
     void testPluginDependencies_delete() throws DomTripException {
         String pom = """
                 <?xml version="1.0" encoding="UTF-8"?>
@@ -263,6 +291,41 @@ class PomEditorPluginDependenciesTest {
 
         String xml = editor.toXml();
         assertFalse(xml.contains("<artifactId>asm</artifactId>"));
+        assertFalse(xml.contains("<dependencies/>"), "empty <dependencies> container should be removed");
+    }
+
+    @Test
+    void testPluginDependencies_deleteLastDependencyRemovesContainer() throws DomTripException {
+        String pom = """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project>
+                  <build>
+                    <plugins>
+                      <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.11.0</version>
+                        <dependencies>
+                          <dependency>
+                            <groupId>asm</groupId>
+                            <artifactId>asm</artifactId>
+                            <version>3.3.1</version>
+                          </dependency>
+                        </dependencies>
+                      </plugin>
+                    </plugins>
+                  </build>
+                </project>
+                """;
+        PomEditor editor = editorOf(pom);
+        Coordinates plugin = Coordinates.of("org.apache.maven.plugins", "maven-compiler-plugin", null);
+        Coordinates dep = Coordinates.of("asm", "asm", null);
+
+        boolean deleted = editor.plugins().pluginDependencies(false, plugin).deleteDependency(dep);
+        assertTrue(deleted);
+
+        String xml = editor.toXml();
+        assertFalse(xml.contains("<dependencies"), "empty <dependencies> container must be removed");
     }
 
     @Test
@@ -475,14 +538,16 @@ class PomEditorPluginDependenciesTest {
     @Test
     void testPluginDependencies_elementOverload_nullThrows() {
         PomEditor editor = new PomEditor(Document.of("<project/>"));
-        assertThrows(DomTripException.class, () -> editor.plugins().pluginDependencies((Element) null));
+        PomEditor.Plugins plugins = editor.plugins();
+        assertThrows(DomTripException.class, () -> plugins.pluginDependencies((Element) null));
     }
 
     @Test
     void testPluginDependencies_elementOverload_wrongElementThrows() throws DomTripException {
         PomEditor editor = new PomEditor(Document.of("<project/>"));
         Element root = editor.root();
-        assertThrows(DomTripException.class, () -> editor.plugins().pluginDependencies(root));
+        PomEditor.Plugins plugins = editor.plugins();
+        assertThrows(DomTripException.class, () -> plugins.pluginDependencies(root));
     }
 
     // -------------------------------------------------------------------------
@@ -557,7 +622,10 @@ class PomEditorPluginDependenciesTest {
 
         assertThrows(
                 DomTripException.class,
-                () -> editor.plugins().pluginDependencies(false, plugin).addExclusion(nonexistent, excl),
+                () -> {
+                    PomEditor.Plugins.PluginDependencies pd = editor.plugins().pluginDependencies(false, plugin);
+                    pd.addExclusion(nonexistent, excl);
+                },
                 "addExclusion should throw when the dependency is not found");
     }
 
@@ -584,7 +652,10 @@ class PomEditorPluginDependenciesTest {
 
         assertThrows(
                 DomTripException.class,
-                () -> editor.plugins().pluginDependencies(false, plugin).addExclusion(dep, excl),
+                () -> {
+                    PomEditor.Plugins.PluginDependencies pd = editor.plugins().pluginDependencies(false, plugin);
+                    pd.addExclusion(dep, excl);
+                },
                 "addExclusion should throw when there is no <dependencies> container");
     }
 

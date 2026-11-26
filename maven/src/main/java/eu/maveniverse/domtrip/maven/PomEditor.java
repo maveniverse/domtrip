@@ -2476,7 +2476,7 @@ public class PomEditor extends AbstractMavenEditor {
                 return null;
             }
             return plugins.childElements(PLUGIN)
-                    .filter(coordinates.predicateGA())
+                    .filter(coordinates.predicatePluginGA())
                     .findFirst()
                     .orElse(null);
         }
@@ -2649,7 +2649,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @return a {@link PluginDependencies} scoped to that plugin, or {@code null} if the plugin does
          *         not exist and {@code upsert} is {@code false}
          * @throws DomTripException if an error occurs during editing
-         * @since 1.9.0
+         * @since 1.8.1
          */
         public PluginDependencies pluginDependencies(boolean upsert, Coordinates plugin) throws DomTripException {
             return pluginDependenciesFor(upsert, plugin, false);
@@ -2675,7 +2675,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @return a {@link PluginDependencies} scoped to that managed plugin, or {@code null} if the plugin
          *         does not exist and {@code upsert} is {@code false}
          * @throws DomTripException if an error occurs during editing
-         * @since 1.9.0
+         * @since 1.8.1
          */
         public PluginDependencies managedPluginDependencies(boolean upsert, Coordinates plugin)
                 throws DomTripException {
@@ -2708,7 +2708,7 @@ public class PomEditor extends AbstractMavenEditor {
          * @param pluginElement the {@code <plugin>} element to scope to
          * @return a {@link PluginDependencies} scoped to that plugin element
          * @throws DomTripException if {@code pluginElement} is {@code null} or is not a {@code <plugin>}
-         * @since 1.9.0
+         * @since 1.8.1
          */
         public PluginDependencies pluginDependencies(Element pluginElement) throws DomTripException {
             if (pluginElement == null) {
@@ -2728,7 +2728,7 @@ public class PomEditor extends AbstractMavenEditor {
          * {@link Plugins#managedPluginDependencies(boolean, Coordinates)}, or
          * {@link Plugins#pluginDependencies(Element)}.</p>
          *
-         * @since 1.9.0
+         * @since 1.8.1
          */
         public class PluginDependencies {
 
@@ -2768,6 +2768,9 @@ public class PomEditor extends AbstractMavenEditor {
              *
              * <p>The {@code <dependencies>} container will be created if absent.</p>
              *
+             * <p><strong>Note:</strong> this method does not check for duplicates. Use
+             * {@link #updateDependency(boolean, Coordinates)} for idempotent operations.</p>
+             *
              * @param groupId    the dependency groupId
              * @param artifactId the dependency artifactId
              * @param version    the dependency version (can be {@code null})
@@ -2788,7 +2791,7 @@ public class PomEditor extends AbstractMavenEditor {
             /**
              * Updates or inserts a dependency in the plugin's {@code <dependencies>} list.
              *
-             * <p>If the dependency already exists (matched by GA), its version is updated in place.
+             * <p>If the dependency already exists (matched by GATC), its version is updated in place.
              * If {@code upsert} is {@code true} and the dependency does not exist, it is created.</p>
              *
              * @param upsert      whether to create the dependency if it does not exist
@@ -2803,7 +2806,13 @@ public class PomEditor extends AbstractMavenEditor {
                 }
                 Element dep = findDependency(deps, coordinates);
                 if (dep == null && upsert) {
-                    addDependency(coordinates.groupId(), coordinates.artifactId(), coordinates.version());
+                    dep = addDependency(coordinates.groupId(), coordinates.artifactId(), coordinates.version());
+                    if (coordinates.type() != null && !"jar".equals(coordinates.type())) {
+                        insertMavenElement(dep, TYPE, coordinates.type());
+                    }
+                    if (coordinates.classifier() != null) {
+                        insertMavenElement(dep, CLASSIFIER, coordinates.classifier());
+                    }
                     return true;
                 }
                 if (dep != null) {
@@ -2823,7 +2832,7 @@ public class PomEditor extends AbstractMavenEditor {
             /**
              * Removes a dependency from the plugin's {@code <dependencies>} list.
              *
-             * @param coordinates the artifact to remove (matched by GA)
+             * @param coordinates the artifact to remove (matched by GATC)
              * @return {@code true} if the dependency was removed, {@code false} if it did not exist
              * @throws DomTripException if an error occurs during editing
              */
@@ -2834,7 +2843,11 @@ public class PomEditor extends AbstractMavenEditor {
                 }
                 Element dep = findDependency(deps, coordinates);
                 if (dep != null) {
-                    return removeElement(dep);
+                    boolean removed = removeElement(dep);
+                    if (removed && !deps.childElements(DEPENDENCY).findFirst().isPresent()) {
+                        removeElement(deps);
+                    }
+                    return removed;
                 }
                 return false;
             }
@@ -2843,7 +2856,7 @@ public class PomEditor extends AbstractMavenEditor {
              * Removes only the {@code <version>} element from a plugin dependency, leaving the rest
              * of the dependency element intact.
              *
-             * @param coordinates the artifact to target (matched by GA)
+             * @param coordinates the artifact to target (matched by GATC)
              * @return {@code true} if the version was removed, {@code false} if the dependency or its
              *         version did not exist
              * @throws DomTripException if an error occurs during editing
@@ -2855,7 +2868,10 @@ public class PomEditor extends AbstractMavenEditor {
                 }
                 Element dep = findDependency(deps, coordinates);
                 if (dep != null) {
-                    return dep.childElement(VERSION).filter(dep::removeChild).isPresent();
+                    java.util.Optional<Element> ver = dep.childElement(VERSION);
+                    if (ver.isPresent()) {
+                        return removeElement(ver.get());
+                    }
                 }
                 return false;
             }
